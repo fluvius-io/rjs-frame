@@ -1,8 +1,8 @@
 import React from 'react';
-import { PageModuleBase, PageModuleProps } from 'rjs-frame';
+import { PageModule, PageModuleProps } from 'rjs-frame';
 import { Link } from 'react-router-dom';
 
-export class HomeHeader extends PageModuleBase {
+export class HomeHeader extends PageModule {
   protected renderContent(): React.ReactNode {
     return (
       <header className="home-header">

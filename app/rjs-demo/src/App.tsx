@@ -1,30 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { HomeLayout } from './layouts/HomeLayout';
-import { AdminLayout } from './layouts/AdminLayout';
-import { HomeHeader } from './modules/home/HomeHeader';
-import { AdminHeader } from './modules/admin/AdminHeader';
+import { HomePage, AdminPage } from './pages';
 
 const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <HomeLayout>
-              <HomeHeader slotId="header" />
-            </HomeLayout>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <AdminLayout>
-              <AdminHeader slotId="header" />
-            </AdminLayout>
-          }
-        />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </Router>
   );

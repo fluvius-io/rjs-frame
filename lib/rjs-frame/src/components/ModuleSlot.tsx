@@ -81,6 +81,7 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
 
     return (
       <div className="module-slot" data-slot-id={fullSlotId}>
+        <h1>fullSlotId: {fullSlotId}</h1>
         {this.props.children}
       </div>
     );

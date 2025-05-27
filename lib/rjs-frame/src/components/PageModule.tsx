@@ -15,7 +15,7 @@ export interface PageModuleProps {
   data?: Record<string, any>;
 }
 
-export abstract class PageModuleBase extends React.Component<PageModuleProps, PageModuleState> {
+export abstract class PageModule extends React.Component<PageModuleProps, PageModuleState> {
   private moduleId: string;
   private unsubscribe: (() => void) | null = null;
 
@@ -104,6 +104,3 @@ export abstract class PageModuleBase extends React.Component<PageModuleProps, Pa
 
   protected abstract renderContent(): React.ReactNode;
 }
-
-// Export the base class
-export { PageModuleBase as PageModule }; 
