@@ -2,11 +2,15 @@
   "name": "rjs-frame",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/index.js",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
+    "build": "vite build",
+    "dev": "vite build --watch"
   },
   "dependencies": {
     "@nanostores/react": "^0.7.1",
@@ -16,12 +20,20 @@
     "short-uuid": "^4.2.2"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.0",
-    "typescript": "^5.0.0"
+    "@vitejs/plugin-react": "^4.2.1",
+    "css-loader": "^6.10.0",
+    "sass": "^1.71.1",
+    "sass-loader": "^14.1.1",
+    "style-loader": "^3.3.4",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vite-plugin-dts": "^3.7.3"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
-} 
+}

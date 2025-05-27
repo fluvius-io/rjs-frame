@@ -12,19 +12,17 @@ const App: React.FC = () => {
         <Route
           path="/"
           element={
-            <>
-              <HomeLayout />
-              <HomeHeader />
-            </>
+            <HomeLayout>
+              <HomeHeader slotId="header" />
+            </HomeLayout>
           }
         />
         <Route
           path="/admin"
           element={
-            <>
-              <AdminLayout />
-              <AdminHeader />
-            </>
+            <AdminLayout>
+              <AdminHeader slotId="header" />
+            </AdminLayout>
           }
         />
       </Routes>
@@ -32,4 +30,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;

@@ -3,17 +3,7 @@ import { PageModuleBase, PageModuleProps } from 'rjs-frame';
 import { Link } from 'react-router-dom';
 
 export class HomeHeader extends PageModuleBase {
-  constructor(props: PageModuleProps) {
-    super({
-      ...props,
-      slotId: 'header',
-      data: {
-        name: 'HomeHeader'
-      }
-    });
-  }
-
-  render() {
+  protected renderContent(): React.ReactNode {
     return (
       <header className="home-header">
         <h1>Welcome to RJS Demo</h1>

@@ -8,11 +8,15 @@ export interface PageLayoutContextType {
 
 export const PageLayoutContext = React.createContext<PageLayoutContextType | null>(null);
 
-export abstract class PageLayout extends React.Component {
+export interface PageLayoutProps {
+  children?: React.ReactNode;
+}
+
+export abstract class PageLayout extends React.Component<PageLayoutProps> {
   static displayName = 'PageLayout';
   private layoutId: string;
 
-  constructor(props: {}) {
+  constructor(props: PageLayoutProps) {
     super(props);
     this.layoutId = this.constructor.name;
   }
@@ -39,6 +43,7 @@ export abstract class PageLayout extends React.Component {
     return (
       <PageLayoutContext.Provider value={{ layoutId: this.layoutId }}>
         {this.renderContent()}
+        {this.props.children}
       </PageLayoutContext.Provider>
     );
   }

@@ -1,38 +1,34 @@
-import React, { useContext } from 'react';
-import { useStore } from '@nanostores/react';
+import React from 'react';
+import { atom } from 'nanostores';
 import { pageStore, updatePageState } from '../store/pageStore';
 import { generate } from 'short-uuid';
 import { PageLayoutContext } from './PageLayout';
 
-// Base props that all PageModules must implement internally
-export interface PageModuleBaseProps {
+export interface PageModuleState {
+  pageState: any;
+  initialized: boolean;
+}
+
+export interface PageModuleProps {
   slotId: string;
   children?: React.ReactNode;
   data?: Record<string, any>;
-  pageState?: any;
 }
 
-// Props that are required when instantiating a PageModule
-export interface PageModuleInstanceProps {
-  children?: React.ReactNode;
-  data?: Record<string, any>;
-}
-
-export class PageModuleBase<P extends PageModuleInstanceProps = PageModuleInstanceProps> extends React.Component<P & Partial<PageModuleBaseProps>> {
+export abstract class PageModuleBase extends React.Component<PageModuleProps, PageModuleState> {
   private moduleId: string;
-  private slotId: string;
+  private unsubscribe: (() => void) | null = null;
+
   static contextType = PageLayoutContext;
   context!: React.ContextType<typeof PageLayoutContext>;
 
-  constructor(props: P & Partial<PageModuleBaseProps>) {
+  constructor(props: PageModuleProps) {
     super(props);
     this.moduleId = generate();
-    // Subclasses must set this in their constructor
-    this.slotId = '';
-  }
-
-  protected setSlotId(slotId: string) {
-    this.slotId = slotId;
+    this.state = { 
+      pageState: pageStore.get(),
+      initialized: false
+    };
   }
 
   componentDidMount() {
@@ -41,13 +37,18 @@ export class PageModuleBase<P extends PageModuleInstanceProps = PageModuleInstan
       return;
     }
 
-    if (!this.slotId) {
-      console.error('PageModule must set slotId in constructor');
+    if (!this.props.slotId) {
+      console.error('PageModule must be provided a slotId prop');
       return;
     }
 
     const { data = {} } = this.props;
-    const fullSlotId = `${this.context.layoutId}:${this.slotId}`;
+    const fullSlotId = `${this.context.layoutId}:${this.props.slotId}`;
+
+    // Subscribe to store changes
+    this.unsubscribe = pageStore.subscribe((value) => {
+      this.setState({ pageState: value });
+    });
 
     updatePageState((state) => ({
       ...state,
@@ -59,12 +60,18 @@ export class PageModuleBase<P extends PageModuleInstanceProps = PageModuleInstan
         }
       }
     }));
+
+    this.setState({ initialized: true });
   }
 
   componentWillUnmount() {
-    if (!this.context || !this.slotId) return;
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
 
-    const fullSlotId = `${this.context.layoutId}:${this.slotId}`;
+    if (!this.context || !this.props.slotId) return;
+
+    const fullSlotId = `${this.context.layoutId}:${this.props.slotId}`;
 
     updatePageState((state) => {
       const { [fullSlotId]: _, ...rest } = state.priv_state;
@@ -76,32 +83,27 @@ export class PageModuleBase<P extends PageModuleInstanceProps = PageModuleInstan
   }
 
   render() {
-    if (!this.context || !this.slotId) {
-      console.error('PageModule must be rendered within a PageLayout and have a slotId');
+    if (!this.context) {
+      console.error('PageModule must be rendered within a PageLayout');
       return null;
     }
 
-    const { children, pageState } = this.props;
-    const fullSlotId = `${this.context.layoutId}:${this.slotId}`;
-    const currentModule = pageState?.priv_state?.[fullSlotId];
+    if (!this.state.initialized) {
+      return null;
+    }
+
+    const fullSlotId = `${this.context.layoutId}:${this.props.slotId}`;
+    const currentModule = this.state.pageState?.priv_state?.[fullSlotId];
 
     if (!currentModule) {
       return null;
     }
 
-    return <>{children}</>;
+    return this.renderContent();
   }
+
+  protected abstract renderContent(): React.ReactNode;
 }
 
-// HOC to inject page state
-export const PageModule = (props: PageModuleInstanceProps) => {
-  const pageState = useStore(pageStore);
-  const layoutContext = useContext(PageLayoutContext);
-
-  if (!layoutContext) {
-    console.error('PageModule must be rendered within a PageLayout');
-    return null;
-  }
-
-  return <PageModuleBase {...props} pageState={pageState} />;
-}; 
+// Export the base class
+export { PageModuleBase as PageModule }; 
