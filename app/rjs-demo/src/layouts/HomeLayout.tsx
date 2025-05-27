@@ -1,4 +1,3 @@
-import React from 'react';
 import { PageLayout, ModuleSlot } from 'rjs-frame';
 
 export class HomeLayout extends PageLayout {
