@@ -4,7 +4,7 @@ import { HomeHeader } from '../modules/home/HomeHeader';
 
 const HomePage: React.FC = () => {
   let modulesMount = {
-    header: <HomeHeader key="header" slotId="header" />
+    header: <HomeHeader key="header" />
   }
   return (
     <GenericLayout modules={modulesMount}>

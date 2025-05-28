@@ -3,6 +3,7 @@ import { atom } from 'nanostores';
 import { pageStore, updatePageState } from '../store/pageStore';
 import { generate } from 'short-uuid';
 import { PageLayoutContext } from './PageLayout';
+import '../styles/ModuleSlot.scss';
 
 export interface PageModuleState {
   pageState: any;
@@ -75,12 +76,12 @@ export abstract class PageModule extends React.Component<PageModuleProps, PageMo
 
   render() {
     if (!this.context) {
-      console.error('PageModule must be rendered within a PageLayout');
-      return null;
+      return <div className="page-module page-module--error">
+        ERROR: PageModule must be rendered within a PageLayout: {this.moduleId}</div>;
     }
 
     if (!this.state.initialized) {
-      return null;
+      return <div className="page-module page-module--loading">Loading...</div>;
     }
 
     return this.renderContent();

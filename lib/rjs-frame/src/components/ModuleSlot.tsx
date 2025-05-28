@@ -54,7 +54,7 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     if (!this.context) {
       return (
         <div className="module-slot module-slot--error">
-          ModuleSlot must be rendered within a PageLayout
+          ERROR: ModuleSlot must be rendered within a PageLayout
         </div>
       );
     }
@@ -69,14 +69,13 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     let slotContent = this.context.pageModules[id];
     let hasSlotContent = !!slotContent && slotContent.length > 0;
     let renderContent = hasSlotContent ? slotContent : this.props.children;
-    let renderSource = hasSlotContent ? 'Slot Content Mount' : 'Children';
 
     if(!renderContent && !allowEmpty) {
       return null;
     }
 
     return (
-      <div className="module-slot" data-slot-id={fullSlotId} style={{border: '1px solid green', margin: '5px', padding: '10px'}}>
+      <div className="module-slot" data-slot-id={fullSlotId}>
         {renderContent}
       </div>
     );

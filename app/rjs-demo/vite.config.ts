@@ -26,6 +26,7 @@ export default defineConfig({
         api: 'modern',
         sassOptions: {
           outputStyle: 'compressed',
+          includePaths: ['node_modules', '../lib/rjs-frame/src/styles'],
         },
         additionalData: `@import "@/styles/variables.scss";`,
       },
