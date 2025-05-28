@@ -3,10 +3,17 @@ export type AuthState = {
   profile?: Record<string, any>;
   organization?: Record<string, any>;
 };
+export type SlotStatusValues = 'active' | 'hidden' | 'starting' | 'error';
 
-export type PageArgument = [string, string];
+export type PageParams = Record<string, string>;
 
 export type LinkState = Record<string, string>;
+
+export type SlotParams = Record<string, string>;
+
+export type SlotStatus = {
+  [key: string]: SlotStatusValues;
+};
 
 export type VarsState = {
   _id: string;
@@ -20,13 +27,16 @@ export type PrivateState = {
   };
 };
 
+
 export interface PageState {
   name: string;
   time: string;
-  args: PageArgument[];
-  link_state: LinkState;
-  vars_state: VarsState;
-  priv_state: PrivateState;
+  pageParams: PageParams;
+  linkParams: LinkState;
+  slotParams: SlotParams;
+  slotStatus: SlotStatus;
+  pageState: VarsState;
+  privState: PrivateState;
   auth: AuthState;
   other: Record<string, any>;
 } 

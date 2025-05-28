@@ -1,6 +1,4 @@
 import React from 'react';
-import { useStore } from '@nanostores/react';
-import { pageStore } from '../store/pageStore';
 
 export interface PageLayoutContextType {
   layoutId: string;
@@ -67,19 +65,15 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
   abstract renderContent(): React.ReactNode;
 
   render() {
+    const contextValue: PageLayoutContextType = {
+      layoutId: this.layoutId,
+      pageModules: this.modules
+    };
+
     return (
-      <PageLayoutContext.Provider value={{ layoutId: this.layoutId, pageModules: this.modules}}>
+      <PageLayoutContext.Provider value={contextValue}>
         {this.renderContent()}
       </PageLayoutContext.Provider>
     );
   }
-}
-
-export const withPageState = <P extends object>(
-  WrappedComponent: React.ComponentType<P>
-) => {
-  return function WithPageStateComponent(props: P) {
-    const pageState = useStore(pageStore);
-    return <WrappedComponent {...props} pageState={pageState} />;
-  };
-}; 
+} 

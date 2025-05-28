@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { GenericLayout } from '../layouts/GenericLayout';
 import { AdminHeader } from '../modules/admin/AdminHeader';
 import { FilterModule } from '../modules/FilterModule';
-import { setPageName } from 'rjs-frame/src/store/pageStore';
+import { setPageName } from 'rjs-frame';
+import { ArgumentsModule } from '@/modules/ArgumentsModule';
 
 const AdminPage: React.FC = () => {
   useEffect(() => {
@@ -10,7 +11,8 @@ const AdminPage: React.FC = () => {
   }, []);
 
   let modulesMount = {
-    header: <AdminHeader key="header" />
+    header: <AdminHeader key="header" />,
+    sidebar: <ArgumentsModule />,
   }
 
   return (<>

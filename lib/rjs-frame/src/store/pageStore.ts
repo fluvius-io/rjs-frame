@@ -1,132 +1,146 @@
 import { atom } from 'nanostores';
-import { generate } from 'short-uuid';
-import { PageState, PageArgument } from '../types/PageState';
+import type { PageState, PageParams, SlotParams, SlotStatus, SlotStatusValues } from '../types/PageState';
 
-const createInitialState = (): PageState => ({
+// Initialize page store with default values
+const initialState: PageState = {
   name: '',
   time: new Date().toISOString(),
-  args: [],
-  link_state: {},
-  vars_state: {
-    _id: generate()
-  },
-  priv_state: {},
+  pageParams: {},
+  linkParams: {},
+  slotParams: {},
+  slotStatus: {},
+  pageState: { _id: '' },
+  privState: {},
   auth: {},
   other: {}
-});
+};
 
-// Parse URL parameters into link_state
+// Helper function to validate slot status
+export const setSlotStatus = (slotName: string, status: SlotStatusValues) => {
+  updatePageState(state => ({
+    ...state,
+    slotStatus: {
+      ...state.slotStatus,
+      [slotName]: status
+    }
+  }));
+};
+
+// Helper function to get slot status
+export const getSlotStatus = (slotName: string): SlotStatusValues => {
+  const state = pageStore.get();
+  return state.slotStatus[slotName] || 'active';
+};
+
+// Parse URL parameters into linkParams
 function parseUrlParams(): Record<string, string> {
   if (typeof window === 'undefined') return {};
-  const params = new URLSearchParams(window.location.search);
-  const result: Record<string, string> = {};
-  params.forEach((value, key) => {
-    result[key] = value;
+  const searchParams = new URLSearchParams(window.location.search);
+  const params: Record<string, string> = {};
+  searchParams.forEach((value, key) => {
+    params[key] = value;
   });
-  return result;
+  return params;
 }
 
-// Parse URL path into page name and args array
-function parseUrlPath(): { pageName: string; args: PageArgument[] } {
-  if (typeof window === 'undefined') return { pageName: '', args: [] };
+// Parse URL path into page name and slotParams
+function parseUrlPath(): { pageName: string; slotParams: SlotParams; slotStatus: SlotStatus } {
+  if (typeof window === 'undefined') return { pageName: '', slotParams: {}, slotStatus: {} };
+
   const path = window.location.pathname;
   const fragments = path.split('/').filter(Boolean);
-  
-  if (fragments.length === 0) return { pageName: '', args: [] };
-  
-  // First fragment is the page name
+
+  if (fragments.length === 0) return { pageName: '', slotParams: {}, slotStatus: {} as SlotStatus  };
+
   const pageName = fragments[0];
-  
-  // Rest are arguments
-  const args = fragments.slice(1).map(fragment => {
-    const [name, value] = fragment.split(':');
-    return [name, value || ''] as PageArgument;
+
+  // Parse remaining fragments into slotParams
+  const slotParams: SlotParams = {};
+  const slotStatus: SlotStatus = {};
+  fragments.slice(1).forEach(fragment => {
+    const [name = '', value = ''] = fragment.split(':');
+    if (name) slotParams[name] = value;
+    if (name) slotStatus[name] = (value == '-') ? 'hidden' : 'active';
   });
-  
-  return { pageName, args };
+
+  return { pageName, slotParams, slotStatus };
 }
 
-// Update URL with link_state
-function updateUrlParams(linkState: Record<string, any>) {
+// Update URL with linkParams
+function updateUrlParams(params: Record<string, string>) {
   if (typeof window === 'undefined') return;
-  const params = new URLSearchParams();
-  Object.entries(linkState).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      params.set(key, String(value));
-    }
+
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    searchParams.set(key, value);
   });
-  const search = params.toString() ? `?${params.toString()}` : '';
-  updateUrl(search);
+
+  const newSearch = searchParams.toString();
+  const newUrl = `${window.location.pathname}${newSearch ? '?' + newSearch : ''}`;
+  window.history.replaceState(null, '', newUrl);
 }
 
-// Update URL path with page name and args
-function updateUrlPath(pageName: string, args: PageArgument[]) {
+// Update URL path with page name and slotParams
+function updateUrlPath(pageName: string, params: SlotParams) {
   if (typeof window === 'undefined') return;
-  const fragments = args.map(([name, value]) => `${name}:${value}`);
-  const pathname = pageName 
-    ? `/${pageName}${fragments.length ? '/' + fragments.join('/') : ''}`
-    : '/';
-  updateUrl(undefined, pathname);
+  const fragments = Object.entries(params).map(([key, value]) => `${key}:${value}`);
+  const newPath = `/${pageName}${fragments.length ? '/' + fragments.join('/') : ''}`;
+  window.history.replaceState(null, '', newPath + window.location.search);
 }
 
-// Update URL without replacing unspecified parts
-function updateUrl(search?: string, pathname?: string) {
-  if (typeof window === 'undefined') return;
-  const currentUrl = new URL(window.location.href);
-  const newUrl = new URL(window.location.href);
-  
-  if (pathname !== undefined) newUrl.pathname = pathname;
-  if (search !== undefined) newUrl.search = search;
-  
-  if (currentUrl.toString() !== newUrl.toString()) {
-    window.history.replaceState({}, '', newUrl.toString());
-  }
-}
+// Create the page store
+export const pageStore = atom<PageState>(initialState);
 
-export const pageStore = atom<PageState>(createInitialState());
-
-export const updatePageState = (updater: (state: PageState) => PageState) => {
-  const newState = updater(pageStore.get());
+// Update page state
+export const updatePageState = (
+  updater: (state: PageState) => PageState
+) => {
+  const oldState = pageStore.get();
+  let newState = updater(oldState);
   pageStore.set(newState);
 };
 
-export const updateLinkState = (updates: Record<string, any>) => {
+// Update linkParams
+export const updateLinkParams = (newParams: Record<string, string>) => {
   updatePageState(state => ({
     ...state,
-    link_state: {
-      ...state.link_state,
-      ...updates
+    linkParams: {
+      ...state.linkParams,
+      ...newParams
     }
   }));
+  updateUrlParams(newParams);
 };
 
-export const updateArgs = (newArgs: PageArgument[]) => {
+// Update slotParams
+export const updateSlotParams = (newParams: SlotParams) => {
   updatePageState(state => ({
     ...state,
-    args: newArgs
+    slotParams: newParams
   }));
+  updateUrlPath(pageStore.get().name, newParams);
 };
 
+// Set page name while preserving existing parameters
 export const setPageName = (pageName: string) => {
+  const currentState = pageStore.get();
   updatePageState(state => ({
     ...state,
-    name: pageName
+    name: pageName,
+    slotParams: currentState.slotParams // Preserve existing slot parameters
   }));
+  updateUrlPath(pageName, currentState.slotParams);
 };
 
-export const resetPageState = () => {
-  pageStore.set(createInitialState());
-};
-
-// Listen to URL changes (for back/forward navigation)
-if (typeof window !== 'undefined') {
-  window.addEventListener('popstate', () => {
-    const { pageName, args } = parseUrlPath();
-    updatePageState(state => ({
-      ...state,
-      name: pageName,
-      args,
-      link_state: parseUrlParams()
-    }));
-  });
-} 
+// Initialize page state from URL
+export const initializeFromUrl = () => {
+  const { pageName, slotParams, slotStatus } = parseUrlPath();
+  updatePageState(state => ({
+    ...state,
+    name: pageName,
+    slotParams,
+    slotStatus,
+    linkParams: parseUrlParams(),
+    pageParams: {}  
+  }));
+}; 

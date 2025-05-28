@@ -1,12 +1,12 @@
-import React from 'react';
-import { atom } from 'nanostores';
-import { pageStore, updatePageState } from '../store/pageStore';
-import { generate } from 'short-uuid';
-import { PageLayoutContext } from './PageLayout';
-import '../styles/ModuleSlot.scss';
+import React from "react";
+import { pageStore, updatePageState } from "../store/pageStore";
+import { generate } from "short-uuid";
+import { PageLayoutContext } from "./PageLayout";
+import type { PageState } from "../types/PageState";
+import "../styles/ModuleSlot.scss";
 
 export interface PageModuleState {
-  pageState: any;
+  pageState: PageState;
   initialized: boolean;
 }
 
@@ -15,9 +15,13 @@ export interface PageModuleProps {
   data?: Record<string, any>;
 }
 
-export abstract class PageModule extends React.Component<PageModuleProps, PageModuleState> {
+export abstract class PageModule extends React.Component<
+  PageModuleProps,
+  PageModuleState
+> {
   private moduleId: string;
   private unsubscribe: (() => void) | null = null;
+  private mounted: boolean = false;
 
   static contextType = PageLayoutContext;
   declare readonly context: React.ContextType<typeof PageLayoutContext>;
@@ -25,65 +29,104 @@ export abstract class PageModule extends React.Component<PageModuleProps, PageMo
   constructor(props: PageModuleProps) {
     super(props);
     this.moduleId = generate();
-    this.state = { 
+    this.state = {
       pageState: pageStore.get(),
-      initialized: false
+      initialized: false,
     };
   }
 
   componentDidMount() {
+    this.mounted = true;
+
     if (!this.context) {
-      console.error('PageModule must be rendered within a PageLayout');
+      console.error("PageModule must be rendered within a PageLayout");
       return;
     }
 
     const { data = {} } = this.props;
 
-    // Subscribe to store changes
+    // Subscribe to store changes with selective updates
     this.unsubscribe = pageStore.subscribe((value) => {
-      this.setState({ pageState: value });
+      if (this.mounted) {
+        // Only update if relevant parts of the state changed
+        const prevState = this.state.pageState;
+        const shouldUpdate = this.shouldUpdateOnStateChange(prevState, value);
+
+        if (shouldUpdate) {
+          this.setState({ pageState: value });
+        }
+      }
     });
 
     updatePageState((state) => ({
       ...state,
-      priv_state: {
-        ...state.priv_state,
+      privState: {
+        ...state.privState,
         [this.moduleId]: {
           component: this.moduleId,
-          ...data
-        }
-      }
+          ...data,
+        },
+      },
     }));
 
     this.setState({ initialized: true });
   }
 
+  // Override this method in subclasses to customize when the module should re-render
+  protected shouldUpdateOnStateChange(prevState: PageState, newState: PageState): boolean {
+    // Default: update on any change to core state properties
+    return (
+      prevState.name !== newState.name ||
+      JSON.stringify(prevState.slotParams) !== JSON.stringify(newState.slotParams) ||
+      JSON.stringify(prevState.linkParams) !== JSON.stringify(newState.linkParams) ||
+      prevState.privState[this.moduleId] !== newState.privState[this.moduleId]
+    );
+  }
+
   componentWillUnmount() {
+    this.mounted = false;
+    
     if (this.unsubscribe) {
       this.unsubscribe();
+      this.unsubscribe = null;
     }
 
     if (!this.context) return;
 
     updatePageState((state) => {
-      const { [this.moduleId]: _, ...rest } = state.priv_state;
+      const { [this.moduleId]: _, ...rest } = state.privState;
       return {
         ...state,
-        priv_state: rest
+        privState: rest,
       };
     });
   }
 
+  // Getter for accessing current page state
+  protected get pageState(): PageState {
+    return this.state.pageState;
+  }
+
+  // Getter for accessing module-specific private state
+  protected get moduleState(): any {
+    return this.state.pageState.privState[this.moduleId] || {};
+  }
+
   render() {
     if (!this.context) {
-      return <div className="page-module page-module--error">
-        ERROR: PageModule must be rendered within a PageLayout: {this.moduleId}</div>;
+      return (
+        <div className="page-module page-module--error">
+          ERROR: PageModule must be rendered within a PageLayout:{" "}
+          {this.moduleId}
+        </div>
+      );
     }
 
     if (!this.state.initialized) {
       return <div className="page-module page-module--loading">Loading...</div>;
     }
-
+    
+    console.log('PageModule Render manual subscription', this.state.pageState);
     return this.renderContent();
   }
 

@@ -1,27 +1,34 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HomePage, AdminPage } from './pages';
-import { updatePageState } from 'rjs-frame/src/store/pageStore';
-import type { PageArgument } from 'rjs-frame/src/types/PageState';
+import { updatePageState } from 'rjs-frame';
+import type { SlotParams, SlotStatus } from 'rjs-frame';
 
-// Parse URL fragments into args array
-const parseFragments = (fragments: string): PageArgument[] => {
-  if (!fragments) return [];
-  const args = fragments.split('/').filter(Boolean).map(fragment => {
-    const [name, value] = fragment.split(':');
-    return [name || '', value || ''] as PageArgument;
+// Parse URL fragments into slotParams object
+const parseFragments = (fragments: string): { params: SlotParams; statuses: SlotStatus } => {
+  if (!fragments) return { params: {}, statuses: {} };
+  const params: SlotParams = {};
+  const statuses: SlotStatus = {};
+  fragments.split('/').filter(Boolean).forEach(fragment => {
+    // Split by either ':' or '!'
+    const splitIndex = fragment.includes(':') ? fragment.indexOf(':') : fragment.indexOf('!');
+    if (splitIndex === -1) return;
+    
+    const name = fragment.slice(0, splitIndex); // slot name    
+    const value = fragment.slice(splitIndex + 1); // slot status
+    if (name) params[name] = value || '';
+    if (name) statuses[name] = value == '-' ? 'hidden' : 'active'; // slot status
   });
-  return args;
+  return { params, statuses };
 };
 
-// Parse search params into link_state
+// Parse search params into linkParams
 const parseSearchParams = (search: string): Record<string, string> => {
-  const params = new URLSearchParams(search);
-  const result: Record<string, string> = {};
-  params.forEach((value, key) => {
-    result[key] = value;
+  const params: Record<string, string> = {};
+  new URLSearchParams(search).forEach((value, key) => {
+    params[key] = value;
   });
-  return result;
+  return params;
 };
 
 // Wrapper component to handle route changes and params
@@ -35,34 +42,30 @@ const RouteChangeHandler: React.FC<{ children: React.ReactNode }> = ({ children 
     
     // Get arguments from the remaining fragments
     const argFragments = fragments.slice(1).join('/');
-    const args = parseFragments(argFragments);
+    const { params: slotParams, statuses: slotStatus } = parseFragments(argFragments);
 
     // Update page state with route params and search params
     updatePageState(state => {
       const newState = {
         ...state,
         name: pageName,
-        args,
-        link_state: parseSearchParams(location.search)
+        slotParams,
+        slotStatus,
+        linkParams: parseSearchParams(location.search),
+        pageParams: {}
       };
       console.log('[RouteChangeHandler] Page state updated:', {
         path: location.pathname,
         page: pageName,
-        args,
-        linkState: parseSearchParams(location.search)
+        slotParams, 
+        slotStatus,
+        linkParams: parseSearchParams(location.search)
       });
       return newState;
     });
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   return <>{children}</>;
-};
-
-// Page wrapper to ensure proper route handling
-const PageWrapper: React.FC<{ element: React.ReactElement }> = ({ element }) => {
-  const params = useParams();
-  console.log('PageWrapper params:', params);
-  return element;
 };
 
 const App: React.FC = () => {
@@ -70,9 +73,9 @@ const App: React.FC = () => {
     <Router>
       <RouteChangeHandler>
         <Routes>
-          <Route path="/" element={<PageWrapper element={<HomePage />} />} />
-          <Route path="/home/*" element={<PageWrapper element={<HomePage />} />} />
-          <Route path="/admin/*" element={<PageWrapper element={<AdminPage />} />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home/*" element={<HomePage />} />
+          <Route path="/admin/*" element={<AdminPage />} />
         </Routes>
       </RouteChangeHandler>
     </Router>

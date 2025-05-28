@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageModule } from 'rjs-frame';
-import { useStore } from '@nanostores/react';
-import { atom } from 'nanostores';
-import { pageStore } from 'rjs-frame/src/store/pageStore';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import type { PageArgument, PageState } from 'rjs-frame/src/types/PageState';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { pageStore } from 'rjs-frame';
+import type { SlotParams, PageState } from 'rjs-frame';
 
 export class ArgumentsModule extends PageModule {
   renderContent() {
@@ -12,55 +10,118 @@ export class ArgumentsModule extends PageModule {
   }
 }
 
+interface EditingParam {
+  id: string; // Stable ID for React key
+  key: string;
+  value: string;
+}
+
 function ArgumentsContent() {
-  const typedPageStore = pageStore as unknown as ReturnType<typeof atom<PageState>>;
-  const page = useStore(typedPageStore);
-  const { args, name } = page;
+  const [pageState, setPageState] = useState<PageState>(pageStore.get());
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams<{ '*': string }>();
+  
+  // Use stable IDs for React keys to prevent input recreation
+  const [editingParams, setEditingParams] = useState<EditingParam[]>([]);
+  const nextIdRef = useRef(1);
+  const isUpdatingFromUrl = useRef(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
+  // Subscribe to pageStore manually
   useEffect(() => {
-    console.log('Current page state:', page);
-    console.log('Current URL params:', params);
-    console.log('Current location:', location);
-    console.log('Current args:', args);
-  }, [page, params, location, args]);
+    unsubscribeRef.current = pageStore.subscribe((value) => {
+      setPageState(value);
+    });
 
-  // Convert args array to URL fragments
-  const getUrlFromArgs = (newArgs: PageArgument[]): string => {
-    const fragments = newArgs
-      .filter(([name, value]) => name && value) // Filter out empty args
-      .map(([name, value]) => `${name}:${value}`)
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
+  }, []);
+
+  const { slotParams = {}, name = '' } = pageState || {};
+
+  // Convert slotParams to editing format with stable IDs
+  const convertToEditingParams = useCallback((params: SlotParams): EditingParam[] => {
+    return Object.entries(params).map(([key, value]) => ({
+      id: `param-${nextIdRef.current++}`,
+      key,
+      value
+    }));
+  }, []);
+
+  // Sync with URL params only when they actually change from external source
+  useEffect(() => {
+    if (!isUpdatingFromUrl.current) {
+      const newEditingParams = convertToEditingParams(slotParams);
+      setEditingParams(newEditingParams);
+    }
+    isUpdatingFromUrl.current = false;
+  }, [slotParams, convertToEditingParams]);
+
+  // Convert editing params back to SlotParams
+  const convertToSlotParams = useCallback((params: EditingParam[]): SlotParams => {
+    const result: SlotParams = {};
+    params.forEach(({ key, value }) => {
+      if (key && value) result[key] = value;
+    });
+    return result;
+  }, []);
+
+  // Convert slotParams object to URL fragments
+  const getUrlFromParams = useCallback((params: SlotParams = {}): string => {
+    const fragments = Object.entries(params)
+      .filter(([key, value]) => key && value) // Filter out empty params
+      .map(([key, value]) => `${key}:${value}`)
       .join('/');
     const newUrl = `/${name}${fragments ? '/' + fragments : ''}${location.search}`;
-    console.log('Generated URL:', newUrl, 'from args:', newArgs);
     return newUrl;
-  };
+  }, [name, location.search]);
 
-  const handleAddArgument = () => {
-    const newArgs = [
-      ...args,
-      [`arg${args.length + 1}`, `value${args.length + 1}`] as PageArgument
-    ];
-    console.log('Adding argument, new args:', newArgs);
-    const newUrl = getUrlFromArgs(newArgs);
-    console.log('Navigating to:', newUrl);
-    navigate(newUrl, { replace: false });
-  };
+  const commitChanges = useCallback((params: EditingParam[]) => {
+    const slotParamsToCommit = convertToSlotParams(params);
+    const newUrl = getUrlFromParams(slotParamsToCommit);
+    isUpdatingFromUrl.current = true;
+    navigate(newUrl, { replace: true });
+  }, [convertToSlotParams, getUrlFromParams, navigate]);
 
-  const handleUpdateArgument = (index: number, newName: string, newValue: string) => {
-    const newArgs = [...args];
-    newArgs[index] = [newName, newValue];
-    console.log('Updating argument at index', index, 'new args:', newArgs);
-    navigate(getUrlFromArgs(newArgs), { replace: true });
-  };
+  const handleAddArgument = useCallback(() => {
+    const newParam: EditingParam = {
+      id: `param-${nextIdRef.current++}`,
+      key: `arg${editingParams.length + 1}`,
+      value: `value${editingParams.length + 1}`
+    };
+    const newParams = [...editingParams, newParam];
+    setEditingParams(newParams);
+    commitChanges(newParams);
+  }, [editingParams, commitChanges]);
 
-  const handleRemoveArgument = (index: number) => {
-    const newArgs = args.filter((_, i) => i !== index);
-    console.log('Removing argument at index', index, 'new args:', newArgs);
-    navigate(getUrlFromArgs(newArgs), { replace: true });
-  };
+  const handleInputChange = useCallback((id: string, field: 'key' | 'value', newValue: string) => {
+    setEditingParams(prev => prev.map(param => 
+      param.id === id 
+        ? { ...param, [field]: newValue }
+        : param
+    ));
+  }, []);
+
+  const handleInputBlur = useCallback(() => {
+    // Commit changes when user finishes editing
+    commitChanges(editingParams);
+  }, [editingParams, commitChanges]);
+
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      commitChanges(editingParams);
+    }
+  }, [editingParams, commitChanges]);
+
+  const handleRemoveArgument = useCallback((id: string) => {
+    const newParams = editingParams.filter(param => param.id !== id);
+    setEditingParams(newParams);
+    commitChanges(newParams);
+  }, [editingParams, commitChanges]);
 
   return (
     <div className="arguments-module" style={{ padding: '20px', border: '1px solid #eee' }}>
@@ -71,27 +132,31 @@ function ArgumentsContent() {
           <label style={{ display: 'block', marginBottom: '5px' }}>Current Page: {name}</label>
         </div>
         <p>URL Format: /{name}/argument_name:value/...</p>
-        <p>Current Arguments: {args && args.length ? args.map(([n, v]) => `${n}:${v}`).join(', ') : 'none'}</p>
-        <p>Raw Args Data: {JSON.stringify(args)}</p>
-        <p>URL Params: {JSON.stringify(params)}</p>
+        <p>Current Arguments: {Object.entries(slotParams || {}).length ? 
+          Object.entries(slotParams || {}).map(([key, value]) => `${key}:${value}`).join(', ') : 
+          'none'}</p>
       </div>
 
       <div className="arguments-list" style={{ marginBottom: '20px' }}>
-        {args && args.map(([argName, argValue]: PageArgument, index: number) => (
-          <div key={index} style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
+        {editingParams.map((param) => (
+          <div key={param.id} style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
             <input
-              value={argName}
-              onChange={(e) => handleUpdateArgument(index, e.target.value, argValue)}
+              value={param.key}
+              onChange={(e) => handleInputChange(param.id, 'key', e.target.value)}
+              onBlur={handleInputBlur}
+              onKeyDown={handleInputKeyDown}
               placeholder="Argument name"
               style={{ width: '150px' }}
             />
             <input
-              value={argValue}
-              onChange={(e) => handleUpdateArgument(index, argName, e.target.value)}
+              value={param.value}
+              onChange={(e) => handleInputChange(param.id, 'value', e.target.value)}
+              onBlur={handleInputBlur}
+              onKeyDown={handleInputKeyDown}
               placeholder="Value"
               style={{ width: '150px' }}
             />
-            <button onClick={() => handleRemoveArgument(index)}>Remove</button>
+            <button onClick={() => handleRemoveArgument(param.id)}>Remove</button>
           </div>
         ))}
       </div>

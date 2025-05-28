@@ -1,10 +1,5 @@
-import React from 'react';
 import { PageModule } from 'rjs-frame';
-import { useStore } from '@nanostores/react';
-import { atom } from 'nanostores';
-import { pageStore } from 'rjs-frame/src/store/pageStore';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import type { PageState } from 'rjs-frame/src/types/PageState';
 
 export class FilterModule extends PageModule {
   renderContent() {
@@ -13,8 +8,6 @@ export class FilterModule extends PageModule {
 }
 
 function FilterContent() {
-  const typedPageStore = pageStore as unknown as ReturnType<typeof atom<PageState>>;
-  const page = useStore(typedPageStore);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
