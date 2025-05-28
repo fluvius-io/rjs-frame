@@ -2,21 +2,18 @@ import { atom } from 'nanostores';
 import { generate } from 'short-uuid';
 import { PageState, PageArgument } from '../types/PageState';
 
-const createInitialState = (): PageState => {
-  const { pageName, args } = parseUrlPath();
-  return {
-    name: pageName,
-    time: new Date().toISOString(),
-    args,
-    link_state: parseUrlParams(),
-    vars_state: {
-      _id: generate()
-    },
-    priv_state: {},
-    auth: {},
-    other: {}
-  };
-};
+const createInitialState = (): PageState => ({
+  name: '',
+  time: new Date().toISOString(),
+  args: [],
+  link_state: {},
+  vars_state: {
+    _id: generate()
+  },
+  priv_state: {},
+  auth: {},
+  other: {}
+});
 
 // Parse URL parameters into link_state
 function parseUrlParams(): Record<string, string> {
@@ -91,8 +88,6 @@ export const pageStore = atom<PageState>(createInitialState());
 export const updatePageState = (updater: (state: PageState) => PageState) => {
   const newState = updater(pageStore.get());
   pageStore.set(newState);
-  updateUrlParams(newState.link_state);
-  updateUrlPath(newState.name, newState.args);
 };
 
 export const updateLinkState = (updates: Record<string, any>) => {
@@ -121,8 +116,6 @@ export const setPageName = (pageName: string) => {
 
 export const resetPageState = () => {
   pageStore.set(createInitialState());
-  updateUrlParams({});
-  updateUrlPath('', []);
 };
 
 // Listen to URL changes (for back/forward navigation)

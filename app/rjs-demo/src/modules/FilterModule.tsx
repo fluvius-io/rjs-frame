@@ -2,11 +2,9 @@ import React from 'react';
 import { PageModule } from 'rjs-frame';
 import { useStore } from '@nanostores/react';
 import { atom } from 'nanostores';
-import { pageStore, updateLinkState } from 'rjs-frame/src/store/pageStore';
-import { PageState } from 'rjs-frame/src/types/PageState';
-
-// Cast pageStore to the correct type
-const typedPageStore = pageStore as unknown as ReturnType<typeof atom<PageState>>;
+import { pageStore } from 'rjs-frame/src/store/pageStore';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import type { PageState } from 'rjs-frame/src/types/PageState';
 
 export class FilterModule extends PageModule {
   renderContent() {
@@ -15,20 +13,33 @@ export class FilterModule extends PageModule {
 }
 
 function FilterContent() {
+  const typedPageStore = pageStore as unknown as ReturnType<typeof atom<PageState>>;
   const page = useStore(typedPageStore);
-  const { category = 'all', page: currentPage = '1' } = page.link_state;
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  const category = searchParams.get('category') || 'all';
+  const currentPage = searchParams.get('page') || '1';
 
   const categories = ['all', 'active', 'completed'];
 
+  const updateSearchParams = (updates: Record<string, string>) => {
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      newParams.set(key, value);
+    });
+    navigate(`${window.location.pathname}?${newParams.toString()}`);
+  };
+
   const handleCategoryChange = (newCategory: string) => {
-    updateLinkState({ 
+    updateSearchParams({ 
       category: newCategory,
       page: '1' // Reset to first page when changing category
     });
   };
 
   const handlePageChange = (newPage: number) => {
-    updateLinkState({ page: newPage.toString() });
+    updateSearchParams({ page: newPage.toString() });
   };
 
   return (
