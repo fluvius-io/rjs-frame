@@ -1,15 +1,15 @@
 import React from 'react';
-import { HomeLayout } from '../layouts/GenericLayout';
+import { GenericLayout } from '../layouts/GenericLayout';
 import { HomeHeader } from '../modules/home/HomeHeader';
 
 const HomePage: React.FC = () => {
-  let slotItems = {
-    header: [<HomeHeader key="header" slotId="header" />]
+  let modulesMount = {
+    header: <HomeHeader key="header" slotId="header" />
   }
   return (
-    <HomeLayout modules={slotItems}>
+    <GenericLayout modules={modulesMount}>
       <h3>Home Page</h3>
-    </HomeLayout>
+    </GenericLayout>
   );
 };
 

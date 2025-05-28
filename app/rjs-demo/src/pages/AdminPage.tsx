@@ -1,6 +1,6 @@
 import React from 'react';
 import { AdminHeader } from '../modules/admin/AdminHeader';
-import { HomeLayout } from '@/layouts/GenericLayout';
+import { GenericLayout } from '@/layouts/GenericLayout';
 
 const AdminPage: React.FC = () => {
   let modulesMount = {
@@ -8,9 +8,7 @@ const AdminPage: React.FC = () => {
   }
 
   return (
-    <HomeLayout modules={modulesMount}>
-      <h3>Admin Page</h3>
-    </HomeLayout>
+    <GenericLayout modules={modulesMount} />
   );
 };
 

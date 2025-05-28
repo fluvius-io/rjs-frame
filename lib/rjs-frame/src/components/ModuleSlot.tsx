@@ -10,7 +10,8 @@ export interface ModuleSlotState {
 }
 
 export interface ModuleSlotProps {
-  id: string;
+  id?: string;
+  allowEmpty?: boolean;
   children?: React.ReactNode;
 }
 
@@ -62,21 +63,21 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
       return <div className="module-slot module-slot--loading">{this.props.children}</div>;
     }
 
-    const { id } = this.props;
+    const { id = 'main', allowEmpty = false } = this.props;
     const fullSlotId = `${this.context.layoutId}:${id}`.toLowerCase();
 
-    let slotContent = id === 'main' ? [this.context.pageContent] : this.context.pageModules[id];
+    let slotContent = this.context.pageModules[id];
     let hasSlotContent = !!slotContent && slotContent.length > 0;
     let renderContent = hasSlotContent ? slotContent : this.props.children;
-    let renderSource = hasSlotContent ? 'Modules' : 'Children';
+    let renderSource = hasSlotContent ? 'Slot Content Mount' : 'Children';
+
+    if(!renderContent && !allowEmpty) {
+      return null;
+    }
 
     return (
       <div className="module-slot" data-slot-id={fullSlotId} style={{border: '1px solid green', margin: '5px', padding: '10px'}}>
-        <div style={{border: '1px solid orange', padding: '10px', margin: '5px'}}>
-        <h3>Module Slot: {fullSlotId}</h3>
-        <div>Source: {renderSource}</div>
         {renderContent}
-        </div>
       </div>
     );
   }

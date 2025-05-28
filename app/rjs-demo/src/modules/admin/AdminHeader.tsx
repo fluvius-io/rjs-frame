@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageModule, PageModuleProps } from 'rjs-frame';
+import { PageModule } from 'rjs-frame';
 import { Link } from 'react-router-dom';
 
 export class AdminHeader extends PageModule {

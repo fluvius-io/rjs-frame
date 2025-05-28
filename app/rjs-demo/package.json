@@ -2,6 +2,7 @@
   "name": "rjs-demo",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -18,7 +19,7 @@
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "sass": "^1.71.1",
+    "sass": "^1.72.0",
     "typescript": "^5.3.3",
     "vite": "^5.1.4"
   }

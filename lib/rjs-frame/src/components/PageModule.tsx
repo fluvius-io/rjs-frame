@@ -10,12 +10,11 @@ export interface PageModuleState {
 }
 
 export interface PageModuleProps {
-  slotId: string;
   children?: React.ReactNode;
   data?: Record<string, any>;
 }
 
-export abstract class PageModuleBase extends React.Component<PageModuleProps, PageModuleState> {
+export abstract class PageModule extends React.Component<PageModuleProps, PageModuleState> {
   private moduleId: string;
   private unsubscribe: (() => void) | null = null;
 
@@ -37,13 +36,7 @@ export abstract class PageModuleBase extends React.Component<PageModuleProps, Pa
       return;
     }
 
-    if (!this.props.slotId) {
-      console.error('PageModule must be provided a slotId prop');
-      return;
-    }
-
     const { data = {} } = this.props;
-    const fullSlotId = `${this.context.layoutId}:${this.props.slotId}`;
 
     // Subscribe to store changes
     this.unsubscribe = pageStore.subscribe((value) => {
@@ -54,7 +47,7 @@ export abstract class PageModuleBase extends React.Component<PageModuleProps, Pa
       ...state,
       priv_state: {
         ...state.priv_state,
-        [fullSlotId]: {
+        [this.moduleId]: {
           component: this.moduleId,
           ...data
         }
@@ -69,12 +62,10 @@ export abstract class PageModuleBase extends React.Component<PageModuleProps, Pa
       this.unsubscribe();
     }
 
-    if (!this.context || !this.props.slotId) return;
-
-    const fullSlotId = `${this.context.layoutId}:${this.props.slotId}`;
+    if (!this.context) return;
 
     updatePageState((state) => {
-      const { [fullSlotId]: _, ...rest } = state.priv_state;
+      const { [this.moduleId]: _, ...rest } = state.priv_state;
       return {
         ...state,
         priv_state: rest
@@ -92,18 +83,8 @@ export abstract class PageModuleBase extends React.Component<PageModuleProps, Pa
       return null;
     }
 
-    const fullSlotId = `${this.context.layoutId}:${this.props.slotId}`;
-    const currentModule = this.state.pageState?.priv_state?.[fullSlotId];
-
-    if (!currentModule) {
-      return null;
-    }
-
     return this.renderContent();
   }
 
   protected abstract renderContent(): React.ReactNode;
 }
-
-// Export the base class
-export { PageModuleBase as PageModule };

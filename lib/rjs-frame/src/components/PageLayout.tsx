@@ -5,7 +5,6 @@ import { pageStore } from '../store/pageStore';
 export interface PageLayoutContextType {
   layoutId: string;
   pageModules: Record<string, React.ReactNode[]>;
-  pageContent?: React.ReactNode;
 }
 
 export const PageLayoutContext = React.createContext<PageLayoutContextType | null>(null);
@@ -24,7 +23,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
   private layoutId: string;
 
   private normalizeModules(modules: Record<string, ModuleValue> = {}): Record<string, React.ReactNode[]> {
-    return Object.entries(modules).reduce((acc, [key, value]) => {
+    let pageModules = Object.entries(modules).reduce((acc, [key, value]) => {
       if(key === 'main') {
         throw new Error("'main' is a reserved module key for layout children. Please use a different key.");
       }
@@ -32,6 +31,12 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
       acc[key] = Array.isArray(value) ? value : [value];
       return acc;
     }, {} as Record<string, React.ReactNode[]>);
+
+    if (this.props.children) {
+      pageModules.main = [this.props.children];
+    }
+
+    return pageModules;
   }
 
   protected get modules() {
@@ -62,13 +67,8 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
   abstract renderContent(): React.ReactNode;
 
   render() {
-    const pageModules = this.modules;
-    if (this.props.children) {
-      pageModules.main = [this.props.children];
-    }
-
     return (
-      <PageLayoutContext.Provider value={{ layoutId: this.layoutId, pageModules, pageContent: this.props.children }}>
+      <PageLayoutContext.Provider value={{ layoutId: this.layoutId, pageModules: this.modules}}>
         {this.renderContent()}
       </PageLayoutContext.Provider>
     );
