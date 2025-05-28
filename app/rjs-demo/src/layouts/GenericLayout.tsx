@@ -1,5 +1,7 @@
 import React from 'react';
 import { PageLayout, ModuleSlot } from 'rjs-frame';
+import { FilterModule } from '../modules/FilterModule';
+import { ArgumentsModule } from '../modules/ArgumentsModule';
 
 export class GenericLayout extends PageLayout {
   renderContent() {
@@ -11,8 +13,12 @@ export class GenericLayout extends PageLayout {
           <div>Loading header...</div>
         </ModuleSlot>
         <div className="content">
-          <ModuleSlot id="sidebar" />
-          <ModuleSlot />
+          <ModuleSlot id="sidebar">
+            <ArgumentsModule />
+          </ModuleSlot>
+          <ModuleSlot>
+            <FilterModule />
+          </ModuleSlot>
         </div>
         <ModuleSlot id="footer" />
       </div>
