@@ -65,16 +65,17 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     const { id } = this.props;
     const fullSlotId = `${this.context.layoutId}:${id}`.toLowerCase();
 
-    let hasModules = !!this.context.pageModules[id] && this.context.pageModules[id].length > 0;
-    let content = hasModules ? this.context.pageModules[id] : this.props.children;
-    let contentSource = hasModules ? 'Modules' : 'Children';
+    let slotContent = id === 'main' ? [this.context.pageContent] : this.context.pageModules[id];
+    let hasSlotContent = !!slotContent && slotContent.length > 0;
+    let renderContent = hasSlotContent ? slotContent : this.props.children;
+    let renderSource = hasSlotContent ? 'Modules' : 'Children';
 
     return (
       <div className="module-slot" data-slot-id={fullSlotId} style={{border: '1px solid green', margin: '5px', padding: '10px'}}>
         <div style={{border: '1px solid orange', padding: '10px', margin: '5px'}}>
         <h3>Module Slot: {fullSlotId}</h3>
-        <div>Source: {contentSource}</div>
-        {content}
+        <div>Source: {renderSource}</div>
+        {renderContent}
         </div>
       </div>
     );

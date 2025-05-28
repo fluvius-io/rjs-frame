@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeLayout } from '../layouts/HomeLayout';
+import { HomeLayout } from '../layouts/GenericLayout';
 import { HomeHeader } from '../modules/home/HomeHeader';
 
 const HomePage: React.FC = () => {

@@ -13,7 +13,7 @@ export class HomeLayout extends PageLayout {
         <div className="content">
           <ModuleSlot id="sidebar" />
           <ModuleSlot id="main">
-            {this.props.children}
+            <div>Loading Main Content ...</div>
           </ModuleSlot>
         </div>
         <ModuleSlot id="footer" />

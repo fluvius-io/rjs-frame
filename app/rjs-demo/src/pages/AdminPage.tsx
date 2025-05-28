@@ -1,14 +1,14 @@
 import React from 'react';
 import { AdminHeader } from '../modules/admin/AdminHeader';
-import { HomeLayout } from '@/layouts/HomeLayout';
+import { HomeLayout } from '@/layouts/GenericLayout';
 
 const AdminPage: React.FC = () => {
-  let mountPoints = {
-    header: [<AdminHeader key="header" slotId="header" />]
+  let modulesMount = {
+    header: <AdminHeader key="header" slotId="header" />
   }
 
   return (
-    <HomeLayout modules={mountPoints}>
+    <HomeLayout modules={modulesMount}>
       <h3>Admin Page</h3>
     </HomeLayout>
   );
