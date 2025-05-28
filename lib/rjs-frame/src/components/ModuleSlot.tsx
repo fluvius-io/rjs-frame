@@ -11,7 +11,6 @@ export interface ModuleSlotState {
 
 export interface ModuleSlotProps {
   id: string;
-  fallback?: React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -19,7 +18,7 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
   private unsubscribe: (() => void) | null = null;
 
   static contextType = PageLayoutContext;
-  context!: React.ContextType<typeof PageLayoutContext>;
+  declare context: React.ContextType<typeof PageLayoutContext>;
 
   constructor(props: ModuleSlotProps) {
     super(props);
@@ -60,29 +59,23 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     }
 
     if (!this.state.initialized) {
-      return <div className="module-slot module-slot--loading"></div>;
+      return <div className="module-slot module-slot--loading">{this.props.children}</div>;
     }
 
-    const { id, fallback } = this.props;
-    const fullSlotId = `${this.context.layoutId}:${id}`;
-    const moduleData = this.state.pageState?.priv_state?.[fullSlotId];
+    const { id } = this.props;
+    const fullSlotId = `${this.context.layoutId}:${id}`.toLowerCase();
 
-    if (!moduleData && fallback) {
-      return (
-        <div className="module-slot module-slot--with-fallback">
-          {fallback}
-        </div>
-      );
-    }
-
-    if (!moduleData) {
-      return <div className="module-slot" data-slot-id={fullSlotId}></div>;
-    }
+    let hasModules = !!this.context.pageModules[id] && this.context.pageModules[id].length > 0;
+    let content = hasModules ? this.context.pageModules[id] : this.props.children;
+    let contentSource = hasModules ? 'Modules' : 'Children';
 
     return (
-      <div className="module-slot" data-slot-id={fullSlotId}>
-        <h1>fullSlotId: {fullSlotId}</h1>
-        {this.props.children}
+      <div className="module-slot" data-slot-id={fullSlotId} style={{border: '1px solid green', margin: '5px', padding: '10px'}}>
+        <div style={{border: '1px solid orange', padding: '10px', margin: '5px'}}>
+        <h3>Module Slot: {fullSlotId}</h3>
+        <div>Source: {contentSource}</div>
+        {content}
+        </div>
       </div>
     );
   }

@@ -7,7 +7,8 @@ export class AdminLayout extends PageLayout {
         <ModuleSlot id="header" fallback={<div>Loading admin header...</div>} />
         <div className="admin-content">
           <ModuleSlot id="nav" />
-          <ModuleSlot id="main" />
+          <ModuleSlot id="main">{this.props.children}
+          </ModuleSlot>
         </div>
       </div>
     );

@@ -15,12 +15,12 @@ export interface PageModuleProps {
   data?: Record<string, any>;
 }
 
-export abstract class PageModule extends React.Component<PageModuleProps, PageModuleState> {
+export abstract class PageModuleBase extends React.Component<PageModuleProps, PageModuleState> {
   private moduleId: string;
   private unsubscribe: (() => void) | null = null;
 
   static contextType = PageLayoutContext;
-  context!: React.ContextType<typeof PageLayoutContext>;
+  declare readonly context: React.ContextType<typeof PageLayoutContext>;
 
   constructor(props: PageModuleProps) {
     super(props);
@@ -104,3 +104,6 @@ export abstract class PageModule extends React.Component<PageModuleProps, PageMo
 
   protected abstract renderContent(): React.ReactNode;
 }
+
+// Export the base class
+export { PageModuleBase as PageModule };

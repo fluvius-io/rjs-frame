@@ -3,9 +3,12 @@ import { HomeLayout } from '../layouts/HomeLayout';
 import { HomeHeader } from '../modules/home/HomeHeader';
 
 const HomePage: React.FC = () => {
+  let slotItems = {
+    header: [<HomeHeader key="header" slotId="header" />]
+  }
   return (
-    <HomeLayout>
-      <HomeHeader slotId="header" />
+    <HomeLayout modules={slotItems}>
+      <h3>Home Page</h3>
     </HomeLayout>
   );
 };

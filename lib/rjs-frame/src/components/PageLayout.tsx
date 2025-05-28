@@ -1,20 +1,28 @@
 import React from 'react';
 import { useStore } from '@nanostores/react';
 import { pageStore } from '../store/pageStore';
+import { createPortal } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 export interface PageLayoutContextType {
   layoutId: string;
+  pageModules: Record<string, React.ReactNode[]>;
 }
 
 export const PageLayoutContext = React.createContext<PageLayoutContextType | null>(null);
 
 export interface PageLayoutProps {
   children?: React.ReactNode;
+  modules?: Record<string, React.ReactNode[]>;  
 }
 
 export abstract class PageLayout extends React.Component<PageLayoutProps> {
   static displayName = 'PageLayout';
   private layoutId: string;
+
+  protected get modules() {
+    return this.props.modules || {};
+  }
 
   constructor(props: PageLayoutProps) {
     super(props);
@@ -41,9 +49,8 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
 
   render() {
     return (
-      <PageLayoutContext.Provider value={{ layoutId: this.layoutId }}>
+      <PageLayoutContext.Provider value={{ layoutId: this.layoutId, pageModules: this.modules }}>
         {this.renderContent()}
-        {this.props.children}
       </PageLayoutContext.Provider>
     );
   }
