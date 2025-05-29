@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, useLocation } from 'react-router-dom';
 import { HomePage, AdminPage } from './pages';
 import { updatePageState } from 'rjs-frame';
 import { parseUrlFragments, parseSearchParams } from '../../../lib/rjs-frame/src/utils/urlUtils';
@@ -42,18 +42,40 @@ const RouteChangeHandler: React.FC<{ children: React.ReactNode }> = ({ children 
   return <>{children}</>;
 };
 
-const App: React.FC = () => {
-  return (
-    <Router>
+// Create router with future flags
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
       <RouteChangeHandler>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/home/*" element={<HomePage />} />
-          <Route path="/admin/*" element={<AdminPage />} />
-        </Routes>
+        <HomePage />
       </RouteChangeHandler>
-    </Router>
-  );
+    ),
+  },
+  {
+    path: "/home/*",
+    element: (
+      <RouteChangeHandler>
+        <HomePage />
+      </RouteChangeHandler>
+    ),
+  },
+  {
+    path: "/admin/*",
+    element: (
+      <RouteChangeHandler>
+        <AdminPage />
+      </RouteChangeHandler>
+    ),
+  },
+], {
+  future: {
+    v7_startTransition: true,
+  } as any, // Type assertion for v7 future flag
+});
+
+const App: React.FC = () => {
+  return <RouterProvider router={router} />;
 };
 
 export default App;
