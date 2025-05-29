@@ -129,13 +129,13 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
 
     return (
       <ModuleSlotContext.Provider value={slotContext}>
-        <div className="module-slot__status">{this.slotName} : {this.slotStatus} {this.slotParams ?  ' = ' + this.slotParams : ''}</div>
         <div className="module-slot" data-slot-name={this.slotName}>
           {renderingContent.map((content, index) => (
             <React.Fragment key={index}>
               {content}
             </React.Fragment>
           ))}
+        <div className="module-slot__status">{this.slotName} : {this.slotStatus} {this.slotParams ?  ' = ' + this.slotParams : ''}</div>
         </div>
       </ModuleSlotContext.Provider>
     );
