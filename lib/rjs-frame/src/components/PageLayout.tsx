@@ -1,11 +1,11 @@
 import React from 'react';
 
 export interface PageLayoutContextType {
-  layoutId: string;
+  layoutId?: string;
   pageModules: Record<string, React.ReactNode[]>;
 }
 
-export const PageLayoutContext = React.createContext<PageLayoutContextType | null>(null);
+export const PageLayoutContext = React.createContext<PageLayoutContextType>({pageModules: {}});
 
 type ModuleValue = React.ReactNode | React.ReactNode[];
 
@@ -17,7 +17,6 @@ export interface PageLayoutProps {
 const RESERVED_MODULE_KEYS = ['main'] as const;
 
 export abstract class PageLayout extends React.Component<PageLayoutProps> {
-  static displayName = 'PageLayout';
   private layoutId: string;
 
   private normalizeModules(modules: Record<string, ModuleValue> = {}): Record<string, React.ReactNode[]> {

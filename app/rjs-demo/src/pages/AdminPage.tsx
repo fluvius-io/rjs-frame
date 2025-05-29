@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
-import { GenericLayout } from '../layouts/GenericLayout';
 import { AdminHeader } from '../modules/admin/AdminHeader';
-import { FilterModule } from '../modules/FilterModule';
-import { setPageName } from 'rjs-frame';
 import { ArgumentsModule } from '@/modules/ArgumentsModule';
+import { FilterModule } from '../modules/FilterModule';
+import { GenericLayout } from '../layouts/GenericLayout';
+import { setPageName } from 'rjs-frame';
+import { useEffect } from 'react';
+
 
 const AdminPage: React.FC = () => {
   useEffect(() => {
@@ -11,7 +12,7 @@ const AdminPage: React.FC = () => {
   }, []);
 
   let modulesMount = {
-    header: <AdminHeader key="header" />,
+    header: <AdminHeader />,
     sidebar: <ArgumentsModule />,
   }
 

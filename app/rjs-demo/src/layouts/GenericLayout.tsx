@@ -10,10 +10,12 @@ export class GenericLayout extends PageLayout {
           <div>Loading header...</div>000
         </ModuleSlot>
         <div className="content">
-          <ModuleSlot name="sidebar" />
+          <ModuleSlot name="sidebar" allowToggle={true}>
+            <div>Sidebar is Empty</div>
+          </ModuleSlot>
           <ModuleSlot />
         </div>
-        <ModuleSlot name="footer" />
+        <ModuleSlot name="footer" allowToggle={true} />
       </div>
     </>);
   }

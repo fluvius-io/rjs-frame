@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageModule } from 'rjs-frame';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { pageStore } from 'rjs-frame';
+import { buildUrlPath } from '../../../../lib/rjs-frame/src/utils/urlUtils';
 import type { SlotParams, PageState } from 'rjs-frame';
 
 export class ArgumentsModule extends PageModule {
@@ -65,18 +66,14 @@ function ArgumentsContent() {
   const convertToSlotParams = useCallback((params: EditingParam[]): SlotParams => {
     const result: SlotParams = {};
     params.forEach(({ key, value }) => {
-      if (key && value) result[key] = value;
+      if (key) result[key] = value;
     });
     return result;
   }, []);
 
-  // Convert slotParams object to URL fragments
+  // Convert slotParams object to URL using framework utilities
   const getUrlFromParams = useCallback((params: SlotParams = {}): string => {
-    const fragments = Object.entries(params)
-      .filter(([key, value]) => key && value) // Filter out empty params
-      .map(([key, value]) => `${key}:${value}`)
-      .join('/');
-    const newUrl = `/${name}${fragments ? '/' + fragments : ''}${location.search}`;
+    const newUrl = buildUrlPath(name, params) + location.search;
     return newUrl;
   }, [name, location.search]);
 

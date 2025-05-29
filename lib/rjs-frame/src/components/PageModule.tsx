@@ -2,6 +2,7 @@ import React from "react";
 import { pageStore, updatePageState } from "../store/pageStore";
 import { generate } from "short-uuid";
 import { PageLayoutContext } from "./PageLayout";
+import { ModuleSlotContext, type ModuleSlotContextType } from "./ModuleSlot";
 import type { PageState } from "../types/PageState";
 import "../styles/ModuleSlot.scss";
 
@@ -22,6 +23,8 @@ export abstract class PageModule extends React.Component<
   private moduleId: string;
   private unsubscribe: (() => void) | null = null;
   private mounted: boolean = false;
+  private moduleName: string;
+  private slotContextRef = React.createRef<ModuleSlotContextType>();
 
   static contextType = PageLayoutContext;
   declare readonly context: React.ContextType<typeof PageLayoutContext>;
@@ -29,6 +32,7 @@ export abstract class PageModule extends React.Component<
   constructor(props: PageModuleProps) {
     super(props);
     this.moduleId = generate();
+    this.moduleName = this.constructor.name;
     this.state = {
       pageState: pageStore.get(),
       initialized: false,
@@ -47,14 +51,8 @@ export abstract class PageModule extends React.Component<
 
     // Subscribe to store changes with selective updates
     this.unsubscribe = pageStore.subscribe((value) => {
-      if (this.mounted) {
-        // Only update if relevant parts of the state changed
-        const prevState = this.state.pageState;
-        const shouldUpdate = this.shouldUpdateOnStateChange(prevState, value);
-
-        if (shouldUpdate) {
-          this.setState({ pageState: value });
-        }
+      if (this.mounted && this.shouldUpdate(value)) {
+        this.setState({ pageState: value });
       }
     });
 
@@ -73,7 +71,9 @@ export abstract class PageModule extends React.Component<
   }
 
   // Override this method in subclasses to customize when the module should re-render
-  protected shouldUpdateOnStateChange(prevState: PageState, newState: PageState): boolean {
+  protected shouldUpdate(newState: PageState): boolean {
+    const prevState = this.state.pageState;
+    
     // Default: update on any change to core state properties
     return (
       prevState.name !== newState.name ||
@@ -112,12 +112,17 @@ export abstract class PageModule extends React.Component<
     return this.state.pageState.privState[this.moduleId] || {};
   }
 
+  // Getter for accessing slot context
+  protected get slotContext(): ModuleSlotContextType | null {
+    return this.slotContextRef.current;
+  }
+
   render() {
     if (!this.context) {
       return (
         <div className="page-module page-module--error">
           ERROR: PageModule must be rendered within a PageLayout:{" "}
-          {this.moduleId}
+          {this.moduleName}
         </div>
       );
     }
@@ -125,9 +130,29 @@ export abstract class PageModule extends React.Component<
     if (!this.state.initialized) {
       return <div className="page-module page-module--loading">Loading...</div>;
     }
-    
-    console.log('PageModule Render manual subscription', this.state.pageState);
-    return this.renderContent();
+        
+    return (
+      <ModuleSlotContext.Consumer>
+        {(slotContext) => {
+          // Store the context in ref for access in other methods
+          (this.slotContextRef as any).current = slotContext;
+          
+          if (!slotContext) {
+            return (
+              <div className="page-module page-module--error">
+                ERROR: PageModule must be rendered within a ModuleSlot
+              </div>
+            );
+          }
+
+          return (
+            <div className="page-module" data-slot-name={this.slotContext ? this.slotContext.name : 'main'}>
+              {this.renderContent()}
+            </div>
+          );
+        }}
+      </ModuleSlotContext.Consumer>
+    );
   }
 
   protected abstract renderContent(): React.ReactNode;

@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { GenericLayout } from '../layouts/GenericLayout';
 import { HomeHeader } from '../modules/home/HomeHeader';
-import { pageStore, setPageName } from 'rjs-frame';
+import { setPageName } from 'rjs-frame';
+import { ArgumentsModule } from '@/modules/ArgumentsModule';
 
 const HomePage: React.FC = () => {
   useEffect(() => {
-    // Get current state to preserve slot parameters
-    const currentState = pageStore.get();
     setPageName('home');
   }, []);
 
@@ -16,6 +15,7 @@ const HomePage: React.FC = () => {
   return (
     <GenericLayout modules={modulesMount}>
       <h3>Home Page</h3>
+      <ArgumentsModule />
     </GenericLayout>
   );
 };
