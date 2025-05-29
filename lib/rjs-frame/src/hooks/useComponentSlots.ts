@@ -11,13 +11,13 @@ interface SlotRenderProps {
 }
 
 type SlotRenderer = (props: SlotRenderProps) => React.ReactElement;
-type HasSlotItem = (slot: string) => boolean;
+type HasSlotItemFn = (slot: string) => boolean;
 
 type SlotMap = {
   [key: string]: React.ReactElement[];
 };
 
-const useComponentSlots = (componentChildren: React.ReactNode): [SlotRenderer, HasSlotItem] => {
+const useComponentSlots = (componentChildren: React.ReactNode): [SlotRenderer, HasSlotItemFn] => {
   const slots = React.Children.toArray(componentChildren).reduce<SlotMap>(
     (collector, child) => {
       if (React.isValidElement(child)) {
@@ -39,7 +39,7 @@ const useComponentSlots = (componentChildren: React.ReactNode): [SlotRenderer, H
     return React.createElement(React.Fragment, null, children);
   };
 
-  const hasSlotItem: HasSlotItem = (slot) => 
+  const hasSlotItem: HasSlotItemFn = (slot) => 
     slots.hasOwnProperty(slot) && slots[slot].length > 0;
 
   return [renderSlot, hasSlotItem];
