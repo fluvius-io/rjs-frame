@@ -20,12 +20,12 @@
   width: 100%;
   box-sizing: border-box;
 
-  &.x-ray {
+  // &.x-ray {
     padding: 1rem;
     border: 1px solid green; 
     margin: 5px; 
     padding: 10px;
-  }
+  // }
 
   // Add a subtle visual indicator for empty slots
   &:empty {
