@@ -16,7 +16,6 @@ export type SlotStatus = {
 };
 
 export type VarsState = {
-  _id: string;
   [key: string]: any;
 };
 
@@ -35,8 +34,8 @@ export interface PageState {
   linkParams: LinkState;
   slotParams: SlotParams;
   slotStatus: SlotStatus;
-  pageState: VarsState;
-  privState: PrivateState;
+  globalState: VarsState;
+  moduleState: PrivateState;
   auth: AuthState;
   other: Record<string, any>;
 } 

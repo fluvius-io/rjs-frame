@@ -11,17 +11,14 @@ const AdminPage: React.FC = () => {
     setPageName('admin');
   }, []);
 
-  let modulesMount = {
-    header: <AdminHeader />,
-    sidebar: <ArgumentsModule />,
-  }
-
-  return (<>
-    <GenericLayout modules={modulesMount}>
-      <h2>Admin Filter Module</h2>
-      <FilterModule />
+  return (
+    <GenericLayout>
+      <AdminHeader slotName="header" />
+      <ArgumentsModule slotName="sidebar" />
+      <FilterModule>
+        <h2>Admin Filter Module</h2>
+      </FilterModule>
     </GenericLayout>
-    </>
   );
 };
 

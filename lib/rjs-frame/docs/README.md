@@ -1,50 +1,55 @@
 # rjs-frame Documentation
 
-## Overview
+Welcome to the rjs-frame documentation! This framework provides a powerful system for building modular React applications with dynamic page layouts.
 
-rjs-frame is a React library that provides a modular architecture for building complex applications. It consists of three main components that work together to create flexible, reusable layouts:
+## Core Components
 
-- **PageLayout**: Abstract base class for defining page layouts
-- **PageModule**: Base class for creating modular components
-- **ModuleSlot**: Component for rendering modules within layouts
+- **PageLayout**: Abstract base class for creating custom page layouts
+- **PageSlot**: Component for rendering modules within layouts  
+- **PageModule**: Base class for creating reusable modules
+- **PageLayoutOptions**: Debug dialog for inspecting and controlling page layouts
 
-## Core Concepts
+## Getting Started
 
-### 1. PageLayout
+- **Installation & Setup**: See main README for package installation
+- **Quick Start Guide**: Basic usage patterns and examples
+- **Basic Components**: See sections below for PageLayout, PageModule, and PageSlot
+- **State Management**: Understanding the PageState system
+- **Debug Tools**: Using the PageLayoutOptions dialog
 
-`PageLayout` is an abstract React component that serves as the foundation for creating custom page layouts. It manages the organization and rendering of modules within a page.
+## Feature Documentation
 
-#### Key Features
+### Essential Features
+- [PageLayout Options Dialog](./pagelayout-options.md) - Debug dialog with X-Ray mode, layout inspection, and instance management
+- [LocalStorage Persistence](./localStorage-persistence.md) - Automatic state persistence including X-Ray settings and global state
 
-- **Module Management**: Automatically organizes and normalizes modules passed as props
-- **Context Provider**: Provides layout context to child components
-- **Lifecycle Hooks**: Offers `onMount()` and `onUnmount()` methods for custom logic
-- **Reserved Keys**: Protects the 'main' module key for layout children
+### Advanced Features
+- **URL Parameter Management** - Reading and managing URL parameters
+- **Module State Management** - Per-module state persistence
+- **Instance Management** - Singleton pattern for PageLayout components
 
-#### Basic Usage
+## Quick Examples
+
+### Basic Layout Structure
 
 ```typescript
-import { PageLayout, PageLayoutProps } from 'rjs-frame';
+import { PageLayout, PageSlot } from 'rjs-frame';
 
-interface CustomLayoutProps extends PageLayoutProps {
-  // Add custom props here
-}
-
-class CustomLayout extends PageLayout<CustomLayoutProps> {
-  renderContent(): React.ReactNode {
+export class MyLayout extends PageLayout {
+  renderContent() {
     return (
-      <div className="custom-layout">
+      <div>
         <header>
-          <ModuleSlot name="header" />
+          <PageSlot name="header" />
         </header>
         <main>
-          <ModuleSlot name="main" />
+          <PageSlot name="main" />
         </main>
         <aside>
-          <ModuleSlot name="sidebar" />
+          <PageSlot name="sidebar" />
         </aside>
         <footer>
-          <ModuleSlot name="footer" />
+          <PageSlot name="footer" />
         </footer>
       </div>
     );
@@ -52,392 +57,187 @@ class CustomLayout extends PageLayout<CustomLayoutProps> {
 }
 ```
 
-#### Advanced Usage with Lifecycle
-
-```typescript
-class DashboardLayout extends PageLayout {
-  protected onMount(): void {
-    // Custom logic when layout mounts
-    console.log('Dashboard layout mounted');
-  }
-
-  protected onUnmount(): void {
-    // Cleanup logic when layout unmounts
-    console.log('Dashboard layout unmounted');
-  }
-
-  renderContent(): React.ReactNode {
-    return (
-      <div className="dashboard-layout">
-        <ModuleSlot name="sidebar" />
-        <div className="main-content">
-          <ModuleSlot name="main" />
-        </div>
-      </div>
-    );
-  }
-}
-```
-
-### 2. PageModule
-
-`PageModule` is a base class for creating modular components that can be easily integrated into different layouts. A page module is aware and can integrate with the layout facilities via the module slot context and page context.
-
-A page module must located within a module slot and subscribe to its context.
-
-#### Key Features
-
-- **Unique Identification**: Each module has a unique ID for tracking
-- **Lifecycle Management**: Built-in mount/unmount lifecycle methods
-- **Standardized Interface**: Consistent API across all modules
-
-#### Basic Usage
+### Creating Modules
 
 ```typescript
 import { PageModule } from 'rjs-frame';
 
-interface StatsModuleProps {
-  title: string;
-  value: number;
-  trend?: 'up' | 'down';
-}
-
-class StatsModule extends PageModule<StatsModuleProps> {
-  renderContent(): React.ReactNode {
-    const { title, value, trend } = this.props;
-    
+export class HeaderModule extends PageModule {
+  renderContent() {
     return (
-      <div className="stats-module">
-        <h3>{title}</h3>
-        <div className="value">{value}</div>
-        {trend && (
-          <div className={`trend trend-${trend}`}>
-            {trend === 'up' ? '↗' : '↘'}
-          </div>
-        )}
-      </div>
-    );
-  }
-}
-```
-
-#### Module with State and Effects
-
-```typescript
-import { PageModule } from 'rjs-frame';
-import { useState, useEffect } from 'react';
-
-interface DataTableModuleProps {
-  apiEndpoint: string;
-}
-
-class DataTableModule extends PageModule<DataTableModuleProps> {
-  renderContent(): React.ReactNode {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-      fetch(this.props.apiEndpoint)
-        .then(res => res.json())
-        .then(data => {
-          setData(data);
-          setLoading(false);
-        });
-    }, [this.props.apiEndpoint]);
-
-    if (loading) {
-      return <div className="loading">Loading...</div>;
-    }
-
-    return (
-      <div className="data-table-module">
-        <table>
-          {/* Render table content */}
-        </table>
-      </div>
-    );
-  }
-}
-```
-
-### 3. ModuleSlot
-
-`ModuleSlot` is a component that renders modules within a specific slot in the layout. It retrieves modules from the PageLayout context and renders them in the designated area.
-
-#### Key Features
-
-- **Context Integration**: Automatically retrieves modules from PageLayout context
-- **Multiple Module Support**: Can render multiple modules in a single slot
-- **Fallback Content**: Supports default content when no modules are provided
-- **Debug Indicators**: Visual indicators for development (green borders, status indicators)
-
-#### Basic Usage
-
-```typescript
-import { ModuleSlot } from 'rjs-frame';
-
-// In your layout component
-<div className="sidebar">
-  <ModuleSlot name="sidebar" />
-</div>
-
-<div className="main-content">
-  <ModuleSlot name="main" />
-</div>
-```
-
-#### With Fallback Content
-
-```typescript
-<ModuleSlot name="optional-section">
-  <div className="default-content">
-    No modules provided for this section
-  </div>
-</ModuleSlot>
-```
-
-## Complete Example
-
-Here's a complete example showing how all three components work together:
-
-### 1. Define Modules
-
-```typescript
-// modules/SidebarModule.tsx
-import { PageModule } from 'rjs-frame';
-
-class SidebarModule extends PageModule {
-  renderContent(): React.ReactNode {
-    return (
-      <nav className="sidebar">
+      <nav>
+        <h1>My App</h1>
         <ul>
-          <li><a href="/dashboard">Dashboard</a></li>
-          <li><a href="/analytics">Analytics</a></li>
-          <li><a href="/users">Users</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
         </ul>
       </nav>
     );
   }
 }
 
-// modules/StatsModule.tsx
-class StatsModule extends PageModule<{ stats: any[] }> {
-  renderContent(): React.ReactNode {
+export class SidebarModule extends PageModule {
+  renderContent() {
     return (
-      <div className="stats-grid">
-        {this.props.stats.map(stat => (
-          <div key={stat.id} className="stat-card">
-            <h3>{stat.title}</h3>
-            <div className="value">{stat.value}</div>
-          </div>
-        ))}
+      <div>
+        <h3>Sidebar</h3>
+        <p>Sidebar content goes here</p>
       </div>
     );
   }
 }
 ```
 
-### 2. Create Layout
+### Using the Layout with Modules
 
 ```typescript
-// layouts/DashboardLayout.tsx
-import { PageLayout, ModuleSlot } from 'rjs-frame';
-
-class DashboardLayout extends PageLayout {
-  renderContent(): React.ReactNode {
-    return (
-      <div className="dashboard-layout">
-        <aside className="sidebar-area">
-          <ModuleSlot name="sidebar" />
-        </aside>
-        <main className="main-area">
-          <div className="stats-section">
-            <ModuleSlot name="stats" />
-          </div>
-          <div className="content-section">
-            <ModuleSlot name="main" />
-          </div>
-        </main>
-      </div>
-    );
-  }
-}
-```
-
-### 3. Use in Application
-
-```typescript
-// App.tsx
-import { DashboardLayout } from './layouts/DashboardLayout';
-import { SidebarModule } from './modules/SidebarModule';
-import { StatsModule } from './modules/StatsModule';
+import { MyLayout } from './layouts/MyLayout';
+import { HeaderModule, SidebarModule } from './modules';
 
 function App() {
-  const statsData = [
-    { id: 1, title: 'Revenue', value: '$12,345' },
-    { id: 2, title: 'Users', value: '1,234' },
-    { id: 3, title: 'Orders', value: '567' }
-  ];
-
   return (
-    <DashboardLayout
-      modules={{
-        sidebar: <SidebarModule />,
-        stats: <StatsModule stats={statsData} />
-      }}
-    >
-      <div className="main-content">
-        <h1>Welcome to Dashboard</h1>
-        <p>This content goes in the 'main' slot automatically.</p>
-      </div>
-    </DashboardLayout>
+    <MyLayout>
+      <HeaderModule slotName="header" />
+      <SidebarModule slotName="sidebar" />
+    </MyLayout>
   );
 }
 ```
 
-## Advanced Patterns
+**Key Points:**
+- All children of PageLayout must be PageModule instances (or subclasses)
+- Each PageModule must have a `slotName` prop specifying which slot it belongs to
+- PageLayout automatically validates children and groups them by slot name
+- The framework throws descriptive errors for invalid children or missing slotName props
 
-### Multiple Modules in One Slot
+## Key Concepts
 
-```typescript
-<DashboardLayout
-  modules={{
-    sidebar: [
-      <NavigationModule />,
-      <UserProfileModule />,
-      <QuickActionsModule />
-    ],
-    main: <MainContentModule />
-  }}
-/>
-```
+### 1. **Modular Architecture**
+Build applications as collections of independent, reusable modules that can be composed into different layouts.
+
+### 2. **Automatic Module Discovery**  
+PageLayout automatically discovers and organizes modules based on their `slotName` props, eliminating the need to manually pass module configurations.
+
+### 3. **Type Safety**
+The framework validates that all children are PageModule instances and that each has a required `slotName` prop, providing compile-time and runtime safety.
+
+### 4. **Debug-First Development**
+Built-in debugging tools like the PageLayoutOptions dialog help you understand and troubleshoot your layout structure during development.
+
+### 5. **State Persistence**
+Automatic localStorage persistence ensures user preferences and debug settings survive page reloads.
+
+## Common Patterns
 
 ### Conditional Module Rendering
 
 ```typescript
 function App() {
-  const user = useUser();
-  
   return (
-    <DashboardLayout
-      modules={{
-        sidebar: <SidebarModule />,
-        stats: user.role === 'admin' ? <AdminStatsModule /> : <UserStatsModule />,
-        actions: user.permissions.includes('manage') && <AdminActionsModule />
-      }}
-    >
-      <MainContent />
-    </DashboardLayout>
+    <MyLayout>
+      <HeaderModule slotName="header" />
+      {userIsLoggedIn ? (
+        <UserSidebarModule slotName="sidebar" />
+      ) : (
+        <GuestSidebarModule slotName="sidebar" />
+      )}
+    </MyLayout>
   );
 }
 ```
 
-### Dynamic Module Loading
+### Multiple Modules in Same Slot
 
 ```typescript
 function App() {
-  const [modules, setModules] = useState({});
-  
-  useEffect(() => {
-    // Load modules based on user preferences or route
-    const loadModules = async () => {
-      const sidebarModule = await import('./modules/SidebarModule');
-      const statsModule = await import('./modules/StatsModule');
-      
-      setModules({
-        sidebar: <sidebarModule.default />,
-        stats: <statsModule.default />
-      });
-    };
-    
-    loadModules();
-  }, []);
-  
   return (
-    <DashboardLayout modules={modules}>
-      <MainContent />
-    </DashboardLayout>
+    <MyLayout>
+      <HeaderModule slotName="header" />
+      <StatsModule slotName="main" />
+      <ChartsModule slotName="main" />
+      <TableModule slotName="main" />
+    </MyLayout>
   );
 }
 ```
 
-## Development Features
-
-### Debug Indicators
-
-In development mode, rjs-frame provides visual indicators to help with debugging:
-
-- **Green Borders**: ModuleSlot components have green borders to show their boundaries
-- **Yellow Status Indicators**: Small yellow circles indicate the status of each slot
-- **Module Count**: Visual indication of how many modules are in each slot
-
-These indicators are automatically included when you import the rjs-frame styles:
+### Layout-Specific Styling
 
 ```typescript
-// In your main.tsx or App.tsx
-import 'rjs-frame/dist/style.css';
-```
-
-### Best Practices
-
-1. **Module Naming**: Use descriptive names for module slots (e.g., 'sidebar', 'header', 'stats')
-2. **Module Reusability**: Design modules to be as reusable as possible
-3. **Props Interface**: Always define TypeScript interfaces for module props
-4. **Error Boundaries**: Wrap modules in error boundaries for better error handling
-5. **Performance**: Use React.memo() for modules that don't need frequent re-renders
-
-### TypeScript Support
-
-rjs-frame is built with TypeScript and provides full type safety:
-
-```typescript
-interface CustomModuleProps {
-  title: string;
-  data: any[];
-  onAction?: (id: string) => void;
-}
-
-class CustomModule extends PageModule<CustomModuleProps> {
-  // TypeScript will enforce prop types
-  renderContent(): React.ReactNode {
-    // Implementation
+export class DashboardLayout extends PageLayout {
+  renderContent() {
+    return (
+      <div className="dashboard-layout">
+        <PageSlot name="sidebar" className="dashboard-sidebar" />
+        <PageSlot name="main" className="dashboard-main" />
+      </div>
+    );
   }
 }
 ```
 
-## API Reference
-
-### PageLayout
+### Debug Mode Integration
 
 ```typescript
-abstract class PageLayout<P extends PageLayoutProps = PageLayoutProps> extends React.Component<P> {
-  protected get modules(): Record<string, React.ReactNode[]>;
-  protected onMount(): void;
-  protected onUnmount(): void;
-  abstract renderContent(): React.ReactNode;
+import { getXRayEnabled, setXRayEnabled } from 'rjs-frame';
+
+// Enable X-Ray mode in development
+if (process.env.NODE_ENV === 'development') {
+  setXRayEnabled(true);
 }
 ```
 
-### PageModule
+## Validation and Error Handling
 
+The framework provides comprehensive validation:
+
+### Invalid Children
 ```typescript
-abstract class PageModule<P = {}> extends React.Component<P> {
-  readonly moduleId: string;
-  protected onMount(): void;
-  protected onUnmount(): void;
-  abstract renderContent(): React.ReactNode;
-}
+// ❌ This will throw an error
+<MyLayout>
+  <div>Invalid - not a PageModule</div>
+</MyLayout>
 ```
 
-### ModuleSlot
-
+### Missing slotName
 ```typescript
-interface ModuleSlotProps {
-  name: string;
-  children?: React.ReactNode;
-}
-
-function ModuleSlot({ name, children }: ModuleSlotProps): React.ReactNode;
+// ❌ This will throw an error
+<MyLayout>
+  <HeaderModule /> {/* Missing slotName prop */}
+</MyLayout>
 ```
 
-This documentation provides a comprehensive guide to using rjs-frame's modular architecture. The combination of PageLayout, PageModule, and ModuleSlot creates a powerful system for building maintainable and flexible React applications. 
+### Reserved Slot Names
+```typescript
+// ❌ This will throw an error - 'main' is reserved
+<MyLayout>
+  <HeaderModule slotName="main" />
+</MyLayout>
+```
+
+### Valid Usage
+```typescript
+// ✅ This works correctly
+<MyLayout>
+  <HeaderModule slotName="header" />
+  <SidebarModule slotName="sidebar" />
+</MyLayout>
+```
+
+## Best Practices
+
+1. **Use Descriptive Slot Names**: Choose clear, semantic names for your slots
+2. **Keep Modules Focused**: Each module should have a single responsibility  
+3. **Leverage Debug Tools**: Use Ctrl+O to open the PageLayoutOptions dialog during development
+4. **Plan Your Layout Hierarchy**: Think about how modules will be composed before building
+5. **Use TypeScript**: The framework provides excellent TypeScript support for catching errors early
+
+## Troubleshooting
+
+- **"All children must be PageModule instances"**: Ensure all children extend PageModule class
+- **"Missing required slotName prop"**: Add `slotName="yourSlotName"` to each PageModule
+- **"Reserved slot name"**: Avoid using 'main' as a slot name
+- **Multiple Instance Warnings**: Ensure only one PageLayout is rendered at a time
+- **State Not Persisting**: Verify localStorage is available and not blocked
+
+For detailed examples and advanced usage, see the individual feature documentation linked above.

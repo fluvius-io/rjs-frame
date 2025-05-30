@@ -1,40 +1,34 @@
-
-import { PageLayoutContext } from './PageLayout';
+import { PageLayoutContext } from '../contexts/LayoutContexts';
+import { PageSlotContext, type PageSlotContextType } from '../contexts/LayoutContexts';
 import { pageStore } from '../store/pageStore';
 import React from 'react';
 import '../styles/RjsFrame.scss';
 import type { PageState } from '../types/PageState';
 
-export interface ModuleSlotState {
+export interface PageSlotState {
   pageState: PageState;
   initialized: boolean;
   error: string | null;
 }
 
-export interface ModuleSlotContextType {
-  args?: string;
-  name: string;
-}
-
-export interface ModuleSlotProps {
+export interface PageSlotProps {
   name?: string;
   renderEmpty?: boolean;
   allowToggle?: boolean;
   defaultVisibility?: 'show' | 'hide'| 'always';
   defaultParamValue?: string;
+  className?: string;
   children?: React.ReactNode;
 }
 
-export const ModuleSlotContext = React.createContext<ModuleSlotContextType>({name: 'main'});
-
-export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState> {
+export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
   private unsubscribe: (() => void) | null = null;
   private mounted: boolean = false;
 
   static contextType = PageLayoutContext;
   declare context: React.ContextType<typeof PageLayoutContext>;
 
-  constructor(props: ModuleSlotProps) {
+  constructor(props: PageSlotProps) {
     super(props);
     
     // Initialize state with latest store value
@@ -49,7 +43,7 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     this.mounted = true;
 
     if (!this.context) {
-      this.setState({ error: 'ModuleSlot must be rendered within a PageLayout' });
+      this.setState({ error: 'PageSlot must be rendered within a PageLayout' });
       return;
     }
 
@@ -103,14 +97,14 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     }
 
     if (defaultVisibility === 'show') {
-      return Boolean(this.slotParams && (this.slotParams in ['off', 'hide', 'hidden']));
+      return !this.slotParams || !['off', 'hide', 'hidden'].includes(this.slotParams as string);
     }
 
     if (defaultVisibility === 'hide') {
-      return this.hasDefaultParams;
+      return this.hasDefaultParams && (!this.slotParams || !['off', 'hide', 'hidden'].includes(this.slotParams as string));
     }
 
-    return false;
+    return true;
   }
 
   componentWillUnmount() {
@@ -124,8 +118,8 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
   render() {
     if (!this.context) {
       return (
-        <div className="module-slot module-slot--error">
-          ERROR: ModuleSlot must be rendered within a PageLayout
+        <div className="page-slot page-slot--error">
+          ERROR: PageSlot must be rendered within a PageLayout
         </div>
       );
     }
@@ -135,7 +129,7 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     }
 
     if (!this.state.initialized) {
-      return <div className="module-slot module-slot--loading">{this.props.children}</div>;
+      return <div className="page-slot page-slot--loading">{this.props.children}</div>;
     }
 
     const { renderEmpty = false } = this.props;
@@ -148,19 +142,29 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
       return null;
     }
 
-    let slotContext: ModuleSlotContextType = { args: this.slotParams, name: this.slotName };
+    let slotContext: PageSlotContextType = { args: this.slotParams, name: this.slotName };
+
+    const pageSlotClassName = this.props.className 
+      ? `page-slot ${this.props.className}` 
+      : 'page-slot';
+
+    // Prepare data attributes for X-Ray mode pseudo-elements
+    const slotParamsDisplay = this.slotParams ? ` = ${this.slotParams}` : '';
 
     return (
-      <ModuleSlotContext.Provider value={slotContext}>
-        <div className="module-slot" data-slot-name={this.slotName}>
+      <PageSlotContext.Provider value={slotContext}>
+        <div 
+          className={pageSlotClassName} 
+          data-slot-name={this.slotName}
+          data-slot-params={slotParamsDisplay}
+        >
           {renderingContent.map((content, index) => (
             <React.Fragment key={index}>
               {content}
             </React.Fragment>
           ))}
-        <div className="module-slot__status">{this.slotName} : {this.slotParams ?  ' = ' + this.slotParams : ''}</div>
         </div>
-      </ModuleSlotContext.Provider>
+      </PageSlotContext.Provider>
     );
   }
 } 

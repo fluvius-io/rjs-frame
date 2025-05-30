@@ -1,92 +1,153 @@
-# RJS Frame Dashboard Demo
+# RJS Frame + shadcn/ui Demo
 
-A modern dashboard application built with RJS Frame, React, TypeScript, and shadcn/ui components.
+This is a demonstration project that showcases the integration of **RJS Frame** with **shadcn/ui** components, creating a modern, modular dashboard application.
 
 ## Features
 
+- **Modular Architecture**: Uses RJS Frame's PageModule and PageSlot system
 - **Modern UI**: Built with shadcn/ui components and Tailwind CSS
-- **Modular Architecture**: Uses RJS Frame's PageModule and ModuleSlot system
-- **Interactive Charts**: Powered by Recharts library
-- **Data Tables**: Searchable and paginated user management
-- **Responsive Design**: Works on desktop and mobile devices
-- **Type Safety**: Full TypeScript support
-- **Visual Debug Indicators**: ModuleSlot components show green borders and status indicators for development
+- **Responsive Design**: Mobile-first responsive layout
+- **Dark Mode Support**: Integrated theme switching
+- **TypeScript**: Full TypeScript support throughout
+- **Visual Debug Indicators**: PageSlot components show green borders and status indicators for development
 
 ## Tech Stack
 
-- **Framework**: React 19 with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS + shadcn/ui + RJS Frame styles
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **State Management**: Nanostores (via RJS Frame)
-- **Routing**: React Router DOM
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - High-quality React components
+- **RJS Frame** - Modular layout framework
+- **Lucide React** - Icon library
 
 ## Getting Started
 
-1. Install dependencies:
+### Prerequisites
+
+- Node.js 18+ and npm
+- Basic familiarity with React and TypeScript
+
+### Installation
+
+1. Clone the repository and navigate to this project:
+```bash
+cd app/rjs-shadcn
+```
+
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 ```
 
-3. Open your browser and navigate to `http://localhost:5173`
+4. Open [http://localhost:5173](http://localhost:5173) in your browser
 
 ## Project Structure
 
 ```
 src/
-├── components/
-│   ├── ui/                 # shadcn/ui components
-│   ├── DashboardLayout.tsx # Custom PageLayout implementation
-│   └── RouteChangeHandler.tsx # URL sync handler
-├── modules/
-│   ├── SidebarModule.tsx   # Navigation sidebar
-│   ├── StatsModule.tsx     # Key metrics cards
-│   ├── ChartModule.tsx     # Interactive charts
-│   └── DataTableModule.tsx # User data table
-├── lib/
-│   └── utils.ts           # Utility functions
-└── App.tsx                # Main application component
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   └── DashboardLayout.tsx
+├── modules/            # RJS Frame modules
+│   ├── SidebarModule.tsx
+│   ├── StatsModule.tsx
+│   ├── ChartModule.tsx
+│   └── DataTableModule.tsx
+├── lib/                # Utility functions
+└── App.tsx             # Main application
 ```
 
-## Dashboard Pages
+## Key Concepts
 
-- **Dashboard**: Overview with stats and charts
-- **Analytics**: Detailed analytics charts
-- **Users**: User management with search and pagination
-- **Reports**: Placeholder for future reports feature
-- **Sales**: Sales performance tracking
-- **Settings**: Application configuration (coming soon)
+### RJS Frame Integration
 
-## RJS Frame Integration
+This demo showcases several RJS Frame concepts:
 
-This demo showcases RJS Frame's key features:
+- **PageLayout**: The `DashboardLayout` component extends RJS Frame's `PageLayout`
+- **PageModule**: All modules extend `PageModule` for consistent behavior
+- **PageSlot**: Reusable module containers with state management
+- **State Management**: Centralized page state with automatic persistence
+- **URL Parameters**: Dynamic content based on route parameters
+- **Visual Debug Indicators**: Green borders around PageSlots and yellow status indicators
 
-- **PageLayout**: Custom layout component extending RJS Frame's PageLayout
-- **ModuleSlot**: Reusable module containers with state management
-- **PageModule**: Base class for all dashboard modules
-- **URL State Sync**: Automatic synchronization between URL and application state
-- **Visual Debug Indicators**: Green borders around ModuleSlots and yellow status indicators
+### shadcn/ui Components
 
-## Development Notes
+- **PageSlot Styles**: The app includes RJS Frame's built-in styles (`rjs-frame/dist/style.css`) which provide visual indicators for development:
+- Green borders around PageSlot components
+- Yellow status indicators showing slot names and parameters
+- Hover effects for better debugging experience
 
-- **ModuleSlot Styles**: The app includes RJS Frame's built-in styles (`rjs-frame/dist/style.css`) which provide visual indicators for development:
-  - Green borders around ModuleSlot components
-  - Yellow status indicators showing slot name and status
-  - Error and loading states with appropriate styling
+## Development Features
 
-## Available Scripts
+### Debug Mode
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+Press `Ctrl+O` to open the PageLayout Options dialog which shows:
+- Layout structure and module information  
+- X-Ray mode toggle for visual debugging
+- Instance management warnings
 
-## License
+### Hot Module Replacement
 
-MIT
+Vite provides instant updates during development - modify any component and see changes immediately.
+
+### TypeScript Support
+
+Full TypeScript integration with proper type checking for:
+- RJS Frame components and props
+- shadcn/ui component interfaces
+- Custom module props and state
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The build output will be in the `dist/` directory, optimized and ready for deployment.
+
+## Customization
+
+### Adding New Modules
+
+1. Create a new module in `src/modules/`:
+
+```typescript
+import { PageModule } from 'rjs-frame';
+
+export class CustomModule extends PageModule {
+  renderContent() {
+    return <div>Custom content</div>;
+  }
+}
+```
+
+2. Import and use in your layout:
+
+```typescript
+import { CustomModule } from './modules/CustomModule';
+
+const modules = {
+  custom: <CustomModule />
+};
+```
+
+### Styling
+
+The project uses Tailwind CSS with shadcn/ui. Customize the design by:
+
+1. Modifying `tailwind.config.js`
+2. Updating component styles in individual files
+3. Adding custom CSS in `src/index.css`
+
+## Learn More
+
+- [RJS Frame Documentation](../../lib/rjs-frame/docs/)
+- [shadcn/ui Documentation](https://ui.shadcn.com/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/)
+- [Vite Documentation](https://vitejs.dev/)

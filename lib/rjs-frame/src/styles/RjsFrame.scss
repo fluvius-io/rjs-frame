@@ -1,47 +1,154 @@
-.page-layout {
-  &.x-ray {
-    border: 1px solid red;
-    padding: 1rem;
-  }
+// CSS Custom Properties for rjs-frame
+:root {
+  // X-Ray mode opacity
+  --xray-opacity-default: 0.5;
+  --xray-opacity-hover: 1.0;
+  
+  // X-Ray mode colors
+  --xray-module-color: rgba(0, 128, 0, 1);
+  --xray-layout-color: rgba(255, 0, 0, 1);
+  --xray-slot-color: rgba(0, 0, 255, 1);
+  --xray-slot-info-bg: rgba(255, 253, 130, 1);
+  --xray-slot-info-text: rgba(0, 0, 0, 1);
+  
+  // Error state colors
+  --rjs-error-border: #d32f2f;
+  --rjs-error-bg: #fff5f5;
+  --rjs-error-text: #d32f2f;
+  --rjs-error-border-light: #ffebee;
+  
+  // Neutral colors
+  --rjs-gray-100: #f8f9fa;
+  --rjs-gray-200: #e9ecef;
+  --rjs-gray-300: #dee2e6;
+  --rjs-gray-400: #adb5bd;
+  --rjs-gray-500: #666;
+  --rjs-gray-600: #555;
+  --rjs-gray-700: #333;
+  --rjs-gray-800: #e0e0e0;
+  --rjs-gray-900: #999;
+  --rjs-gray-light: #eee;
+  --rjs-gray-lighter: #fafafa;
+  --rjs-gray-lightest: #e3f2fd;
+  --rjs-white: #ffffff;
+  --rjs-black: rgba(0, 0, 0, 1);
+  
+  // Primary/accent colors
+  --rjs-primary: #007bff;
+  --rjs-success: #28a745;
+  --rjs-warning-bg: #fff3cd;
+  --rjs-warning-border: #ffeaa7;
+  --rjs-warning-text: #856404;
+  --rjs-danger: #dc3545;
+  
+  // Overlay colors
+  --rjs-overlay-bg: rgba(0, 0, 0, 0.8);
+  --rjs-shadow-light: rgba(0, 0, 0, 0.1);
+  --rjs-shadow-medium: rgba(0, 0, 0, 0.3);
 }
 
 .page-module {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 50px;
-  position: relative;
-  box-sizing: border-box;
-
   &--error {
-    border: 1px dashed #d32f2f;
-    background-color: #fff5f5;
-    color: #d32f2f;
+    border: 1px dashed var(--rjs-error-border);
+    background-color: var(--rjs-error-bg);
+    color: var(--rjs-error-text);
     padding: 1rem;
-    margin: 5px 0; 
-  }
-
-  .x-ray & {
-    border: 1px solid green;
-    padding: 1rem;
+    margin: 5px; 
   }
 }
 
-.module-slot {
+.page-layout.x-ray {
   position: relative;
-  width: 100%;
-  box-sizing: border-box;
 
-  .x-ray & {
-    padding: 1rem;
-    border: 1px solid blue; 
-    margin: 5px; 
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid var(--xray-layout-color);
+    pointer-events: none;
+    z-index: 9997;
+    opacity: var(--xray-opacity-default);
   }
+
+  &:hover::before {
+    border-color: var(--xray-layout-color);
+    opacity: var(--xray-opacity-hover);
+  }
+
+  & .page-slot {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1px solid var(--xray-slot-color);
+      pointer-events: none;
+      z-index: 9999;
+      opacity: var(--xray-opacity-default);
+    }
+
+    &:hover::before {
+      border-color: var(--xray-slot-color);
+      opacity: var(--xray-opacity-hover);
+    }
+
+    &::after {
+      content: attr(data-slot-name) ': ' attr(data-slot-params);
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: var(--xray-slot-info-bg);
+      color: var(--xray-slot-info-text);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: monospace;
+      border-radius: 0 0 0 4px;
+      pointer-events: none;
+      z-index: 9000;
+      max-width: 50%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: var(--xray-opacity-default);
+    }
+  }
+
+  & .page-module {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1px solid var(--xray-module-color);
+      pointer-events: none;
+      z-index: 9998;
+      opacity: var(--xray-opacity-default);
+    }
+
+    &:hover::before {
+      opacity: var(--xray-opacity-hover);
+    }
+  }
+}
+
+.page-slot {
 
   // Add a subtle visual indicator for empty slots
   &:empty {
-    border: 2px dashed #e0e0e0;
-    background-color: #fafafa;
+    border: 1px dashed var(--rjs-gray-800);
+    box-sizing: border-box;
+    background-color: var(--rjs-gray-lighter);
     border-radius: 4px;
     
     &::after {
@@ -50,7 +157,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #999;
+      color: var(--rjs-gray-900);
       font-size: 0.875rem;
       font-family: monospace;
       white-space: nowrap;
@@ -59,8 +166,8 @@
 
   // Style for when fallback content is shown
   &--with-fallback {
-    background-color: #fff;
-    border: 1px solid #eee;
+    background-color: var(--rjs-white);
+    border: 1px solid var(--rjs-gray-light);
     border-radius: 4px;
     padding: 1rem;
   }
@@ -78,21 +185,310 @@
 
   // Error state
   &--error {
-    border: 1px solid #ffebee;
-    background-color: #fff5f5;
-    color: #d32f2f;
+    border: 1px solid var(--rjs-error-border-light);
+    background-color: var(--rjs-error-bg);
+    color: var(--rjs-error-text);
     padding: 1rem;
     border-radius: 4px;
   }
 
-  &__status {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background-color: #fffd82;
-    padding: 5px 10px;
-    border-radius: 4px;
-    opacity: 0.5;
-    display: block;
+  &--status {
+    display: none;
+  }
+}
+
+// PageLayout Options Overlay Styles
+.page-layout-options-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--rjs-overlay-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.page-layout-options-dialog {
+  background: var(--rjs-white);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px var(--rjs-shadow-medium);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+}
+
+.page-layout-options-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--rjs-gray-800);
+  background-color: var(--rjs-gray-100);
+
+  h2 {
+    margin: 0;
+    color: var(--rjs-gray-700);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.page-layout-options-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--rjs-gray-500);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--rjs-gray-200);
+    color: var(--rjs-gray-700);
+  }
+}
+
+.page-layout-options-content {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+
+  section {
+    margin-bottom: 2rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h3 {
+      margin: 0 0 1rem 0;
+      color: var(--rjs-gray-700);
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--rjs-primary);
+      padding-bottom: 0.5rem;
+    }
+
+    h4 {
+      margin: 1rem 0 0.5rem 0;
+      color: var(--rjs-gray-600);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--rjs-gray-100);
+  border-radius: 4px;
+  border-left: 4px solid var(--rjs-primary);
+
+  label {
+    font-weight: 500;
+    color: var(--rjs-gray-600);
+    margin: 0;
+  }
+
+  span {
+    font-weight: 600;
+    color: var(--rjs-gray-700);
+    background-color: var(--rjs-primary);
+    color: var(--rjs-white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+  }
+}
+
+.module-details {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--rjs-gray-200);
+      color: var(--rjs-gray-600);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      strong {
+        color: var(--rjs-primary);
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.control-item {
+  padding: 1rem;
+  border: 1px solid var(--rjs-gray-200);
+  border-radius: 6px;
+  background-color: var(--rjs-gray-100);
+
+  label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    color: var(--rjs-gray-700);
+    cursor: pointer;
+    margin: 0 0 0.5rem 0;
+
+    input[type="checkbox"] {
+      margin-right: 0.75rem;
+      transform: scale(1.2);
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    &:has(input:disabled) {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+}
+
+.control-description {
+  margin: 0;
+  color: var(--rjs-gray-500);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.warning-message {
+  background-color: var(--rjs-warning-bg);
+  border: 1px solid var(--rjs-warning-border);
+  color: var(--rjs-warning-text);
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.inactive-warning {
+  color: var(--rjs-danger) !important;
+  font-weight: 500;
+  margin-top: 0.5rem !important;
+  font-size: 0.8rem !important;
+}
+
+.page-layout-options-footer {
+  padding: 1rem 2rem;
+  background-color: var(--rjs-gray-100);
+  border-top: 1px solid var(--rjs-gray-800);
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: var(--rjs-gray-500);
+    font-size: 0.875rem;
+  }
+
+  kbd {
+    background-color: var(--rjs-gray-200);
+    color: var(--rjs-gray-700);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    border: 1px solid var(--rjs-gray-400);
+    box-shadow: 0 1px 1px var(--rjs-shadow-light);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+// Example custom styles for PageSlot className demonstration
+.header-slot {
+  background-color: var(--rjs-gray-100);
+  border-bottom: 2px solid var(--rjs-gray-300);
+  padding: 1rem;
+  
+  .x-ray & {
+    border-color: var(--rjs-primary);
+  }
+}
+
+.sidebar-slot {
+  background-color: var(--rjs-gray-200);
+  border-right: 1px solid var(--rjs-gray-300);
+  min-height: 200px;
+  
+  .x-ray & {
+    background-color: var(--rjs-gray-lightest);
+  }
+}
+
+.main-content-slot {
+  flex: 1;
+  padding: 1rem;
+  background-color: var(--rjs-white);
+  
+  .x-ray & {
+    background-color: #f9f9f9;
+  }
+}
+
+.footer-slot {
+  background-color: var(--rjs-gray-100);
+  border-top: 1px solid var(--rjs-gray-300);
+  padding: 0.5rem 1rem;
+  text-align: center;
+  
+  .x-ray & {
+    border-color: var(--rjs-success);
   }
 } 

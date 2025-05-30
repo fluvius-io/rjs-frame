@@ -1,8 +1,7 @@
 import React from "react";
 import { pageStore, updatePageState } from "../store/pageStore";
 import { generate } from "short-uuid";
-import { PageLayoutContext } from "./PageLayout";
-import { ModuleSlotContext, type ModuleSlotContextType } from "./ModuleSlot";
+import { PageLayoutContext, PageSlotContext, type PageSlotContextType } from "../contexts/LayoutContexts";
 import type { PageState } from "../types/PageState";
 import "../styles/RjsFrame.scss";
 
@@ -13,10 +12,11 @@ export interface PageModuleState {
 
 export interface PageModuleProps {
   children?: React.ReactNode;
+  slotName?: string;
   data?: Record<string, any>;
 }
 
-export abstract class PageModule extends React.Component<
+export class PageModule extends React.Component<
   PageModuleProps,
   PageModuleState
 > {
@@ -24,7 +24,7 @@ export abstract class PageModule extends React.Component<
   private unsubscribe: (() => void) | null = null;
   private mounted: boolean = false;
   private moduleName: string;
-  private slotContextRef = React.createRef<ModuleSlotContextType>();
+  private slotContextRef = React.createRef<PageSlotContextType>();
 
   static contextType = PageLayoutContext;
   declare readonly context: React.ContextType<typeof PageLayoutContext>;
@@ -58,8 +58,8 @@ export abstract class PageModule extends React.Component<
 
     updatePageState((state) => ({
       ...state,
-      privState: {
-        ...state.privState,
+      moduleState: {
+        ...state.moduleState,
         [this.moduleId]: {
           component: this.moduleId,
           ...data,
@@ -79,7 +79,7 @@ export abstract class PageModule extends React.Component<
       prevState.name !== newState.name ||
       JSON.stringify(prevState.slotParams) !== JSON.stringify(newState.slotParams) ||
       JSON.stringify(prevState.linkParams) !== JSON.stringify(newState.linkParams) ||
-      prevState.privState[this.moduleId] !== newState.privState[this.moduleId]
+      prevState.moduleState[this.moduleId] !== newState.moduleState[this.moduleId]
     );
   }
 
@@ -94,10 +94,10 @@ export abstract class PageModule extends React.Component<
     if (!this.context) return;
 
     updatePageState((state) => {
-      const { [this.moduleId]: _, ...rest } = state.privState;
+      const { [this.moduleId]: _, ...rest } = state.moduleState;
       return {
         ...state,
-        privState: rest,
+        moduleState: rest,
       };
     });
   }
@@ -109,11 +109,11 @@ export abstract class PageModule extends React.Component<
 
   // Getter for accessing module-specific private state
   protected get moduleState(): any {
-    return this.state.pageState.privState[this.moduleId] || {};
+    return this.state.pageState.moduleState[this.moduleId] || {};
   }
 
   // Getter for accessing slot context
-  protected get slotContext(): ModuleSlotContextType | null {
+  protected get slotContext(): PageSlotContextType | null {
     return this.slotContextRef.current;
   }
 
@@ -132,7 +132,7 @@ export abstract class PageModule extends React.Component<
     }
         
     return (
-      <ModuleSlotContext.Consumer>
+      <PageSlotContext.Consumer>
         {(slotContext) => {
           // Store the context in ref for access in other methods
           (this.slotContextRef as any).current = slotContext;
@@ -140,7 +140,7 @@ export abstract class PageModule extends React.Component<
           if (!slotContext) {
             return (
               <div className="page-module page-module--error">
-                ERROR: PageModule must be rendered within a ModuleSlot
+                ERROR: PageModule must be rendered within a PageSlot
               </div>
             );
           }
@@ -151,9 +151,11 @@ export abstract class PageModule extends React.Component<
             </div>
           );
         }}
-      </ModuleSlotContext.Consumer>
+      </PageSlotContext.Consumer>
     );
   }
 
-  protected abstract renderContent(): React.ReactNode;
+  protected renderContent(): React.ReactNode {
+    return this.props.children;
+  };
 }

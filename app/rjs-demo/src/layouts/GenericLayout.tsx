@@ -1,20 +1,22 @@
-import { PageLayout, ModuleSlot } from 'rjs-frame';
+import React from 'react';
+import { PageLayout, PageSlot } from 'rjs-frame';
 
 export class GenericLayout extends PageLayout {
   renderContent() {
     return (
-    <>
-      <h1>Generic Layout</h1>
-        <ModuleSlot name="header">          
-          <div>Loading header...</div>000
-        </ModuleSlot>
+      <>
+        <h1>Generic Layout</h1>
+        <PageSlot name="header" className="header-slot">          
+          <div>Loading header...</div>
+        </PageSlot>
         <div className="content">
-          <ModuleSlot name="sidebar" allowToggle={true}>
+          <PageSlot name="sidebar" allowToggle={true} className="sidebar-slot">
             <div>Sidebar is Empty</div>
-          </ModuleSlot>
-          <ModuleSlot />
+          </PageSlot>
+          <PageSlot className="main-content-slot" />
         </div>
-        <ModuleSlot name="footer" allowToggle={true} />
-    </>);
+        <PageSlot name="footer" allowToggle={true} className="footer-slot" />
+      </>
+    );
   }
 } 
