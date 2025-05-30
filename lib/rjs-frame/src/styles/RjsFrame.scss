@@ -1,6 +1,7 @@
 .page-layout {
   &.x-ray {
     border: 1px solid red;
+    padding: 1rem;
   }
 }
 
@@ -13,7 +14,7 @@
   box-sizing: border-box;
 
   &--error {
-    border: 1px solid #d32f2f;
+    border: 1px dashed #d32f2f;
     background-color: #fff5f5;
     color: #d32f2f;
     padding: 1rem;
@@ -22,6 +23,7 @@
 
   .x-ray & {
     border: 1px solid green;
+    padding: 1rem;
   }
 }
 
@@ -30,11 +32,10 @@
   width: 100%;
   box-sizing: border-box;
 
-  &.x-ray {
+  .x-ray & {
     padding: 1rem;
-    border: 1px solid green; 
+    border: 1px solid blue; 
     margin: 5px; 
-    padding: 10px;
   }
 
   // Add a subtle visual indicator for empty slots

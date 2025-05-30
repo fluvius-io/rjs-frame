@@ -3,6 +3,7 @@ import React from 'react';
 export interface PageLayoutContextType {
   layoutId?: string;
   pageModules: Record<string, React.ReactNode[]>;
+  xRay?: boolean;
 }
 
 export const PageLayoutContext = React.createContext<PageLayoutContextType>({pageModules: {}});
@@ -12,6 +13,7 @@ type ModuleValue = React.ReactNode | React.ReactNode[];
 export interface PageLayoutProps {
   children?: React.ReactNode;
   modules?: Record<string, ModuleValue>;
+  xRay?: boolean;
 }
 
 const RESERVED_MODULE_KEYS = ['main'] as const;
@@ -66,12 +68,15 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
   render() {
     const contextValue: PageLayoutContextType = {
       layoutId: this.layoutId,
-      pageModules: this.modules
+      pageModules: this.modules,
+      xRay: this.props.xRay
     };
+
+    const className = this.props.xRay ? "page-layout x-ray" : "page-layout";
 
     return (
       <PageLayoutContext.Provider value={contextValue}>
-        <div id={this.layoutId} className="page-layout">
+        <div id={this.layoutId} className={className}>
           {this.renderContent()}
         </div>
       </PageLayoutContext.Provider>
