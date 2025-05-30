@@ -1,3 +1,9 @@
+.page-layout {
+  &.x-ray {
+    border: 1px solid red;
+  }
+}
+
 .page-module {
   display: flex;
   flex-direction: column;
@@ -12,6 +18,10 @@
     color: #d32f2f;
     padding: 1rem;
     margin: 5px 0; 
+  }
+
+  .x-ray & {
+    border: 1px solid green;
   }
 }
 

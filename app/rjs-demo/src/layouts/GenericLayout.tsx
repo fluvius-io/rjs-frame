@@ -5,7 +5,6 @@ export class GenericLayout extends PageLayout {
     return (
     <>
       <h1>Generic Layout</h1>
-      <div className="home-layout" style={{border: '1px solid red', padding: '10px'}}>
         <ModuleSlot name="header">          
           <div>Loading header...</div>000
         </ModuleSlot>
@@ -16,7 +15,6 @@ export class GenericLayout extends PageLayout {
           <ModuleSlot />
         </div>
         <ModuleSlot name="footer" allowToggle={true} />
-      </div>
     </>);
   }
 } 

@@ -4,7 +4,7 @@ import { generate } from "short-uuid";
 import { PageLayoutContext } from "./PageLayout";
 import { ModuleSlotContext, type ModuleSlotContextType } from "./ModuleSlot";
 import type { PageState } from "../types/PageState";
-import "../styles/ModuleSlot.scss";
+import "../styles/RjsFrame.scss";
 
 export interface PageModuleState {
   pageState: PageState;

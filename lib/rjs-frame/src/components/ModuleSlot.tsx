@@ -1,7 +1,8 @@
-import React from 'react';
-import { pageStore } from '../store/pageStore';
+
 import { PageLayoutContext } from './PageLayout';
-import '../styles/ModuleSlot.scss';
+import { pageStore } from '../store/pageStore';
+import React from 'react';
+import '../styles/RjsFrame.scss';
 import type { PageState } from '../types/PageState';
 
 export interface ModuleSlotState {
@@ -19,6 +20,7 @@ export interface ModuleSlotProps {
   name?: string;
   renderEmpty?: boolean;
   allowToggle?: boolean;
+  defaultVisibility?: 'show' | 'hide'| 'always';
   defaultParamValue?: string;
   children?: React.ReactNode;
 }
@@ -81,9 +83,8 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     );
   }
 
-  protected get slotStatus() {
-    let defaultStatus = this.props.allowToggle ? 'hidden' : 'active';
-    return this.state.pageState.slotStatus?.[this.slotName] || defaultStatus;
+  protected get hasDefaultParams() {
+    return this.slotName in this.state.pageState.slotParams;
   }
 
   protected get slotParams() {
@@ -92,6 +93,24 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
 
   protected get slotName() {
     return this.props.name || 'main';
+  }
+  
+  protected get slotVisible() : boolean {
+    let defaultVisibility = this.props.defaultVisibility || 'show';
+
+    if (defaultVisibility === 'always') {
+      return true;
+    }
+
+    if (defaultVisibility === 'show') {
+      return Boolean(this.slotParams && (this.slotParams in ['off', 'hide', 'hidden']));
+    }
+
+    if (defaultVisibility === 'hide') {
+      return this.hasDefaultParams;
+    }
+
+    return false;
   }
 
   componentWillUnmount() {
@@ -111,6 +130,10 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
       );
     }
 
+    if(!this.slotVisible) {
+      return null;
+    }
+
     if (!this.state.initialized) {
       return <div className="module-slot module-slot--loading">{this.props.children}</div>;
     }
@@ -120,12 +143,12 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
     let slotContent = this.context.pageModules[this.slotName];
     let hasSlotContent = !!slotContent && slotContent.length > 0;
     let renderingContent = hasSlotContent ? slotContent : [this.props.children];
-    let hideSlot = this.slotStatus === 'hidden';
-    let slotContext: ModuleSlotContextType = { args: this.slotParams, name: this.slotName };
            
-    if(hideSlot || (!renderEmpty && !renderingContent)) {
+    if(!renderEmpty && !renderingContent) {
       return null;
     }
+
+    let slotContext: ModuleSlotContextType = { args: this.slotParams, name: this.slotName };
 
     return (
       <ModuleSlotContext.Provider value={slotContext}>
@@ -135,7 +158,7 @@ export class ModuleSlot extends React.Component<ModuleSlotProps, ModuleSlotState
               {content}
             </React.Fragment>
           ))}
-        <div className="module-slot__status">{this.slotName} : {this.slotStatus} {this.slotParams ?  ' = ' + this.slotParams : ''}</div>
+        <div className="module-slot__status">{this.slotName} : {this.slotParams ?  ' = ' + this.slotParams : ''}</div>
         </div>
       </ModuleSlotContext.Provider>
     );

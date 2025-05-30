@@ -71,7 +71,9 @@ export abstract class PageLayout extends React.Component<PageLayoutProps> {
 
     return (
       <PageLayoutContext.Provider value={contextValue}>
-        {this.renderContent()}
+        <div id={this.layoutId} className="page-layout">
+          {this.renderContent()}
+        </div>
       </PageLayoutContext.Provider>
     );
   }
