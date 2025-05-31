@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeaderComponentProps, SortConfig } from './types';
+import { HeaderComponentProps } from './types';
 import { cn } from '../../lib/utils';
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { PaginatedList } from './index';
 import { Button } from '../common/Button';
-import type { PaginatedListMetadata, SortConfig, FilterConfig, PaginationConfig } from './types';
+import type { PaginatedListMetadata, SortConfig, FilterConfig } from './types';
 
 // Data type definitions
 interface UserData {
@@ -257,12 +257,9 @@ export const WithSorting: Story = {
   render: () => {
     const [data, setData] = useState(() => generateUsers(30));
     const [currentPage, setCurrentPage] = useState(1);
-    const [sort, setSort] = useState<SortConfig>();
     const pageSize = 8;
     
     const handleSort = (newSort: SortConfig) => {
-      setSort(newSort);
-      
       const sortedData = [...data].sort((a, b) => {
         const aVal = (a as any)[newSort.field];
         const bVal = (b as any)[newSort.field];
@@ -404,7 +401,6 @@ export const FullFeatures: Story = {
     const [data, setData] = useState(allData);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [sort, setSort] = useState<SortConfig>();
     const [loading, setLoading] = useState(false);
     
     const handleSearch = (query: string) => {
@@ -460,7 +456,6 @@ export const FullFeatures: Story = {
     const handleSort = (newSort: SortConfig) => {
       setLoading(true);
       setTimeout(() => {
-        setSort(newSort);
         const sortedData = [...data].sort((a, b) => {
           const aVal = (a as any)[newSort.field];
           const bVal = (b as any)[newSort.field];

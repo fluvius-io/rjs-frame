@@ -3,7 +3,7 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { SidebarModule } from './modules/SidebarModule';
 import { StatsComponent } from './modules/StatsModule';
 import { ChartComponent } from './modules/ChartModule';
-import { DataTableComponent } from './modules/DataTableModule';
+import { PaginatedUsersComponent } from './modules/PaginatedUsersModule';
 
 // Wrapper to make the main content a PageModule
 
@@ -61,12 +61,8 @@ function AnalyticsPage() {
 
 function UsersPage() {
   return (
-    <div className="space-y-6">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Users</h1>
-        <p className="text-muted-foreground px-6">Manage your users and permissions</p>
-      </div>
-      <DataTableComponent />
+    <div className="space-y-6 p-6">
+      <PaginatedUsersComponent />
     </div>
   );
 }

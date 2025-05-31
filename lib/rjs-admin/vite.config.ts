@@ -18,11 +18,21 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'rjs-frame'],
+      external: [
+        'react', 
+        'react-dom', 
+        'react/jsx-runtime',
+        'rjs-frame',
+        '@radix-ui/react-slot',
+        'class-variance-authority',
+        'clsx',
+        'tailwind-merge'
+      ],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'React',
           'rjs-frame': 'RjsFrame',
         },
       },
@@ -31,8 +41,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      'react': resolve(__dirname, './node_modules/react'),
-      'react-dom': resolve(__dirname, './node_modules/react-dom'),
     },
   },
 }) 
