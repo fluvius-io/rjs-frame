@@ -6,16 +6,20 @@ export class GenericLayout extends PageLayout {
     return (
       <>
         <h1>Generic Layout</h1>
-        <PageSlot name="header" className="header-slot">          
-          <div>Loading header...</div>
+        <PageSlot name="header">          
+          <div style={{padding: '1rem', border: '1px solid #eee'}}>Loading header...</div>
         </PageSlot>
         <div className="content">
-          <PageSlot name="sidebar" allowToggle={true} className="sidebar-slot">
-            <div>Sidebar is Empty</div>
+          <PageSlot name="sidebar" defaultVisibility="show" >
+            <div style={{padding: '1rem', border: '1px solid #eee'}}>Sidebar is Empty</div>
           </PageSlot>
-          <PageSlot className="main-content-slot" />
+          <PageSlot>
+            <div style={{padding: '1rem', border: '1px solid #eee'}}>Main is Empty</div>
+          </PageSlot>
         </div>
-        <PageSlot name="footer" allowToggle={true} className="footer-slot" />
+        <PageSlot name="footer" defaultVisibility="show">
+          <div style={{padding: '1rem', border: '1px solid #eee'}}>Footer is Empty</div>
+        </PageSlot>
       </>
     );
   }
