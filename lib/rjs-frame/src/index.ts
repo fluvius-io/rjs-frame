@@ -1,9 +1,10 @@
 // Components
 export { PageLayout } from './components/PageLayout';
 export { PageLayoutOptions } from './components/PageLayoutOptions';
-export { PageModule } from './components/PageModule';
+export { PageModule, RoutingModule } from './components/PageModule';
 export { PageSlot } from './components/PageSlot';
 export { PageParamsManager } from './components/PageParamsManager';
+export { RjsApp, Router, Routes, Route, Navigate, useNavigate, useLocation } from './components/RjsApp';
 
 // Store
 export { 

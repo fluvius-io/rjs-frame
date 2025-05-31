@@ -183,7 +183,7 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
 
   return (
     <section className="pageparams-manager">
-      <h3>PageParams {hasValidationErrors && <span className="error-count">({validationErrors.length} errors)</span>}</h3>
+      <h3>Page Params Manager {hasValidationErrors && <span className="error-count">({validationErrors.length} errors)</span>}</h3>
       
       <div className="pageparams-manager__info">
         <div className="pageparams-manager__info-item">

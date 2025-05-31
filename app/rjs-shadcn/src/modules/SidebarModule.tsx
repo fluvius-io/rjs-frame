@@ -1,5 +1,4 @@
-import { PageModule } from 'rjs-frame';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { PageModule, useNavigate, useLocation } from 'rjs-frame';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 

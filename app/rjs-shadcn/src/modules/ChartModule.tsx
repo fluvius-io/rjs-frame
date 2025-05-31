@@ -4,11 +4,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export class ChartModule extends PageModule {
   renderContent() {
-    return <ChartContent />;
+    return <ChartComponent />;
   }
 }
 
-function ChartContent() {
+export function ChartComponent() {
   const salesData = [
     { month: 'Jan', sales: 4000, revenue: 2400 },
     { month: 'Feb', sales: 3000, revenue: 1398 },

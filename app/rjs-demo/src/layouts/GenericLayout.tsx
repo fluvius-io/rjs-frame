@@ -10,14 +10,14 @@ export class GenericLayout extends PageLayout {
           <div style={{padding: '1rem', border: '1px solid #eee'}}>Loading header...</div>
         </PageSlot>
         <div className="content">
-          <PageSlot name="sidebar" defaultVisibility="show" >
+          <PageSlot name="sidebar" visible="show" >
             <div style={{padding: '1rem', border: '1px solid #eee'}}>Sidebar is Empty</div>
           </PageSlot>
           <PageSlot>
             <div style={{padding: '1rem', border: '1px solid #eee'}}>Main is Empty</div>
           </PageSlot>
         </div>
-        <PageSlot name="footer" defaultVisibility="show">
+        <PageSlot name="footer" visible="show">
           <div style={{padding: '1rem', border: '1px solid #eee'}}>Footer is Empty</div>
         </PageSlot>
       </>

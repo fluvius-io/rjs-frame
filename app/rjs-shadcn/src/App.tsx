@@ -1,28 +1,19 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { PageSlot, PageModule } from 'rjs-frame';
+import { PageSlot, RoutingModule, RjsApp, Route, Navigate } from 'rjs-frame';
 import { DashboardLayout } from './components/DashboardLayout';
-import { RouteChangeHandler } from './components/RouteChangeHandler';
 import { SidebarModule } from './modules/SidebarModule';
-import { StatsModule } from './modules/StatsModule';
-import { ChartModule } from './modules/ChartModule';
-import { DataTableModule } from './modules/DataTableModule';
+import { StatsComponent, StatsModule } from './modules/StatsModule';
+import { ChartComponent, ChartModule } from './modules/ChartModule';
+import { DataTableComponent, DataTableModule } from './modules/DataTableModule';
 
 // Wrapper to make the main content a PageModule
-class MainContentModule extends PageModule {
-  renderContent() {
-    return this.props.children;
-  }
-}
+
 
 function App() {
   return (
-    <Router>
-      <RouteChangeHandler />
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard/*" element={<DashboardLayoutPage />} />
-      </Routes>
-    </Router>
+    <RjsApp>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard/*" element={<DashboardLayoutPage />} />
+    </RjsApp>
   );
 }
 
@@ -30,17 +21,15 @@ function DashboardLayoutPage() {
   return (
     <DashboardLayout>
       <SidebarModule slotName="sidebar" />
-      <MainContentModule slotName="main">
-        <Routes>
-          <Route index element={<DashboardHome />} />
-          <Route path="/-/*" element={<DashboardHome />} />
-          <Route path="analytics/*" element={<AnalyticsPage />} />
-          <Route path="users/*" element={<UsersPage />} />
-          <Route path="reports/*" element={<ReportsPage />} />
-          <Route path="sales/*" element={<SalesPage />} />
-          <Route path="settings/*" element={<SettingsPage />} />
-        </Routes>
-      </MainContentModule>
+      <RoutingModule>
+        <Route index element={<DashboardHome />} />
+        <Route path="/-/*" element={<DashboardHome />} />
+        <Route path="analytics/*" element={<AnalyticsPage />} />
+        <Route path="users/*" element={<UsersPage />} />
+        <Route path="reports/*" element={<ReportsPage />} />
+        <Route path="sales/*" element={<SalesPage />} />
+        <Route path="settings/*" element={<SettingsPage />} />
+      </RoutingModule>
     </DashboardLayout>
   );
 }
@@ -52,12 +41,8 @@ function DashboardHome() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Dashboard</h1>
         <p className="text-muted-foreground px-6">Welcome to your dashboard overview</p>
       </div>
-      <PageSlot name="stats" visible="show">
-        <StatsModule slotName="stats" />
-      </PageSlot>
-      <PageSlot name="charts" visible="show">
-        <ChartModule slotName="charts" />
-      </PageSlot>
+        <StatsComponent />
+        <ChartComponent />
     </div>
   );
 }
@@ -69,9 +54,7 @@ function AnalyticsPage() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Analytics</h1>
         <p className="text-muted-foreground px-6">Detailed analytics and insights</p>
       </div>
-      <PageSlot name="analytics-charts" visible="show">
-        <ChartModule slotName="analytics-charts" />
-      </PageSlot>
+        <ChartComponent />
     </div>
   );
 }
@@ -83,9 +66,7 @@ function UsersPage() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Users</h1>
         <p className="text-muted-foreground px-6">Manage your users and permissions</p>
       </div>
-      <PageSlot name="user-table" visible="show">
-        <DataTableModule slotName="user-table" />
-      </PageSlot>
+      <DataTableComponent />
     </div>
   );
 }
@@ -114,12 +95,8 @@ function SalesPage() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Sales</h1>
         <p className="text-muted-foreground px-6">Track your sales performance</p>
       </div>
-      <PageSlot name="sales-stats" visible="show">
-        <StatsModule slotName="sales-stats" />
-      </PageSlot>
-      <PageSlot name="sales-charts" visible="show">
-        <ChartModule slotName="sales-charts" />
-      </PageSlot>
+      <StatsComponent />
+      <ChartComponent />
     </div>
   );
 }

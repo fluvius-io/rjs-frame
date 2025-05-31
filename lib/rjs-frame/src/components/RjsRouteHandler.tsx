@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { initializeFromBrowserLocation } from 'rjs-frame';
+import { initializeFromBrowserLocation } from '../store/pageStore';
 
-export function RouteChangeHandler() {
+export function RjsRouteHandler() {
   const location = useLocation();
 
   useEffect(() => {

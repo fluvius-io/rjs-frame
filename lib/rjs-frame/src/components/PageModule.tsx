@@ -4,6 +4,7 @@ import { generate } from "short-uuid";
 import { PageLayoutContext, PageSlotContext, type PageSlotContextType } from "../contexts/LayoutContexts";
 import type { PageState, PageParams } from "../types/PageState";
 import "../styles/index.css";
+import { Routes } from 'react-router-dom';
 
 export interface PageModuleState {
   pageState: PageState;
@@ -158,3 +159,12 @@ export class PageModule extends React.Component<
     return this.props.children;
   };
 }
+
+export class RoutingModule extends PageModule {
+  render() {
+    return <Routes>{this.props.children}</Routes>;
+  };
+}
+
+export {Route} from 'react-router-dom';
+

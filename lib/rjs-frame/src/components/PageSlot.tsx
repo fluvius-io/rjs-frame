@@ -157,11 +157,7 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
           data-slot-name={this.slotName}
           data-slot-visibility={this.props.visible || 'always'}
         >
-          {renderingContent.map((content, index) => (
-            <React.Fragment key={index}>
-              {content}
-            </React.Fragment>
-          ))}
+          {renderingContent}
         </div>
       </PageSlotContext.Provider>
     );

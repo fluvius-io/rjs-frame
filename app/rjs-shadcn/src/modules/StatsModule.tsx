@@ -4,11 +4,11 @@ import { TrendingUp, TrendingDown, Users, DollarSign, ShoppingCart, Activity } f
 
 export class StatsModule extends PageModule {
   renderContent() {
-    return <StatsContent />;
+    return <StatsComponent />;
   }
 }
 
-function StatsContent() {
+export function StatsComponent() {
   const stats = [
     {
       title: 'Total Revenue',
