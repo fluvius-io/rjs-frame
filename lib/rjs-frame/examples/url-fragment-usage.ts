@@ -7,18 +7,16 @@
  */
 
 import {
-  parseUrlPath,
-  buildUrlPath,
-  updateUrlFragments,
-  addUrlFragment,
-  removeUrlFragment,
-  updateBrowserUrlFragments,
-  addSlotParam,
-  removeSlotParam,
-  updateSlotParamsPartial,
+  parseUrl,
+  buildPathFromPageState,
+  updateBrowserLocation,
+  addPageParam,
+  removePageParam,
+  updatePageParamsPartial,
   URL_FRAGMENT_SEPARATOR,
   isValidFragmentName,
-  FRAGMENT_NAME_PATTERN
+  FRAGMENT_NAME_PATTERN,
+  pageStore
 } from '../src/index';
 
 // ===== BASIC URL STRUCTURE =====
@@ -41,33 +39,34 @@ console.log('\n=== Parsing URLs ===');
 
 // Parse a URL with mixed fragment types
 const mixedUrl = '/admin/-/filter:active/sort:name/page:1/debug/readonly';
-const parsed = parseUrlPath(mixedUrl);
+const parsed = parseUrl(mixedUrl);
 
 console.log(`Parsing: ${mixedUrl}`);
-console.log('Result:', {
-  pageName: parsed.pageName,        // 'admin'
-  slotParams: parsed.slotParams,    // { filter: 'active', sort: 'name', page: '1', debug: true, readonly: true }
-  slotStatus: parsed.slotStatus     // { filter: 'active', sort: 'active', page: 'active', debug: 'active', readonly: 'active' }
+console.log({
+  pagePath: parsed.pagePath,        // 'admin'
+  pageParams: parsed.pageParams,    // { filter: 'active', sort: 'name', page: '1', debug: true, readonly: false }
+  linkParams: parsed.linkParams     // {}
 });
 
 // Parse URL with only boolean flags
 const flagsUrl = '/dashboard/-/debug/xray/readonly';
-const flagsParsed = parseUrlPath(flagsUrl);
+const flagsParsed = parseUrl(flagsUrl);
 
 console.log(`\nParsing flags only: ${flagsUrl}`);
-console.log('Result:', {
-  pageName: flagsParsed.pageName,        // 'dashboard'
-  slotParams: flagsParsed.slotParams,    // { debug: true, xray: true, readonly: true }
+console.log({
+  pagePath: flagsParsed.pagePath,        // 'dashboard'
+  pageParams: flagsParsed.pageParams,    // { debug: true, xray: true, readonly: true }
+  linkParams: flagsParsed.linkParams     // {}
 });
 
 // Parse legacy format (still supported)
 const legacyUrl = '/dashboard/user:123/tab:overview';
-const legacyParsed = parseUrlPath(legacyUrl);
+const legacyParsed = parseUrl(legacyUrl);
 
 console.log(`\nParsing legacy format: ${legacyUrl}`);
-console.log('Result:', {
-  pageName: legacyParsed.pageName,
-  slotParams: legacyParsed.slotParams
+console.log({
+  pagePath: legacyParsed.pagePath,
+  pageParams: legacyParsed.pageParams
 });
 
 // ===== BUILDING URLS =====
@@ -75,152 +74,127 @@ console.log('Result:', {
 console.log('\n=== Building URLs ===');
 
 // Build URL with mixed fragment types
-const newUrl = buildUrlPath('admin', {
-  filter: 'pending',
-  sort: 'date',
-  view: 'list',
-  debug: true,
-  readonly: false  // false values are omitted
-});
+const examplePageState = {
+  pageName: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: {
+    filter: 'pending',
+    sort: 'date',
+    view: 'list',
+    debug: true,
+    readonly: false  // false values are omitted
+  },
+  linkParams: {},
+  initTime: new Date().toISOString(),
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
 
 console.log('Building URL for page "admin" with mixed fragments:');
-console.log('Params:', { filter: 'pending', sort: 'date', view: 'list', debug: true, readonly: false });
-console.log('Result:', newUrl); // '/admin/-/filter:pending/sort:date/view:list/debug'
+console.log('Params:', examplePageState.pageParams);
+console.log('Use updateBrowserLocation(pageState) to update browser URL');
+// updateBrowserLocation(examplePageState) would update URL to: '/admin/-/filter:pending/sort:date/view:list/debug'
 
 // Build URL with only boolean flags
-const flagsOnlyUrl = buildUrlPath('settings', {
-  advanced: true,
-  expert: true,
-  beta: false  // omitted
-});
+const flagsPageState = {
+  ...examplePageState,
+  pageName: 'settings',
+  breadcrumbs: ['settings'],
+  pageParams: {
+    advanced: true,
+    expert: true,
+    beta: false  // omitted
+  }
+};
 
 console.log('\nBuilding URL with boolean flags:');
-console.log('Params:', { advanced: true, expert: true, beta: false });
-console.log('Result:', flagsOnlyUrl); // '/settings/-/advanced/expert'
+console.log('Params:', flagsPageState.pageParams);
+console.log('Use updateBrowserLocation(pageState) to update browser URL');
+// updateBrowserLocation(flagsPageState) would update URL to: '/settings/-/advanced/expert'
 
 // ===== BOOLEAN FLAG EXAMPLES =====
 
 console.log('\n=== Boolean Flag Examples ===');
 
 // Example 1: Debug mode
-const debugUrl = buildUrlPath('app', { debug: true });
-console.log('Debug mode:', debugUrl); // '/app/-/debug'
+const debugPageState = {
+  ...examplePageState,
+  pageName: 'app',
+  breadcrumbs: ['app'],
+  pageParams: { debug: true }
+};
+console.log('Debug mode pageState for updateBrowserLocation()');
+console.log('updateBrowserLocation(debugPageState) would create: /app/-/debug');
 
-const debugParsed = parseUrlPath('/app/-/debug');
-console.log('Parsed debug:', debugParsed.slotParams); // { debug: true }
+const debugParsed = parseUrl('/app/-/debug');
+console.log('Parsed debug:', debugParsed.pageParams); // { debug: true }
 
 // Example 2: Mixed with string values
-const mixedDebugUrl = buildUrlPath('admin', {
-  filter: 'active',
-  debug: true,
-  page: '1'
-});
-console.log('Mixed with debug:', mixedDebugUrl); // '/admin/-/filter:active/page:1/debug'
-
-// Example 3: Multiple flags
-const multipleFlagsUrl = buildUrlPath('editor', {
-  readonly: true,
-  debug: true,
-  advanced: true,
-  beta: false  // omitted
-});
-console.log('Multiple flags:', multipleFlagsUrl); // '/editor/-/readonly/debug/advanced'
-
-// ===== SAFE FRAGMENT UPDATES =====
-
-console.log('\n=== Safe Fragment Updates (Page Name Preserved) ===');
-
-// Simulate current URL state
-const mockWindow = {
-  location: {
-    pathname: '/admin/-/filter:active/sort:name',
-    search: ''
+const mixedDebugPageState = {
+  ...examplePageState,
+  pageParams: {
+    filter: 'active',
+    debug: true,
+    page: '1'
   }
 };
+console.log('Mixed with debug - use updateBrowserLocation(mixedDebugPageState)');
+console.log('Would create: /admin/-/filter:active/page:1/debug');
 
-// Method 1: Update all fragments (replaces existing)
-console.log('Current URL: /admin/-/filter:active/sort:name');
-
-const updatedUrl = updateUrlFragments({
-  filter: 'pending',
-  sort: 'date',
-  page: '2'
-});
-
-console.log('After updateUrlFragments:', updatedUrl);
-// Result: '/admin/-/filter:pending/sort:date/page:2'
-// ✅ Page name 'admin' is preserved
-
-// Method 2: Add/update single fragment
-const withNewFragment = addUrlFragment('view', 'grid');
-console.log('After addUrlFragment("view", "grid"):', withNewFragment);
-// Result: '/admin/-/filter:active/sort:name/view:grid'
-// ✅ Page name and existing fragments preserved
-
-// Method 3: Remove single fragment
-const withoutFilter = removeUrlFragment('filter');
-console.log('After removeUrlFragment("filter"):', withoutFilter);
-// Result: '/admin/-/sort:name'
-// ✅ Page name preserved, only filter removed
-
-// ===== STORE INTEGRATION =====
-
-console.log('\n=== Page Store Integration ===');
-
-// These functions work with the page store and update the browser URL safely:
-
-// Add a single parameter
-console.log('addSlotParam("tab", "settings")');
-// ✅ Adds tab:settings while preserving page name and other params
-
-// Remove a parameter
-console.log('removeSlotParam("filter")');
-// ✅ Removes filter param while preserving page name and other params
-
-// Update multiple parameters
-console.log('updateSlotParamsPartial({ sort: "date", page: "1" })');
-// ✅ Updates only specified params while preserving page name and other params
-
-// Update browser URL with fragments only
-console.log('updateBrowserUrlFragments({ status: "active", view: "list" })');
-// ✅ Updates URL fragments while preserving current page name
-
-// ===== ERROR PREVENTION =====
-
-console.log('\n=== Error Prevention Examples ===');
-
-console.log('❌ WRONG: Manual URL construction can break page name');
-console.log('   window.history.replaceState(null, "", "/newPage/filter:active")');
-console.log('   // This could accidentally change page name!');
-
-console.log('\n✅ CORRECT: Use safe utility functions');
-console.log('   addSlotParam("filter", "active")');
-console.log('   // This preserves the current page name');
-
-console.log('\n✅ CORRECT: Use updateUrlFragments for complete replacement');
-console.log('   const newUrl = updateUrlFragments({ filter: "active", sort: "name" })');
-console.log('   // This preserves the current page name');
+// Example 3: Multiple flags
+const multipleFlagsPageState = {
+  ...examplePageState,
+  pageName: 'editor',
+  breadcrumbs: ['editor'],
+  pageParams: {
+    readonly: true,
+    debug: true,
+    advanced: true,
+    beta: false  // omitted
+  }
+};
+console.log('Multiple flags - use updateBrowserLocation(multipleFlagsPageState)');
+console.log('Would create: /editor/-/readonly/debug/advanced');
 
 // ===== EDGE CASES =====
 
 console.log('\n=== Edge Cases Handled ===');
 
 // Empty fragments
-const emptyFragmentsUrl = buildUrlPath('admin', {});
-console.log('Empty fragments:', emptyFragmentsUrl); // '/admin'
+const emptyFragmentsPageState = {
+  ...examplePageState,
+  pageName: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: {}
+};
+console.log('Empty fragments - use updateBrowserLocation(emptyFragmentsPageState)');
+console.log('Would create: /admin');
 
 // Empty page name
-const noPageUrl = buildUrlPath('', { filter: 'active' });
-console.log('Empty page name:', noPageUrl); // '/'
+const noPagePageState = {
+  ...examplePageState,
+  pageName: '',
+  breadcrumbs: [],
+  pageParams: { filter: 'active' }
+};
+console.log('Empty page name - use updateBrowserLocation(noPagePageState)');
+console.log('Would create: / (root)');
 
 // Complex fragment values
-const complexUrl = buildUrlPath('search', {
-  query: 'user name',
-  filters: 'status=active&type=user',
-  page: '1'
-});
-console.log('Complex values:', complexUrl);
-// '/search/-/query:user name/filters:status=active&type=user/page:1'
+const complexPageState = {
+  ...examplePageState,
+  pageName: 'search',
+  breadcrumbs: ['search'],
+  pageParams: {
+    query: 'user name',
+    filters: 'status=active&type=user',
+    page: '1'
+  }
+};
+console.log('Complex values - use updateBrowserLocation(complexPageState)');
+console.log('Would create: /search/-/query:user name/filters:status=active&type=user/page:1');
 
 // ===== SUMMARY =====
 
@@ -263,19 +237,25 @@ const mixedValidInvalidParams = {
   'user@domain': 'test'       // Will be skipped with warning
 };
 
-const urlWithInvalidNames = buildUrlPath('test', mixedValidInvalidParams);
+const invalidNamesPageState = {
+  ...examplePageState,
+  pageName: 'test',
+  breadcrumbs: ['test'],
+  pageParams: mixedValidInvalidParams
+};
+
 console.log('Mixed valid/invalid params:', mixedValidInvalidParams);
-console.log('Result URL (invalid names skipped):', urlWithInvalidNames);
-// Expected: '/test/-/valid_param:value1/debug'
+console.log('Use updateBrowserLocation(invalidNamesPageState) - invalid names will be skipped with warnings');
+console.log('Would create: /test/-/valid_param:value1/debug');
 // Console warnings for: 'invalid-param', 'filter.type', 'user@domain'
 
 // Example parsing URL with invalid names
 console.log('\n=== Parsing URL with Invalid Names ===');
 const urlWithInvalidFragments = '/admin/-/valid_param:value1/invalid-fragment/filter.type:docs/debug';
-const parsedWithInvalid = parseUrlPath(urlWithInvalidFragments);
+const parsedWithInvalid = parseUrl(urlWithInvalidFragments);
 
 console.log('URL with invalid fragments:', urlWithInvalidFragments);
-console.log('Parsed result (invalid names skipped):', parsedWithInvalid.slotParams);
+console.log('Parsed result (invalid names skipped):', parsedWithInvalid.pageParams);
 // Expected: { valid_param: 'value1', debug: true }
 // Console warnings for: 'invalid-fragment', 'filter.type'
 

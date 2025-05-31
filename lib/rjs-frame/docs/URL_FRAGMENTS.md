@@ -70,9 +70,8 @@ import { parseUrlPath } from 'rjs-frame';
 const result = parseUrlPath('/admin/-/filter:active/sort:name/debug');
 console.log(result);
 // {
-//   pageName: 'admin',
-//   slotParams: { filter: 'active', sort: 'name', debug: true },
-//   slotStatus: { filter: 'active', sort: 'active', debug: 'active' },
+//   pagePath: 'admin',
+//   pageParams: { filter: 'active', sort: 'name', debug: true },
 //   linkParams: {}
 // }
 ```
@@ -80,15 +79,28 @@ console.log(result);
 ### Building URLs
 
 ```typescript
-import { buildUrlPath } from 'rjs-frame';
+import { buildUrlFromPageState } from 'rjs-frame';
 
-const url = buildUrlPath('admin', {
-  filter: 'pending',
-  sort: 'date',
-  page: '2',
-  debug: true,
-  readonly: false  // false values are omitted from URL
-});
+const pageState = {
+  name: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: {
+    filter: 'pending',
+    sort: 'date',
+    page: '2',
+    debug: true,
+    readonly: false  // false values are omitted from URL
+  },
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+const url = buildUrlFromPageState(pageState);
 console.log(url); // '/admin/-/filter:pending/sort:date/page:2/debug'
 ```
 
@@ -100,7 +112,7 @@ console.log(url); // '/admin/-/filter:pending/sort:date/page:2/debug'
 // Output: '/admin/-/filter:active/sort:name'
 
 const parsed = parseUrlPath('/admin/-/filter:active/sort:name');
-console.log(parsed.slotParams);
+console.log(parsed.pageParams);
 // { filter: 'active', sort: 'name' }
 ```
 
@@ -110,7 +122,7 @@ console.log(parsed.slotParams);
 // Output: '/admin/-/debug/readonly'
 
 const parsed = parseUrlPath('/admin/-/debug/readonly');
-console.log(parsed.slotParams);
+console.log(parsed.pageParams);
 // { debug: true, readonly: true }
 ```
 
@@ -120,18 +132,31 @@ console.log(parsed.slotParams);
 // Output: '/admin/-/filter:active/page:1/debug'
 
 const parsed = parseUrlPath('/admin/-/filter:active/page:1/debug');
-console.log(parsed.slotParams);
+console.log(parsed.pageParams);
 // { filter: 'active', page: '1', debug: true }
 ```
 
 ### Boolean False Handling
 ```typescript
 // Boolean false values are omitted from URLs
-const url = buildUrlPath('admin', {
-  filter: 'active',
-  debug: true,
-  readonly: false  // This will not appear in the URL
-});
+const pageStateWithFalse = {
+  name: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: {
+    filter: 'active',
+    debug: true,
+    readonly: false  // This will not appear in the URL
+  },
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+const url = buildUrlFromPageState(pageStateWithFalse);
 console.log(url); // '/admin/-/filter:active/debug'
 ```
 
@@ -205,9 +230,9 @@ removeSlotParam('filter');
 ### Update Multiple Parameters
 
 ```typescript
-import { updateSlotParamsPartial } from 'rjs-frame';
+import { updatePageParamsPartial } from 'rjs-frame';
 
-updateSlotParamsPartial({ 
+updatePageParamsPartial({ 
   sort: 'date', 
   page: '1',
   view: 'list'
@@ -217,17 +242,25 @@ updateSlotParamsPartial({
 // ✅ Updates page store state
 ```
 
-### Update Browser URL (Fragments Only)
+### Update Browser URL Using Central Method
 
 ```typescript
-import { updateBrowserUrlFragments } from 'rjs-frame';
+import { updateBrowserLocation, pageStore } from 'rjs-frame';
 
-updateBrowserUrlFragments({ 
-  status: 'active', 
-  view: 'list' 
-});
-// ✅ Updates URL fragments while preserving current page name
-// ✅ Does not update page store (useful for temporary URL changes)
+// Get current page state and update it
+const currentState = pageStore.get();
+const updatedState = {
+  ...currentState,
+  pageParams: { 
+    status: 'active', 
+    view: 'list' 
+  }
+};
+
+updateBrowserLocation(updatedState);
+// ✅ Updates URL using central method with pageState
+// ✅ Handles both path and fragment updates intelligently
+// ✅ Provides proper history management
 ```
 
 ## Migration Guide
@@ -263,14 +296,27 @@ addSlotParam('filter', newFilter);
 ### Custom URL Building
 
 ```typescript
-import { buildUrlPath, URL_FRAGMENT_SEPARATOR } from 'rjs-frame';
+import { buildUrlFromPageState, URL_FRAGMENT_SEPARATOR } from 'rjs-frame';
 
 // Build complex URLs
-const complexUrl = buildUrlPath('search', {
-  query: 'react hooks',
-  filters: 'language=javascript&difficulty=intermediate',
-  page: '1'
-});
+const complexPageState = {
+  name: 'search',
+  breadcrumbs: ['search'],
+  pageParams: {
+    query: 'react hooks',
+    filters: 'language=javascript&difficulty=intermediate',
+    page: '1'
+  },
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+const complexUrl = buildUrlFromPageState(complexPageState);
 // Result: /search/-/query:react hooks/filters:language=javascript&difficulty=intermediate/page:1
 ```
 
@@ -288,7 +334,7 @@ console.log(hasNewFormat); // true
 ### Fragment Name Validation
 
 ```typescript
-import { isValidFragmentName, FRAGMENT_NAME_PATTERN } from 'rjs-frame';
+import { isValidFragmentName, FRAGMENT_NAME_PATTERN, buildUrlFromPageState } from 'rjs-frame';
 
 // Validate fragment names before using them
 console.log(isValidFragmentName('filter'));       // true
@@ -305,7 +351,20 @@ const params = {
   'invalid-param': 'value2'  // This will be skipped with warning
 };
 
-const url = buildUrlPath('admin', params);
+const pageStateWithMixed = {
+  name: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: params,
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+const url = buildUrlFromPageState(pageStateWithMixed);
 // Console warning: [RJS-Frame] Invalid fragment name "invalid-param"...
 // Result: '/admin/-/valid_param:value1'
 ```
@@ -315,31 +374,62 @@ const url = buildUrlPath('admin', params);
 ### Empty Fragments
 
 ```typescript
-buildUrlPath('admin', {}); // '/admin'
+const emptyPageState = {
+  name: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: {},
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+buildUrlFromPageState(emptyPageState); // '/admin'
 ```
 
 ### Empty Page Name
 
 ```typescript
-buildUrlPath('', { filter: 'active' }); // '/'
+const noNamePageState = {
+  name: '',
+  breadcrumbs: [],
+  pageParams: { filter: 'active' },
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+buildUrlFromPageState(noNamePageState); // '/'
 ```
 
 ### Complex Fragment Values
 
 ```typescript
-buildUrlPath('search', {
-  query: 'user name with spaces',
-  filters: 'status=active&type=premium'
-});
+const complexFragmentState = {
+  name: 'search',
+  breadcrumbs: ['search'],
+  pageParams: {
+    query: 'user name with spaces',
+    filters: 'status=active&type=premium'
+  },
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+buildUrlFromPageState(complexFragmentState);
 // '/search/-/query:user name with spaces/filters:status=active&type=premium'
-```
-
-### Multiple Separators
-
-```typescript
-// If URL accidentally contains multiple /-/ separators, uses first one
-parseUrlPath('/admin/-/arg1:value1/-/arg2:value2');
-// Result: pageName = 'admin', fragments = 'arg1:value1/-/arg2:value2'
 ```
 
 ## TypeScript Support
@@ -347,14 +437,27 @@ parseUrlPath('/admin/-/arg1:value1/-/arg2:value2');
 All functions include full TypeScript support:
 
 ```typescript
-import type { SlotParams } from 'rjs-frame';
+import type { PageParams, PageState } from 'rjs-frame';
 
-const params: SlotParams = {
+const params: PageParams = {
   filter: 'active',
   sort: 'name'
 };
 
-const url = buildUrlPath('admin', params); // Fully typed
+const pageState: PageState = {
+  name: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: params,
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+const url = buildUrlFromPageState(pageState); // Fully typed
 ```
 
 ## Constants
@@ -407,16 +510,28 @@ setPageName('newPage');
 When testing URL functionality:
 
 ```typescript
-import { parseUrlPath, buildUrlPath } from 'rjs-frame';
+import { parseUrlPath, buildUrlFromPageState } from 'rjs-frame';
 
 // Test URL parsing
 const testUrl = '/admin/-/filter:active/sort:name';
 const parsed = parseUrlPath(testUrl);
-expect(parsed.pageName).toBe('admin');
-expect(parsed.slotParams.filter).toBe('active');
+expect(parsed.pagePath).toBe('admin');
 
-// Test URL building  
-const builtUrl = buildUrlPath('admin', { filter: 'active' });
+// Test URL building
+const testPageState = {
+  name: 'admin',
+  breadcrumbs: ['admin'],
+  pageParams: { filter: 'active' },
+  linkParams: {},
+  time: new Date().toISOString(),
+  path: '',
+  globalState: {},
+  moduleState: {},
+  auth: {},
+  other: {}
+};
+
+const builtUrl = buildUrlFromPageState(testPageState);
 expect(builtUrl).toBe('/admin/-/filter:active');
 ```
 

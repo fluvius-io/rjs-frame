@@ -1,24 +1,28 @@
 import React from 'react';
 import { PageLayoutOptions } from './PageLayoutOptions';
-import { getXRayEnabled, setXRayEnabled } from '../store/pageStore';
+import { getXRayEnabled, setXRayEnabled, pageStore, setBreadcrumbs, pushBreadcrumb, popBreadcrumb, getBreadcrumbs } from '../store/pageStore';
 import { PageModule } from './PageModule';
 import { PageLayoutContext, type PageLayoutContextType } from '../contexts/LayoutContexts';
+import type { PageState } from '../types/PageState';
 
 type ModuleValue = React.ReactNode | React.ReactNode[];
 
 export interface PageLayoutProps {
   children?: React.ReactNode;
   xRay?: boolean;
+  title?: string;
 }
 
 interface PageLayoutState {
   showOptions: boolean;
+  pageState: PageState;
 }
 
 export abstract class PageLayout extends React.Component<PageLayoutProps, PageLayoutState> {
   private layoutId: string;
   private static activeInstance: PageLayout | null = null;
   private static instanceCount: number = 0;
+  private unsubscribePageStore?: () => void;
 
   private gatherModulesFromChildren(): Record<string, React.ReactNode[]> {
     const pageModules: Record<string, React.ReactNode[]> = {};
@@ -70,7 +74,8 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     super(props);
     this.layoutId = this.constructor.name;
     this.state = {
-      showOptions: false
+      showOptions: false,
+      pageState: pageStore.get()
     };
   }
 
@@ -92,9 +97,19 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     // Set this as the active instance
     PageLayout.activeInstance = this;
 
+    // Subscribe to page store changes
+    this.unsubscribePageStore = pageStore.subscribe((pageState: PageState) => {
+      this.setState({ pageState });
+    });
+
     // Initialize xRay from props if provided (for backward compatibility)
     if (this.props.xRay !== undefined) {
       setXRayEnabled(this.props.xRay);
+    }
+
+    // Set initial breadcrumbs from title prop
+    if (this.props.title) {
+      setBreadcrumbs([this.props.title]);
     }
 
     // Validate children on mount
@@ -110,9 +125,21 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     this.onMount();
   }
 
+  componentDidUpdate(prevProps: PageLayoutProps) {
+    // Update breadcrumbs if title prop changes
+    if (prevProps.title !== this.props.title && this.props.title) {
+      setBreadcrumbs([this.props.title]);
+    }
+  }
+
   componentWillUnmount() {
     // Decrement instance count
     PageLayout.instanceCount--;
+
+    // Unsubscribe from page store
+    if (this.unsubscribePageStore) {
+      this.unsubscribePageStore();
+    }
 
     // Clean up only if this is the active instance
     if (PageLayout.activeInstance === this) {
@@ -197,6 +224,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
 
   render() {
     const xRayEnabled = getXRayEnabled();
+    const { breadcrumbs } = this.state.pageState;
     
     const contextValue: PageLayoutContextType = {
       layoutId: this.layoutId,

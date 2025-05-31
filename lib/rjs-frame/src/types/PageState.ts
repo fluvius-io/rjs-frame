@@ -21,8 +21,9 @@ export type ModuleState = {
 
 
 export interface PageState {
-  name: string;
-  time: string;
+  pageName: string;
+  initTime: string;
+  breadcrumbs: string[];
   pageParams: PageParams;
   linkParams: LinkParams;
   globalState: GlobalState;

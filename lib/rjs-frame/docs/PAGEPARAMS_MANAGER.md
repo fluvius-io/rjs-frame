@@ -38,7 +38,7 @@ The PageParams manager component has been moved from application-specific module
 - URL format: `/page/-/string_param:value/boolean_flag`
 
 ### **URL Management**
-- Direct browser URL manipulation using `updateBrowserUrlFragments()`
+- Central URL management using `updateBrowserLocation()` with pageState
 - Automatic synchronization with page store
 - Support for `/-/` separator format
 - Backward compatibility with legacy format

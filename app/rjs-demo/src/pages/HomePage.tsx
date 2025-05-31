@@ -1,15 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { GenericLayout } from '../layouts/GenericLayout';
-import { setPageName, getXRayEnabled, PageModule } from 'rjs-frame';
+import { getXRayEnabled, PageModule } from 'rjs-frame';
 import { HomeHeader } from '../modules/home/HomeHeader';
 
 const HomePage: React.FC = () => {
-  useEffect(() => {
-    setPageName('home');
-  }, []);
-
   return (
-    <GenericLayout>
+    <GenericLayout title="Home">
       <HomeHeader slotName="header" />
       <PageModule>
         <h3>Home Page</h3>

@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { pageStore } from 'rjs-frame';
-import { parseUrlPath } from 'rjs-frame';
+import { pageStore, parseUrlPath, type ParsedUrl } from 'rjs-frame';
 
 export const RouteChangeHandler: React.FC = () => {
   const location = useLocation();
@@ -10,17 +9,24 @@ export const RouteChangeHandler: React.FC = () => {
     const currentState = pageStore.get();
     
     // Parse the full URL using the proper utility function
-    const { pageName, pageParams, linkParams } = parseUrlPath(location.pathname);
+    const { pagePath, pageParams, linkParams } = parseUrlPath(location.pathname);
     
-    // Use the first segment as fallback if no pageName is parsed
-    const finalPageName = pageName || location.pathname.split('/').filter(Boolean)[0] || 'dashboard';
+    // Parse search parameters separately to ensure they're captured
+    const searchParams = new URLSearchParams(location.search);
+    const parsedLinkParams: Record<string, string> = {};
+    searchParams.forEach((value, key) => {
+      parsedLinkParams[key] = value;
+    });
+    
+    // Derive logical page name from the first segment of the path
+    const finalPageName = pagePath.split('/')[0] || location.pathname.split('/').filter(Boolean)[0] || 'dashboard';
     
     // Update page store
     pageStore.set({
       ...currentState,
       name: finalPageName,
       pageParams,
-      linkParams,
+      linkParams: parsedLinkParams, // Use the parsed search params
       time: Date.now().toString()
     });
   }, [location.pathname, location.search, location.hash]);

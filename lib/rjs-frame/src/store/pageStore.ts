@@ -1,14 +1,9 @@
 import { atom } from 'nanostores';
 import type { PageState, PageParams } from '../types/PageState';
 import { 
-  parseUrlPath, 
-  parseSearchParams, 
-  updateBrowserUrl,
-  updateBrowserUrlFragments,
-  updateBrowserSearchParams,
-  addUrlFragment,
-  removeUrlFragment,
-  updateUrlFragments
+  parseBrowserLocation, 
+  updateBrowserLocation,
+  updateBrowserTitle,
 } from '../utils/urlUtils';
 
 // LocalStorage keys
@@ -47,8 +42,9 @@ const loadPersistedModuleState = () => {
 
 // Initialize page store with default values and persisted state
 const initialState: PageState = {
-  name: '',
-  time: new Date().toISOString(),
+  pageName: '',
+  initTime: new Date().toISOString(),
+  breadcrumbs: [],
   pageParams: {},
   linkParams: {},
   globalState: loadPersistedGlobalState(),
@@ -127,7 +123,10 @@ export const updateLinkParams = (newParams: Record<string, string>) => {
       ...newParams
     }
   }));
-  updateBrowserSearchParams(newParams);
+  
+  // Pass updated state to URL update function
+  const updatedState = pageStore.get();
+  updateBrowserLocation(updatedState);
 };
 
 // Update pageParams while preserving page name
@@ -137,8 +136,10 @@ export const updatePageParams = (newParams: PageParams) => {
     ...state,
     pageParams: newParams
   }));
-  // Use the safe method that preserves page name
-  updateBrowserUrlFragments(newParams);
+  
+  // Use the central updateBrowserLocation method
+  const updatedState = pageStore.get();
+  updateBrowserLocation(updatedState);
 };
 
 // Add or update a single page parameter while preserving page name and other params
@@ -152,7 +153,10 @@ export const addPageParam = (key: string, value: string) => {
     ...state,
     pageParams: updatedParams
   }));
-  updateBrowserUrlFragments(updatedParams);
+  
+  // Pass updated state to URL function
+  const updatedState = pageStore.get();
+  updateBrowserLocation(updatedState);
 };
 
 // Remove a page parameter while preserving page name and other params
@@ -166,7 +170,10 @@ export const removePageParam = (key: string) => {
     ...state,
     pageParams: updatedParams
   }));
-  updateBrowserUrlFragments(updatedParams);
+  
+  // Pass updated state to URL function
+  const updatedState = pageStore.get();
+  updateBrowserLocation(updatedState);
 };
 
 // Update multiple page parameters while preserving page name
@@ -189,28 +196,66 @@ export const updatePageParamsPartial = (paramsToUpdate: Partial<PageParams>) => 
     ...state,
     pageParams: updatedParams
   }));
-  updateBrowserUrlFragments(updatedParams);
+  
+  // Pass updated state to URL function
+  const updatedState = pageStore.get();
+  updateBrowserLocation(updatedState);
 };
 
-// Set page name only (doesn't update URL)
+// Set page name only (logical page identifier, doesn't update URL)
 export const setPageName = (pageName: string) => {
-  const currentState = pageStore.get();
   updatePageState(state => ({
     ...state,
-    name: pageName,
-    pageParams: currentState.pageParams // Preserve existing page parameters
+    pageName: pageName // Set the logical page name
   }));
-  updateBrowserUrl(pageName, currentState.pageParams);
+  updateBrowserTitle(pageStore.get());
+};
+
+// Breadcrumb management functions
+export const setBreadcrumbs = (breadcrumbs: string[]) => {
+  updatePageState(state => ({
+    ...state,
+    breadcrumbs: [...breadcrumbs.filter(Boolean)],
+  }));
+  updateBrowserTitle(pageStore.get());
+};
+
+export const pushBreadcrumb = (breadcrumb: string) => {
+  const currentState = pageStore.get();
+  const newBreadcrumbs = [...currentState.breadcrumbs, breadcrumb];
+  setBreadcrumbs(newBreadcrumbs);
+};
+
+export const popBreadcrumb = () => {
+  const currentState = pageStore.get();
+  if (currentState.breadcrumbs.length > 0) {
+    const newBreadcrumbs = currentState.breadcrumbs.slice(0, -1);
+    setBreadcrumbs(newBreadcrumbs);
+  }
+};
+
+export const getBreadcrumbs = (): string[] => {
+  const state = pageStore.get();
+  return state.breadcrumbs;
 };
 
 // Initialize page state from current URL (useful on app start)
-export const initializeFromUrl = () => {
-  const { pageName, pageParams, linkParams } = parseUrlPath();
-  updatePageState(() => ({
+export const initializeFromBrowserLocation = (windowLocation: Location) => {
+  const { pagePath, pageParams, linkParams } = parseBrowserLocation(windowLocation);
+  
+  const breadcrumbs = pagePath.split('/').filter(Boolean);
+  const pageName = breadcrumbs.pop() || '';
+  
+  const newState: PageState = {
     ...initialState,
-    name: pageName,
+    pageName,
+    breadcrumbs,
     pageParams,
     linkParams,
-    time: new Date().toISOString()
-  }));
+    initTime: new Date().toISOString()
+  };
+  
+  updatePageState(() => newState);
+  updateBrowserTitle(newState);
+  return newState;
 }; 

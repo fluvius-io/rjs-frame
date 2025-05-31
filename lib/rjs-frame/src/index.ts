@@ -21,7 +21,11 @@ export {
   removePageParam,
   updatePageParamsPartial,
   setPageName,
-  initializeFromUrl
+  setBreadcrumbs,
+  pushBreadcrumb,
+  popBreadcrumb,
+  getBreadcrumbs,
+  initializeFromBrowserLocation
 } from './store/pageStore';
 
 // Types
@@ -36,17 +40,14 @@ export type {
 
 // Utils
 export {
-  parseUrlPath,
+  parseUrl,
+  parseBrowserLocation,
   parseUrlFragments,
   parseSearchParams,
   buildUrlFragments,
-  buildUrlPath,
-  updateUrlFragments,
-  addUrlFragment,
-  removeUrlFragment,
-  updateBrowserUrl,
-  updateBrowserUrlFragments,
-  updateBrowserSearchParams,
+  buildPathFromPageState,
+  updateBrowserLocation,
+  updateBrowserTitle,
   isValidFragmentName,
   URL_FRAGMENT_SEPARATOR,
   FRAGMENT_NAME_PATTERN
@@ -55,7 +56,8 @@ export {
 // Contexts
 export { 
   PageLayoutContext, 
-  PageSlotContext 
+  PageSlotContext,
+  usePageLayout
 } from './contexts/LayoutContexts';
 export type { 
   PageLayoutContextType, 
@@ -63,5 +65,5 @@ export type {
 } from './contexts/LayoutContexts';
 
 // Re-export types for convenience
-export type { ParsedUrl, ParsedFragments } from './utils/urlUtils';
+export type { ParsedUrl } from './utils/urlUtils';
 export type { PageParamsManagerProps } from './components/PageParamsManager'; 

@@ -1,17 +1,11 @@
 import { AdminHeader } from '../modules/admin/AdminHeader';
 import { FilterModule } from '../modules/FilterModule';
 import { GenericLayout } from '../layouts/GenericLayout';
-import { setPageName } from 'rjs-frame';
-import { useEffect } from 'react';
 
 
 const AdminPage: React.FC = () => {
-  useEffect(() => {
-    setPageName('admin');
-  }, []);
-
   return (
-    <GenericLayout>
+    <GenericLayout title="Administration">
       <AdminHeader slotName="header" />
       <FilterModule>
         <h2>Admin Filter Module</h2>

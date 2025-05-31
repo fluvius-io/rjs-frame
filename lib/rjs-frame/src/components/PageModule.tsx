@@ -76,10 +76,13 @@ export class PageModule extends React.Component<
     
     // Default: update on any change to core state properties
     return (
-      prevState.name !== newState.name ||
+      prevState.pageName !== newState.pageName ||
       JSON.stringify(prevState.pageParams) !== JSON.stringify(newState.pageParams) ||
       JSON.stringify(prevState.linkParams) !== JSON.stringify(newState.linkParams) ||
-      prevState.moduleState[this.moduleId] !== newState.moduleState[this.moduleId]
+      prevState.breadcrumbs !== newState.breadcrumbs ||
+      JSON.stringify(prevState.globalState) !== JSON.stringify(newState.globalState) ||
+      JSON.stringify(prevState.moduleState) !== JSON.stringify(newState.moduleState) ||
+      JSON.stringify(prevState.auth) !== JSON.stringify(newState.auth)
     );
   }
 

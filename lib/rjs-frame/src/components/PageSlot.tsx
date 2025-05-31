@@ -74,7 +74,7 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
     
     return (
       JSON.stringify(prevState.pageParams) !== JSON.stringify(newState.pageParams) ||
-      prevState.name !== newState.name
+      prevState.pageName !== newState.pageName
     );
   }
 

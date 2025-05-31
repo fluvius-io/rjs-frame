@@ -1,13 +1,9 @@
-import type { PageParams } from '../types/PageState';
+import type { PageParams, PageState } from '../types/PageState';
 
 export interface ParsedUrl {
-  pageName: string;
+  pagePath: string;
   pageParams: PageParams;
   linkParams: Record<string, string>;
-}
-
-export interface ParsedFragments {
-  params: PageParams;
 }
 
 // Special separator between page name and URL fragments
@@ -17,6 +13,103 @@ export const URL_FRAGMENT_SEPARATOR = '/-/';
 // First character: letters, digits, or underscore only (no dash or dot)
 // Subsequent characters: letters, digits, underscore, dot, or dash
 export const FRAGMENT_NAME_PATTERN = /^[a-zA-Z0-9_]([a-zA-Z0-9_\.-]*)?$/;
+
+/**
+ * Generate a human-readable page title from pageState
+ * @param pageState - The page state containing name and breadcrumbs
+ * @returns A formatted title string
+ */
+export function updateBrowserTitle(pageState: PageState): string {
+  // Priority: breadcrumbs > name > fallback
+  let title = pageState.pageName || 'Home';
+
+  if (pageState.breadcrumbs && pageState.breadcrumbs.length > 0) {
+    title = `${title} | ${pageState.breadcrumbs.join(' > ')}`;
+  } 
+  
+  if (typeof document !== 'undefined' && document.title != title) {
+    document.title = title;
+  }
+
+  return title;
+}
+
+/**
+ * Build URL path from pageState, handling both new paths and fragment updates
+ * Uses the /-/ separator pattern: /pagePath/-/fragments
+ * Supports multi-segment paths like "dashboard/settings"
+ * If pageState contains a current path context, preserves path structure for fragment updates
+ */
+export function buildPathFromPageState(pageState: PageState, currentPath: string): string {
+  const { pageParams } = pageState;
+
+// If we have a current path, check if it has fragments to update
+  const separatorIndex = currentPath.indexOf(URL_FRAGMENT_SEPARATOR);
+  const fragments = buildUrlFragments(pageParams);
+  
+  if (separatorIndex !== -1) {
+    // Path has /-/ separator, replace everything after it
+    const basePath = currentPath.substring(0, separatorIndex);
+    return fragments ? `${basePath}${URL_FRAGMENT_SEPARATOR}${fragments}` : basePath;
+  } else {
+    // No /-/ separator in current path, append it if we have fragments
+    return fragments ? `${currentPath}${URL_FRAGMENT_SEPARATOR}${fragments}` : currentPath;
+  }
+ 
+}
+
+export function buildSearchFromPageState(pageState: PageState): string {
+  const { linkParams } = pageState;
+  const searchParams = new URLSearchParams();
+  Object.entries(linkParams).forEach(([key, value]) => {
+    if (key) searchParams.set(key, value);
+  });
+  return searchParams.toString();
+}
+
+/**
+ * CENTRAL URL UPDATE METHOD
+ * This is the only method that should modify window.location
+ * All other URL update methods must call this method
+ * @param pageState - Required reference to current page state for title generation and history tracking
+ */
+export function updateBrowserLocation(pageState: PageState): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const { pageName, pageParams, linkParams } = pageState;
+  const currentPath = window.location.pathname;
+  
+  // Build the new URL using current path context for fragment updates
+  const newPath = buildPathFromPageState(pageState, currentPath).replace(/^\/+/, '/');
+  const pathChanged = currentPath !== newPath;
+  const newSearch = buildSearchFromPageState(pageState);
+  const newUrl = `${newPath}${newSearch ? '?' + newSearch : ''}`;
+  
+  // Generate title using pageState
+  const title = updateBrowserTitle(pageState); 
+  
+  // Only update history if URL actually changed
+  if (newUrl === window.location.href) {
+    return; 
+  }
+  
+  const historyState = {
+    pageName,
+    pagePath: newPath,
+    pageParams,
+    linkParams,
+    breadcrumbs: pageState.breadcrumbs || []
+  };
+  
+  // Use pushState for path changes, replaceState for fragment-only changes
+  if (pathChanged) {
+    window.history.pushState(historyState, title, newUrl);
+  } else {
+    window.history.replaceState(historyState, title, newUrl);
+  }
+}
 
 /**
  * Validate fragment argument name against allowed pattern
@@ -36,8 +129,8 @@ export function isValidFragmentName(name: string): boolean {
  * - fragments with ':' but empty value are treated as boolean false (e.g., "debug:" -> { debug: false })
  * - fragment names must start with letter/digit/underscore, then can contain dots and dashes
  */
-export function parseUrlFragments(fragments: string): ParsedFragments {
-  if (!fragments) return { params: {} };
+export function parseUrlFragments(fragments: string): PageParams {
+  if (!fragments) return {};
   
   const params: PageParams = {};
   const addParams = (name: string, value: string | boolean) => {
@@ -51,7 +144,7 @@ export function parseUrlFragments(fragments: string): ParsedFragments {
   
   fragments.split('/').filter(Boolean).forEach(fragment => {
     const colonIndex = fragment.indexOf(':');   
-    
+
     if (colonIndex === -1) {
       // Colon found - split into name and value
       return addParams(fragment, true);
@@ -62,7 +155,7 @@ export function parseUrlFragments(fragments: string): ParsedFragments {
     return addParams(name, valueString !== '' ? valueString : false);
   });
   
-  return { params };
+  return params;
 }
 
 /**
@@ -77,46 +170,36 @@ export function parseSearchParams(search: string): Record<string, string> {
 }
 
 /**
- * Parse full URL path into page name and slot parameters
- * Supports the /-/ separator pattern: /pageName/-/fragments
+ * Parse URL path into page path and slot parameters
+ * Supports the /-/ separator pattern: /pagePath/-/fragments
  * Example: /admin/-/arg1:value1/arg2:value2
- * Works with both window.location and provided path string
  */
-export function parseUrlPath(path?: string): ParsedUrl {
-  if (typeof window === 'undefined' && !path) {
-    return { pageName: '', pageParams: {}, linkParams: {} };
-  }
-
-  const urlPath = path || window.location.pathname;
-  const search = path ? '' : (window.location.search || '');
-  
+export function parseUrl(pathname: string, searchString: string = ''): ParsedUrl {
   // Check if path contains the special separator /-/
-  const separatorIndex = urlPath.indexOf(URL_FRAGMENT_SEPARATOR);
   
-  let pageName = '';
+  let pagePath = pathname.replace(/^\/+/, '');
   let fragmentString = '';
-  
+
+  const separatorIndex = pagePath.indexOf(URL_FRAGMENT_SEPARATOR);
+
   if (separatorIndex !== -1) {
     // Path contains /-/ separator
-    const pageNamePart = urlPath.substring(0, separatorIndex);
-    const fragmentsPart = urlPath.substring(separatorIndex + URL_FRAGMENT_SEPARATOR.length);
-    
-    // Extract page name (remove leading slash)
-    pageName = pageNamePart.replace(/^\/+/, '');
-    fragmentString = fragmentsPart;
-  } else {
-    // No /-/ separator - entire path is the page name, no parameters
-    pageName = urlPath.replace(/^\/+/, '');
-    fragmentString = ''; // No parameters when there's no /-/ separator
+    pagePath = pagePath.substring(0, separatorIndex);
+    fragmentString = pagePath.substring(separatorIndex + URL_FRAGMENT_SEPARATOR.length);
   }
 
-  const { params: pageParams } = parseUrlFragments(fragmentString);
-
   return {
-    pageName,
-    pageParams,
-    linkParams: parseSearchParams(search)
+    pagePath,
+    pageParams: parseUrlFragments(fragmentString),
+    linkParams: parseSearchParams(searchString)
   };
+}
+
+/**
+ * Convenience function that parses the current window location
+ */
+export function parseBrowserLocation(windowLocation: Location): ParsedUrl {
+  return parseUrl(windowLocation.pathname, windowLocation.search);
 }
 
 /**
@@ -151,142 +234,4 @@ export function buildUrlFragments(params: PageParams): string {
     })
     .filter(Boolean) // Remove null values (invalid names)
     .join('/');
-}
-
-/**
- * Build full URL path from page name and slot parameters
- * Uses the /-/ separator pattern: /pageName/-/fragments
- * Example: /admin/-/arg1:value1/arg2:value2
- */
-export function buildUrlPath(pageName: string, params: PageParams): string {
-  if (!pageName) {
-    // If no page name, return root path
-    return '/';
-  }
-  
-  const fragments = buildUrlFragments(params);
-  
-  if (!fragments) {
-    // If no fragments, return just the page name
-    return `/${pageName}`;
-  }
-  
-  // Use the /-/ separator between page name and fragments
-  return `/${pageName}${URL_FRAGMENT_SEPARATOR}${fragments}`;
-}
-
-/**
- * Update URL fragments while preserving the existing path structure
- * Only manages fragments after the /-/ separator, doesn't rely on parsed pageName
- */
-export function updateUrlFragments(params: PageParams): string {
-  if (typeof window === 'undefined') return '/';
-  
-  const currentPath = window.location.pathname;
-  const separatorIndex = currentPath.indexOf(URL_FRAGMENT_SEPARATOR);
-  
-  const fragments = buildUrlFragments(params);
-  
-  if (separatorIndex !== -1) {
-    // Path has /-/ separator, replace everything after it
-    const basePath = currentPath.substring(0, separatorIndex);
-    return fragments ? `${basePath}${URL_FRAGMENT_SEPARATOR}${fragments}` : basePath;
-  } else {
-    // No /-/ separator in current path, append it if we have fragments
-    return fragments ? `${currentPath}${URL_FRAGMENT_SEPARATOR}${fragments}` : currentPath;
-  }
-}
-
-/**
- * Add or update a single URL fragment while preserving path structure and other fragments
- */
-export function addUrlFragment(key: string, value: string): string {
-  const currentUrl = parseUrlPath();
-  const updatedParams = {
-    ...currentUrl.pageParams,
-    [key]: value
-  };
-  return updateUrlFragments(updatedParams);
-}
-
-/**
- * Remove a URL fragment while preserving path structure and other fragments
- */
-export function removeUrlFragment(key: string): string {
-  const currentUrl = parseUrlPath();
-  const updatedParams = { ...currentUrl.pageParams };
-  
-  delete updatedParams[key];
-  
-  return updateUrlFragments(updatedParams);
-}
-
-/**
- * Update browser URL with new path (client-side only)
- * Preserves the page name when updating fragments
- * Automatically creates history entry if path changes, replaces if only search changes
- * @param pageName - The page name
- * @param params - Page parameters
- * @param search - Optional search string
- */
-export function updateBrowserUrl(pageName: string, params: PageParams, search?: string): void {
-  if (typeof window === 'undefined') return;
-  
-  const newPath = buildUrlPath(pageName, params);
-  const currentSearch = search || window.location.search;
-  const newUrl = newPath + currentSearch;
-  
-  // Create history entry if path changed, replace if only search changed
-  const pathChanged = newPath !== window.location.pathname;
-  
-  if (pathChanged) {
-    window.history.pushState(null, '', newUrl);
-  } else {
-    window.history.replaceState(null, '', newUrl);
-  }
-}
-
-/**
- * Update browser URL fragments while preserving the current path structure
- * Only manages fragments after the /-/ separator (PageParams)
- * Preserves existing search parameters without modifying them
- * Creates history entry only if path actually changes
- * @param params - Page parameters
- */
-export function updateBrowserUrlFragments(params: PageParams): void {
-  if (typeof window === 'undefined') return;
-  
-  const newPath = updateUrlFragments(params);
-  const currentSearch = window.location.search;
-  const newUrl = newPath + currentSearch;
-  
-  // Only push state if the URL actually changed
-  if (newUrl !== window.location.href) {
-    window.history.pushState(null, '', newUrl);
-  }
-}
-
-/**
- * Update browser search params (client-side only)
- * Only manages search parameters (LinkParams)
- * Preserves existing path parameters without modifying them
- * Replaces state only if URL actually changes
- * @param params - Search parameters
- */
-export function updateBrowserSearchParams(params: Record<string, string>): void {
-  if (typeof window === 'undefined') return;
-
-  const searchParams = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value) searchParams.set(key, value);
-  });
-
-  const newSearch = searchParams.toString();
-  const currentPath = window.location.pathname;
-  const newUrl = `${currentPath}${newSearch ? '?' + newSearch : ''}`;
-  
-  // Only replace state if the URL actually changed
-  if (newUrl !== window.location.href) {
-    window.history.replaceState(null, '', newUrl);
-  }
 } 

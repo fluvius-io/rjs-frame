@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { pageStore, updatePageState } from '../store/pageStore';
-import { buildUrlPath, updateBrowserUrlFragments, isValidFragmentName, FRAGMENT_NAME_PATTERN } from '../utils/urlUtils';
+import { pageStore, updatePageParams } from '../store/pageStore';
+import { isValidFragmentName, FRAGMENT_NAME_PATTERN } from '../utils/urlUtils';
 import type { PageParams, PageState } from '../types/PageState';
 import '../styles/components/PageParamsManager.css';
 
@@ -26,7 +26,6 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
   const [editingParams, setEditingParams] = useState<EditingParam[]>([]);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const nextIdRef = useRef(1);
-  const isUpdatingFromUrl = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Subscribe to pageStore manually
@@ -91,13 +90,10 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
     setValidationErrors(errors);
   }, [editingParams, validateFragmentName]);
 
-  // Sync with URL params only when they actually change from external source
+  // Sync with URL params when they change from any source
   useEffect(() => {
-    if (!isUpdatingFromUrl.current) {
-      const newEditingParams = convertToEditingParams(pageParams);
-      setEditingParams(newEditingParams);
-    }
-    isUpdatingFromUrl.current = false;
+    const newEditingParams = convertToEditingParams(pageParams);
+    setEditingParams(newEditingParams);
   }, [pageParams, convertToEditingParams]);
 
   // Convert editing params back to PageParams
@@ -113,16 +109,9 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
 
   const commitChanges = useCallback((params: EditingParam[]) => {
     const pageParamsToCommit = convertToPageParams(params);
-    isUpdatingFromUrl.current = true;
     
-    // Update browser URL directly using the utility function
-    updateBrowserUrlFragments(pageParamsToCommit);
-    
-    // Also update the page state directly to ensure the page reflects the changes
-    updatePageState((state: PageState) => ({
-      ...state,
-      pageParams: pageParamsToCommit
-    }));
+    // Use the store's updatePageParams function which handles URL updates automatically
+    updatePageParams(pageParamsToCommit);
     
     // Notify parent component if callback provided
     if (onArgumentsChange) {

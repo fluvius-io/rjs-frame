@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PageParamsManager Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .url-display { background: #e8f4f8; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>PageParamsManager URL Update Test</h1>
+    
+    <div class="test-info">
+        <h3>Test Steps:</h3>
+        <ol>
+            <li>Open browser developer tools and navigate to a URL like: /test/-/param1:value1/debug</li>
+            <li>Open PageLayoutOptions (Alt+O or Option+O)</li>
+            <li>Go to PageParams section</li>
+            <li>Add, edit, or remove parameters</li>
+            <li>Check if the URL updates in real-time</li>
+        </ol>
+    </div>
+    
+    <div class="url-display">
+        <strong>Current URL:</strong> <span id="current-url"></span>
+    </div>
+    
+    <div class="test-info">
+        <h3>Expected Behavior:</h3>
+        <ul>
+            <li>✅ URL should update immediately when editing parameters</li>
+            <li>✅ Parameter validation should work (names must match [a-zA-Z0-9_]+)</li>
+            <li>✅ Boolean toggles should work</li>
+            <li>✅ Add/remove parameters should update URL</li>
+        </ul>
+    </div>
+    
+    <script type="module">
+        // Simple URL display updater
+        function updateUrlDisplay() {
+            document.getElementById('current-url').textContent = window.location.href;
+        }
+        
+        updateUrlDisplay();
+        
+        // Listen for URL changes
+        window.addEventListener('popstate', updateUrlDisplay);
+        
+        // Also check for programmatic URL changes
+        const originalPushState = history.pushState;
+        const originalReplaceState = history.replaceState;
+        
+        history.pushState = function() {
+            originalPushState.apply(history, arguments);
+            setTimeout(updateUrlDisplay, 0);
+        };
+        
+        history.replaceState = function() {
+            originalReplaceState.apply(history, arguments);
+            setTimeout(updateUrlDisplay, 0);
+        };
+        
+        console.log('PageParamsManager Test Page Loaded');
+        console.log('To test: Open PageLayoutOptions (Alt+O) and try editing parameters');
+    </script>
+</body>
+</html> 

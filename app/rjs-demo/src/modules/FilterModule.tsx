@@ -1,5 +1,7 @@
 import { PageModule } from 'rjs-frame';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { pageStore, updateLinkParams } from 'rjs-frame';
+import type { PageState } from 'rjs-frame';
 
 export class FilterModule extends PageModule {
   renderContent() {
@@ -8,20 +10,27 @@ export class FilterModule extends PageModule {
 }
 
 function FilterContent() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [pageState, setPageState] = useState<PageState>(pageStore.get());
   
-  const category = searchParams.get('category') || 'all';
-  const currentPage = searchParams.get('page') || '1';
+  // Subscribe to page store changes
+  useEffect(() => {
+    const unsubscribe = pageStore.subscribe((newState: PageState) => {
+      setPageState(newState);
+    });
+    
+    return unsubscribe;
+  }, []);
+  
+  const { linkParams = {} } = pageState;
+  const category = linkParams.category || 'all';
+  const currentPage = linkParams.page || '1';
 
   const categories = ['all', 'active', 'completed'];
 
   const updateSearchParams = (updates: Record<string, string>) => {
-    const newParams = new URLSearchParams(searchParams);
-    Object.entries(updates).forEach(([key, value]) => {
-      newParams.set(key, value);
-    });
-    navigate(`${window.location.pathname}?${newParams.toString()}`);
+    // Merge updates with current linkParams and use the proper store function
+    const newParams = { ...linkParams, ...updates };
+    updateLinkParams(newParams);
   };
 
   const handleCategoryChange = (newCategory: string) => {
