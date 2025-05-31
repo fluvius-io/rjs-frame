@@ -177,15 +177,16 @@ export function parseSearchParams(search: string): Record<string, string> {
 export function parseUrl(pathname: string, searchString: string = ''): ParsedUrl {
   // Check if path contains the special separator /-/
   
-  let pagePath = pathname.replace(/^\/+/, '');
+  const cleanedPath = pathname.replace(/^\/+/, '');
+  let pagePath = cleanedPath;
   let fragmentString = '';
 
-  const separatorIndex = pagePath.indexOf(URL_FRAGMENT_SEPARATOR);
+  const separatorIndex = cleanedPath.indexOf(URL_FRAGMENT_SEPARATOR);
 
   if (separatorIndex !== -1) {
     // Path contains /-/ separator
-    pagePath = pagePath.substring(0, separatorIndex);
-    fragmentString = pagePath.substring(separatorIndex + URL_FRAGMENT_SEPARATOR.length);
+    pagePath = cleanedPath.substring(0, separatorIndex);
+    fragmentString = cleanedPath.substring(separatorIndex + URL_FRAGMENT_SEPARATOR.length);
   }
 
   return {

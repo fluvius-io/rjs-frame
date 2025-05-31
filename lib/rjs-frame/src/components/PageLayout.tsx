@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageLayoutOptions } from './PageLayoutOptions';
-import { getXRayEnabled, setXRayEnabled, pageStore, setBreadcrumbs, pushBreadcrumb, popBreadcrumb, getBreadcrumbs } from '../store/pageStore';
+import { getXRayEnabled, setXRayEnabled, pageStore, setPageName } from '../store/pageStore';
 import { PageModule } from './PageModule';
 import { PageLayoutContext, type PageLayoutContextType } from '../contexts/LayoutContexts';
 import type { PageState } from '../types/PageState';
@@ -109,7 +109,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
 
     // Set initial breadcrumbs from title prop
     if (this.props.title) {
-      setBreadcrumbs([this.props.title]);
+      setPageName(this.props.title);
     }
 
     // Validate children on mount
@@ -128,7 +128,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
   componentDidUpdate(prevProps: PageLayoutProps) {
     // Update breadcrumbs if title prop changes
     if (prevProps.title !== this.props.title && this.props.title) {
-      setBreadcrumbs([this.props.title]);
+      setPageName(this.props.title);
     }
   }
 
