@@ -13,7 +13,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-router-dom": "^7.6.1",
-    "rjs-frame": "file:../../lib/rjs-frame"
+    "rjs-frame": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",

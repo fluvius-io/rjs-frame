@@ -1,9 +1,9 @@
-import { PageSlot, RoutingModule, RjsApp, Route, Navigate } from 'rjs-frame';
+import { RoutingModule, RjsApp, Route, Navigate } from 'rjs-frame';
 import { DashboardLayout } from './components/DashboardLayout';
 import { SidebarModule } from './modules/SidebarModule';
-import { StatsComponent, StatsModule } from './modules/StatsModule';
-import { ChartComponent, ChartModule } from './modules/ChartModule';
-import { DataTableComponent, DataTableModule } from './modules/DataTableModule';
+import { StatsComponent } from './modules/StatsModule';
+import { ChartComponent } from './modules/ChartModule';
+import { DataTableComponent } from './modules/DataTableModule';
 
 // Wrapper to make the main content a PageModule
 

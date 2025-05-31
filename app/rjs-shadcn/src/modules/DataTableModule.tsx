@@ -4,12 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
 
-export class DataTableModule extends PageModule {
-  renderContent() {
-    return <DataTableContent />;
-  }
-}
-
 interface User {
   id: number;
   name: string;
@@ -19,7 +13,7 @@ interface User {
   lastLogin: string;
 }
 
-function DataTableContent() {
+export function DataTableComponent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
@@ -167,4 +161,10 @@ function DataTableContent() {
       </Card>
     </div>
   );
+}
+
+export class DataTableModule extends PageModule {
+  renderContent() {
+    return <DataTableComponent />;
+  }
 } 

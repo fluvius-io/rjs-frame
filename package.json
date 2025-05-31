@@ -1,0 +1,31 @@
+{
+  "name": "rfx-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RJS Framework Frontend - Monorepo with libraries and demo apps",
+  "workspaces": [
+    "lib/*",
+    "app/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "build:libs": "npm run build --workspace=lib/rjs-frame --workspace=lib/rjs-admin",
+    "build:apps": "npm run build --workspace=app/rjs-demo --workspace=app/rjs-shadcn",
+    "dev:demo": "npm run dev --workspace=app/rjs-demo",
+    "dev:shadcn": "npm run dev --workspace=app/rjs-shadcn",
+    "dev:frame": "npm run dev --workspace=lib/rjs-frame",
+    "dev:admin": "npm run dev --workspace=lib/rjs-admin",
+    "preview": "npm run preview --workspaces --if-present",
+    "clean": "rm -rf node_modules lib/*/node_modules app/*/node_modules",
+    "clean:dist": "rm -rf lib/*/dist app/*/dist"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.24",
+    "typescript": "~5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+} 
