@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { pageStore } from '../store/pageStore';
 import { buildUrlPath, updateBrowserUrlFragments, isValidFragmentName, FRAGMENT_NAME_PATTERN } from '../utils/urlUtils';
 import type { SlotParams, PageState } from '../types/PageState';
+import '../styles/components/PageParamsManager.scss';
 
 interface EditingParam {
   id: string; // Stable ID for React key

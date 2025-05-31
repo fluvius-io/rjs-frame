@@ -1,7 +1,7 @@
 // RJS Frame Styles Entry Point
 
 // Core Framework Styles
-@use './RjsFrame.scss';
+@import './RjsFrame.scss';
 
 // Component Styles
-@use './components/index.scss'; 
+@import './components/index.scss'; 

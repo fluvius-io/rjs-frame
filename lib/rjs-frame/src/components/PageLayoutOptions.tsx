@@ -1,5 +1,6 @@
 import React from 'react';
 import { PageParamsManager } from './PageParamsManager';
+import '../styles/components/PageLayoutOptions.scss';
 
 export interface PageLayoutOptionsProps {
   isVisible: boolean;
