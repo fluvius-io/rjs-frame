@@ -1,8 +1,6 @@
 import React from 'react';
-import { PageLayout, PageSlot as RjsPageSlot } from 'rjs-frame';
+import { PageLayout, PageSlot } from 'rjs-frame';
 import { cn } from '@/lib/utils';
-
-const PageSlot = RjsPageSlot as any;
 
 export interface SingleColumnLayoutProps {
   className?: string;

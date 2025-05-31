@@ -16,6 +16,8 @@
     "dev:shadcn": "npm run dev --workspace=app/rjs-shadcn",
     "dev:frame": "npm run dev --workspace=lib/rjs-frame",
     "dev:admin": "npm run dev --workspace=lib/rjs-admin",
+    "storybook": "npm run storybook --workspace=lib/rjs-admin",
+    "storybook:build": "npm run build-storybook --workspace=lib/rjs-admin",
     "preview": "npm run preview --workspaces --if-present",
     "clean": "rm -rf node_modules lib/*/node_modules app/*/node_modules",
     "clean:dist": "rm -rf lib/*/dist app/*/dist"
