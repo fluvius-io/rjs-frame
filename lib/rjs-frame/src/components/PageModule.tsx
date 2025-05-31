@@ -1,9 +1,9 @@
-import React from "react";
-import { pageStore, updatePageState } from "../store/pageStore";
+import React from 'react';
+import { pageStore, updatePageState } from '../store/pageStore';
 import { generate } from "short-uuid";
 import { PageLayoutContext, PageSlotContext, type PageSlotContextType } from "../contexts/LayoutContexts";
-import type { PageState } from "../types/PageState";
-import "../styles/RjsFrame.scss";
+import type { PageState, SlotParams } from "../types/PageState";
+import "../styles/index.scss";
 
 export interface PageModuleState {
   pageState: PageState;

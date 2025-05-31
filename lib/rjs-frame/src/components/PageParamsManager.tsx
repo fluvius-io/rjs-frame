@@ -1,15 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { PageModule } from 'rjs-frame';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { pageStore, isValidFragmentName, FRAGMENT_NAME_PATTERN } from 'rjs-frame';
-import { buildUrlPath } from '../../../../lib/rjs-frame/src/utils/urlUtils';
-import type { SlotParams, PageState } from 'rjs-frame';
-
-export class ArgumentsModule extends PageModule {
-  renderContent() {
-    return <ArgumentsContent />;
-  }
-}
+import { pageStore } from '../store/pageStore';
+import { buildUrlPath, updateBrowserUrlFragments, isValidFragmentName, FRAGMENT_NAME_PATTERN } from '../utils/urlUtils';
+import type { SlotParams, PageState } from '../types/PageState';
 
 interface EditingParam {
   id: string; // Stable ID for React key
@@ -23,12 +15,13 @@ interface ValidationError {
   message: string;
 }
 
-function ArgumentsContent() {
+export interface PageParamsManagerProps {
+  /** Optional callback when page parameters change */
+  onArgumentsChange?: (params: SlotParams) => void;
+}
+
+export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps) {
   const [pageState, setPageState] = useState<PageState>(pageStore.get());
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Use stable IDs for React keys to prevent input recreation
   const [editingParams, setEditingParams] = useState<EditingParam[]>([]);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const nextIdRef = useRef(1);
@@ -117,23 +110,23 @@ function ArgumentsContent() {
     return result;
   }, []);
 
-  // Convert slotParams object to URL using framework utilities
-  const getUrlFromParams = useCallback((params: SlotParams = {}): string => {
-    const newUrl = buildUrlPath(name, params) + location.search;
-    return newUrl;
-  }, [name, location.search]);
-
   const commitChanges = useCallback((params: EditingParam[]) => {
     const slotParamsToCommit = convertToSlotParams(params);
-    const newUrl = getUrlFromParams(slotParamsToCommit);
     isUpdatingFromUrl.current = true;
-    navigate(newUrl, { replace: true });
-  }, [convertToSlotParams, getUrlFromParams, navigate]);
+    
+    // Update browser URL directly using the utility function
+    updateBrowserUrlFragments(slotParamsToCommit);
+    
+    // Notify parent component if callback provided
+    if (onArgumentsChange) {
+      onArgumentsChange(slotParamsToCommit);
+    }
+  }, [convertToSlotParams, onArgumentsChange]);
 
   const handleAddArgument = useCallback(() => {
     const newParam: EditingParam = {
       id: `param-${nextIdRef.current++}`,
-      key: `arg${editingParams.length + 1}`,
+      key: `param${editingParams.length + 1}`,
       value: `value${editingParams.length + 1}`,
       isValid: true
     };
@@ -190,119 +183,97 @@ function ArgumentsContent() {
   const validParamsCount = editingParams.filter(p => p.isValid).length;
 
   return (
-    <div className="arguments-module" style={{ padding: '20px', border: '1px solid #eee' }}>
-      <h3>URL Arguments Demo {hasValidationErrors && <span style={{ color: 'red' }}>({validationErrors.length} errors)</span>}</h3>
+    <section className="pageparams-manager">
+      <h3>PageParams {hasValidationErrors && <span className="error-count">({validationErrors.length} errors)</span>}</h3>
       
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Current Page: {name}</label>
+      <div className="pageparams-manager__info">
+        <div className="pageparams-manager__info-item">
+          <strong>Current Page:</strong> {name || 'none'}
         </div>
-        <p>URL Format: /{name}/-/argument_name:value/boolean_flag</p>
-        <p>Active Arguments: {validParamsCount} valid</p>
-        <p>Current Arguments: {Object.entries(slotParams || {}).length ? 
-          Object.entries(slotParams || {}).map(([key, value]) => `${key}:${value}`).join(', ') : 
-          'none'}</p>
+        <div className="pageparams-manager__info-item">
+          <strong>URL Pattern:</strong> /{name}/-/param_name:value/boolean_flag
+        </div>
+        <div className="pageparams-manager__info-item">
+          <strong>Active Params:</strong> {validParamsCount} valid
+        </div>
+        <div className="pageparams-manager__info-current">
+          Current: {Object.entries(slotParams || {}).length ? 
+            Object.entries(slotParams || {}).map(([key, value]) => `${key}:${value}`).join(', ') : 
+            'none'}
+        </div>
       </div>
 
       {hasValidationErrors && (
-        <div style={{ 
-          marginBottom: '20px', 
-          padding: '10px', 
-          backgroundColor: '#fee', 
-          border: '1px solid #fcc',
-          borderRadius: '4px'
-        }}>
+        <div className="pageparams-manager__validation-errors">
           <strong>Validation Errors:</strong>
           <br />
-          Fragment names must match pattern: <code>{FRAGMENT_NAME_PATTERN.source}</code>
+          Parameter names must match pattern: <code>{FRAGMENT_NAME_PATTERN.source}</code>
           <br />
           <small>Only letters, digits, and underscores are allowed.</small>
         </div>
       )}
 
-      <div className="arguments-list" style={{ marginBottom: '20px' }}>
+      <div className="pageparams-manager__list">
         {editingParams.map((param) => {
           const error = validationErrors.find(e => e.id === param.id);
           const isBooleanValue = typeof param.value === 'boolean';
           
           return (
-            <div key={param.id} style={{ 
-              marginBottom: '15px', 
-              padding: '10px',
-              border: `1px solid ${param.isValid ? '#ddd' : '#fcc'}`,
-              borderRadius: '4px',
-              backgroundColor: param.isValid ? '#fff' : '#fef5f5'
-            }}>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Name:</label>
+            <div key={param.id} className={`pageparams-manager__param ${param.isValid ? 'pageparams-manager__param--valid' : 'pageparams-manager__param--invalid'}`}>
+              <div className="pageparams-manager__param-header">
+                <div className="pageparams-manager__param-name-container">
+                  <label className="pageparams-manager__param-label">Name:</label>
                   <input
                     value={param.key}
-                    onChange={(e) => handleInputChange(param.id, 'key', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(param.id, 'key', e.target.value)}
                     onBlur={handleInputBlur}
                     onKeyDown={handleInputKeyDown}
-                    placeholder="argument_name"
-                    style={{ 
-                      width: '100%',
-                      border: `1px solid ${param.isValid ? '#ddd' : '#f00'}`,
-                      borderRadius: '4px',
-                      padding: '5px'
-                    }}
+                    placeholder="param_name"
+                    className={`pageparams-manager__param-input ${param.isValid ? 'pageparams-manager__param-input--valid' : 'pageparams-manager__param-input--invalid'}`}
                   />
                   {error && (
-                    <div style={{ fontSize: '12px', color: 'red', marginTop: '2px' }}>
+                    <div className="pageparams-manager__param-error">
                       {error.message}
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-                  {param.isValid ? (
-                    <span style={{ color: 'green', fontSize: '18px' }}>✓</span>
-                  ) : (
-                    <span style={{ color: 'red', fontSize: '18px' }}>✗</span>
-                  )}
+                <div className={`pageparams-manager__param-validation-icon ${param.isValid ? 'pageparams-manager__param-validation-icon--valid' : 'pageparams-manager__param-validation-icon--invalid'}`}>
+                  {param.isValid ? '✓' : '✗'}
                 </div>
               </div>
               
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div className="pageparams-manager__param-controls">
                 {isBooleanValue ? (
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div className="pageparams-manager__param-boolean-controls">
                     <button
                       onClick={() => handleToggleBoolean(param.id)}
-                      style={{
-                        padding: '5px 10px',
-                        backgroundColor: param.value ? '#007bff' : '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
+                      className={`pageparams-manager__button pageparams-manager__button--boolean-toggle ${param.value ? 'pageparams-manager__button--boolean-toggle--true' : 'pageparams-manager__button--boolean-toggle--false'}`}
                     >
                       Boolean: {String(param.value)}
                     </button>
                     <button
                       onClick={() => handleInputChange(param.id, 'value', '')}
-                      style={{ padding: '5px 10px', fontSize: '12px' }}
+                      className="pageparams-manager__button"
                     >
-                      Change to String
+                      To String
                     </button>
                   </div>
                 ) : (
-                  <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Value:</label>
+                  <div className="pageparams-manager__param-string-controls">
+                    <div className="pageparams-manager__param-string-input-container">
+                      <label className="pageparams-manager__param-label">Value:</label>
                       <input
                         value={String(param.value)}
-                        onChange={(e) => handleInputChange(param.id, 'value', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(param.id, 'value', e.target.value)}
                         onBlur={handleInputBlur}
                         onKeyDown={handleInputKeyDown}
                         placeholder="value"
-                        style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ddd' }}
+                        className="pageparams-manager__param-input pageparams-manager__param-input--valid"
                       />
                     </div>
                     <button
                       onClick={() => handleInputChange(param.id, 'value', true)}
-                      style={{ padding: '5px 10px', fontSize: '12px', marginTop: '20px' }}
+                      className="pageparams-manager__button pageparams-manager__button--to-boolean"
                     >
                       To Boolean
                     </button>
@@ -310,14 +281,7 @@ function ArgumentsContent() {
                 )}
                 <button 
                   onClick={() => handleRemoveArgument(param.id)}
-                  style={{ 
-                    padding: '5px 10px', 
-                    backgroundColor: '#dc3545', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
+                  className="pageparams-manager__button pageparams-manager__button--remove"
                 >
                   Remove
                 </button>
@@ -329,23 +293,15 @@ function ArgumentsContent() {
 
       <button 
         onClick={handleAddArgument}
-        style={{ 
-          padding: '10px 20px', 
-          backgroundColor: '#28a745', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '4px',
-          cursor: 'pointer',
-          width: '100%'
-        }}
+        className="pageparams-manager__add-button"
       >
-        Add Argument
+        Add Parameter
       </button>
 
-      <div style={{ marginTop: '15px', fontSize: '12px', color: '#666' }}>
-        <div><strong>Valid names:</strong> filter, user_id, Tab1, debug</div>
-        <div><strong>Invalid names:</strong> my-param, filter.type, user@domain</div>
+      <div className="pageparams-manager__examples">
+        <div><strong>Valid names:</strong> filter, user_id, Tab1, debug, user.id</div>
+        <div><strong>Invalid names:</strong> my-param, filter.type, user@domain, user.id.name</div>
       </div>
-    </div>
+    </section>
   );
 } 

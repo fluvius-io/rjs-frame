@@ -1,4 +1,5 @@
 import React from 'react';
+import { PageParamsManager } from './PageParamsManager';
 
 export interface PageLayoutOptionsProps {
   isVisible: boolean;
@@ -100,6 +101,10 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
                   {!isActiveInstance && ' (Disabled - not active instance)'}
                 </p>
               </div>
+            </section>
+
+            <section className="page-layout-pageparams">
+              <PageParamsManager />
             </section>
           </div>
           

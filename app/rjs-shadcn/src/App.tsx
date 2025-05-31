@@ -3,7 +3,6 @@ import { PageSlot, PageModule } from 'rjs-frame';
 import { DashboardLayout } from './components/DashboardLayout';
 import { RouteChangeHandler } from './components/RouteChangeHandler';
 import { SidebarModule } from './modules/SidebarModule';
-import { ArgumentsModule } from './modules/ArgumentsModule';
 import { StatsModule } from './modules/StatsModule';
 import { ChartModule } from './modules/ChartModule';
 import { DataTableModule } from './modules/DataTableModule';
@@ -31,7 +30,6 @@ function DashboardLayoutPage() {
   return (
     <DashboardLayout>
       <SidebarModule slotName="sidebar" />
-      <ArgumentsModule slotName="arguments-sidebar" />
       <MainContentModule slotName="main">
         <Routes>
           <Route index element={<DashboardHome />} />

@@ -1,9 +1,11 @@
+import React, { ReactNode, useEffect, useContext, createContext } from 'react';
 import { PageLayoutContext } from '../contexts/LayoutContexts';
 import { PageSlotContext, type PageSlotContextType } from '../contexts/LayoutContexts';
 import { pageStore } from '../store/pageStore';
-import React from 'react';
-import '../styles/RjsFrame.scss';
+import '../styles/index.scss';
 import type { PageState } from '../types/PageState';
+import { SlotParams } from '../types/PageState';
+import { getXRayEnabled } from '../store/pageStore';
 
 export interface PageSlotState {
   pageState: PageState;

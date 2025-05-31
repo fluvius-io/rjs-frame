@@ -2,6 +2,7 @@ export * from './components/PageLayout';
 export * from './components/PageLayoutOptions';
 export * from './components/PageSlot';
 export * from './components/PageModule';
+export * from './components/PageParamsManager';
 export * from './contexts/LayoutContexts';
 export * from './store/pageStore';
 export * from './types/PageState';
