@@ -96,6 +96,9 @@ npm run dev:frame
 
 # Run rjs-admin library in watch mode
 npm run dev:admin
+
+# Run Storybook for rjs-admin component library
+npm run storybook
 ```
 
 ### Working with Individual Packages
