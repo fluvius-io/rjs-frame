@@ -1,4 +1,4 @@
-// PageLayoutOptions Component Styles
+/* PageLayoutOptions Component Styles */
 .page-layout-options {
   &-overlay {
     position: fixed;
@@ -118,7 +118,7 @@
   }
 }
 
-// Info Grid Layout
+/* Info Grid Layout */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -156,7 +156,7 @@
   }
 }
 
-// Module Details
+/* Module Details */
 .module-details {
   ul {
     list-style: none;
@@ -180,7 +180,7 @@
   }
 }
 
-// Controls
+/* Controls */
 .control-item {
   padding: 1rem;
   border: 1px solid var(--rjs-gray-200);
@@ -219,7 +219,7 @@
   line-height: 1.4;
 }
 
-// Warning Messages
+/* Warning Messages */
 .warning-message {
   background-color: var(--rjs-warning-bg);
   border: 1px solid var(--rjs-warning-border);
@@ -238,7 +238,7 @@
   font-size: 0.8rem !important;
 }
 
-// Animations
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -1,22 +1,22 @@
-import type { SlotParams, SlotStatus } from '../types/PageState';
+import type { PageParams } from '../types/PageState';
 
 export interface ParsedUrl {
   pageName: string;
-  slotParams: SlotParams;
-  slotStatus: SlotStatus;
+  pageParams: PageParams;
   linkParams: Record<string, string>;
 }
 
 export interface ParsedFragments {
-  params: SlotParams;
-  statuses: SlotStatus;
+  params: PageParams;
 }
 
 // Special separator between page name and URL fragments
 export const URL_FRAGMENT_SEPARATOR = '/-/';
 
-// Regex pattern for valid fragment argument names (letters, digits, underscore only)
-export const FRAGMENT_NAME_PATTERN = /^[\w\d_]+$/;
+// Regex pattern for valid fragment argument names
+// First character: letters, digits, or underscore only (no dash or dot)
+// Subsequent characters: letters, digits, underscore, dot, or dash
+export const FRAGMENT_NAME_PATTERN = /^[a-zA-Z0-9_]([a-zA-Z0-9_\.-]*)?$/;
 
 /**
  * Validate fragment argument name against allowed pattern
@@ -28,48 +28,41 @@ export function isValidFragmentName(name: string): boolean {
 }
 
 /**
- * Parse URL fragments into slotParams and slotStatus
+ * Parse URL fragments into pageParams
  * Supports both ':' and '!' delimiters
  * Format: arg1:value1/arg2!value2/arg3:-/flag
  * - ':' or '!' separate name from value
- * - '-' value means hidden status, otherwise active
  * - fragments without ':' are treated as boolean true (e.g., "debug" -> { debug: true })
- * - fragment names must match pattern: [\w\d_]+ (letters, digits, underscore only)
+ * - fragments with ':' but empty value are treated as boolean false (e.g., "debug:" -> { debug: false })
+ * - fragment names must start with letter/digit/underscore, then can contain dots and dashes
  */
 export function parseUrlFragments(fragments: string): ParsedFragments {
-  if (!fragments) return { params: {}, statuses: {} };
+  if (!fragments) return { params: {} };
   
-  const params: SlotParams = {};
-  const statuses: SlotStatus = {};
+  const params: PageParams = {};
+  const addParams = (name: string, value: string | boolean) => {
+    if (!isValidFragmentName(name)) {
+      console.warn(`[RJS-Frame] Invalid fragment name "${name}". Fragment names must start with letter/digit/underscore, then can contain dots and dashes`);
+      return false; // Skip invalid fragment names
+    }
+    params[name] = value;
+    return true;
+  }
   
   fragments.split('/').filter(Boolean).forEach(fragment => {
-    const colonIndex = fragment.indexOf(':');
+    const colonIndex = fragment.indexOf(':');   
     
     if (colonIndex === -1) {
-      // No colon found - treat as boolean flag
-      if (!isValidFragmentName(fragment)) {
-        console.warn(`[RJS-Frame] Invalid fragment name "${fragment}". Fragment names must match pattern: [\w\d_]+ (letters, digits, underscore only)`);
-        return; // Skip invalid fragment names
-      }
-      params[fragment] = true;
-      statuses[fragment] = 'active';
-    } else {
       // Colon found - split into name and value
-      const name = fragment.substring(0, colonIndex);
-      const value = fragment.substring(colonIndex + 1);
-      
-      if (name) {
-        if (!isValidFragmentName(name)) {
-          console.warn(`[RJS-Frame] Invalid fragment name "${name}". Fragment names must match pattern: [\w\d_]+ (letters, digits, underscore only)`);
-          return; // Skip invalid fragment names
-        }
-        params[name] = value || '';
-        statuses[name] = 'active';
-      }
+      return addParams(fragment, true);
     }
+
+    const name = fragment.substring(0, colonIndex);
+    const valueString = fragment.substring(colonIndex + 1);
+    return addParams(name, valueString !== '' ? valueString : false);
   });
   
-  return { params, statuses };
+  return { params };
 }
 
 /**
@@ -91,7 +84,7 @@ export function parseSearchParams(search: string): Record<string, string> {
  */
 export function parseUrlPath(path?: string): ParsedUrl {
   if (typeof window === 'undefined' && !path) {
-    return { pageName: '', slotParams: {}, slotStatus: {}, linkParams: {} };
+    return { pageName: '', pageParams: {}, linkParams: {} };
   }
 
   const urlPath = path || window.location.pathname;
@@ -112,44 +105,33 @@ export function parseUrlPath(path?: string): ParsedUrl {
     pageName = pageNamePart.replace(/^\/+/, '');
     fragmentString = fragmentsPart;
   } else {
-    // Legacy path format (no /-/ separator)
-    const fragments = urlPath.split('/').filter(Boolean);
-    
-    if (fragments.length === 0) {
-      return { 
-        pageName: '', 
-        slotParams: {}, 
-        slotStatus: {}, 
-        linkParams: parseSearchParams(search)
-      };
-    }
-
-    pageName = fragments[0];
-    fragmentString = fragments.slice(1).join('/');
+    // No /-/ separator - entire path is the page name, no parameters
+    pageName = urlPath.replace(/^\/+/, '');
+    fragmentString = ''; // No parameters when there's no /-/ separator
   }
 
-  const { params: slotParams, statuses: slotStatus } = parseUrlFragments(fragmentString);
+  const { params: pageParams } = parseUrlFragments(fragmentString);
 
   return {
     pageName,
-    slotParams,
-    slotStatus,
+    pageParams,
     linkParams: parseSearchParams(search)
   };
 }
 
 /**
- * Build URL fragments from slotParams and slotStatus
- * Uses ':' delimiter and '-' for hidden status
+ * Build URL fragments from pageParams
+ * Uses ':' delimiter 
  * Boolean true values are output as flags without colons (e.g., { debug: true } -> "debug")
- * Fragment names must match pattern: [\w\d_]+ (letters, digits, underscore only)
+ * Boolean false values are output with empty value after colon (e.g., { debug: false } -> "debug:")
+ * Fragment names must start with letter/digit/underscore, then can contain dots and dashes
  */
-export function buildUrlFragments(params: SlotParams, statuses?: SlotStatus): string {
+export function buildUrlFragments(params: PageParams): string {
   return Object.entries(params)
     .map(([key, value]) => {
       // Validate fragment name
       if (!isValidFragmentName(key)) {
-        console.warn(`[RJS-Frame] Invalid fragment name "${key}". Fragment names must match pattern: [\w\d_]+ (letters, digits, underscore only). Skipping this fragment.`);
+        console.warn(`[RJS-Frame] Invalid fragment name "${key}". Fragment names must start with letter/digit/underscore, then can contain dots and dashes. Skipping this fragment.`);
         return null; // Skip invalid fragment names
       }
       
@@ -157,17 +139,17 @@ export function buildUrlFragments(params: SlotParams, statuses?: SlotStatus): st
         // Boolean true - output as flag without colon
         return key;
       } else if (value === false) {
-        // Boolean false - skip entirely (don't include in URL)
-        return null;
+        // Boolean false - output with empty value after colon
+        return `${key}:`;
       } else if (value && value !== '') {
         // String value - output with colon
         return `${key}:${value}`;
       } else {
-        // Empty string - output key only
+        // Empty string - output key only (treated as boolean true)
         return key;
       }
     })
-    .filter(Boolean) // Remove null values (false booleans and invalid names)
+    .filter(Boolean) // Remove null values (invalid names)
     .join('/');
 }
 
@@ -176,13 +158,13 @@ export function buildUrlFragments(params: SlotParams, statuses?: SlotStatus): st
  * Uses the /-/ separator pattern: /pageName/-/fragments
  * Example: /admin/-/arg1:value1/arg2:value2
  */
-export function buildUrlPath(pageName: string, params: SlotParams, statuses?: SlotStatus): string {
+export function buildUrlPath(pageName: string, params: PageParams): string {
   if (!pageName) {
     // If no page name, return root path
     return '/';
   }
   
-  const fragments = buildUrlFragments(params, statuses);
+  const fragments = buildUrlFragments(params);
   
   if (!fragments) {
     // If no fragments, return just the page name
@@ -194,48 +176,59 @@ export function buildUrlPath(pageName: string, params: SlotParams, statuses?: Sl
 }
 
 /**
- * Update URL fragments while preserving the existing page name
- * This ensures that when adding/updating fragments, the page name is never accidentally changed
+ * Update URL fragments while preserving the existing path structure
+ * Only manages fragments after the /-/ separator, doesn't rely on parsed pageName
  */
-export function updateUrlFragments(params: SlotParams, statuses?: SlotStatus): string {
-  const currentUrl = parseUrlPath();
-  return buildUrlPath(currentUrl.pageName, params, statuses);
+export function updateUrlFragments(params: PageParams): string {
+  if (typeof window === 'undefined') return '/';
+  
+  const currentPath = window.location.pathname;
+  const separatorIndex = currentPath.indexOf(URL_FRAGMENT_SEPARATOR);
+  
+  const fragments = buildUrlFragments(params);
+  
+  if (separatorIndex !== -1) {
+    // Path has /-/ separator, replace everything after it
+    const basePath = currentPath.substring(0, separatorIndex);
+    return fragments ? `${basePath}${URL_FRAGMENT_SEPARATOR}${fragments}` : basePath;
+  } else {
+    // No /-/ separator in current path, append it if we have fragments
+    return fragments ? `${currentPath}${URL_FRAGMENT_SEPARATOR}${fragments}` : currentPath;
+  }
 }
 
 /**
- * Add or update a single URL fragment while preserving page name and other fragments
+ * Add or update a single URL fragment while preserving path structure and other fragments
  */
 export function addUrlFragment(key: string, value: string): string {
   const currentUrl = parseUrlPath();
   const updatedParams = {
-    ...currentUrl.slotParams,
+    ...currentUrl.pageParams,
     [key]: value
   };
-  return buildUrlPath(currentUrl.pageName, updatedParams, currentUrl.slotStatus);
+  return updateUrlFragments(updatedParams);
 }
 
 /**
- * Remove a URL fragment while preserving page name and other fragments
+ * Remove a URL fragment while preserving path structure and other fragments
  */
 export function removeUrlFragment(key: string): string {
   const currentUrl = parseUrlPath();
-  const updatedParams = { ...currentUrl.slotParams };
-  const updatedStatuses = { ...currentUrl.slotStatus };
+  const updatedParams = { ...currentUrl.pageParams };
   
   delete updatedParams[key];
-  delete updatedStatuses[key];
   
-  return buildUrlPath(currentUrl.pageName, updatedParams, updatedStatuses);
+  return updateUrlFragments(updatedParams);
 }
 
 /**
  * Update browser URL with new path (client-side only)
  * Preserves the page name when updating fragments
  */
-export function updateBrowserUrl(pageName: string, params: SlotParams, statuses?: SlotStatus, search?: string): void {
+export function updateBrowserUrl(pageName: string, params: PageParams, search?: string): void {
   if (typeof window === 'undefined') return;
   
-  const newPath = buildUrlPath(pageName, params, statuses);
+  const newPath = buildUrlPath(pageName, params);
   const currentSearch = search || window.location.search;
   const newUrl = newPath + currentSearch;
   
@@ -243,13 +236,17 @@ export function updateBrowserUrl(pageName: string, params: SlotParams, statuses?
 }
 
 /**
- * Update browser URL fragments while preserving the current page name
+ * Update browser URL fragments while preserving the current path structure
+ * Only manages fragments after the /-/ separator
  */
-export function updateBrowserUrlFragments(params: SlotParams, statuses?: SlotStatus, search?: string): void {
+export function updateBrowserUrlFragments(params: PageParams, search?: string): void {
   if (typeof window === 'undefined') return;
   
-  const currentUrl = parseUrlPath();
-  updateBrowserUrl(currentUrl.pageName, params, statuses, search);
+  const newPath = updateUrlFragments(params);
+  const currentSearch = search || window.location.search;
+  const newUrl = newPath + currentSearch;
+  
+  window.history.replaceState(null, '', newUrl);
 }
 
 /**

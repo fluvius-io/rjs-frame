@@ -1,5 +1,5 @@
 import { atom } from 'nanostores';
-import type { PageState, PageParams, SlotParams, SlotStatus, SlotStatusValues } from '../types/PageState';
+import type { PageState, PageParams } from '../types/PageState';
 import { 
   parseUrlPath, 
   parseSearchParams, 
@@ -51,29 +51,10 @@ const initialState: PageState = {
   time: new Date().toISOString(),
   pageParams: {},
   linkParams: {},
-  slotParams: {},
-  slotStatus: {},
   globalState: loadPersistedGlobalState(),
   moduleState: loadPersistedModuleState(),
   auth: {},
   other: {}
-};
-
-// Helper function to validate slot status
-export const setSlotStatus = (slotName: string, status: SlotStatusValues) => {
-  updatePageState(state => ({
-    ...state,
-    slotStatus: {
-      ...state.slotStatus,
-      [slotName]: status
-    }
-  }));
-};
-
-// Helper function to get slot status
-export const getSlotStatus = (slotName: string): SlotStatusValues => {
-  const state = pageStore.get();
-  return state.slotStatus[slotName] || 'active';
 };
 
 // Create the page store
@@ -149,91 +130,87 @@ export const updateLinkParams = (newParams: Record<string, string>) => {
   updateBrowserSearchParams(newParams);
 };
 
-// Update slotParams while preserving page name
-export const updateSlotParams = (newParams: SlotParams) => {
+// Update pageParams while preserving page name
+export const updatePageParams = (newParams: PageParams) => {
   const currentState = pageStore.get();
   updatePageState(state => ({
     ...state,
-    slotParams: newParams
+    pageParams: newParams
   }));
   // Use the safe method that preserves page name
-  updateBrowserUrlFragments(newParams, currentState.slotStatus);
+  updateBrowserUrlFragments(newParams);
 };
 
-// Add or update a single slot parameter while preserving page name and other params
-export const addSlotParam = (key: string, value: string) => {
+// Add or update a single page parameter while preserving page name and other params
+export const addPageParam = (key: string, value: string) => {
   const currentState = pageStore.get();
   const updatedParams = {
-    ...currentState.slotParams,
+    ...currentState.pageParams,
     [key]: value
   };
   updatePageState(state => ({
     ...state,
-    slotParams: updatedParams
+    pageParams: updatedParams
   }));
-  updateBrowserUrlFragments(updatedParams, currentState.slotStatus);
+  updateBrowserUrlFragments(updatedParams);
 };
 
-// Remove a slot parameter while preserving page name and other params
-export const removeSlotParam = (key: string) => {
+// Remove a page parameter while preserving page name and other params
+export const removePageParam = (key: string) => {
   const currentState = pageStore.get();
-  const updatedParams = { ...currentState.slotParams };
-  const updatedStatuses = { ...currentState.slotStatus };
+  const updatedParams = { ...currentState.pageParams };
   
   delete updatedParams[key];
-  delete updatedStatuses[key];
   
   updatePageState(state => ({
     ...state,
-    slotParams: updatedParams,
-    slotStatus: updatedStatuses
+    pageParams: updatedParams
   }));
-  updateBrowserUrlFragments(updatedParams, updatedStatuses);
+  updateBrowserUrlFragments(updatedParams);
 };
 
-// Update multiple slot parameters while preserving page name
-export const updateSlotParamsPartial = (paramsToUpdate: Partial<SlotParams>) => {
+// Update multiple page parameters while preserving page name
+export const updatePageParamsPartial = (paramsToUpdate: Partial<PageParams>) => {
   const currentState = pageStore.get();
   
   // Filter out undefined values to ensure type safety
-  const filteredParams: SlotParams = {};
+  const filteredParams: PageParams = {};
   Object.entries(paramsToUpdate).forEach(([key, value]) => {
     if (value !== undefined) {
       filteredParams[key] = value;
     }
   });
-  
+
   const updatedParams = {
-    ...currentState.slotParams,
+    ...currentState.pageParams,
     ...filteredParams
   };
   updatePageState(state => ({
     ...state,
-    slotParams: updatedParams
+    pageParams: updatedParams
   }));
-  updateBrowserUrlFragments(updatedParams, currentState.slotStatus);
+  updateBrowserUrlFragments(updatedParams);
 };
 
-// Set page name while preserving existing parameters
+// Set page name only (doesn't update URL)
 export const setPageName = (pageName: string) => {
   const currentState = pageStore.get();
   updatePageState(state => ({
     ...state,
     name: pageName,
-    slotParams: currentState.slotParams // Preserve existing slot parameters
+    pageParams: currentState.pageParams // Preserve existing page parameters
   }));
-  updateBrowserUrl(pageName, currentState.slotParams, currentState.slotStatus);
+  updateBrowserUrl(pageName, currentState.pageParams);
 };
 
-// Initialize page state from URL
+// Initialize page state from current URL (useful on app start)
 export const initializeFromUrl = () => {
-  const { pageName, slotParams, slotStatus, linkParams } = parseUrlPath();
-  updatePageState(state => ({
-    ...state,
+  const { pageName, pageParams, linkParams } = parseUrlPath();
+  updatePageState(() => ({
+    ...initialState,
     name: pageName,
-    slotParams,
-    slotStatus,
+    pageParams,
     linkParams,
-    pageParams: {}  
+    time: new Date().toISOString()
   }));
 }; 

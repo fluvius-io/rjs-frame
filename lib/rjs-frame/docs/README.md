@@ -228,7 +228,7 @@ The framework provides comprehensive validation:
 
 1. **Use Descriptive Slot Names**: Choose clear, semantic names for your slots
 2. **Keep Modules Focused**: Each module should have a single responsibility  
-3. **Leverage Debug Tools**: Use Ctrl+O to open the PageLayoutOptions dialog during development
+3. **Leverage Debug Tools**: Use Option+O / Win+O to open the PageLayoutOptions dialog during development
 4. **Plan Your Layout Hierarchy**: Think about how modules will be composed before building
 5. **Use TypeScript**: The framework provides excellent TypeScript support for catching errors early
 

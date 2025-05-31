@@ -145,8 +145,8 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
       return;
     }
 
-    // Ctrl+O to toggle options dialog
-    if ((event.metaKey || event.altKey) && event.key === 'o') {
+    // Option+O (Mac) / Alt+O (Windows) to toggle options dialog
+    if (event.altKey && event.code === 'KeyO') {
       event.preventDefault();
       this.setState({ showOptions: !this.state.showOptions });
       return;
@@ -154,12 +154,13 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     
     // Escape to close options dialog
     if (event.key === 'Escape' && this.state.showOptions) {
+      event.preventDefault();
       this.setState({ showOptions: false });
       return;
     }
 
-    // Cmd+X (Mac) or Alt+X (Windows/Linux) to toggle X-Ray mode directly
-    if ((event.metaKey || event.altKey) && event.key === 'x') {
+    // Option+X (Mac) / Alt+X (Windows) to toggle X-Ray mode directly
+    if (event.altKey && event.code === 'KeyX') {
       event.preventDefault();
       this.toggleXRay();
       return;
@@ -200,7 +201,15 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     const contextValue: PageLayoutContextType = {
       layoutId: this.layoutId,
       pageModules: this.modules,
-      xRay: xRayEnabled
+      xRay: xRayEnabled,
+      addPageModule: (slotName: string, content: React.ReactNode) => {
+        // TODO: Implement dynamic module addition if needed
+        console.warn('[PageLayout] addPageModule not yet implemented');
+      },
+      removePageModule: (slotName: string, content: React.ReactNode) => {
+        // TODO: Implement dynamic module removal if needed
+        console.warn('[PageLayout] removePageModule not yet implemented');
+      }
     };
 
     const className = xRayEnabled ? "page-layout x-ray" : "page-layout";

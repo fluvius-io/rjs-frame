@@ -48,8 +48,8 @@ The XRay flag is now stored in globalState and persists across browser sessions.
 ### Using XRay Mode
 
 #### Keyboard Shortcuts
-- Press `Ctrl+O` to open PageLayout Options dialog, then toggle "Enable X-Ray Mode" checkbox
-- Press `Cmd+X` (Mac) or `Alt+X` (Windows/Linux) for quick X-Ray toggle without opening dialog
+- Press `Option+O` / `Win+O` to open PageLayout Options dialog, then toggle "Enable X-Ray Mode" checkbox
+- Press `Option+X` / `Win+X` for quick X-Ray toggle without opening dialog
 - Setting is automatically saved to localStorage
 
 #### Programmatic Access

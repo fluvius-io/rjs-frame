@@ -1,11 +1,12 @@
-import React, { ReactNode, useEffect, useContext, createContext } from 'react';
+import React, { ReactNode, useEffect, useContext, createContext, PureComponent } from 'react';
 import { PageLayoutContext } from '../contexts/LayoutContexts';
 import { PageSlotContext, type PageSlotContextType } from '../contexts/LayoutContexts';
 import { pageStore } from '../store/pageStore';
-import '../styles/index.scss';
+import '../styles/index.css';
 import type { PageState } from '../types/PageState';
-import { SlotParams } from '../types/PageState';
+import { PageParams } from '../types/PageState';
 import { getXRayEnabled } from '../store/pageStore';
+import { PageModule } from './PageModule';
 
 export interface PageSlotState {
   pageState: PageState;
@@ -17,7 +18,7 @@ export interface PageSlotProps {
   name?: string;
   renderEmpty?: boolean;
   allowToggle?: boolean;
-  defaultVisibility?: 'show' | 'hide'| 'always';
+  visible?: 'show' | 'hide'| 'always';
   defaultParamValue?: string;
   className?: string;
   children?: React.ReactNode;
@@ -54,7 +55,7 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
     this.setState({ pageState: currentState });
 
     // Subscribe to store changes after mounting
-    this.unsubscribe = pageStore.subscribe((value) => {
+    this.unsubscribe = pageStore.subscribe((value: PageState) => {
       if (this.shouldUpdate(value)) {
         this.setState({ pageState: value });
       }
@@ -70,25 +71,23 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
     }
 
     const prevState = this.state.pageState;
-    const slotName = this.slotName;
     
     return (
-      prevState.slotStatus?.[slotName] !== newState.slotStatus?.[slotName] ||
-      JSON.stringify(prevState.slotParams) !== JSON.stringify(newState.slotParams) ||
+      JSON.stringify(prevState.pageParams) !== JSON.stringify(newState.pageParams) ||
       prevState.name !== newState.name
     );
   }
 
   protected get hasDefaultParams() {
-    return this.slotName in this.state.pageState.slotParams;
+    return this.slotName in this.state.pageState.pageParams;
   }
 
   protected get slotParams() {
-    return this.state.pageState.slotParams?.[this.slotName] || undefined;
+    return this.state.pageState.pageParams?.[this.slotName] || undefined;
   }
 
-  protected get allSlotParams() {
-    return this.state.pageState.slotParams || {};
+  protected get pageParams() {
+    return this.state.pageState.pageParams || {};
   }
 
   protected get slotName() {
@@ -96,18 +95,14 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
   }
   
   protected get slotVisible() : boolean {
-    let defaultVisibility = this.props.defaultVisibility || 'show';
-
-    if (defaultVisibility === 'always') {
-      return true;
-    }
+    let defaultVisibility = this.props.visible || 'always';
 
     if (defaultVisibility === 'show') {
-      return !this.slotParams || !['off', 'hide', 'hidden'].includes(this.slotParams as string);
+      return this.pageParams[this.slotName] !== false;
     }
 
     if (defaultVisibility === 'hide') {
-      return this.hasDefaultParams && (!this.slotParams || !['off', 'hide', 'hidden'].includes(this.slotParams as string));
+      return Boolean(this.pageParams[this.slotName]);
     }
 
     return true;
@@ -148,21 +143,19 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
       return null;
     }
 
-    let slotContext: PageSlotContextType = { args: this.allSlotParams, name: this.slotName };
+    let slotContext: PageSlotContextType = { args: this.pageParams, name: this.slotName };
 
     const pageSlotClassName = this.props.className 
       ? `page-slot ${this.props.className}` 
       : 'page-slot';
 
-    // Prepare data attributes for X-Ray mode pseudo-elements
-    const slotParamsDisplay = this.slotParams ? ` = ${this.slotParams}` : '';
 
     return (
       <PageSlotContext.Provider value={slotContext}>
         <div 
           className={pageSlotClassName} 
           data-slot-name={this.slotName}
-          data-slot-params={slotParamsDisplay}
+          data-slot-visibility={this.props.visible || 'always'}
         >
           {renderingContent.map((content, index) => (
             <React.Fragment key={index}>

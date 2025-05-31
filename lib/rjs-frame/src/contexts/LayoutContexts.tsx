@@ -1,17 +1,22 @@
-import React from 'react';
-import type { SlotParams } from '../types/PageState';
+import React, { createContext } from 'react';
+import type { PageParams } from '../types/PageState';
 
+/**
+ * Global Layout Context - provides access to registered page modules
+ */
 export interface PageLayoutContextType {
-  layoutId?: string;
-  pageModules: Record<string, React.ReactNode[]>;
-  xRay?: boolean;
+  layoutId: string;
+  pageModules: { [slotName: string]: React.ReactNode[] };
+  xRay: boolean;
+  addPageModule: (slotName: string, content: React.ReactNode) => void;
+  removePageModule: (slotName: string, content: React.ReactNode) => void;
 }
 
-export const PageLayoutContext = React.createContext<PageLayoutContextType>({pageModules: {}});
-
 export interface PageSlotContextType {
-  args?: SlotParams;
+  args?: PageParams;
   name: string;
 }
 
-export const PageSlotContext = React.createContext<PageSlotContextType>({name: 'main'}); 
+export const PageLayoutContext = createContext<PageLayoutContextType | null>(null);
+
+export const PageSlotContext = createContext<PageSlotContextType | null>(null); 

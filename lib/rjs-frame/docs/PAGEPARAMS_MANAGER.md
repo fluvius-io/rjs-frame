@@ -46,7 +46,7 @@ The PageParams manager component has been moved from application-specific module
 ## Usage
 
 ### **Access PageParams Manager**
-1. Press `Ctrl+O` to open PageLayoutOptions dialog
+1. Press `Option+O` / `Win+O` to open PageLayoutOptions dialog
 2. Scroll to "PageParams" section
 3. Add, edit, and validate URL parameters
 4. Changes are applied immediately to the browser URL

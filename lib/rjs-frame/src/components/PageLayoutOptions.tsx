@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageParamsManager } from './PageParamsManager';
-import '../styles/components/PageLayoutOptions.scss';
+import '../styles/components/PageLayoutOptions.css';
 
 export interface PageLayoutOptionsProps {
   isVisible: boolean;
@@ -110,7 +110,7 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
           </div>
           
           <div className="page-layout-options-footer">
-            <p>Press <kbd>Ctrl+O</kbd> to toggle this dialog, <kbd>Esc</kbd> to close, or <kbd>Cmd+X</kbd>/<kbd>Alt+X</kbd> to toggle X-Ray mode</p>
+            <p>Press <kbd>Option+O</kbd>/<kbd>Win+O</kbd> to toggle this dialog, <kbd>Esc</kbd> to close, or <kbd>Option+X</kbd>/<kbd>Win+X</kbd> to toggle X-Ray mode</p>
             {!isActiveInstance && (
               <p className="inactive-warning">This instance is inactive and won't respond to keyboard shortcuts.</p>
             )}

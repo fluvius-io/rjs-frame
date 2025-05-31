@@ -1,33 +1,67 @@
-export * from './components/PageLayout';
-export * from './components/PageLayoutOptions';
-export * from './components/PageSlot';
-export * from './components/PageModule';
-export * from './components/PageParamsManager';
-export * from './contexts/LayoutContexts';
-export * from './store/pageStore';
-export * from './types/PageState';
-export * from './utils/urlUtils';
+// Components
+export { PageLayout } from './components/PageLayout';
+export { PageLayoutOptions } from './components/PageLayoutOptions';
+export { PageModule } from './components/PageModule';
+export { PageSlot } from './components/PageSlot';
+export { PageParamsManager } from './components/PageParamsManager';
 
-// Export specific helper functions for convenience
-export {
-  getXRayEnabled,
-  setXRayEnabled,
+// Store
+export { 
+  pageStore,
+  updatePageState,
+  updateGlobalState,
   getGlobalState,
   setGlobalState,
-  updateGlobalState,
+  getXRayEnabled,
+  setXRayEnabled,
   updateModuleState,
-  addSlotParam,
-  removeSlotParam,
-  updateSlotParamsPartial
+  updateLinkParams,
+  updatePageParams,
+  addPageParam,
+  removePageParam,
+  updatePageParamsPartial,
+  setPageName,
+  initializeFromUrl
 } from './store/pageStore';
 
-// Export URL utility functions for safe fragment handling
+// Types
+export type { 
+  PageState, 
+  PageParams, 
+  AuthState,
+  LinkParams,
+  GlobalState,
+  ModuleState
+} from './types/PageState';
+
+// Utils
 export {
-  URL_FRAGMENT_SEPARATOR,
-  FRAGMENT_NAME_PATTERN,
-  isValidFragmentName,
+  parseUrlPath,
+  parseUrlFragments,
+  parseSearchParams,
+  buildUrlFragments,
+  buildUrlPath,
   updateUrlFragments,
   addUrlFragment,
   removeUrlFragment,
-  updateBrowserUrlFragments
-} from './utils/urlUtils'; 
+  updateBrowserUrl,
+  updateBrowserUrlFragments,
+  updateBrowserSearchParams,
+  isValidFragmentName,
+  URL_FRAGMENT_SEPARATOR,
+  FRAGMENT_NAME_PATTERN
+} from './utils/urlUtils';
+
+// Contexts
+export { 
+  PageLayoutContext, 
+  PageSlotContext 
+} from './contexts/LayoutContexts';
+export type { 
+  PageLayoutContextType, 
+  PageSlotContextType 
+} from './contexts/LayoutContexts';
+
+// Re-export types for convenience
+export type { ParsedUrl, ParsedFragments } from './utils/urlUtils';
+export type { PageParamsManagerProps } from './components/PageParamsManager'; 

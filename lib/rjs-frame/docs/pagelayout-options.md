@@ -13,8 +13,8 @@ The PageLayoutOptions dialog is a full-screen overlay that shows:
 ## Accessing the Dialog
 
 ### Keyboard Shortcuts
-- **`Ctrl+O`**: Toggle the PageLayoutOptions dialog
-- **`Cmd+X`** (Mac) / **`Alt+X`** (Windows/Linux): Quick toggle X-Ray mode without opening dialog
+- **`Option+O`** / **`Win+O`**: Toggle the PageLayoutOptions dialog
+- **`Option+X`** / **`Win+X`**: Quick toggle X-Ray mode without opening dialog
 - **`Esc`**: Close the dialog
 
 ### Automatic Singleton Management
@@ -117,7 +117,7 @@ export class MyLayout extends PageLayout {
 For rapid debugging, you can toggle X-Ray mode directly without opening the full dialog:
 
 ```typescript
-// Just press Cmd+X (Mac) or Alt+X (Windows/Linux)
+// Just press Option+X / Win+X
 // No need to open the PageLayoutOptions dialog
 // The X-Ray mode will toggle immediately and persist to localStorage
 ```

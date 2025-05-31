@@ -53,14 +53,6 @@
   }
 
   &__list {
-    margin-bottom: 15px;
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid var(--rjs-gray-200);
-    border-radius: 4px;
-    background-color: var(--rjs-gray-100);
-    padding: 0.5rem;
-
     &:empty {
       padding: 1rem;
       text-align: center;
@@ -78,6 +70,7 @@
     padding: 8px;
     border-radius: 3px;
     font-size: 12px;
+    background-color: var(--rjs-gray-100);
 
     &--valid {
       border: 1px solid var(--rjs-gray-300);
@@ -99,6 +92,13 @@
       flex: 1;
     }
 
+    &-value-container {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+    }
+
     &-label {
       display: block;
       font-size: 11px;
@@ -108,7 +108,7 @@
     }
 
     &-input {
-      width: 100%;
+      flex: 1;
       border-radius: 2px;
       padding: 3px;
       font-size: 11px;
@@ -139,7 +139,6 @@
     &-validation-icon {
       display: flex;
       align-items: center;
-      margin-top: 15px;
       font-size: 14px;
 
       &--valid {
@@ -154,19 +153,22 @@
     &-controls {
       display: flex;
       gap: 6px;
-      align-items: center;
+      align-items: flex-end;
+      margin-top: 8px;
     }
 
     &-boolean-controls {
       display: flex;
       gap: 6px;
-      align-items: center;
+      align-items: flex-end;
+      flex: 1;
     }
 
     &-string-controls {
       flex: 1;
       display: flex;
       gap: 6px;
+      align-items: flex-end;
     }
 
     &-string-input-container {
@@ -175,11 +177,14 @@
   }
 
   &__button {
-    padding: 3px 6px;
+    padding: 4px 8px;
     border: none;
-    border-radius: 2px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 10px;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
     transition: all 0.2s ease;
 
     &:hover {
@@ -193,6 +198,7 @@
 
     &--boolean-toggle {
       color: var(--rjs-white);
+      min-width: 80px;
 
       &--true {
         background-color: var(--rjs-primary);
@@ -203,8 +209,10 @@
       }
     }
 
-    &--to-boolean {
-      margin-top: 15px;
+    &--to-boolean,
+    &--to-string {
+      background-color: var(--rjs-gray-600);
+      color: var(--rjs-white);
     }
 
     &--remove {

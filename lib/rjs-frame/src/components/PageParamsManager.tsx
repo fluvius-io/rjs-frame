@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { pageStore } from '../store/pageStore';
+import { pageStore, updatePageState } from '../store/pageStore';
 import { buildUrlPath, updateBrowserUrlFragments, isValidFragmentName, FRAGMENT_NAME_PATTERN } from '../utils/urlUtils';
-import type { SlotParams, PageState } from '../types/PageState';
-import '../styles/components/PageParamsManager.scss';
+import type { PageParams, PageState } from '../types/PageState';
+import '../styles/components/PageParamsManager.css';
 
 interface EditingParam {
   id: string; // Stable ID for React key
@@ -18,7 +18,7 @@ interface ValidationError {
 
 export interface PageParamsManagerProps {
   /** Optional callback when page parameters change */
-  onArgumentsChange?: (params: SlotParams) => void;
+  onArgumentsChange?: (params: PageParams) => void;
 }
 
 export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps) {
@@ -31,7 +31,7 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
 
   // Subscribe to pageStore manually
   useEffect(() => {
-    unsubscribeRef.current = pageStore.subscribe((value) => {
+    unsubscribeRef.current = pageStore.subscribe((value: PageState) => {
       setPageState(value);
     });
 
@@ -43,7 +43,7 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
     };
   }, []);
 
-  const { slotParams = {}, name = '' } = pageState || {};
+  const { pageParams = {} } = pageState || {};
 
   // Validate fragment name
   const validateFragmentName = useCallback((name: string): { isValid: boolean; error?: string } => {
@@ -61,8 +61,8 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
     return { isValid: true };
   }, []);
 
-  // Convert slotParams to editing format with stable IDs
-  const convertToEditingParams = useCallback((params: SlotParams): EditingParam[] => {
+  // Convert pageParams to editing format with stable IDs
+  const convertToEditingParams = useCallback((params: PageParams): EditingParam[] => {
     return Object.entries(params).map(([key, value]) => {
       const validation = validateFragmentName(key);
       return {
@@ -94,15 +94,15 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
   // Sync with URL params only when they actually change from external source
   useEffect(() => {
     if (!isUpdatingFromUrl.current) {
-      const newEditingParams = convertToEditingParams(slotParams);
+      const newEditingParams = convertToEditingParams(pageParams);
       setEditingParams(newEditingParams);
     }
     isUpdatingFromUrl.current = false;
-  }, [slotParams, convertToEditingParams]);
+  }, [pageParams, convertToEditingParams]);
 
-  // Convert editing params back to SlotParams
-  const convertToSlotParams = useCallback((params: EditingParam[]): SlotParams => {
-    const result: SlotParams = {};
+  // Convert editing params back to PageParams
+  const convertToPageParams = useCallback((params: EditingParam[]): PageParams => {
+    const result: PageParams = {};
     params.forEach(({ key, value, isValid }) => {
       if (key && isValid) {
         result[key] = value;
@@ -112,17 +112,23 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
   }, []);
 
   const commitChanges = useCallback((params: EditingParam[]) => {
-    const slotParamsToCommit = convertToSlotParams(params);
+    const pageParamsToCommit = convertToPageParams(params);
     isUpdatingFromUrl.current = true;
     
     // Update browser URL directly using the utility function
-    updateBrowserUrlFragments(slotParamsToCommit);
+    updateBrowserUrlFragments(pageParamsToCommit);
+    
+    // Also update the page state directly to ensure the page reflects the changes
+    updatePageState((state: PageState) => ({
+      ...state,
+      pageParams: pageParamsToCommit
+    }));
     
     // Notify parent component if callback provided
     if (onArgumentsChange) {
-      onArgumentsChange(slotParamsToCommit);
+      onArgumentsChange(pageParamsToCommit);
     }
-  }, [convertToSlotParams, onArgumentsChange]);
+  }, [convertToPageParams, onArgumentsChange]);
 
   const handleAddArgument = useCallback(() => {
     const newParam: EditingParam = {
@@ -173,12 +179,15 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
   }, [editingParams, commitChanges]);
 
   const handleToggleBoolean = useCallback((id: string) => {
-    setEditingParams(prev => prev.map(param => 
+    const newParams = editingParams.map(param => 
       param.id === id 
         ? { ...param, value: typeof param.value === 'boolean' ? !param.value : true }
         : param
-    ));
-  }, []);
+    );
+    setEditingParams(newParams);
+    // Immediately commit the changes to the URL
+    commitChanges(newParams);
+  }, [editingParams, commitChanges]);
 
   const hasValidationErrors = validationErrors.length > 0;
   const validParamsCount = editingParams.filter(p => p.isValid).length;
@@ -189,17 +198,14 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
       
       <div className="pageparams-manager__info">
         <div className="pageparams-manager__info-item">
-          <strong>Current Page:</strong> {name || 'none'}
-        </div>
-        <div className="pageparams-manager__info-item">
-          <strong>URL Pattern:</strong> /{name}/-/param_name:value/boolean_flag
+          <strong>URL Pattern:</strong> /path/-/param_name:value/boolean_flag
         </div>
         <div className="pageparams-manager__info-item">
           <strong>Active Params:</strong> {validParamsCount} valid
         </div>
         <div className="pageparams-manager__info-current">
-          Current: {Object.entries(slotParams || {}).length ? 
-            Object.entries(slotParams || {}).map(([key, value]) => `${key}:${value}`).join(', ') : 
+          Current: {Object.entries(pageParams || {}).length ? 
+            Object.entries(pageParams || {}).map(([key, value]) => `${key}:${value}`).join(', ') : 
             'none'}
         </div>
       </div>
@@ -208,9 +214,9 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
         <div className="pageparams-manager__validation-errors">
           <strong>Validation Errors:</strong>
           <br />
-          Parameter names must match pattern: <code>{FRAGMENT_NAME_PATTERN.source}</code>
+          Parameter names must start with letter/digit/underscore, then can contain dots and dashes
           <br />
-          <small>Only letters, digits, and underscores are allowed.</small>
+          <small>Names cannot start with a dash or dot, but can contain them after the first character.</small>
         </div>
       )}
 
@@ -278,14 +284,15 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
                     >
                       To Boolean
                     </button>
-                  </div>
-                )}
-                <button 
+                    <button 
                   onClick={() => handleRemoveArgument(param.id)}
                   className="pageparams-manager__button pageparams-manager__button--remove"
                 >
                   Remove
                 </button>
+
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -300,8 +307,8 @@ export function PageParamsManager({ onArgumentsChange }: PageParamsManagerProps)
       </button>
 
       <div className="pageparams-manager__examples">
-        <div><strong>Valid names:</strong> filter, user_id, Tab1, debug, user.id</div>
-        <div><strong>Invalid names:</strong> my-param, filter.type, user@domain, user.id.name</div>
+        <div><strong>Valid names:</strong> filter, user_id, Tab1, debug, user_name, filter_type, user.id, filter-type</div>
+        <div><strong>Invalid names:</strong> -param, .config, @user, user@domain, 123-param</div>
       </div>
     </section>
   );

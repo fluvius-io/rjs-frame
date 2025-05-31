@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component, type ReactNode } from 'react';
 import { pageStore, updatePageState } from '../store/pageStore';
 import { generate } from "short-uuid";
 import { PageLayoutContext, PageSlotContext, type PageSlotContextType } from "../contexts/LayoutContexts";
-import type { PageState, SlotParams } from "../types/PageState";
-import "../styles/index.scss";
+import type { PageState, PageParams } from "../types/PageState";
+import "../styles/index.css";
 
 export interface PageModuleState {
   pageState: PageState;
@@ -77,7 +77,7 @@ export class PageModule extends React.Component<
     // Default: update on any change to core state properties
     return (
       prevState.name !== newState.name ||
-      JSON.stringify(prevState.slotParams) !== JSON.stringify(newState.slotParams) ||
+      JSON.stringify(prevState.pageParams) !== JSON.stringify(newState.pageParams) ||
       JSON.stringify(prevState.linkParams) !== JSON.stringify(newState.linkParams) ||
       prevState.moduleState[this.moduleId] !== newState.moduleState[this.moduleId]
     );

@@ -33,6 +33,7 @@ function DashboardLayoutPage() {
       <MainContentModule slotName="main">
         <Routes>
           <Route index element={<DashboardHome />} />
+          <Route path="/-/*" element={<DashboardHome />} />
           <Route path="analytics/*" element={<AnalyticsPage />} />
           <Route path="users/*" element={<UsersPage />} />
           <Route path="reports/*" element={<ReportsPage />} />
@@ -51,10 +52,10 @@ function DashboardHome() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Dashboard</h1>
         <p className="text-muted-foreground px-6">Welcome to your dashboard overview</p>
       </div>
-      <PageSlot name="stats">
+      <PageSlot name="stats" visible="show">
         <StatsModule slotName="stats" />
       </PageSlot>
-      <PageSlot name="charts">
+      <PageSlot name="charts" visible="show">
         <ChartModule slotName="charts" />
       </PageSlot>
     </div>
@@ -68,7 +69,7 @@ function AnalyticsPage() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Analytics</h1>
         <p className="text-muted-foreground px-6">Detailed analytics and insights</p>
       </div>
-      <PageSlot name="analytics-charts">
+      <PageSlot name="analytics-charts" visible="show">
         <ChartModule slotName="analytics-charts" />
       </PageSlot>
     </div>
@@ -82,7 +83,7 @@ function UsersPage() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Users</h1>
         <p className="text-muted-foreground px-6">Manage your users and permissions</p>
       </div>
-      <PageSlot name="user-table">
+      <PageSlot name="user-table" visible="show">
         <DataTableModule slotName="user-table" />
       </PageSlot>
     </div>
@@ -113,10 +114,10 @@ function SalesPage() {
         <h1 className="text-3xl font-bold tracking-tight p-6 pb-0">Sales</h1>
         <p className="text-muted-foreground px-6">Track your sales performance</p>
       </div>
-      <PageSlot name="sales-stats">
+      <PageSlot name="sales-stats" visible="show">
         <StatsModule slotName="sales-stats" />
       </PageSlot>
-      <PageSlot name="sales-charts">
+      <PageSlot name="sales-charts" visible="show">
         <ChartModule slotName="sales-charts" />
       </PageSlot>
     </div>

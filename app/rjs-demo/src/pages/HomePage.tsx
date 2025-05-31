@@ -17,8 +17,8 @@ const HomePage: React.FC = () => {
           <h4>🛠️ Debug Features Available</h4>
           <p>Use these keyboard shortcuts:</p>
           <ul>
-            <li><kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Ctrl+O</kbd> - Open PageLayout Options dialog</li>
-            <li><kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Cmd+X</kbd> (Mac) / <kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Alt+X</kbd> (Windows/Linux) - Quick toggle X-Ray mode</li>
+            <li><kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Option+O</kbd> / <kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Win+O</kbd> - Open PageLayout Options dialog</li>
+            <li><kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Option+X</kbd> / <kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Win+X</kbd> - Quick toggle X-Ray mode</li>
             <li><kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Esc</kbd> - Close dialog</li>
           </ul>
           <p>In the PageLayout Options dialog you can:</p>
@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
 
           <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '4px' }}>
             <h5>🔧 PageParams</h5>
-            <p>The PageParams manager is now integrated into the PageLayout Options dialog. Press <kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Ctrl+O</kbd> to access it.</p>
+            <p>The PageParams manager is now integrated into the PageLayout Options dialog. Press <kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Option+O</kbd> / <kbd style={{ backgroundColor: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px', fontFamily: 'monospace' }}>Win+O</kbd> to access it.</p>
             <p><small>Features: Real-time validation, boolean flags, pattern enforcement, and direct URL manipulation.</small></p>
           </div>
         </div>
