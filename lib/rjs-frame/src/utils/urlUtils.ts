@@ -224,6 +224,10 @@ export function removeUrlFragment(key: string): string {
 /**
  * Update browser URL with new path (client-side only)
  * Preserves the page name when updating fragments
+ * Automatically creates history entry if path changes, replaces if only search changes
+ * @param pageName - The page name
+ * @param params - Page parameters
+ * @param search - Optional search string
  */
 export function updateBrowserUrl(pageName: string, params: PageParams, search?: string): void {
   if (typeof window === 'undefined') return;
@@ -232,25 +236,42 @@ export function updateBrowserUrl(pageName: string, params: PageParams, search?: 
   const currentSearch = search || window.location.search;
   const newUrl = newPath + currentSearch;
   
-  window.history.replaceState(null, '', newUrl);
+  // Create history entry if path changed, replace if only search changed
+  const pathChanged = newPath !== window.location.pathname;
+  
+  if (pathChanged) {
+    window.history.pushState(null, '', newUrl);
+  } else {
+    window.history.replaceState(null, '', newUrl);
+  }
 }
 
 /**
  * Update browser URL fragments while preserving the current path structure
- * Only manages fragments after the /-/ separator
+ * Only manages fragments after the /-/ separator (PageParams)
+ * Preserves existing search parameters without modifying them
+ * Creates history entry only if path actually changes
+ * @param params - Page parameters
  */
-export function updateBrowserUrlFragments(params: PageParams, search?: string): void {
+export function updateBrowserUrlFragments(params: PageParams): void {
   if (typeof window === 'undefined') return;
   
   const newPath = updateUrlFragments(params);
-  const currentSearch = search || window.location.search;
+  const currentSearch = window.location.search;
   const newUrl = newPath + currentSearch;
   
-  window.history.replaceState(null, '', newUrl);
+  // Only push state if the URL actually changed
+  if (newUrl !== window.location.href) {
+    window.history.pushState(null, '', newUrl);
+  }
 }
 
 /**
  * Update browser search params (client-side only)
+ * Only manages search parameters (LinkParams)
+ * Preserves existing path parameters without modifying them
+ * Replaces state only if URL actually changes
+ * @param params - Search parameters
  */
 export function updateBrowserSearchParams(params: Record<string, string>): void {
   if (typeof window === 'undefined') return;
@@ -261,6 +282,11 @@ export function updateBrowserSearchParams(params: Record<string, string>): void 
   });
 
   const newSearch = searchParams.toString();
-  const newUrl = `${window.location.pathname}${newSearch ? '?' + newSearch : ''}`;
-  window.history.replaceState(null, '', newUrl);
+  const currentPath = window.location.pathname;
+  const newUrl = `${currentPath}${newSearch ? '?' + newSearch : ''}`;
+  
+  // Only replace state if the URL actually changed
+  if (newUrl !== window.location.href) {
+    window.history.replaceState(null, '', newUrl);
+  }
 } 
