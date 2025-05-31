@@ -148,11 +148,7 @@ export class PageModule extends React.Component<
             );
           }
 
-          return (
-            <div className="page-module" data-slot-name={this.slotContext ? this.slotContext.name : 'main'}>
-              {this.renderContent()}
-            </div>
-          );
+          return this.renderContent();
         }}
       </PageSlotContext.Consumer>
     );
