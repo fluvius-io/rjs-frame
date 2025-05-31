@@ -3,8 +3,12 @@ import type { PageState, PageParams, SlotParams, SlotStatus, SlotStatusValues } 
 import { 
   parseUrlPath, 
   parseSearchParams, 
-  updateBrowserUrl, 
-  updateBrowserSearchParams 
+  updateBrowserUrl,
+  updateBrowserUrlFragments,
+  updateBrowserSearchParams,
+  addUrlFragment,
+  removeUrlFragment,
+  updateUrlFragments
 } from '../utils/urlUtils';
 
 // LocalStorage keys
@@ -145,14 +149,69 @@ export const updateLinkParams = (newParams: Record<string, string>) => {
   updateBrowserSearchParams(newParams);
 };
 
-// Update slotParams
+// Update slotParams while preserving page name
 export const updateSlotParams = (newParams: SlotParams) => {
   const currentState = pageStore.get();
   updatePageState(state => ({
     ...state,
     slotParams: newParams
   }));
-  updateBrowserUrl(currentState.name, newParams, currentState.slotStatus);
+  // Use the safe method that preserves page name
+  updateBrowserUrlFragments(newParams, currentState.slotStatus);
+};
+
+// Add or update a single slot parameter while preserving page name and other params
+export const addSlotParam = (key: string, value: string) => {
+  const currentState = pageStore.get();
+  const updatedParams = {
+    ...currentState.slotParams,
+    [key]: value
+  };
+  updatePageState(state => ({
+    ...state,
+    slotParams: updatedParams
+  }));
+  updateBrowserUrlFragments(updatedParams, currentState.slotStatus);
+};
+
+// Remove a slot parameter while preserving page name and other params
+export const removeSlotParam = (key: string) => {
+  const currentState = pageStore.get();
+  const updatedParams = { ...currentState.slotParams };
+  const updatedStatuses = { ...currentState.slotStatus };
+  
+  delete updatedParams[key];
+  delete updatedStatuses[key];
+  
+  updatePageState(state => ({
+    ...state,
+    slotParams: updatedParams,
+    slotStatus: updatedStatuses
+  }));
+  updateBrowserUrlFragments(updatedParams, updatedStatuses);
+};
+
+// Update multiple slot parameters while preserving page name
+export const updateSlotParamsPartial = (paramsToUpdate: Partial<SlotParams>) => {
+  const currentState = pageStore.get();
+  
+  // Filter out undefined values to ensure type safety
+  const filteredParams: SlotParams = {};
+  Object.entries(paramsToUpdate).forEach(([key, value]) => {
+    if (value !== undefined) {
+      filteredParams[key] = value;
+    }
+  });
+  
+  const updatedParams = {
+    ...currentState.slotParams,
+    ...filteredParams
+  };
+  updatePageState(state => ({
+    ...state,
+    slotParams: updatedParams
+  }));
+  updateBrowserUrlFragments(updatedParams, currentState.slotStatus);
 };
 
 // Set page name while preserving existing parameters

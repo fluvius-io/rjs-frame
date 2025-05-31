@@ -9,17 +9,17 @@ export type PageParams = Record<string, string>;
 
 export type LinkState = Record<string, string>;
 
-export type SlotParams = Record<string, string>;
+export type SlotParams = Record<string, string | boolean>;
 
 export type SlotStatus = {
   [key: string]: SlotStatusValues;
 };
 
-export type VarsState = {
+export type GlobalState = {
   [key: string]: any;
 };
 
-export type PrivateState = {
+export type ModuleState = {
   [key: string]: {
     component: string;
     [key: string]: any;
@@ -34,8 +34,8 @@ export interface PageState {
   linkParams: LinkState;
   slotParams: SlotParams;
   slotStatus: SlotStatus;
-  globalState: VarsState;
-  moduleState: PrivateState;
+  globalState: GlobalState;
+  moduleState: ModuleState;
   auth: AuthState;
   other: Record<string, any>;
 } 

@@ -14,5 +14,19 @@ export {
   getGlobalState,
   setGlobalState,
   updateGlobalState,
-  updateModuleState
-} from './store/pageStore'; 
+  updateModuleState,
+  addSlotParam,
+  removeSlotParam,
+  updateSlotParamsPartial
+} from './store/pageStore';
+
+// Export URL utility functions for safe fragment handling
+export {
+  URL_FRAGMENT_SEPARATOR,
+  FRAGMENT_NAME_PATTERN,
+  isValidFragmentName,
+  updateUrlFragments,
+  addUrlFragment,
+  removeUrlFragment,
+  updateBrowserUrlFragments
+} from './utils/urlUtils'; 

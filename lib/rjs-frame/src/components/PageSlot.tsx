@@ -85,6 +85,10 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
     return this.state.pageState.slotParams?.[this.slotName] || undefined;
   }
 
+  protected get allSlotParams() {
+    return this.state.pageState.slotParams || {};
+  }
+
   protected get slotName() {
     return this.props.name || 'main';
   }
@@ -142,7 +146,7 @@ export class PageSlot extends React.Component<PageSlotProps, PageSlotState> {
       return null;
     }
 
-    let slotContext: PageSlotContextType = { args: this.slotParams, name: this.slotName };
+    let slotContext: PageSlotContextType = { args: this.allSlotParams, name: this.slotName };
 
     const pageSlotClassName = this.props.className 
       ? `page-slot ${this.props.className}` 

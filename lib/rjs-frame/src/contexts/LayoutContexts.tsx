@@ -1,4 +1,5 @@
 import React from 'react';
+import type { SlotParams } from '../types/PageState';
 
 export interface PageLayoutContextType {
   layoutId?: string;
@@ -9,7 +10,7 @@ export interface PageLayoutContextType {
 export const PageLayoutContext = React.createContext<PageLayoutContextType>({pageModules: {}});
 
 export interface PageSlotContextType {
-  args?: string;
+  args?: SlotParams;
   name: string;
 }
 

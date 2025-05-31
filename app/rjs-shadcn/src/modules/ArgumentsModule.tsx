@@ -2,8 +2,16 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageModule } from 'rjs-frame';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { pageStore, isValidFragmentName, FRAGMENT_NAME_PATTERN } from 'rjs-frame';
-import { buildUrlPath } from '../../../../lib/rjs-frame/src/utils/urlUtils';
+import { buildUrlPath } from 'rjs-frame';
 import type { SlotParams, PageState } from 'rjs-frame';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Trash2, Plus, AlertTriangle, Check, X } from 'lucide-react';
 
 export class ArgumentsModule extends PageModule {
   renderContent() {
@@ -190,162 +198,145 @@ function ArgumentsContent() {
   const validParamsCount = editingParams.filter(p => p.isValid).length;
 
   return (
-    <div className="arguments-module" style={{ padding: '20px', border: '1px solid #eee' }}>
-      <h3>URL Arguments Demo {hasValidationErrors && <span style={{ color: 'red' }}>({validationErrors.length} errors)</span>}</h3>
-      
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Current Page: {name}</label>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          URL Arguments
+          {hasValidationErrors && (
+            <Badge variant="destructive" className="flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              {validationErrors.length} errors
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="text-sm">
+            <Label>Current Page:</Label>
+            <Badge variant="outline" className="ml-2">{name || 'none'}</Badge>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            URL Pattern: /{name}/-/argument_name:value/boolean_flag
+          </div>
+          <div className="text-sm">
+            <Label>Active Arguments:</Label>
+            <span className="ml-2">{validParamsCount} valid</span>
+          </div>
         </div>
-        <p>URL Format: /{name}/-/argument_name:value/boolean_flag</p>
-        <p>Active Arguments: {validParamsCount} valid</p>
-        <p>Current Arguments: {Object.entries(slotParams || {}).length ? 
-          Object.entries(slotParams || {}).map(([key, value]) => `${key}:${value}`).join(', ') : 
-          'none'}</p>
-      </div>
 
-      {hasValidationErrors && (
-        <div style={{ 
-          marginBottom: '20px', 
-          padding: '10px', 
-          backgroundColor: '#fee', 
-          border: '1px solid #fcc',
-          borderRadius: '4px'
-        }}>
-          <strong>Validation Errors:</strong>
-          <br />
-          Fragment names must match pattern: <code>{FRAGMENT_NAME_PATTERN.source}</code>
-          <br />
-          <small>Only letters, digits, and underscores are allowed.</small>
-        </div>
-      )}
+        <Separator />
 
-      <div className="arguments-list" style={{ marginBottom: '20px' }}>
-        {editingParams.map((param) => {
-          const error = validationErrors.find(e => e.id === param.id);
-          const isBooleanValue = typeof param.value === 'boolean';
-          
-          return (
-            <div key={param.id} style={{ 
-              marginBottom: '15px', 
-              padding: '10px',
-              border: `1px solid ${param.isValid ? '#ddd' : '#fcc'}`,
-              borderRadius: '4px',
-              backgroundColor: param.isValid ? '#fff' : '#fef5f5'
-            }}>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Name:</label>
-                  <input
-                    value={param.key}
-                    onChange={(e) => handleInputChange(param.id, 'key', e.target.value)}
-                    onBlur={handleInputBlur}
-                    onKeyDown={handleInputKeyDown}
-                    placeholder="argument_name"
-                    style={{ 
-                      width: '100%',
-                      border: `1px solid ${param.isValid ? '#ddd' : '#f00'}`,
-                      borderRadius: '4px',
-                      padding: '5px'
-                    }}
-                  />
-                  {error && (
-                    <div style={{ fontSize: '12px', color: 'red', marginTop: '2px' }}>
-                      {error.message}
-                    </div>
-                  )}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-                  {param.isValid ? (
-                    <span style={{ color: 'green', fontSize: '18px' }}>✓</span>
-                  ) : (
-                    <span style={{ color: 'red', fontSize: '18px' }}>✗</span>
-                  )}
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                {isBooleanValue ? (
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <button
-                      onClick={() => handleToggleBoolean(param.id)}
-                      style={{
-                        padding: '5px 10px',
-                        backgroundColor: param.value ? '#007bff' : '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Boolean: {String(param.value)}
-                    </button>
-                    <button
-                      onClick={() => handleInputChange(param.id, 'value', '')}
-                      style={{ padding: '5px 10px', fontSize: '12px' }}
-                    >
-                      Change to String
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Value:</label>
-                      <input
-                        value={String(param.value)}
-                        onChange={(e) => handleInputChange(param.id, 'value', e.target.value)}
+        {hasValidationErrors && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Fragment names must match pattern: <code className="text-xs">{FRAGMENT_NAME_PATTERN.source}</code>
+              <br />
+              <small>Only letters, digits, and underscores are allowed.</small>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="space-y-3">
+          {editingParams.map((param) => {
+            const error = validationErrors.find(e => e.id === param.id);
+            const isBooleanValue = typeof param.value === 'boolean';
+            
+            return (
+              <div key={param.id} className="flex items-start gap-2 p-3 border rounded-lg">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Label htmlFor={`key-${param.id}`} className="text-xs">Name</Label>
+                      <Input
+                        id={`key-${param.id}`}
+                        value={param.key}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(param.id, 'key', e.target.value)}
                         onBlur={handleInputBlur}
                         onKeyDown={handleInputKeyDown}
-                        placeholder="value"
-                        style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ddd' }}
+                        placeholder="argument_name"
+                        className={`${!param.isValid ? 'border-destructive' : ''}`}
                       />
+                      {error && (
+                        <p className="text-xs text-destructive mt-1">{error.message}</p>
+                      )}
                     </div>
-                    <button
-                      onClick={() => handleInputChange(param.id, 'value', true)}
-                      style={{ padding: '5px 10px', fontSize: '12px', marginTop: '20px' }}
-                    >
-                      To Boolean
-                    </button>
+                    
+                    <div className="flex items-center gap-1">
+                      {param.isValid ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <X className="h-4 w-4 text-destructive" />
+                      )}
+                    </div>
                   </div>
-                )}
-                <button 
+                  
+                  <div className="flex items-center gap-2">
+                    {isBooleanValue ? (
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={param.value ? "default" : "secondary"}
+                          className="cursor-pointer"
+                          onClick={() => handleToggleBoolean(param.id)}
+                        >
+                          Boolean: {String(param.value)}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleInputChange(param.id, 'value', '')}
+                        >
+                          Change to String
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex-1">
+                        <Label htmlFor={`value-${param.id}`} className="text-xs">Value</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id={`value-${param.id}`}
+                            value={String(param.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(param.id, 'value', e.target.value)}
+                            onBlur={handleInputBlur}
+                            onKeyDown={handleInputKeyDown}
+                            placeholder="value"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleInputChange(param.id, 'value', true)}
+                          >
+                            To Boolean
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <Button
+                  size="sm"
+                  variant="destructive"
                   onClick={() => handleRemoveArgument(param.id)}
-                  style={{ 
-                    padding: '5px 10px', 
-                    backgroundColor: '#dc3545', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
                 >
-                  Remove
-                </button>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      <button 
-        onClick={handleAddArgument}
-        style={{ 
-          padding: '10px 20px', 
-          backgroundColor: '#28a745', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '4px',
-          cursor: 'pointer',
-          width: '100%'
-        }}
-      >
-        Add Argument
-      </button>
+        <Button onClick={handleAddArgument} className="w-full">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Argument
+        </Button>
 
-      <div style={{ marginTop: '15px', fontSize: '12px', color: '#666' }}>
-        <div><strong>Valid names:</strong> filter, user_id, Tab1, debug</div>
-        <div><strong>Invalid names:</strong> my-param, filter.type, user@domain</div>
-      </div>
-    </div>
+        <div className="text-xs text-muted-foreground space-y-1">
+          <div><strong>Valid names:</strong> filter, user_id, Tab1, debug</div>
+          <div><strong>Invalid names:</strong> my-param, filter.type, user@domain</div>
+        </div>
+      </CardContent>
+    </Card>
   );
 } 
