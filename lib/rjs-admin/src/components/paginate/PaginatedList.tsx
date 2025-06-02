@@ -1,32 +1,90 @@
-import React, { useState } from 'react';
-import { PaginatedListProps, FilterConfig, SortConfig } from './types';
+import React, { useState, useEffect } from 'react';
+import { PaginatedListProps, FilterConfig, SortConfig, PaginatedListMetadata, ApiMetadata } from './types';
+import { transformApiMetadata, isApiMetadata, fetchMetadata, getDefaultSort } from './utils';
 import HeaderComponent from './HeaderComponent';
 import RowComponent from './RowComponent';
 import PaginationControls from './PaginationControls';
 import { Button } from '../common/Button';
 import { cn } from '../../lib/utils';
 
-const PaginatedList: React.FC<PaginatedListProps> = ({
-  metadata,
-  data,
-  pagination,
-  loading = false,
-  title,
-  subtitle,
-  showSearch = false,
-  showFilters = false,
-  searchPlaceholder = "Search...",
-  onSort,
-  onFilter,
-  onSearch,
-  onPageChange,
-  actions,
-  className,
-}) => {
+const PaginatedList: React.FC<PaginatedListProps> = (props) => {
+  const {
+    data,
+    pagination,
+    loading = false,
+    backgroundLoading = false,
+    title,
+    subtitle,
+    showSearch = false,
+    showFilters = false,
+    searchPlaceholder = "Search...",
+    onSort,
+    onFilter,
+    onSearch,
+    onPageChange,
+    actions,
+    className,
+  } = props;
+
+  // Extract metadata and metadataUrl based on props type
+  const initialMetadata = 'metadata' in props ? props.metadata : undefined;
+  const metadataUrl = 'metadataUrl' in props ? props.metadataUrl : undefined;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterConfig[]>([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [currentSort, setCurrentSort] = useState<SortConfig>();
+  const [metadata, setMetadata] = useState<PaginatedListMetadata | null>(null);
+  const [metadataLoading, setMetadataLoading] = useState(false);
+  const [metadataError, setMetadataError] = useState<string | null>(null);
+
+  // Handle metadata initialization and fetching
+  useEffect(() => {
+    const initializeMetadata = async () => {
+      try {
+        let processedMetadata: PaginatedListMetadata;
+
+        if (metadataUrl) {
+          // Fetch metadata from API
+          setMetadataLoading(true);
+          setMetadataError(null);
+          
+          const apiMetadata = await fetchMetadata(metadataUrl);
+          processedMetadata = transformApiMetadata(apiMetadata);
+          
+          // Set default sort if provided
+          const defaultSort = getDefaultSort(apiMetadata);
+          if (defaultSort && !currentSort) {
+            setCurrentSort(defaultSort);
+          }
+        } else if (initialMetadata) {
+          // Use provided metadata
+          if (isApiMetadata(initialMetadata)) {
+            processedMetadata = transformApiMetadata(initialMetadata);
+            
+            // Set default sort if provided
+            const defaultSort = getDefaultSort(initialMetadata);
+            if (defaultSort && !currentSort) {
+              setCurrentSort(defaultSort);
+            }
+          } else {
+            processedMetadata = initialMetadata;
+          }
+        } else {
+          throw new Error('No metadata provided');
+        }
+
+        setMetadata(processedMetadata);
+      } catch (error) {
+        console.error('Failed to initialize metadata:', error);
+        setMetadataError(error instanceof Error ? error.message : 'Failed to load metadata');
+      } finally {
+        setMetadataLoading(false);
+      }
+    };
+
+    initializeMetadata();
+  }, [initialMetadata, metadataUrl]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -40,6 +98,8 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
   };
 
   const handleFilterAdd = () => {
+    if (!metadata) return;
+    
     const newFilter: FilterConfig = {
       field: Object.keys(metadata.fields)[0],
       operator: Object.keys(metadata.operators || {})[0] || 'equals',
@@ -62,6 +122,8 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
   };
 
   const renderFilterInput = (filter: FilterConfig, index: number) => {
+    if (!metadata) return null;
+    
     const operator = metadata.operators?.[filter.operator];
     
     switch (operator?.type) {
@@ -104,6 +166,39 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
         );
     }
   };
+
+  // Show loading state while fetching metadata
+  if (metadataLoading) {
+    return (
+      <div className={cn("bg-background border rounded-lg shadow-sm", className)}>
+        <div className="p-8 text-center">
+          <div className="text-sm text-muted-foreground">Loading metadata...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if metadata failed to load
+  if (metadataError || !metadata) {
+    return (
+      <div className={cn("bg-background border rounded-lg shadow-sm", className)}>
+        <div className="p-8 text-center">
+          <div className="text-sm text-destructive mb-2">
+            Failed to load metadata: {metadataError || 'No metadata available'}
+          </div>
+          {metadataUrl && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("bg-background border rounded-lg shadow-sm", className)}>
@@ -210,9 +305,23 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
 
       {/* Table */}
       <div className="relative">
+        {/* Background loading indicator - small and subtle */}
+        {backgroundLoading && (
+          <div className="absolute top-2 right-2 z-10">
+            <div className="flex items-center gap-2 px-3 py-1 bg-background/90 border rounded-full text-xs text-muted-foreground">
+              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              Updating...
+            </div>
+          </div>
+        )}
+        
+        {/* Full loading overlay - only for initial loads */}
         {loading && (
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
-            <div className="text-sm text-muted-foreground">Loading...</div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              Loading...
+            </div>
           </div>
         )}
 
@@ -226,7 +335,7 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
                     colSpan={Object.keys(metadata.fields).length}
                     className="px-4 py-8 text-center text-muted-foreground"
                   >
-                    No data available
+                    {loading ? 'Loading...' : 'No data available'}
                   </td>
                 </tr>
               ) : (
@@ -248,7 +357,7 @@ const PaginatedList: React.FC<PaginatedListProps> = ({
       <PaginationControls
         pagination={pagination}
         onPageChange={onPageChange}
-        loading={loading}
+        loading={loading || backgroundLoading}
       />
     </div>
   );

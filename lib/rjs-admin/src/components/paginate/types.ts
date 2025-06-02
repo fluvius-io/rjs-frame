@@ -8,6 +8,35 @@ export interface FieldMetadata {
   className?: string;
 }
 
+// New API metadata format types
+export interface ApiFieldMetadata {
+  label: string;
+  sortable: boolean;
+  hidden: boolean;
+  identifier: boolean;
+  factory: string | null;
+  source: string | null;
+}
+
+export interface ApiQueryOperator {
+  index: number;
+  field_name: string;
+  operator: string;
+  widget: {
+    name: string;
+    desc: string | null;
+    inversible: boolean;
+    data_query: any | null;
+  } | null;
+}
+
+export interface ApiMetadata {
+  fields: Record<string, ApiFieldMetadata>;
+  params: Record<string, ApiQueryOperator>;
+  sortables: string[];
+  default_order: string[];
+}
+
 export interface QueryOperator {
   label: string;
   type: 'text' | 'number' | 'date' | 'select' | 'boolean';
@@ -39,11 +68,12 @@ export interface PaginationConfig {
   pageSizeOptions?: number[];
 }
 
-export interface PaginatedListProps {
-  metadata: PaginatedListMetadata;
+// Base props interface
+interface BasePaginatedListProps {
   data: Array<Record<string, any>>;
   pagination: PaginationConfig;
   loading?: boolean;
+  backgroundLoading?: boolean;
   title?: string;
   subtitle?: string;
   showSearch?: boolean;
@@ -56,6 +86,21 @@ export interface PaginatedListProps {
   actions?: React.ReactNode;
   className?: string;
 }
+
+// Props when using metadataUrl
+interface PaginatedListPropsWithUrl extends BasePaginatedListProps {
+  metadataUrl: string;
+  metadata?: never;
+}
+
+// Props when using metadata directly
+interface PaginatedListPropsWithMetadata extends BasePaginatedListProps {
+  metadata: PaginatedListMetadata | ApiMetadata;
+  metadataUrl?: never;
+}
+
+// Union type for the component props
+export type PaginatedListProps = PaginatedListPropsWithUrl | PaginatedListPropsWithMetadata;
 
 export interface HeaderComponentProps {
   metadata: PaginatedListMetadata;

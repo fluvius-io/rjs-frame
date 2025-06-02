@@ -24,6 +24,19 @@ const config: StorybookConfig = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, '../src'),
     };
+
+    // Add proxy configuration for API calls
+    config.server = config.server || {};
+    config.server.proxy = {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+        // Remove '/api' prefix when forwarding to backend
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    };
+
     return config;
   }
 };
