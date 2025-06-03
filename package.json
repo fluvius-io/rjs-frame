@@ -20,14 +20,17 @@
     "storybook:build": "npm run build-storybook --workspace=lib/rjs-admin",
     "preview": "npm run preview --workspaces --if-present",
     "clean": "rm -rf node_modules lib/*/node_modules app/*/node_modules",
-    "clean:dist": "rm -rf lib/*/dist app/*/dist"
+    "clean:dist": "rm -rf lib/*/dist app/*/dist",
+    "test:api": "node tests/api-simple.test.mjs",
+    "test:api:full": "node tests/api-manager.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.15.24",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.3"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   }
-} 
+}

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import PaginatedList from './PaginatedList';
+import React, { useEffect, useRef, useState } from 'react';
+import { fetchJson } from '../../lib/api';
 import { Button } from '../common/Button';
-import type { SortConfig, FilterConfig, PaginationConfig } from './types';
+import PaginatedList from './PaginatedList';
+import type { FilterConfig, PaginationConfig, SortConfig } from './types';
 
 export interface ApiPaginatedListProps {
   metadataUrl: string;
@@ -119,13 +120,7 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
         const url = `${dataUrl}?${params.toString()}`;
         console.log('🌐 ApiPaginatedList: Making request to:', url);
         
-        const response = await fetch(url, { signal: abortController.signal });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
-        }
-        
-        const result = await response.json();
+        const result = await fetchJson(url, { signal: abortController.signal });
         console.log('📊 ApiPaginatedList: Received response:', result);
         
         // Handle different response formats

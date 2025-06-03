@@ -2,69 +2,50 @@
 export { PageLayout } from './components/PageLayout';
 export { PageLayoutOptions } from './components/PageLayoutOptions';
 export { PageModule, RoutingModule } from './components/PageModule';
-export { PageSlot } from './components/PageSlot';
 export { PageParamsManager } from './components/PageParamsManager';
-export { RjsApp, Router, Routes, Route, Navigate, useNavigate, useLocation } from './components/RjsApp';
+export { PageSlot } from './components/PageSlot';
+export { Navigate, RjsApp, Route, Router, Routes, useLocation, useNavigate } from './components/RjsApp';
 
 // Store
-export { 
-  pageStore,
-  updatePageState,
-  updateGlobalState,
-  getGlobalState,
-  setGlobalState,
-  getXRayEnabled,
-  setXRayEnabled,
-  updateModuleState,
-  updateLinkParams,
-  updatePageParams,
-  addPageParam,
-  removePageParam,
-  updatePageParamsPartial,
-  setPageName,
-  setBreadcrumbs,
-  pushBreadcrumb,
-  popBreadcrumb,
-  getBreadcrumbs,
-  initializeFromBrowserLocation
+export {
+    addPageParam, getBreadcrumbs, getGlobalState, getXRayEnabled, initializeFromBrowserLocation, pageStore, popBreadcrumb, pushBreadcrumb, removePageParam, setBreadcrumbs, setGlobalState, setPageName, setXRayEnabled, updateGlobalState, updateLinkParams, updateModuleState, updatePageParams, updatePageParamsPartial, updatePageState
 } from './store/pageStore';
 
+// API Manager
+export {
+    APIManager,
+    ApiError, ApiManagerExamples, ConfigurationError,
+    RTCConnectionFactory, SSEConnection, ValidationError, WebSocketConnection
+} from './api';
+
+export type {
+    ApiData, ApiManagerConfig, ApiParams, ApiResponse, CommandConfig, DataProcessor, DataSchema, DataValidator, HeaderConfig, HeaderGenerator, HttpMethod, QueryConfig, RTCConnection, RTCTransport, RequestConfig, ResponseProcessor, SocketConfig, SubscriptionHandler,
+    UnsubscribeFunction, UriGenerator
+} from './api';
+
 // Types
-export type { 
-  PageState, 
-  PageParams, 
-  AuthState,
-  LinkParams,
-  GlobalState,
-  ModuleState
+export type {
+    AuthState, GlobalState, LinkParams, ModuleState, PageParams, PageState
 } from './types/PageState';
 
 // Utils
 export {
-  parseUrl,
-  parseBrowserLocation,
-  parseUrlFragments,
-  parseSearchParams,
-  buildUrlFragments,
-  buildPathFromPageState,
-  updateBrowserLocation,
-  updateBrowserTitle,
-  isValidFragmentName,
-  URL_FRAGMENT_SEPARATOR,
-  FRAGMENT_NAME_PATTERN
+    FRAGMENT_NAME_PATTERN, URL_FRAGMENT_SEPARATOR, buildPathFromPageState, buildUrlFragments, isValidFragmentName, parseBrowserLocation, parseSearchParams, parseUrl, parseUrlFragments, updateBrowserLocation,
+    updateBrowserTitle
 } from './utils/urlUtils';
 
 // Contexts
-export { 
-  PageLayoutContext, 
-  PageSlotContext,
-  usePageLayout
+export {
+    PageLayoutContext,
+    PageSlotContext,
+    usePageLayout
 } from './contexts/LayoutContexts';
-export type { 
-  PageLayoutContextType, 
-  PageSlotContextType 
+export type {
+    PageLayoutContextType,
+    PageSlotContextType
 } from './contexts/LayoutContexts';
 
 // Re-export types for convenience
+export type { PageParamsManagerProps } from './components/PageParamsManager';
 export type { ParsedUrl } from './utils/urlUtils';
-export type { PageParamsManagerProps } from './components/PageParamsManager'; 
+

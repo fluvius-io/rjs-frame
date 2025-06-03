@@ -1,4 +1,5 @@
-import { ApiMetadata, PaginatedListMetadata, QueryOperator, FieldMetadata } from './types';
+import { fetchJson } from '../../lib/api';
+import { ApiMetadata, FieldMetadata, PaginatedListMetadata, QueryOperator } from './types';
 
 /**
  * Transforms API metadata format to internal metadata format
@@ -142,11 +143,8 @@ export function isApiMetadata(metadata: any): metadata is ApiMetadata {
  */
 export async function fetchMetadata(url: string): Promise<ApiMetadata> {
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch metadata: ${response.status} ${response.statusText}`);
-    }
-    const metadata = await response.json();
+    // Use the API utility to ensure proper URL handling
+    const metadata = await fetchJson<ApiMetadata>(url);
     
     if (!isApiMetadata(metadata)) {
       throw new Error('Invalid metadata format received from API');
