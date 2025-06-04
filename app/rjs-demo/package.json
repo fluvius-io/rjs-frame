@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "NODE_ENV=development vite",
+    "dev:prod": "NODE_ENV=production vite",
+    "dev:test": "NODE_ENV=test vite",
+    "build": "NODE_ENV=production vite build",
+    "build:dev": "NODE_ENV=development vite build",
     "preview": "vite preview"
   },
   "dependencies": {

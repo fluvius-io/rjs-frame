@@ -5,30 +5,41 @@
  * depending on the environment (development, Storybook, production)
  */
 
-// Get the API base URL from environment or default to /api for proxy
-const getApiBaseUrl = (): string => {
-  // In Storybook and development, use /api which will be proxied
-  if (typeof window !== 'undefined') {
-    // Check if we're running in Storybook
-    if (window.location.port === '6006') {
-      console.log('🔧 API Config: Running in Storybook, using /api proxy');
-      return '/api';
+import { APIManager, ApiCollectionConfig } from 'rjs-frame';
+
+// Set up IdmCollection
+const idmCollectionConfig: ApiCollectionConfig = {
+  name: 'idm',
+  baseUrl: '/api',
+  debug: true,
+  queries: {
+    user: {
+      uri: '/idm.user/',
+      meta: '/_info/idm.user/',
+    },
+    organization: {
+      uri: '/idm.organization/',
+      meta: '/_info/idm.organization/',
     }
-    
-    // Check if we're in development mode
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log('🔧 API Config: Running in development, using /api proxy');
-      return '/api';
+  },
+  processResponse: (response) => {
+    let data = response.data;
+    if (data && data.data) {
+        response.data = data.data;
     }
+    if (data && data.meta) {
+      response.meta = data.meta;
+    }
+    return response;
   }
-  
-  // For production or other environments, use the environment variable or default
-  const baseUrl = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
-  console.log('🔧 API Config: Using base URL:', baseUrl);
-  return baseUrl;
 };
 
-export const API_BASE_URL = getApiBaseUrl();
+// Create and register the IdmCollection
+APIManager.register(idmCollectionConfig);
+
+// Get the API base URL from environment or default to / for proxy
+
+export const API_BASE_URL = '';
 
 /**
  * Create a full API URL from a path
@@ -36,9 +47,7 @@ export const API_BASE_URL = getApiBaseUrl();
 export const createApiUrl = (path: string): string => {
   // Remove leading slash if present to avoid double slashes
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  const fullUrl = `${API_BASE_URL}/${cleanPath}`;
-  console.log('🌐 API: Creating URL:', path, '→', fullUrl);
-  return fullUrl;
+  return `${API_BASE_URL}/${cleanPath}`;
 };
 
 /**
@@ -46,14 +55,11 @@ export const createApiUrl = (path: string): string => {
  */
 export const apiFetch = async (path: string, options?: RequestInit): Promise<Response> => {
   const url = createApiUrl(path);
-  console.log('📡 API: Making request to:', url, options?.method || 'GET');
   
   try {
     const response = await fetch(url, options);
-    console.log('✅ API: Response received:', response.status, response.statusText, 'for', url);
     return response;
   } catch (error) {
-    console.error('❌ API: Request failed:', error, 'for', url);
     throw error;
   }
 };

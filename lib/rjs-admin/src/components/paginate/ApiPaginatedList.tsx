@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { fetchJson } from '../../lib/api';
+import { APIManager } from 'rjs-frame';
 import { Button } from '../common/Button';
 import PaginatedList from './PaginatedList';
 import type { FilterConfig, PaginationConfig, SortConfig } from './types';
 
 export interface ApiPaginatedListProps {
-  metadataUrl: string;
-  dataUrl?: string;
+  metadataApi?: string;
+  dataApi: string;
   title?: string;
   subtitle?: string;
   showSearch?: boolean;
@@ -20,8 +20,8 @@ export interface ApiPaginatedListProps {
  * This demonstrates the complete workflow of using API-driven metadata
  */
 const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
-  metadataUrl,
-  dataUrl,
+  metadataApi,
+  dataApi,
   title = "API Data Table",
   subtitle = "Data fetched from API with dynamic metadata",
   showSearch = true,
@@ -30,7 +30,9 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
   actions,
 }) => {
   const [data, setData] = useState<Array<Record<string, any>>>([]);
+  const [metadata, setMetadata] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [metadataLoading, setMetadataLoading] = useState(false);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<PaginationConfig>({
@@ -42,6 +44,8 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
   // Keep track of current request to prevent race conditions
   const currentRequestRef = useRef<AbortController | null>(null);
   const isInitialLoadRef = useRef(true);
+  // Store previous data to prevent flicker during page changes
+  const previousDataRef = useRef<Array<Record<string, any>>>([]);
 
   // Generate sample data for demonstration (fallback when no dataUrl provided)
   const generateSampleData = (count: number): Array<Record<string, any>> => {
@@ -57,6 +61,31 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
       });
     }
     return sampleData;
+  };
+
+  // Fetch metadata from API
+  const fetchMetadata = async () => {
+    setMetadataLoading(true);
+    try {
+      console.log('🌐 ApiPaginatedList: Fetching metadata...');
+      
+      console.log('📋 ApiPaginatedList: Using queryMeta on dataApi:', metadataApi || dataApi);
+      let metadataResult = await APIManager.queryMeta(metadataApi || dataApi);
+
+      
+      console.log('📋 ApiPaginatedList: Received metadata:', metadataResult);
+      setMetadata(metadataResult.data);
+    } catch (error) {
+      console.error('❌ ApiPaginatedList: Failed to fetch metadata:', error);
+      console.error('❌ ApiPaginatedList: Error details:', {
+        metadataApi: metadataApi || dataApi,
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      setError(error instanceof Error ? error.message : 'Failed to fetch metadata');
+    } finally {
+      setMetadataLoading(false);
+    }
   };
 
   // Fetch data from API or generate sample data
@@ -82,161 +111,94 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
       setLoading(true);
       isInitialLoadRef.current = false;
     } else {
+      // Store current data before starting background load
+      previousDataRef.current = data;
       setBackgroundLoading(true);
     }
     
     setError(null);
     
     try {
-      if (dataUrl) {
-        console.log('🌐 ApiPaginatedList: Fetching data from API:', dataUrl);
-        
-        // Build query parameters
-        const params = new URLSearchParams();
-        params.append('page', page.toString());
-        params.append('limit', pageSize.toString());
-        
-        if (sort) {
-          params.append('sort', `${sort.field}:${sort.direction}`);
-          console.log('🔄 ApiPaginatedList: Adding sort parameter:', `${sort.field}:${sort.direction}`);
-        }
-        
-        if (searchQuery) {
-          params.append('search', searchQuery);
-          console.log('🔍 ApiPaginatedList: Adding search parameter:', searchQuery);
-        }
-        
-        if (filters && filters.length > 0) {
-          filters.forEach((filter, index) => {
-            if (filter.value) {
-              params.append(`filter[${index}][field]`, filter.field);
-              params.append(`filter[${index}][operator]`, filter.operator);
-              params.append(`filter[${index}][value]`, filter.value);
-            }
-          });
-          console.log('🔧 ApiPaginatedList: Adding filters:', filters);
-        }
-        
-        const url = `${dataUrl}?${params.toString()}`;
-        console.log('🌐 ApiPaginatedList: Making request to:', url);
-        
-        const result = await fetchJson(url, { signal: abortController.signal });
-        console.log('📊 ApiPaginatedList: Received response:', result);
-        
-        // Handle different response formats
-        if (result.data && Array.isArray(result.data)) {
-          // Check for meta object format: { data: [...], meta: { total_items, page_no, limit, ... } }
-          if (result.meta) {
-            console.log('✅ ApiPaginatedList: Using meta-based response format');
-            console.log('📊 ApiPaginatedList: Meta object:', result.meta);
-            console.log('📊 ApiPaginatedList: Data count:', result.data.length);
-            setData(result.data);
-            setPagination(prev => ({
-              ...prev,
-              page: result.meta.page_no || page,
-              pageSize: result.meta.limit || pageSize,
-              total: result.meta.total_items || result.data.length,
-            }));
-          } else {
-            // Standard paginated response: { data: [...], total: 100, page: 1, pageSize: 10 }
-            console.log('✅ ApiPaginatedList: Using standard paginated response format');
-            setData(result.data);
-            setPagination(prev => ({
-              ...prev,
-              page: result.page || page,
-              pageSize: result.pageSize || pageSize,
-              total: result.total || result.data.length,
-            }));
+      // Build query parameters
+      const params: Record<string, any> = {
+        page: page.toString(),
+        limit: pageSize.toString(),
+      };
+      
+      if (sort) {
+        params.sort = `${sort.field}:${sort.direction}`;
+        console.log('🔄 ApiPaginatedList: Adding sort parameter:', `${sort.field}:${sort.direction}`);
+      }
+      
+      if (searchQuery) {
+        params.search = searchQuery;
+        console.log('🔍 ApiPaginatedList: Adding search parameter:', searchQuery);
+      }
+      
+      if (filters && filters.length > 0) {
+        filters.forEach((filter, index) => {
+          if (filter.value) {
+            params[`filter[${index}][field]`] = filter.field;
+            params[`filter[${index}][operator]`] = filter.operator;
+            params[`filter[${index}][value]`] = filter.value;
           }
-        } else if (Array.isArray(result)) {
-          // Simple array response
-          console.log('✅ ApiPaginatedList: Using simple array response format');
-          setData(result);
+        });
+        console.log('🔧 ApiPaginatedList: Adding filters:', filters);
+      }
+
+      console.log('🌐 ApiPaginatedList: Fetching data from API:', dataApi);
+      const result = await APIManager.query(dataApi, {search: params});
+      console.log('📊 ApiPaginatedList: Received response:', result);
+      
+      // Handle different response formats
+      if (result.data && Array.isArray(result.data)) {
+        // Check for meta object format: { data: [...], meta: { total_items, page_no, limit, ... } }
+        if (result.meta) {
+          console.log('✅ ApiPaginatedList: Using meta-based response format');
+          console.log('📊 ApiPaginatedList: Meta object:', result.meta);
+          console.log('📊 ApiPaginatedList: Data count:', result.data.length);
+          
+          setData(result.data);
           setPagination(prev => ({
             ...prev,
-            page,
-            pageSize,
-            total: result.length,
+            page: result.meta?.page_no || page,
+            pageSize: result.meta?.limit || pageSize,
+            total: result.meta?.total_items || result.data.length,
           }));
         } else {
-          throw new Error('Invalid response format from data API');
+          // Standard paginated response: { data: [...], total: 100, page: 1, pageSize: 10 }
+          console.log('✅ ApiPaginatedList: Using standard paginated response format');
+          
+          setData(result.data);
+          setPagination(prev => ({
+            ...prev,
+            page: (result.data as any).page || page,
+            pageSize: (result.data as any).pageSize || pageSize,
+            total: (result.data as any).total || result.data.length,
+          }));
         }
       } else {
-        console.log('🔄 ApiPaginatedList: No dataUrl provided, using sample data fallback');
-        
-        // Fallback to sample data with simulated filtering/sorting
-        await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
-        
-        let allData = generateSampleData(150);
-        
-        // Apply search filter
-        if (searchQuery) {
-          allData = allData.filter(item => 
-            Object.values(item).some(value => 
-              String(value).toLowerCase().includes(searchQuery.toLowerCase())
-            )
-          );
-        }
-        
-        // Apply filters
-        if (filters && filters.length > 0) {
-          filters.forEach(filter => {
-            if (filter.value) {
-              allData = allData.filter(item => {
-                const fieldValue = (item as Record<string, any>)[filter.field];
-                const operator = filter.operator.split(':')[1] || filter.operator;
-                
-                switch (operator) {
-                  case 'eq':
-                    return String(fieldValue).toLowerCase() === String(filter.value).toLowerCase();
-                  case 'ilike':
-                    return String(fieldValue).toLowerCase().includes(String(filter.value).toLowerCase());
-                  case 'in':
-                    const values = String(filter.value).split(',').map(v => v.trim());
-                    return values.some(v => String(fieldValue).toLowerCase().includes(v.toLowerCase()));
-                  default:
-                    return true;
-                }
-              });
-            }
-          });
-        }
-        
-        // Apply sorting
-        if (sort) {
-          allData.sort((a, b) => {
-            const aVal = (a as Record<string, any>)[sort.field];
-            const bVal = (b as Record<string, any>)[sort.field];
-            
-            if (aVal < bVal) return sort.direction === 'asc' ? -1 : 1;
-            if (aVal > bVal) return sort.direction === 'asc' ? 1 : -1;
-            return 0;
-          });
-        }
-        
-        // Apply pagination
-        const startIndex = (page - 1) * pageSize;
-        const paginatedData = allData.slice(startIndex, startIndex + pageSize);
-        
-        console.log('📊 ApiPaginatedList: Generated sample data:', {
-          total: allData.length,
-          pageData: paginatedData.length,
-          page,
-          pageSize
-        });
-        
-        setData(paginatedData);
+        // No valid data found
+        console.log('❌ ApiPaginatedList: No valid data in response:', result);
+        setData([]);
         setPagination(prev => ({
           ...prev,
           page,
           pageSize,
-          total: allData.length,
+          total: 0,
         }));
       }
     } catch (error) {
       // Only set error if the request wasn't aborted
       if (!abortController.signal.aborted) {
         console.error('❌ ApiPaginatedList: Failed to fetch data:', error);
+        console.error('❌ ApiPaginatedList: Data fetch error details:', {
+          dataApi,
+          page,
+          pageSize,
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
         setError(error instanceof Error ? error.message : 'Failed to fetch data');
       }
     } finally {
@@ -249,8 +211,9 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
     }
   };
 
-  // Initial data load
+  // Initial data and metadata load
   useEffect(() => {
+    fetchMetadata();
     fetchData(1, 10);
     
     // Cleanup function to abort any pending requests
@@ -259,7 +222,7 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
         currentRequestRef.current.abort();
       }
     };
-  }, [dataUrl]);
+  }, [metadataApi, dataApi]);
 
   const handleSort = (sort: SortConfig) => {
     fetchData(pagination.page, pagination.pageSize, sort);
@@ -277,19 +240,44 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
     fetchData(page, pageSize);
   };
 
+  // Determine which data to show: use previous data during background loading to prevent flicker
+  const displayData = backgroundLoading && previousDataRef.current.length > 0 ? previousDataRef.current : data;
+
+  // Show loading screen while fetching initial metadata or data
+  if (loading || metadataLoading) {
+    return (
+      <div className="p-8 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="p-8 text-center">
         <div className="text-destructive mb-4">{error}</div>
-        <Button onClick={() => fetchData(1, 10)}>Retry</Button>
+        <Button onClick={() => {
+          fetchMetadata();
+          fetchData(1, 10);
+        }}>Retry</Button>
+      </div>
+    );
+  }
+
+  // Only render PaginatedList when we have metadata
+  if (!metadata) {
+    return (
+      <div className="p-8 text-center">
+        <div>No metadata available</div>
       </div>
     );
   }
 
   return (
     <PaginatedList
-      metadataUrl={metadataUrl}
-      data={data}
+      metadata={metadata}
+      data={displayData}
       pagination={pagination}
       loading={loading}
       backgroundLoading={backgroundLoading}

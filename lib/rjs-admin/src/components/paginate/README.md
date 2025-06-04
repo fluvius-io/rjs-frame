@@ -19,7 +19,7 @@ function UsersTable() {
 
   return (
     <PaginatedList
-      metadataUrl="/api/_info/idm.user"
+      metadataUrl="/api/_info/idm.user/"
       data={data}
       pagination={pagination}
       title="Users"

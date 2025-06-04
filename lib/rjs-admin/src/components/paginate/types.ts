@@ -87,20 +87,10 @@ interface BasePaginatedListProps {
   className?: string;
 }
 
-// Props when using metadataUrl
-interface PaginatedListPropsWithUrl extends BasePaginatedListProps {
-  metadataUrl: string;
-  metadata?: never;
-}
-
-// Props when using metadata directly
-interface PaginatedListPropsWithMetadata extends BasePaginatedListProps {
+// PaginatedList only accepts metadata directly - no URL fetching
+export interface PaginatedListProps extends BasePaginatedListProps {
   metadata: PaginatedListMetadata | ApiMetadata;
-  metadataUrl?: never;
 }
-
-// Union type for the component props
-export type PaginatedListProps = PaginatedListPropsWithUrl | PaginatedListPropsWithMetadata;
 
 export interface HeaderComponentProps {
   metadata: PaginatedListMetadata;

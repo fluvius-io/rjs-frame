@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { PaginatedListProps, FilterConfig, SortConfig, PaginatedListMetadata, ApiMetadata } from './types';
-import { transformApiMetadata, isApiMetadata, fetchMetadata, getDefaultSort } from './utils';
-import HeaderComponent from './HeaderComponent';
-import RowComponent from './RowComponent';
-import PaginationControls from './PaginationControls';
-import { Button } from '../common/Button';
+import React, { useEffect, useState } from 'react';
 import { cn } from '../../lib/utils';
+import { Button } from '../common/Button';
+import HeaderComponent from './HeaderComponent';
+import PaginationControls from './PaginationControls';
+import RowComponent from './RowComponent';
+import { FilterConfig, PaginatedListMetadata, PaginatedListProps, SortConfig } from './types';
+import { getDefaultSort, isApiMetadata, transformApiMetadata } from './utils';
 
 const PaginatedList: React.FC<PaginatedListProps> = (props) => {
   const {
@@ -24,40 +24,22 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
     onPageChange,
     actions,
     className,
+    metadata: initialMetadata,
   } = props;
-
-  // Extract metadata and metadataUrl based on props type
-  const initialMetadata = 'metadata' in props ? props.metadata : undefined;
-  const metadataUrl = 'metadataUrl' in props ? props.metadataUrl : undefined;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterConfig[]>([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [currentSort, setCurrentSort] = useState<SortConfig>();
   const [metadata, setMetadata] = useState<PaginatedListMetadata | null>(null);
-  const [metadataLoading, setMetadataLoading] = useState(false);
-  const [metadataError, setMetadataError] = useState<string | null>(null);
 
-  // Handle metadata initialization and fetching
+  // Handle metadata initialization
   useEffect(() => {
-    const initializeMetadata = async () => {
+    const initializeMetadata = () => {
       try {
         let processedMetadata: PaginatedListMetadata;
 
-        if (metadataUrl) {
-          // Fetch metadata from API
-          setMetadataLoading(true);
-          setMetadataError(null);
-          
-          const apiMetadata = await fetchMetadata(metadataUrl);
-          processedMetadata = transformApiMetadata(apiMetadata);
-          
-          // Set default sort if provided
-          const defaultSort = getDefaultSort(apiMetadata);
-          if (defaultSort && !currentSort) {
-            setCurrentSort(defaultSort);
-          }
-        } else if (initialMetadata) {
+        if (initialMetadata) {
           // Use provided metadata
           if (isApiMetadata(initialMetadata)) {
             processedMetadata = transformApiMetadata(initialMetadata);
@@ -77,14 +59,11 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
         setMetadata(processedMetadata);
       } catch (error) {
         console.error('Failed to initialize metadata:', error);
-        setMetadataError(error instanceof Error ? error.message : 'Failed to load metadata');
-      } finally {
-        setMetadataLoading(false);
       }
     };
 
     initializeMetadata();
-  }, [initialMetadata, metadataUrl]);
+  }, [initialMetadata]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -98,11 +77,16 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
   };
 
   const handleFilterAdd = () => {
-    if (!metadata) return;
+    if (!metadata || !metadata.fields) return;
+    
+    const fieldKeys = Object.keys(metadata.fields);
+    const operatorKeys = Object.keys(metadata.operators || {});
+    
+    if (fieldKeys.length === 0) return;
     
     const newFilter: FilterConfig = {
-      field: Object.keys(metadata.fields)[0],
-      operator: Object.keys(metadata.operators || {})[0] || 'equals',
+      field: fieldKeys[0],
+      operator: operatorKeys[0] || 'equals',
       value: '',
     };
     setFilters([...filters, newFilter]);
@@ -168,33 +152,11 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
   };
 
   // Show loading state while fetching metadata
-  if (metadataLoading) {
+  if (!metadata) {
     return (
       <div className={cn("bg-background border rounded-lg shadow-sm", className)}>
         <div className="p-8 text-center">
           <div className="text-sm text-muted-foreground">Loading metadata...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state if metadata failed to load
-  if (metadataError || !metadata) {
-    return (
-      <div className={cn("bg-background border rounded-lg shadow-sm", className)}>
-        <div className="p-8 text-center">
-          <div className="text-sm text-destructive mb-2">
-            Failed to load metadata: {metadataError || 'No metadata available'}
-          </div>
-          {metadataUrl && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => window.location.reload()}
-            >
-              Retry
-            </Button>
-          )}
         </div>
       </div>
     );
@@ -332,7 +294,7 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
               {data.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={Object.keys(metadata.fields).length}
+                    colSpan={metadata?.fields ? Object.keys(metadata.fields).length : 1}
                     className="px-4 py-8 text-center text-muted-foreground"
                   >
                     {loading ? 'Loading...' : 'No data available'}

@@ -16,21 +16,18 @@ export class RTCConnectionFactory {
     baseUrl: string,
     params?: ApiParams
   ): RTCConnection {
-    switch (config.transport) {
-      case 'websockets':
+    switch (config.type) {
+      case 'websocket':
         return new WebSocketConnection(config, baseUrl, params);
       
       case 'sse':
         return new SSEConnection(config, baseUrl, params);
       
-      case 'mqtt':
-        throw new ConfigurationError('MQTT support not yet implemented');
-      
-      case 'webrtc':
+      case 'rtc':
         throw new ConfigurationError('WebRTC support not yet implemented');
       
       default:
-        throw new ConfigurationError(`Unsupported RTC transport: ${config.transport}`);
+        throw new ConfigurationError(`Unsupported RTC transport: ${config.type}`);
     }
   }
 } 

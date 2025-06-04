@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import QueryBuilder from './QueryBuilder';
 import { FrontendQuery } from './types';
-import { Button } from '../common/Button';
-import React, { useState } from 'react';
 
 const meta: Meta<typeof QueryBuilder> = {
   title: 'Components/QueryBuilder',
@@ -35,8 +34,8 @@ export const UsersQuery: Story = {
         </div>
         
         <QueryBuilder
-          metadataUrl="/api/_info/idm.user"
-          title="Build User Query"
+          metadataApi="idm:user"
+          title="User Query Builder"
           onQueryChange={setCurrentQuery}
           onExecute={setExecutedQuery}
         />
@@ -74,7 +73,7 @@ export const OrganizationsQuery: Story = {
         </div>
         
         <QueryBuilder
-          metadataUrl="/api/_info/idm.organization/"
+          metadataApi="idm:organization"
           title="Build Organization Query"
           onQueryChange={setCurrentQuery}
         />
@@ -110,7 +109,7 @@ export const WithInitialQuery: Story = {
         </div>
         
         <QueryBuilder
-          metadataUrl="/api/_info/idm.user"
+          metadataApi="idm:user"
           title="Pre-configured User Query"
           initialQuery={initialQuery}
           onQueryChange={setCurrentQuery}
@@ -140,7 +139,7 @@ export const CompactMode: Story = {
         
         <div className="max-w-4xl">
           <QueryBuilder
-            metadataUrl="/api/_info/idm.user"
+            metadataApi="idm:user"
             title="Compact User Query Builder"
             onQueryChange={setCurrentQuery}
             className="max-w-none"
@@ -212,7 +211,7 @@ export const WithLiveDataExecution: Story = {
         </div>
         
         <QueryBuilder
-          metadataUrl="/api/_info/idm.user"
+          metadataApi="idm:user"
           title="Query Builder with Live Execution"
           onQueryChange={setCurrentQuery}
           onExecute={executeQuery}
@@ -287,7 +286,7 @@ export const FieldSelectionOnly: Story = {
         </div>
         
         <QueryBuilder
-          metadataUrl="/api/_info/idm.user"
+          metadataApi="idm:user"
           title="Field Selection Query Builder"
           initialQuery={simpleQuery}
           onQueryChange={setCurrentQuery}

@@ -53,7 +53,32 @@ function App() {
 }
 ```
 
-### 4. TypeScript Tests (`*.test.ts`)
+### 4. QueryMeta Caching Test (`api-queryMeta.test.mjs`)
+Demonstrates the new metadata caching functionality:
+- 📋 Automatic metadata caching
+- ⚡ Performance improvements (100% speed increase!)
+- 🔑 Cache key generation with parameters
+- 📊 Cache statistics and management
+- 🗑️ Manual cache clearing
+- 🐛 Debug logging control
+
+**Run with:**
+```bash
+node tests/api-queryMeta.test.mjs
+# OR
+npm run test:api:cache
+```
+
+**Features Demonstrated:**
+- First call fetches and caches metadata
+- Subsequent calls return cached data instantly
+- Different queries create separate cache entries
+- Parameters create unique cache keys
+- Cache can be cleared manually
+- Significant performance improvements
+- Debug mode controls console logging output
+
+### 5. TypeScript Tests (`*.test.ts`)
 TypeScript versions of the tests are available but require additional setup:
 - TypeScript compilation configuration
 - ES module handling for imports
@@ -67,6 +92,30 @@ All tests use the [JSONPlaceholder](https://jsonplaceholder.typicode.com/) API f
 - **Base URL:** `https://jsonplaceholder.typicode.com`
 - **Endpoints:** `/posts`, `/users`
 - **Methods:** GET, POST, PATCH, DELETE
+
+## Configuration Options
+
+### Debug Mode
+The APIManager supports a `debug` flag in the configuration to control console logging:
+
+```javascript
+const apiConfig = {
+  name: 'MyAPI',
+  baseUrl: 'https://api.example.com',
+  debug: true,  // Enable debug logging (default: false)
+  // ... other config
+};
+```
+
+**Debug Output Includes:**
+- 📋 Cache hit/miss messages for metadata queries
+- 🗑️ Cache clearing confirmations
+- 🔌 Real-time connection management
+
+**Production Usage:**
+- Set `debug: false` or omit the flag for production
+- Reduces console noise in production environments
+- All functionality remains the same, only logging is affected
 
 ## Running Tests
 
@@ -85,9 +134,13 @@ npm run test:api
 # Run the comprehensive test
 npm run test:api:full
 
+# Run the caching demonstration
+npm run test:api:cache
+
 # Run specific tests directly
 node tests/api-simple.test.mjs
 node tests/api-manager.test.mjs
+node tests/api-queryMeta.test.mjs
 ```
 
 ### Development
@@ -129,6 +182,8 @@ The test suite covers:
 - ✅ **Error Handling**: Configuration errors, validation errors, API errors
 - ✅ **ES Modules**: Full ES module compatibility
 - ✅ **Real API**: Actual HTTP requests to verify functionality
+- ✅ **Metadata Caching**: queryMeta() with session-based caching
+- ✅ **Cache Management**: Cache statistics and manual clearing
 
 ## Adding New Tests
 

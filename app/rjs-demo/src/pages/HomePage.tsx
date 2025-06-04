@@ -1,6 +1,7 @@
 import React from 'react';
-import { GenericLayout } from '../layouts/GenericLayout';
 import { getXRayEnabled, PageModule } from 'rjs-frame';
+import ConfigDemo from '../components/ConfigDemo';
+import { GenericLayout } from '../layouts/GenericLayout';
 import { HomeHeader } from '../modules/home/HomeHeader';
 
 const HomePage: React.FC = () => {
@@ -9,6 +10,10 @@ const HomePage: React.FC = () => {
       <HomeHeader slotName="header" />
       <PageModule>
         <h3>Home Page</h3>
+        
+        {/* Node-Config Demo */}
+        <ConfigDemo />
+        
         <div style={{ padding: '1rem', backgroundColor: '#f0f8ff', border: '1px solid #007bff', borderRadius: '4px', marginBottom: '1rem' }}>
           <h4>🛠️ Debug Features Available</h4>
           <p>Use these keyboard shortcuts:</p>

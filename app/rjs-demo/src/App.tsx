@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider, useLocation } from 'react-router-dom';
-import { HomePage, AdminPage } from './pages';
 import { initializeFromBrowserLocation } from 'rjs-frame';
+import { appConfig } from './config';
+import { AdminPage, HomePage } from './pages';
 
 // Wrapper component to handle route changes and params
 const RouteChangeHandler: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -10,7 +11,11 @@ const RouteChangeHandler: React.FC<{ children: React.ReactNode }> = ({ children 
   React.useEffect(() => {
     // Parse the full URL including search parameters using browser location
     const pageState = initializeFromBrowserLocation(window.location);
-    console.log('[RouteChangeHandler] Page state updated:', pageState);
+    
+    // Only log in debug mode
+    if (appConfig.features.debugMode) {
+      console.log('[RouteChangeHandler] Page state updated:', pageState);
+    }
   }, [location.pathname, location.search]);
 
   return <>{children}</>;
@@ -19,7 +24,7 @@ const RouteChangeHandler: React.FC<{ children: React.ReactNode }> = ({ children 
 // Create router with future flags
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: appConfig.routing.basePath,
     element: (
       <RouteChangeHandler>
         <HomePage />
@@ -49,6 +54,13 @@ const router = createBrowserRouter([
 });
 
 const App: React.FC = () => {
+  // Log configuration on app startup in debug mode
+  React.useEffect(() => {
+    if (appConfig.features.debugMode) {
+      appConfig.logConfig();
+    }
+  }, []);
+
   return <RouterProvider router={router} />;
 };
 

@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { QueryBuilderProps, QueryBuilderState, FrontendQuery } from './types';
-import { transformToBackendQuery, transformFromBackendQuery } from './utils';
-import { transformApiMetadata, isApiMetadata, fetchMetadata } from '../paginate/utils';
+import React, { useEffect, useState } from 'react';
+import { APIManager } from 'rjs-frame';
+import { cn } from '../../lib/utils';
+import { Button } from '../common/Button';
 import { PaginatedListMetadata } from '../paginate/types';
+import { transformApiMetadata } from '../paginate/utils';
 import FieldSelector from './FieldSelector';
-import SortBuilder from './SortBuilder';
 import FilterBuilder from './FilterBuilder';
 import QueryDisplay from './QueryDisplay';
-import { Button } from '../common/Button';
-import { cn } from '../../lib/utils';
+import SortBuilder from './SortBuilder';
+import { FrontendQuery, QueryBuilderProps, QueryBuilderState } from './types';
+import { transformFromBackendQuery, transformToBackendQuery } from './utils';
 
 const QueryBuilder: React.FC<QueryBuilderProps> = ({
-  metadataUrl,
+  metadataApi,
   initialQuery = {},
   onQueryChange,
   onExecute,
@@ -43,8 +44,9 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
         setMetadataLoading(true);
         setMetadataError(null);
         
-        console.log('🔄 QueryBuilder: Fetching metadata from:', metadataUrl);
-        const apiMetadata = await fetchMetadata(metadataUrl);
+        console.log('🔄 QueryBuilder: Fetching metadata from:', metadataApi);
+        const response = await APIManager.queryMeta(metadataApi);
+        const apiMetadata = response.data;
         console.log('📊 QueryBuilder: Received metadata:', apiMetadata);
         
         const processedMetadata = transformApiMetadata(apiMetadata);
@@ -64,7 +66,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
     };
 
     loadMetadata();
-  }, [metadataUrl]);
+  }, [metadataApi]);
 
   // Update query when state changes
   useEffect(() => {

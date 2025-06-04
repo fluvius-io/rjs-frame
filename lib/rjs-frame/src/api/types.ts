@@ -14,7 +14,6 @@ export type UriGenerator = string | ((params?: Record<string, any>) => string);
 
 // Data processor types
 export type DataProcessor<TInput = any, TOutput = any> = (data: TInput) => TOutput;
-export type DataValidator<T = any> = (data: any) => data is T;
 
 /**
  * Data Schema Configuration
@@ -26,11 +25,9 @@ export type DataValidator<T = any> = (data: any) => data is T;
  *    - Should return the processed/transformed data if valid
  *    - Can return the original data unchanged if just validating
  */
-export type DataSchema<T = any> = Record<string, any> | DataProcessor<any, T>;
 
 // Header generator type
-export type HeaderGenerator = (params?: Record<string, any>) => Record<string, string>;
-export type HeaderConfig = Record<string, string> | HeaderGenerator;
+export type HeaderProcessor = (params?: Record<string, any>, headers?: Record<string, string>) => Record<string, string>;
 
 // Response processor type
 export type ResponseProcessor<TInput = any, TOutput = any> = (response: TInput) => TOutput;
@@ -38,19 +35,19 @@ export type ResponseProcessor<TInput = any, TOutput = any> = (response: TInput) 
 // Base configuration interface
 interface BaseApiConfig {
   uri: UriGenerator;
-  header?: HeaderConfig;
+  headers?: HeaderProcessor;
 }
 
 // Command configuration
 export interface CommandConfig extends BaseApiConfig {
-  data?: DataSchema;
-  resp?: ResponseProcessor;
+  data?: DataProcessor;
+  response?: ResponseProcessor;
 }
 
 // Query configuration
 export interface QueryConfig extends BaseApiConfig {
   meta?: UriGenerator;
-  resp?: ResponseProcessor;
+  response?: ResponseProcessor;
 }
 
 // Socket configuration
@@ -61,23 +58,28 @@ export interface SocketConfig extends BaseApiConfig {
 // Request configuration
 export interface RequestConfig extends BaseApiConfig {
   method: HttpMethod;
-  data?: DataSchema;
-  resp?: ResponseProcessor;
+  data?: DataProcessor;
+  response?: ResponseProcessor;
 }
 
 // Main API Manager configuration
-export interface ApiManagerConfig {
+export interface ApiCollectionConfig {
   name: string;
   baseUrl: string;
+  debug?: boolean;
   commands?: Record<string, CommandConfig>;
   queries?: Record<string, QueryConfig>;
   sockets?: Record<string, SocketConfig>;
   requests?: Record<string, RequestConfig>;
+  processHeaders?: HeaderProcessor;
+  processData?: DataProcessor;
+  processResponse?: ResponseProcessor;
 }
 
 // API Response types
 export interface ApiResponse<T = any> {
   data: T;
+  meta?: Record<string, any>;
   status: number;
   statusText: string;
   headers: Headers;
@@ -122,5 +124,10 @@ export interface RTCConnection {
 }
 
 // Utility types
-export type ApiParams = Record<string, string | number | boolean>;
-export type ApiData = Record<string, any> | FormData | string | number | boolean; 
+export type ApiParams = {
+  search?: Record<string, string>;   // url search parameters
+  headers?: Record<string, string>;  // headers to be added to the request
+  path?: Record<string, string>;     // path parameters to be used by the uri generator
+};
+
+export type ApiPayload = Record<string, any> | FormData | string; 

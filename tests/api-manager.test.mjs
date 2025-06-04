@@ -13,6 +13,7 @@ console.log('🧪 Testing APIManager (JavaScript ES Module)...\n');
 const testApiConfig = {
   name: 'TestAPI',
   baseUrl: 'https://jsonplaceholder.typicode.com',
+  debug: false,  // Set to true to enable debug logging
   
   commands: {
     createPost: {
@@ -205,6 +206,43 @@ class APITester {
       return { users: users.data, metadata: metadata.data };
     });
 
+    // Test queryMeta caching
+    await this.runTest('Query Metadata with Caching - First Call', async () => {
+      const result = await this.api.queryMeta('getUsers');
+      return { 
+        data: result.data, 
+        statusText: result.statusText,
+        cacheStats: this.api.getMetadataCacheStats()
+      };
+    });
+
+    await this.runTest('Query Metadata with Caching - Cached Call', async () => {
+      const result = await this.api.queryMeta('getUsers');
+      return { 
+        data: result.data, 
+        statusText: result.statusText,
+        cacheStats: this.api.getMetadataCacheStats()
+      };
+    });
+
+    await this.runTest('Query Metadata with Parameters - First Call', async () => {
+      const result = await this.api.queryMeta('getUsers', { userId: 1 });
+      return { 
+        data: result.data, 
+        statusText: result.statusText,
+        cacheStats: this.api.getMetadataCacheStats()
+      };
+    });
+
+    await this.runTest('Query Metadata with Parameters - Cached Call', async () => {
+      const result = await this.api.queryMeta('getUsers', { userId: 1 });
+      return { 
+        data: result.data, 
+        statusText: result.statusText,
+        cacheStats: this.api.getMetadataCacheStats()
+      };
+    });
+
     // Test Requests
     await this.runTest('PATCH Request', async () => {
       const result = await this.api.request('patchPost', {
@@ -245,6 +283,19 @@ class APITester {
         }
         throw error;
       }
+    });
+
+    // Test cache clearing
+    await this.runTest('Clear Metadata Cache', async () => {
+      const statsBefore = this.api.getMetadataCacheStats();
+      this.api.clearMetadataCache();
+      const statsAfter = this.api.getMetadataCacheStats();
+      
+      return { 
+        statsBefore, 
+        statsAfter,
+        cacheCleared: statsBefore.size > 0 && statsAfter.size === 0
+      };
     });
 
     this.printSummary();

@@ -1,6 +1,6 @@
 import React from 'react';
-import { RowComponentProps } from './types';
 import { cn } from '../../lib/utils';
+import { RowComponentProps } from './types';
 
 const RowComponent: React.FC<RowComponentProps> = ({
   metadata,
@@ -19,7 +19,11 @@ const RowComponent: React.FC<RowComponentProps> = ({
   };
 
   const formatValue = (value: any, fieldName: string) => {
-    const fieldMeta = metadata.fields[fieldName];
+    const fieldMeta = metadata?.fields?.[fieldName];
+    
+    if (!fieldMeta) {
+      return value;
+    }
     
     if (fieldMeta.format) {
       return fieldMeta.format(value);
@@ -45,6 +49,20 @@ const RowComponent: React.FC<RowComponentProps> = ({
         return value;
     }
   };
+
+  // Return empty row if no metadata or fields
+  if (!metadata?.fields) {
+    return (
+      <tr className={cn(
+        "border-b hover:bg-muted/30 transition-colors",
+        index % 2 === 0 ? "bg-background" : "bg-muted/10"
+      )}>
+        <td className="px-4 py-3 text-sm text-muted-foreground">
+          Loading...
+        </td>
+      </tr>
+    );
+  }
 
   return (
     <tr 

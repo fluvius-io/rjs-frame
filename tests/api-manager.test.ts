@@ -1,54 +1,47 @@
 #!/usr/bin/env node
 
 /**
- * APIManager TypeScript Test
- * Tests the actual APIManager implementation
+ * Comprehensive APIManager Test Suite
+ * Tests all major functionality of the APIManager with real API calls
  */
 
-import { APIManager, ApiManagerConfig } from '../lib/rjs-frame/src/api';
+import { APICollection, APIManager, ApiCollectionConfig } from '../lib/rjs-frame/src/api';
 
 console.log('🧪 Testing APIManager (TypeScript)...\n');
 
-// Test API configuration with full TypeScript types
-const testApiConfig: ApiManagerConfig = {
-  name: 'TestAPI',
+// Test configuration that mimics a real-world API setup
+const testConfig: ApiCollectionConfig = {
+  name: 'jsonplaceholder-test',
   baseUrl: 'https://jsonplaceholder.typicode.com',
+  debug: true,
   
   commands: {
     createPost: {
       uri: '/posts',
-      data: (postData: { title: string; body: string; userId: number }) => {
-        // Validation
-        if (!postData.title || !postData.body) {
-          throw new Error('Title and body are required');
-        }
-        
-        // Data processing
-        return {
-          ...postData,
-          created_at: new Date().toISOString(),
-          slug: postData.title.toLowerCase().replace(/\s+/g, '-')
-        };
-      },
-      resp: (response: any) => ({
+      data: (postData: { title: string; body: string; userId: number }) => ({
+        ...postData,
+        createdAt: new Date().toISOString(),
+        status: 'published'
+      }),
+      response: (response: any) => ({
         id: response.id,
         title: response.title,
         created: true,
         url: `https://jsonplaceholder.typicode.com/posts/${response.id}`
       }),
-      header: {
+      headers: {
         'X-Test-Source': 'APIManager-TypeScript-Test',
         'X-API-Version': '1.0'
       }
     },
     
     updatePost: {
-      uri: (config, params) => `/posts/${params?.postId}`,
+      uri: (params) => `/posts/${params?.postId}`,
       data: (postData: { title?: string; body?: string }) => ({
         ...postData,
         updated_at: new Date().toISOString()
       }),
-      header: (params) => ({
+      headers: (params) => ({
         'Authorization': `Bearer ${params?.token || 'test-token'}`,
         'X-Update-Source': 'APIManager'
       })
@@ -58,7 +51,7 @@ const testApiConfig: ApiManagerConfig = {
   queries: {
     getPosts: {
       uri: '/posts',
-      resp: (response: any[]) => ({
+      response: (response: any[]) => ({
         posts: response.slice(0, 5).map(post => ({
           id: post.id,
           title: post.title,
@@ -71,8 +64,8 @@ const testApiConfig: ApiManagerConfig = {
     },
     
     getPost: {
-      uri: (config, params) => `/posts/${params?.postId}`,
-      resp: (response: any) => ({
+      uri: (params) => `/posts/${params?.postId}`,
+      response: (response: any) => ({
         id: response.id,
         title: response.title,
         body: response.body,
@@ -85,7 +78,7 @@ const testApiConfig: ApiManagerConfig = {
     getUsers: {
       uri: '/users',
       meta: '/users',  // Same endpoint for simplicity
-      resp: (response: any[]) => response.map(user => ({
+      response: (response: any[]) => response.map(user => ({
         id: user.id,
         name: user.name,
         email: user.email,
@@ -97,19 +90,19 @@ const testApiConfig: ApiManagerConfig = {
   requests: {
     deletePost: {
       method: 'DELETE',
-      uri: (config, params) => `/posts/${params?.postId}`,
-      resp: () => ({ 
+      uri: (params) => `/posts/${params?.postId}`,
+      response: () => ({ 
         deleted: true, 
         deletedAt: new Date().toISOString() 
       }),
-      header: {
+      headers: {
         'X-Delete-Reason': 'Test cleanup'
       }
     },
     
     patchPost: {
       method: 'PATCH',
-      uri: (config, params) => `/posts/${params?.postId}`,
+      uri: (params) => `/posts/${params?.postId}`,
       data: (patchData: Record<string, any>) => {
         // Validation for PATCH
         if (Object.keys(patchData).length === 0) {
@@ -133,11 +126,11 @@ interface TestResult {
 }
 
 class APITester {
-  private api: APIManager;
+  private collection: APICollection;
   private results: TestResult[] = [];
 
-  constructor(config: ApiManagerConfig) {
-    this.api = new APIManager(config);
+  constructor(config: ApiCollectionConfig) {
+    this.collection = APIManager.register(config);
   }
 
   private async runTest(name: string, testFn: () => Promise<any>): Promise<void> {
@@ -176,11 +169,11 @@ class APITester {
 
   async runAllTests(): Promise<void> {
     console.log('🚀 Starting comprehensive APIManager tests...\n');
-    console.log(`📊 API: ${this.api.getName()} - ${this.api.getBaseUrl()}`);
+    console.log(`📊 API: ${this.collection.getName()} - ${this.collection.getBaseUrl()}`);
 
     // Test Commands
     await this.runTest('Create Post Command', async () => {
-      const result = await this.api.send('createPost', {
+      const result = await APIManager.send('jsonplaceholder-test:createPost', {
         title: 'APIManager Test Post',
         body: 'This post was created by the APIManager TypeScript test suite to verify command functionality.',
         userId: 1
@@ -189,7 +182,7 @@ class APITester {
     });
 
     await this.runTest('Update Post Command', async () => {
-      const result = await this.api.send('updatePost', {
+      const result = await APIManager.send('jsonplaceholder-test:updatePost', {
         title: 'Updated Test Post'
       }, { postId: 1, token: 'test-auth-token' });
       return result.data;
@@ -197,44 +190,44 @@ class APITester {
 
     // Test Queries
     await this.runTest('Get Posts Query', async () => {
-      const result = await this.api.query('getPosts');
+      const result = await APIManager.query('jsonplaceholder-test:getPosts');
       return result.data;
     });
 
     await this.runTest('Get Specific Post Query', async () => {
-      const result = await this.api.query('getPost', { postId: 1 });
+      const result = await APIManager.query('jsonplaceholder-test:getPost', { postId: 1 });
       return result.data;
     });
 
     await this.runTest('Get Users with Metadata', async () => {
       const [users, metadata] = await Promise.all([
-        this.api.query('getUsers'),
-        this.api.getQueryMetadata('getUsers')
+        APIManager.query('jsonplaceholder-test:getUsers'),
+        this.collection.getQueryMetadata('getUsers')
       ]);
       return { users: users.data, metadata: metadata.data };
     });
 
     // Test Requests
     await this.runTest('PATCH Request', async () => {
-      const result = await this.api.request('patchPost', {
+      const result = await APIManager.request('jsonplaceholder-test:patchPost', {
         title: 'Patched Title'
       }, { postId: 1 });
       return result.data;
     });
 
     await this.runTest('DELETE Request', async () => {
-      const result = await this.api.request('deletePost', undefined, { postId: 1 });
+      const result = await APIManager.request('jsonplaceholder-test:deletePost', undefined, { postId: 1 });
       return result.data;
     });
 
     // Test Error Handling
     await this.runTest('Error Handling - Invalid Command', async () => {
       try {
-        await this.api.send('nonexistentCommand', {});
+        await APIManager.send('jsonplaceholder-test:nonexistentCommand', {});
         throw new Error('Should have thrown an error');
       } catch (error) {
         if (error instanceof Error && error.message.includes('not found')) {
-          return { errorHandled: true, errorType: 'ConfigurationError' };
+          return { errorHandled: true, message: error.message };
         }
         throw error;
       }
@@ -242,7 +235,7 @@ class APITester {
 
     await this.runTest('Error Handling - Data Validation', async () => {
       try {
-        await this.api.send('createPost', {
+        await APIManager.send('jsonplaceholder-test:createPost', {
           title: '',  // Invalid: empty title
           body: '',   // Invalid: empty body
           userId: 1
@@ -293,7 +286,7 @@ class APITester {
 
 // Run the tests
 async function main() {
-  const tester = new APITester(testApiConfig);
+  const tester = new APITester(testConfig);
   await tester.runAllTests();
 }
 

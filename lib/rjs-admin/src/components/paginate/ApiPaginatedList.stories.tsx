@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from '../common/Button';
 import ApiPaginatedList from './ApiPaginatedList';
 import PaginatedList from './PaginatedList';
-import { Button } from '../common/Button';
 import type { ApiMetadata } from './types';
-import React from 'react';
 
 // Mock API metadata for the direct metadata example only
 const mockApiMetadata: ApiMetadata = {
@@ -190,8 +189,8 @@ export const WithApiMetadataAndData: Story = {
           Make sure your server is running on <code>http://localhost:8000</code> and check browser console for API calls.
         </div>
         <ApiPaginatedList
-          metadataUrl="/api/_info/idm.user"
-          dataUrl="/api/idm.user/"
+          metadataApi="idm:user"
+          dataApi="idm:user"
           title="Users from Real API"
           subtitle="Both metadata and data fetched from live backend server"
           actions={
@@ -216,8 +215,8 @@ export const OrganizationsFromApi: Story = {
           Make sure your server is running on <code>http://localhost:8000</code> and provides organization endpoints.
         </div>
         <ApiPaginatedList
-          metadataUrl="/api/_info/idm.organization/"
-          dataUrl="/api/idm.organization/"
+          metadataApi="idm:organization"
+          dataApi="idm:organization"
           title="Organizations from Real API"
           subtitle="Organization metadata and data fetched from live backend server"
           actions={
@@ -242,7 +241,8 @@ export const WithApiMetadata: Story = {
           Make sure your server is running on <code>http://localhost:8000</code>.
         </div>
         <ApiPaginatedList
-          metadataUrl="/api/_info/idm.user/"
+          metadataApi="idm:user"
+          dataApi="idm:user"
           title="Users from API Metadata"
           subtitle="Metadata from real API, sample data fallback"
           actions={
@@ -315,12 +315,13 @@ export const ServerNotRunning: Story = {
           <strong>⚠️ Server Error Demo:</strong> This will show error state if backend server is not running.
         </div>
         <ApiPaginatedList
-          metadataUrl="/api/_info/nonexistent"
-          dataUrl="/api/nonexistent/"
+          metadataApi="idm:nonexistent"
+          dataApi="idm:nonexistent"
           title="Error State Demo"
           subtitle="This will show error if server is not running"
         />
       </div>
     );
   },
-}; 
+};
+

@@ -63,44 +63,50 @@ export class WebSocketConnection implements RTCConnection {
     this.subscriptions.clear();
   }
 
-  subscribe(channel: string, handler: SubscriptionHandler): UnsubscribeFunction {
-    if (!this.subscriptions.has(channel)) {
-      this.subscriptions.set(channel, new Set());
+  subscribe(handler: SubscriptionHandler, channel?: string): UnsubscribeFunction {
+    const channelName = channel || 'default';
+    
+    if (!this.subscriptions.has(channelName)) {
+      this.subscriptions.set(channelName, new Set());
     }
     
-    this.subscriptions.get(channel)!.add(handler);
+    this.subscriptions.get(channelName)!.add(handler);
 
     // Send subscription message if connected
     if (this.isConnected()) {
-      this.sendSubscriptionMessage(channel, 'subscribe');
+      this.sendSubscriptionMessage(channelName, 'subscribe');
     }
 
     return () => {
-      const handlers = this.subscriptions.get(channel);
+      const handlers = this.subscriptions.get(channelName);
       if (handlers) {
         handlers.delete(handler);
         if (handlers.size === 0) {
-          this.subscriptions.delete(channel);
+          this.subscriptions.delete(channelName);
           if (this.isConnected()) {
-            this.sendSubscriptionMessage(channel, 'unsubscribe');
+            this.sendSubscriptionMessage(channelName, 'unsubscribe');
           }
         }
       }
     };
   }
 
-  publish(channel: string, message: any): void {
+  send(data: any, channel?: string): void {
     if (!this.isConnected()) {
       throw new Error('WebSocket not connected');
     }
 
     const payload = {
       type: 'publish',
-      channel,
-      message
+      channel: channel || 'default',
+      message: data
     };
 
     this.ws!.send(JSON.stringify(payload));
+  }
+
+  publish(channel: string, message: any): void {
+    this.send(message, channel);
   }
 
   isConnected(): boolean {
@@ -111,19 +117,19 @@ export class WebSocketConnection implements RTCConnection {
     if (typeof this.config.uri === 'string') {
       return this.baseUrl + this.config.uri;
     }
-    return this.config.uri(this.config, this.params);
+    return this.config.uri(this.params);
   }
 
   private resolveHeaders(): Record<string, string> {
-    if (!this.config.header) {
+    if (!this.config.headers) {
       return {};
     }
 
-    if (typeof this.config.header === 'function') {
-      return this.config.header(this.params);
+    if (typeof this.config.headers === 'function') {
+      return this.config.headers({}, this.params || {});
     }
 
-    return this.config.header;
+    return this.config.headers;
   }
 
   private handleMessage(event: MessageEvent): void {

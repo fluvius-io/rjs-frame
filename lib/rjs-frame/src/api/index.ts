@@ -1,28 +1,22 @@
 /**
- * RJS Frame API Module
- * Comprehensive API management system with TypeScript configuration
+ * API Module Exports
+ * Provides all API-related classes, types, and utilities
  */
 
-// Main API Manager class
-export { APIManager } from './APIManager';
+// Main API class
+export { APICollection, APIManager } from './APIManager';
 
-// Type definitions
+// Types and interfaces
 export type {
-    ApiData,
-    // Configuration types
-    ApiManagerConfig, ApiParams,
-    // API types
-    ApiResponse, CommandConfig, DataProcessor, DataSchema, DataValidator, HeaderConfig, HeaderGenerator,
-    // Utility types
+    ApiCollectionConfig, ApiParams, ApiPayload,
+    ApiResponse, CommandConfig, DataProcessor, HeaderProcessor,
     HttpMethod, QueryConfig, RequestConfig, ResponseProcessor,
-    // Real-time communication types
-    RTCConnection, RTCTransport, SocketConfig, SubscriptionHandler,
-    UnsubscribeFunction, UriGenerator
+    RTCConnection, RTCTransport, SocketConfig, SubscriptionHandler, UnsubscribeFunction, UriGenerator
 } from './types';
 
 // Error classes
 export {
-    ApiError, ConfigurationError, ValidationError
+    ApiError, ConfigurationError
 } from './types';
 
 // Real-time communication
@@ -30,5 +24,5 @@ export { RTCConnectionFactory } from './rtc/RTCConnectionFactory';
 export { SSEConnection } from './rtc/SSEConnection';
 export { WebSocketConnection } from './rtc/WebSocketConnection';
 
-// Examples (for documentation and testing)
-export { ApiManagerExamples } from './examples/ApiManagerExample';
+// Examples and demos
+export { ApiCollectionExamples } from './examples/ApiManagerExample';

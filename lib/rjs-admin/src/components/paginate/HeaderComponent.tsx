@@ -1,6 +1,6 @@
 import React from 'react';
-import { HeaderComponentProps } from './types';
 import { cn } from '../../lib/utils';
+import { HeaderComponentProps } from './types';
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({
   metadata,
@@ -8,7 +8,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   onSort,
 }) => {
   const handleSort = (fieldName: string) => {
-    if (!metadata.fields[fieldName]?.sortable || !onSort) return;
+    if (!metadata?.fields?.[fieldName]?.sortable || !onSort) return;
 
     const newDirection = 
       sort?.field === fieldName && sort.direction === 'asc' ? 'desc' : 'asc';
@@ -17,7 +17,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   };
 
   const getSortIcon = (fieldName: string) => {
-    if (!metadata.fields[fieldName]?.sortable) return null;
+    if (!metadata?.fields?.[fieldName]?.sortable) return null;
     
     if (sort?.field === fieldName) {
       return sort.direction === 'asc' ? '↑' : '↓';
@@ -35,6 +35,19 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
         return 'text-left';
     }
   };
+
+  // Return empty header if no metadata or fields
+  if (!metadata?.fields) {
+    return (
+      <thead className="bg-muted/50">
+        <tr className="border-b">
+          <th className="px-4 py-3 font-medium text-sm text-muted-foreground">
+            Loading...
+          </th>
+        </tr>
+      </thead>
+    );
+  }
 
   return (
     <thead className="bg-muted/50">

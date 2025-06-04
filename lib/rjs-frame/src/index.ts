@@ -1,3 +1,8 @@
+/**
+ * RJS Frame - Comprehensive React/TypeScript Framework
+ * Main entry point for all framework components and utilities
+ */
+
 // Components
 export { PageLayout } from './components/PageLayout';
 export { PageLayoutOptions } from './components/PageLayoutOptions';
@@ -11,15 +16,18 @@ export {
     addPageParam, getBreadcrumbs, getGlobalState, getXRayEnabled, initializeFromBrowserLocation, pageStore, popBreadcrumb, pushBreadcrumb, removePageParam, setBreadcrumbs, setGlobalState, setPageName, setXRayEnabled, updateGlobalState, updateLinkParams, updateModuleState, updatePageParams, updatePageParamsPartial, updatePageState
 } from './store/pageStore';
 
-// API Manager
+// Configuration Management
+export { ConfigManager } from './config/ConfigManager';
+export type { ConfigManagerOptions } from './config/ConfigManager';
+
+// API Management
 export {
-    APIManager,
-    ApiError, ApiManagerExamples, ConfigurationError,
-    RTCConnectionFactory, SSEConnection, ValidationError, WebSocketConnection
+    APICollection, ApiError, APIManager, ConfigurationError,
+    RTCConnectionFactory, SSEConnection, WebSocketConnection
 } from './api';
 
 export type {
-    ApiData, ApiManagerConfig, ApiParams, ApiResponse, CommandConfig, DataProcessor, DataSchema, DataValidator, HeaderConfig, HeaderGenerator, HttpMethod, QueryConfig, RTCConnection, RTCTransport, RequestConfig, ResponseProcessor, SocketConfig, SubscriptionHandler,
+    ApiCollectionConfig, ApiParams, ApiPayload, ApiResponse, CommandConfig, DataProcessor, HeaderProcessor, HttpMethod, QueryConfig, RequestConfig, ResponseProcessor, RTCConnection, RTCTransport, SocketConfig, SubscriptionHandler,
     UnsubscribeFunction, UriGenerator
 } from './api';
 
@@ -30,8 +38,8 @@ export type {
 
 // Utils
 export {
-    FRAGMENT_NAME_PATTERN, URL_FRAGMENT_SEPARATOR, buildPathFromPageState, buildUrlFragments, isValidFragmentName, parseBrowserLocation, parseSearchParams, parseUrl, parseUrlFragments, updateBrowserLocation,
-    updateBrowserTitle
+    buildPathFromPageState, buildUrlFragments, FRAGMENT_NAME_PATTERN, isValidFragmentName, parseBrowserLocation, parseSearchParams, parseUrl, parseUrlFragments, updateBrowserLocation,
+    updateBrowserTitle, URL_FRAGMENT_SEPARATOR
 } from './utils/urlUtils';
 
 // Contexts

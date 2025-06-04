@@ -1,4 +1,4 @@
-import { ApiMetadata, PaginatedListMetadata } from '../paginate/types';
+import { PaginatedListMetadata } from '../paginate/types';
 
 // Backend query format
 export interface FrontendQuery {
@@ -35,7 +35,7 @@ export interface FilterRule {
 
 // Query builder component props
 export interface QueryBuilderProps {
-  metadataUrl: string;
+  metadataApi: string;
   initialQuery?: Partial<FrontendQuery>;
   onQueryChange?: (query: FrontendQuery) => void;
   onExecute?: (query: FrontendQuery) => void;
