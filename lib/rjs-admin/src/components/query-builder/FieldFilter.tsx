@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ChevronDownIcon, Cross2Icon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { cn } from '../../lib/utils';
 import { FieldValueInput } from './FieldValueInput';
 import { FieldFilterProps } from './types';
@@ -12,9 +12,9 @@ const FieldFilter: React.FC<FieldFilterProps> = ({
   onFilterChange,
   onRemove,
 }) => {
-  const updateFilter = (updates: Partial<typeof filter>) => {
+  const updateFilter = useCallback((updates: Partial<typeof filter>) => {
     onFilterChange({ ...filter, ...updates });
-  };
+  }, [filter, onFilterChange]);
 
   const operatorKey = `${filter.field}:${filter.operator}`;
   const operatorLabel = metadata.fields[filter.field]?.label || filter.operator;

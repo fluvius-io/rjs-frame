@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect, useState } from 'react';
+import '../../lib/api'; // Import to ensure APIManager is initialized
 import type { QueryMetadata } from '../paginate/types';
 import QueryBuilder from './QueryBuilder';
 import { FrontendQuery } from './types';

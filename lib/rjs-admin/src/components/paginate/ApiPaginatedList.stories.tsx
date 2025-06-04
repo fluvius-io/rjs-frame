@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import '../../lib/api'; // Import to ensure APIManager is initialized
 import { Button } from '../common/Button';
 import ApiPaginatedList from './ApiPaginatedList';
 import PaginatedList from './PaginatedList';

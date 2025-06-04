@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { cn } from '../../lib/utils';
 import { Button } from '../common/Button';
 import FieldFilter from './FieldFilter';
@@ -19,7 +19,7 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
   const availableFields = getAvailableFields(metadata);
   const hasCompositeOperators = metadata.operators && Object.values(metadata.operators).some((param: any) => param.field_name === "");
 
-  const addFieldFilter = (fieldName: string) => {
+  const addFieldFilter = useCallback((fieldName: string) => {
     const availableOperators = getOperatorsForField(fieldName, metadata);
     
     const newFilter: FieldFilterRule = {
@@ -35,9 +35,9 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
       ...filter,
       children: [...filter.children, newFilter],
     });
-  };
+  }, [metadata, filter, onFilterChange]);
 
-  const addCompositeFilter = (operator: ':and' | ':or') => {
+  const addCompositeFilter = useCallback((operator: ':and' | ':or') => {
     const newFilter: CompositeFilterRule = {
       id: generateFilterId(),
       type: 'composite',
@@ -50,38 +50,38 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
       ...filter,
       children: [...filter.children, newFilter],
     });
-  };
+  }, [filter, onFilterChange]);
 
-  const updateChild = (index: number, updatedChild: FilterRule) => {
+  const updateChild = useCallback((index: number, updatedChild: FilterRule) => {
     const newChildren = [...filter.children];
     newChildren[index] = updatedChild;
     onFilterChange({
       ...filter,
       children: newChildren,
     });
-  };
+  }, [filter, onFilterChange]);
 
-  const removeChild = (index: number) => {
+  const removeChild = useCallback((index: number) => {
     const newChildren = filter.children.filter((_, i) => i !== index);
     onFilterChange({
       ...filter,
       children: newChildren,
     });
-  };
+  }, [filter, onFilterChange]);
 
-  const toggleNegate = () => {
+  const toggleNegate = useCallback(() => {
     onFilterChange({
       ...filter,
       negate: !filter.negate,
     });
-  };
+  }, [filter, onFilterChange]);
 
-  const changeOperator = (newOperator: ':and' | ':or') => {
+  const changeOperator = useCallback((newOperator: ':and' | ':or') => {
     onFilterChange({
       ...filter,
       operator: newOperator,
     });
-  };
+  }, [filter, onFilterChange]);
 
   const operatorDisplay = filter.operator === ':and' ? 'AND' : 'OR';
   const alternateOperator = filter.operator === ':and' ? ':or' : ':and';

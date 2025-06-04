@@ -68,7 +68,7 @@ interface BasePaginatedListProps {
   showFilters?: boolean;
   searchPlaceholder?: string;
   onSort?: (sort: SortConfig) => void;
-  onFilter?: (filters: FilterConfig[]) => void;
+  onFilter?: (filterData: any) => void;
   onSearch?: (query: string) => void;
   onPageChange?: (page: number, pageSize: number) => void;
   actions?: React.ReactNode;

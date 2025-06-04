@@ -85,7 +85,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
     const newQuery = transformToBackendQuery(state);
     setCurrentQuery(newQuery);
     onQueryChange?.(newQuery);
-  }, [state, onQueryChange]);
+  }, [state]);
 
   const updateState = (updates: Partial<QueryBuilderState>) => {
     setState(prev => ({ ...prev, ...updates }));

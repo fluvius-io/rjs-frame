@@ -1,5 +1,6 @@
 export { default as FieldSelector } from './FieldSelector';
 export { default as FieldValueInput } from './FieldValueInput';
+export { default as MetadataQueryBuilder } from './MetadataQueryBuilder';
 export { default as QueryBuilder } from './QueryBuilder';
 export { default as QueryDisplay } from './QueryDisplay';
 export { default as SortBuilder } from './SortBuilder';

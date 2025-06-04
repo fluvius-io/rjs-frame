@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { APIManager } from 'rjs-frame';
 import { Button } from '../common/Button';
 import PaginatedList from './PaginatedList';
-import type { FilterConfig, PaginationConfig, SortConfig } from './types';
+import type { PaginationConfig, SortConfig } from './types';
 
 export interface ApiPaginatedListProps {
   metadataApi?: string;
@@ -78,7 +78,7 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
     page: number, 
     pageSize: number, 
     sort?: SortConfig, 
-    filters?: FilterConfig[], 
+    queryString?: string, 
     searchQuery?: string
   ) => {
     // Cancel previous request if still in progress
@@ -120,16 +120,9 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
         console.log('🔍 ApiPaginatedList: Adding search parameter:', searchQuery);
       }
       
-      if (filters && filters.length > 0) {
-        let query: Record<string, any> = {};
-        filters.forEach((filter) => {
-          console.log('🔧 ApiPaginatedList: Adding filter:', filter);
-          if (filter.value) {
-            query[filter.operator] = filter.value;
-          }
-        });
-        params.query = JSON.stringify(query);
-        console.log('🔧 ApiPaginatedList: Adding filters:', filters);
+      if (queryString) {
+        params.query = queryString;
+        console.log('🔧 ApiPaginatedList: Adding query string:', queryString);
       }
 
       console.log('🌐 ApiPaginatedList: Fetching data from API:', dataApi);
@@ -214,8 +207,10 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
     fetchData(pagination.page, pagination.pageSize, sort);
   };
 
-  const handleFilter = (filters: FilterConfig[]) => {
-    fetchData(1, pagination.pageSize, undefined, filters);
+  const handleFilter = (filterData: any) => {
+    // Handle the new QueryBuilder format where filterData is either an object with query property or empty array
+    const queryString = filterData?.query || '';
+    fetchData(1, pagination.pageSize, undefined, queryString);
   };
 
   const handleSearch = (query: string) => {

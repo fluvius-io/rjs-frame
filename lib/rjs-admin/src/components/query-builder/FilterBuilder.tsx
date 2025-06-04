@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ChevronDownIcon, PlusIcon } from '@radix-ui/react-icons';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from '../common/Button';
 import CompositeFilterGroup from './CompositeFilterGroup';
 import FieldFilter from './FieldFilter';
@@ -88,7 +88,7 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
 
   // No longer auto-create root AND group - display filters as simple list
 
-  const addFieldFilter = (fieldName: string) => {
+  const addFieldFilter = useCallback((fieldName: string) => {
     const availableOperators = getOperatorsForField(fieldName, metadata);
     
     const newRule: FieldFilterRule = {
@@ -102,9 +102,9 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
     
     // Always add as a simple filter at the top level
     onFilterRulesChange([...filterRules, newRule]);
-  };
+  }, [metadata, filterRules, onFilterRulesChange]);
 
-  const addCompositeGroup = (operator: ':and' | ':or') => {
+  const addCompositeGroup = useCallback((operator: ':and' | ':or') => {
     const newGroup: CompositeFilterRule = {
       id: generateFilterId(),
       type: 'composite',
@@ -115,34 +115,25 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
 
     // Add composite group at the top level
     onFilterRulesChange([...filterRules, newGroup]);
-  };
+  }, [filterRules, onFilterRulesChange]);
 
-  const updateFilter = (index: number, updatedFilter: FilterRule) => {
+  const updateFilter = useCallback((index: number, updatedFilter: FilterRule) => {
     const newRules = [...filterRules];
     newRules[index] = updatedFilter;
     onFilterRulesChange(newRules);
-  };
+  }, [filterRules, onFilterRulesChange]);
 
-  const removeFilter = (index: number) => {
+  const removeFilter = useCallback((index: number) => {
     const newRules = filterRules.filter((_, i) => i !== index);
     onFilterRulesChange(newRules);
-  };
+  }, [filterRules, onFilterRulesChange]);
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     onFilterRulesChange([]);
-  };
+  }, [onFilterRulesChange]);
 
-  // Check if we have any actual filters
-  const hasFilters = React.useMemo(() => {
-    const checkHasFilters = (rules: FilterRule[]): boolean => {
-      return rules.some(rule => {
-        if (rule.type === 'field') return true;
-        if (rule.type === 'composite') return checkHasFilters(rule.children);
-        return false;
-      });
-    };
-    return checkHasFilters(filterRules);
-  }, [filterRules]);
+  // Simplified hasFilters check to avoid useMemo issues
+  const hasFilters = filterRules.length > 0;
 
   return (
     <div className="space-y-4">
