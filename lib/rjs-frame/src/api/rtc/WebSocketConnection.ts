@@ -63,7 +63,7 @@ export class WebSocketConnection implements RTCConnection {
     this.subscriptions.clear();
   }
 
-  subscribe(handler: SubscriptionHandler, channel?: string): UnsubscribeFunction {
+  subscribe(channel: string, handler: SubscriptionHandler): UnsubscribeFunction {
     const channelName = channel || 'default';
     
     if (!this.subscriptions.has(channelName)) {
@@ -126,7 +126,7 @@ export class WebSocketConnection implements RTCConnection {
     }
 
     if (typeof this.config.headers === 'function') {
-      return this.config.headers({}, this.params || {});
+      return this.config.headers(this.params, {});
     }
 
     return this.config.headers;

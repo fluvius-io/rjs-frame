@@ -13,27 +13,36 @@ const blogApiConfig: ApiCollectionConfig = {
   
   commands: {
     createPost: {
-      uri: '/posts',
-      method: 'POST'
+      uri: '/posts'
     }
   },
   
   queries: {
     getPosts: {
-      uri: '/posts',
-      method: 'GET'
+      uri: '/posts'
     },
     
-    getUsers: {
-      uri: '/users',
-      method: 'GET'
+    getPost: {
+      uri: "/posts/{postId}"
     }
   },
   
   requests: {
+    updatePost: {
+      uri: (params) => `/posts/${params?.postId}`,
+      method: 'PUT'
+    },
+    
     deletePost: {
       uri: (params) => `/posts/${params?.postId}`,
       method: 'DELETE'
+    }
+  },
+  
+  sockets: {
+    liveUpdates: {
+      transport: 'websockets',
+      uri: '/ws/updates'
     }
   }
 };
@@ -46,7 +55,7 @@ const chatDemoConfig: ApiCollectionConfig = {
   
   sockets: {
     echoSocket: {
-      type: 'websocket',
+      transport: 'websockets',
       uri: '/'
     }
   }
@@ -76,7 +85,7 @@ async function runBlogDemo() {
     console.log('👥 Total users:', users.data.length);
     
     // Delete a post
-    const deleteResult = await api.request('deletePost', undefined, { postId: 1 });
+    const deleteResult = await api.request('deletePost', undefined, { path: { postId: '1' } });
     console.log('🗑️ Delete result:', deleteResult.status);
     
   } catch (error) {

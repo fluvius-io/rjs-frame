@@ -96,7 +96,7 @@ export class SSEConnection implements RTCConnection {
     if (typeof this.config.uri === 'string') {
       return this.baseUrl + this.config.uri;
     }
-    return this.config.uri(this.config, this.params);
+    return this.config.uri(this.params);
   }
 
   private handleMessage(event: MessageEvent): void {

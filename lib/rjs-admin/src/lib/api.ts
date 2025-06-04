@@ -15,11 +15,11 @@ const idmCollectionConfig: ApiCollectionConfig = {
   queries: {
     user: {
       uri: '/idm.user/',
-      meta: '/_info/idm.user/',
+      meta: '/_meta/idm.user/',
     },
     organization: {
       uri: '/idm.organization/',
-      meta: '/_info/idm.organization/',
+      meta: '/_meta/idm.organization/',
     }
   },
   processResponse: (response) => {
@@ -83,10 +83,10 @@ export const fetchJson = async <T = any>(path: string, options?: RequestInit): P
  * Common API endpoints
  */
 export const endpoints = {
-  metadata: (entity: string) => `_info/${entity}`,
+  metadata: (entity: string) => `_meta/${entity}`,
   data: (entity: string) => `${entity}/`,
-  userMetadata: () => '_info/idm.user',
+  userMetadata: () => '_meta/idm.user',
   userData: () => 'idm.user/',
-  organizationMetadata: () => '_info/idm.organization/',
+  organizationMetadata: () => '_meta/idm.organization/',
   organizationData: () => 'idm.organization/',
 } as const; 

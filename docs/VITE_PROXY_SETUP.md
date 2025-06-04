@@ -8,7 +8,7 @@ Before using the ApiPaginatedList component examples, make sure:
 
 1. **Your backend server is running** on `http://localhost:8000`
 2. **Your backend provides these endpoints**:
-   - `http://localhost:8000/_info/idm.user` (metadata endpoint)
+   - `http://localhost:8000/_meta/idm.user` (metadata endpoint)
    - `http://localhost:8000/idm.user/` (data endpoint, optional)
 3. **Proxy is configured** in both Vite and Storybook
 
@@ -108,7 +108,7 @@ export default defineConfig({
         // Optional: Remove '/api' prefix when forwarding
         // rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/_info': {
+      '/_meta': {
         target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
@@ -138,7 +138,7 @@ Make sure your backend server is running on `http://localhost:8000`:
 
 ```bash
 # Test if backend is accessible
-curl http://localhost:8000/_info/idm.user
+curl http://localhost:8000/_meta/idm.user
 ```
 
 You should see the metadata JSON response.
@@ -153,8 +153,8 @@ npm run dev
 
 **Test API calls** from your frontend:
 ```javascript
-// This will be forwarded to http://localhost:8000/_info/idm.user
-fetch('/api/_info/idm.user')
+// This will be forwarded to http://localhost:8000/_meta/idm.user
+fetch('/api/_meta/idm.user')
 
 // This will be forwarded to http://localhost:8000/idm.user/
 fetch('/api/idm.user/')
@@ -176,7 +176,7 @@ npm run storybook
 ### 4. Verify Proxy is Working
 
 Open browser console and look for:
-- ✅ Successful API calls to `/api/_info/idm.user`
+- ✅ Successful API calls to `/api/_meta/idm.user`
 - ✅ Data loading in the ApiPaginatedList component
 - ❌ If you see CORS errors or network failures, the proxy might not be working
 
@@ -190,7 +190,7 @@ import { ApiPaginatedList } from 'rjs-admin';
 function UsersTable() {
   return (
     <ApiPaginatedList
-      metadataUrl="/api/_info/idm.user"  // Proxied to backend
+      metadataUrl="/api/_meta/idm.user"  // Proxied to backend
       dataUrl="/api/idm.user/"           // Proxied to backend
       title="Users"
       showSearch
@@ -204,7 +204,7 @@ function UsersTable() {
 
 Your backend server must provide these endpoints:
 
-### Metadata Endpoint: `/api/_info/idm.user`
+### Metadata Endpoint: `/api/_meta/idm.user`
 Must return metadata in this format:
 ```json
 {
@@ -270,7 +270,7 @@ Response format:
 
 ```bash
 # Test backend is running
-curl http://localhost:8000/_info/idm.user
+curl http://localhost:8000/_meta/idm.user
 
 # Start consumer app with proxy
 cd app/rjs-shadcn && npm run dev
@@ -287,7 +287,7 @@ If you encounter CORS issues, the proxy should resolve them since all requests a
 ### Backend Not Running
 If your backend server is not running on `http://localhost:8000`, you'll see network errors in the browser console. Make sure:
 - Backend server is started
-- Endpoints are available at `http://localhost:8000/_info/idm.user`
+- Endpoints are available at `http://localhost:8000/_meta/idm.user`
 - Proxy configuration matches your backend URL
 
 ### TypeScript Version Conflicts
@@ -311,7 +311,7 @@ proxy: {
 }
 ```
 
-This would forward `/api/_info/idm.user` to `http://localhost:8000/_info/idm.user`.
+This would forward `/api/_meta/idm.user` to `http://localhost:8000/_meta/idm.user`.
 
 ### HTTPS Backend
 For HTTPS backends:
@@ -361,7 +361,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': backendUrl,
-        '/_info': backendUrl,
+        '/_meta': backendUrl,
       },
     },
     resolve: {
@@ -383,7 +383,7 @@ server: {
     '/api/auth': 'http://localhost:8001',    // Auth service
     '/api/users': 'http://localhost:8002',   // User service
     '/api': 'http://localhost:8000',         // Default API
-    '/_info': 'http://localhost:8000',       // Metadata service
+    '/_meta': 'http://localhost:8000',       // Metadata service
   },
 }
 ```

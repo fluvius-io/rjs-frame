@@ -35,8 +35,8 @@ const ApiDebugComponent: React.FC = () => {
     addResult('API Base URL', 'info', API_BASE_URL);
 
     // Test 2: URL Creation
-    const testUrl = createApiUrl('_info/idm.user');
-    addResult('URL Creation', 'info', `_info/idm.user → ${testUrl}`);
+    const testUrl = createApiUrl('_meta/idm.user');
+    addResult('URL Creation', 'info', `_meta/idm.user → ${testUrl}`);
 
     // Test 3: Fetch User Metadata (using /api proxy)
     try {
@@ -50,7 +50,7 @@ const ApiDebugComponent: React.FC = () => {
     // Test 4: Direct localhost:8000 call (should fail or be blocked)
     try {
       console.log('🧪 Debug: Testing direct localhost:8000 call...');
-      const response = await fetch('http://localhost:8000/_info/idm.user');
+      const response = await fetch('http://localhost:8000/_meta/idm.user');
       if (response.ok) {
         const data = await response.json();
         addResult('Direct localhost:8000', 'warning', 'Direct call succeeded - this might cause issues in Storybook');

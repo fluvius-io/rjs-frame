@@ -19,7 +19,7 @@ function UsersTable() {
 
   return (
     <PaginatedList
-      metadataUrl="/api/_info/idm.user/"
+      metadataUrl="/api/_meta/idm.user/"
       data={data}
       pagination={pagination}
       title="Users"
@@ -41,7 +41,7 @@ import { ApiPaginatedList } from 'rjs-admin';
 function UsersTable() {
   return (
     <ApiPaginatedList
-      metadataUrl="/api/_info/idm.user"
+      metadataUrl="/api/_meta/idm.user"
       dataUrl="/api/idm.user/"
       title="Users"
       subtitle="Manage system users"
@@ -105,7 +105,7 @@ function UsersTable() {
 
 The component expects these API endpoints:
 
-### Metadata Endpoint: `/api/_info/idm.user`
+### Metadata Endpoint: `/api/_meta/idm.user`
 Returns metadata in this format:
 
 ```json
