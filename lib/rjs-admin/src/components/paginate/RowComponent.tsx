@@ -7,47 +7,38 @@ const RowComponent: React.FC<RowComponentProps> = ({
   data,
   index,
 }) => {
-  const getAlignmentClass = (align?: string) => {
-    switch (align) {
-      case 'center':
-        return 'text-center';
-      case 'right':
-        return 'text-right';
-      default:
-        return 'text-left';
-    }
+  const getAlignmentClass = (fieldMeta: any) => {
+    if (fieldMeta.identifier) return 'text-center';
+    return 'text-left';
   };
 
   const formatValue = (value: any, fieldName: string) => {
-    const fieldMeta = metadata?.fields?.[fieldName];
-    
-    if (!fieldMeta) {
-      return value;
+    // Simple formatting for common data types
+    if (value === null || value === undefined) {
+      return '-';
     }
     
-    if (fieldMeta.format) {
-      return fieldMeta.format(value);
+    if (typeof value === 'boolean') {
+      return value ? '✓' : '✗';
     }
-
-    switch (fieldMeta.type) {
-      case 'boolean':
-        return value ? '✓' : '✗';
-      case 'date':
-        if (value instanceof Date) {
-          return value.toLocaleDateString();
-        }
-        if (typeof value === 'string') {
-          return new Date(value).toLocaleDateString();
-        }
-        return value;
-      case 'number':
-        if (typeof value === 'number') {
-          return value.toLocaleString();
-        }
-        return value;
-      default:
-        return value;
+    
+    if (typeof value === 'number') {
+      return value.toLocaleString();
     }
+    
+    // Handle date strings
+    if (typeof value === 'string' && (fieldName.includes('date') || fieldName.includes('time'))) {
+      try {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString();
+        }
+      } catch {
+        // Fall through to return original value
+      }
+    }
+    
+    return String(value);
   };
 
   // Return empty row if no metadata or fields
@@ -64,6 +55,9 @@ const RowComponent: React.FC<RowComponentProps> = ({
     );
   }
 
+  // Filter out hidden fields
+  const visibleFields = Object.entries(metadata.fields).filter(([, fieldMeta]) => !fieldMeta.hidden);
+
   return (
     <tr 
       className={cn(
@@ -71,17 +65,13 @@ const RowComponent: React.FC<RowComponentProps> = ({
         index % 2 === 0 ? "bg-background" : "bg-muted/10"
       )}
     >
-      {Object.entries(metadata.fields).map(([fieldName, fieldMeta]) => (
+      {visibleFields.map(([fieldName, fieldMeta]) => (
         <td
           key={fieldName}
           className={cn(
             "px-4 py-3 text-sm",
-            getAlignmentClass(fieldMeta.align),
-            fieldMeta.className
+            getAlignmentClass(fieldMeta)
           )}
-          style={{
-            width: fieldMeta.width
-          }}
         >
           {formatValue(data[fieldName], fieldName)}
         </td>

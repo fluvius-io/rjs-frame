@@ -1,5 +1,5 @@
-import { QueryBuilderState, FrontendQuery, SortRule, FilterRule } from './types';
-import { PaginatedListMetadata } from '../paginate/types';
+import { QueryMetadata } from '../paginate/types';
+import { FilterRule, FrontendQuery, QueryBuilderState } from './types';
 
 /**
  * Transform UI state to backend query format
@@ -13,11 +13,6 @@ export function transformToBackendQuery(state: QueryBuilderState): FrontendQuery
   // Add select fields if any are specified
   if (state.selectedFields.length > 0) {
     query.select = state.selectedFields;
-  }
-
-  // Add deselect fields if any are specified
-  if (state.deselectedFields.length > 0) {
-    query.deselect = state.deselectedFields;
   }
 
   // Add sort rules
@@ -38,13 +33,12 @@ export function transformToBackendQuery(state: QueryBuilderState): FrontendQuery
  */
 export function transformFromBackendQuery(
   query: Partial<FrontendQuery>, 
-  metadata: PaginatedListMetadata
+  metadata: QueryMetadata
 ): QueryBuilderState {
   const state: QueryBuilderState = {
     limit: query.limit || 10,
     page: query.page || 1,
     selectedFields: query.select || [],
-    deselectedFields: query.deselect || [],
     sortRules: [],
     filterRules: [],
   };
@@ -76,6 +70,8 @@ export function buildQueryString(filterRules: FilterRule[]): string {
   const queryParts: string[] = [];
 
   filterRules.forEach(rule => {
+    // Only process field filters, skip composite filters for now
+    if (rule.type !== 'field') return;
     if (!rule.value) return;
 
     const separator = rule.negate ? '!' : ':';
@@ -89,7 +85,7 @@ export function buildQueryString(filterRules: FilterRule[]): string {
 /**
  * Parse query string into filter rules
  */
-export function parseQueryString(queryString: string, metadata: PaginatedListMetadata): FilterRule[] {
+export function parseQueryString(queryString: string, metadata: QueryMetadata): FilterRule[] {
   const filterRules: FilterRule[] = [];
   
   // Split by AND/OR operators (simplified parsing)
@@ -107,6 +103,7 @@ export function parseQueryString(queryString: string, metadata: PaginatedListMet
       const field = extractFieldFromOperator(operator, metadata);
       filterRules.push({
         id: `filter_${index}`,
+        type: 'field',
         field,
         operator,
         value,
@@ -117,6 +114,7 @@ export function parseQueryString(queryString: string, metadata: PaginatedListMet
       const field = extractFieldFromOperator(operator, metadata);
       filterRules.push({
         id: `filter_${index}`,
+        type: 'field',
         field,
         operator,
         value,
@@ -131,13 +129,12 @@ export function parseQueryString(queryString: string, metadata: PaginatedListMet
 /**
  * Extract field name from operator (e.g., "name__family:eq" -> "name__family")
  */
-function extractFieldFromOperator(operator: string, metadata: PaginatedListMetadata): string {
+function extractFieldFromOperator(operator: string, metadata: QueryMetadata): string {
   // Check if the operator matches any field-based operators in metadata
   if (metadata.operators) {
-    for (const [opKey] of Object.entries(metadata.operators)) {
-      const fieldMatch = opKey.match(/^(.+?):(.+)$/);
-      if (fieldMatch && operator.includes(fieldMatch[1])) {
-        return fieldMatch[1];
+    for (const [paramKey, paramMeta] of Object.entries(metadata.operators)) {
+      if (paramKey.includes(operator) && paramMeta.field_name) {
+        return paramMeta.field_name;
       }
     }
   }
@@ -157,27 +154,28 @@ export function generateFilterId(): string {
 /**
  * Get available operators for a field
  */
-export function getOperatorsForField(field: string, metadata: PaginatedListMetadata): string[] {
+export function getOperatorsForField(field: string, metadata: QueryMetadata): string[] {
   if (!metadata.operators) return [];
   
-  return Object.keys(metadata.operators).filter(key => {
-    const fieldMatch = key.match(/^(.+?):(.+)$/);
-    return fieldMatch && fieldMatch[1] === field;
-  });
+  return Object.entries(metadata.operators)
+    .filter(([, paramMeta]) => paramMeta.field_name === field)
+    .map(([, paramMeta]) => paramMeta.operator);
 }
 
 /**
  * Get all available fields from metadata
  */
-export function getAvailableFields(metadata: PaginatedListMetadata): string[] {
-  return Object.keys(metadata.fields);
+export function getAvailableFields(metadata: QueryMetadata): string[] {
+  return Object.entries(metadata.fields)
+    .filter(([, fieldMeta]) => !fieldMeta.hidden)
+    .map(([fieldName]) => fieldName);
 }
 
 /**
  * Get sortable fields from metadata
  */
-export function getSortableFields(metadata: PaginatedListMetadata): string[] {
+export function getSortableFields(metadata: QueryMetadata): string[] {
   return Object.entries(metadata.fields)
-    .filter(([, fieldMeta]) => fieldMeta.sortable)
+    .filter(([, fieldMeta]) => fieldMeta.sortable && !fieldMeta.hidden)
     .map(([fieldName]) => fieldName);
 } 

@@ -19,12 +19,12 @@ export {
 } from './components/paginate';
 
 export type {
-    FieldMetadata, FilterConfig, HeaderComponentProps, PaginatedListMetadata, PaginatedListProps, PaginationConfig, PaginationControlsProps, QueryOperator, RowComponentProps, SortConfig
+    FieldMetadata, FilterConfig, HeaderComponentProps, PaginatedListProps, PaginationConfig, PaginationControlsProps, RowComponentProps, SortConfig
 } from './components/paginate';
 
 // Query Builder Components
 export {
-    FieldSelector, FilterBuilder, QueryBuilder, QueryDisplay, SortBuilder
+    FieldSelector, QueryBuilder, QueryDisplay, SortBuilder
 } from './components/query-builder';
 
 export type {

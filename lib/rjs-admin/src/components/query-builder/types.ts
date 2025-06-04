@@ -1,11 +1,10 @@
-import { PaginatedListMetadata } from '../paginate/types';
+import { QueryMetadata } from '../paginate/types';
 
 // Backend query format
 export interface FrontendQuery {
   limit: number;
   page: number;
   select?: string[];
-  deselect?: string[];
   sort?: string[];
   query?: string;
 }
@@ -15,7 +14,6 @@ export interface QueryBuilderState {
   limit: number;
   page: number;
   selectedFields: string[];
-  deselectedFields: string[];
   sortRules: SortRule[];
   filterRules: FilterRule[];
 }
@@ -25,7 +23,32 @@ export interface SortRule {
   direction: 'asc' | 'desc';
 }
 
-export interface FilterRule {
+// Base filter interface
+export interface BaseFilterRule {
+  id: string;
+  negate?: boolean;
+}
+
+// Simple field-based filter
+export interface FieldFilterRule extends BaseFilterRule {
+  type: 'field';
+  field: string;
+  operator: string;
+  value: any;
+}
+
+// Composite filter (AND/OR)
+export interface CompositeFilterRule extends BaseFilterRule {
+  type: 'composite';
+  operator: ':and' | ':or';
+  children: FilterRule[];
+}
+
+// Union type for all filter rules
+export type FilterRule = FieldFilterRule | CompositeFilterRule;
+
+// Legacy interface for backward compatibility
+export interface LegacyFilterRule {
   id: string;
   field: string;
   operator: string;
@@ -45,25 +68,41 @@ export interface QueryBuilderProps {
 
 // Field selection component props
 export interface FieldSelectorProps {
-  metadata: PaginatedListMetadata;
+  metadata: QueryMetadata;
   selectedFields: string[];
-  deselectedFields: string[];
   onSelectedFieldsChange: (fields: string[]) => void;
-  onDeselectedFieldsChange: (fields: string[]) => void;
 }
 
 // Sort builder component props
 export interface SortBuilderProps {
-  metadata: PaginatedListMetadata;
+  metadata: QueryMetadata;
   sortRules: SortRule[];
   onSortRulesChange: (rules: SortRule[]) => void;
 }
 
 // Filter builder component props
 export interface FilterBuilderProps {
-  metadata: PaginatedListMetadata;
+  metadata: QueryMetadata;
   filterRules: FilterRule[];
   onFilterRulesChange: (rules: FilterRule[]) => void;
+}
+
+// Composite filter group props
+export interface CompositeFilterGroupProps {
+  metadata: QueryMetadata;
+  filter: CompositeFilterRule;
+  onFilterChange: (filter: CompositeFilterRule) => void;
+  onRemove: () => void;
+  depth?: number;
+  isRoot?: boolean;
+}
+
+// Field filter props
+export interface FieldFilterProps {
+  metadata: QueryMetadata;
+  filter: FieldFilterRule;
+  onFilterChange: (filter: FieldFilterRule) => void;
+  onRemove: () => void;
 }
 
 // Query display component props

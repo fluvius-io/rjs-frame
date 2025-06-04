@@ -4,8 +4,7 @@ import { Button } from '../common/Button';
 import HeaderComponent from './HeaderComponent';
 import PaginationControls from './PaginationControls';
 import RowComponent from './RowComponent';
-import { FilterConfig, PaginatedListMetadata, PaginatedListProps, SortConfig } from './types';
-import { getDefaultSort, isApiMetadata, transformApiMetadata } from './utils';
+import { FilterConfig, PaginatedListProps, SortConfig } from './types';
 
 const PaginatedList: React.FC<PaginatedListProps> = (props) => {
   const {
@@ -24,46 +23,25 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
     onPageChange,
     actions,
     className,
-    metadata: initialMetadata,
+    metadata,
   } = props;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterConfig[]>([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [currentSort, setCurrentSort] = useState<SortConfig>();
-  const [metadata, setMetadata] = useState<PaginatedListMetadata | null>(null);
 
   // Handle metadata initialization
   useEffect(() => {
-    const initializeMetadata = () => {
-      try {
-        let processedMetadata: PaginatedListMetadata;
-
-        if (initialMetadata) {
-          // Use provided metadata
-          if (isApiMetadata(initialMetadata)) {
-            processedMetadata = transformApiMetadata(initialMetadata);
-            
-            // Set default sort if provided
-            const defaultSort = getDefaultSort(initialMetadata);
-            if (defaultSort && !currentSort) {
-              setCurrentSort(defaultSort);
-            }
-          } else {
-            processedMetadata = initialMetadata;
-          }
-        } else {
-          throw new Error('No metadata provided');
-        }
-
-        setMetadata(processedMetadata);
-      } catch (error) {
-        console.error('Failed to initialize metadata:', error);
-      }
-    };
-
-    initializeMetadata();
-  }, [initialMetadata]);
+    if (metadata?.default_order && metadata.default_order.length > 0 && !currentSort) {
+      const defaultOrder = metadata.default_order[0];
+      const [field, direction] = defaultOrder.split(':');
+      setCurrentSort({
+        field,
+        direction: direction === 'desc' ? 'desc' : 'asc'
+      });
+    }
+  }, [metadata]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -79,14 +57,19 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
   const handleFilterAdd = () => {
     if (!metadata || !metadata.fields) return;
     
-    const fieldKeys = Object.keys(metadata.fields);
-    const operatorKeys = Object.keys(metadata.operators || {});
+    const availableFields = Object.entries(metadata.fields)
+      .filter(([, fieldMeta]) => !fieldMeta.hidden)
+      .map(([fieldName]) => fieldName);
     
-    if (fieldKeys.length === 0) return;
+    const availableOperators = Object.entries(metadata.operators || {})
+      .filter(([, paramMeta]) => paramMeta.field_name !== '')
+      .map(([, paramMeta]) => paramMeta.operator);
+    
+    if (availableFields.length === 0) return;
     
     const newFilter: FilterConfig = {
-      field: fieldKeys[0],
-      operator: operatorKeys[0] || 'equals',
+      field: availableFields[0],
+      operator: availableOperators[0] || 'eq',
       value: '',
     };
     setFilters([...filters, newFilter]);
@@ -108,47 +91,46 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
   const renderFilterInput = (filter: FilterConfig, index: number) => {
     if (!metadata) return null;
     
-    const operator = metadata.operators?.[filter.operator];
+    // For QueryMetadata, we need to infer the input type based on the operator
+    const getInputType = (operator: string) => {
+      switch (operator) {
+        case 'gt':
+        case 'lt':
+        case 'gte':
+        case 'lte':
+          return 'number';
+        case 'is':
+          return 'boolean';
+        default:
+          return 'text';
+      }
+    };
+
+    const inputType = getInputType(filter.operator);
     
-    switch (operator?.type) {
-      case 'select':
-        return (
-          <select
-            value={filter.value}
-            onChange={(e) => handleFilterChange(index, 'value', e.target.value)}
-            className="px-2 py-1 text-sm border rounded bg-background"
-          >
-            <option value="">Select...</option>
-            {operator.options?.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        );
-      case 'boolean':
-        return (
-          <select
-            value={filter.value}
-            onChange={(e) => handleFilterChange(index, 'value', e.target.value === 'true')}
-            className="px-2 py-1 text-sm border rounded bg-background"
-          >
-            <option value="">Select...</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
-        );
-      default:
-        return (
-          <input
-            type={operator?.type === 'number' ? 'number' : operator?.type === 'date' ? 'date' : 'text'}
-            value={filter.value}
-            onChange={(e) => handleFilterChange(index, 'value', e.target.value)}
-            placeholder={operator?.placeholder}
-            className="px-2 py-1 text-sm border rounded bg-background"
-          />
-        );
+    if (inputType === 'boolean') {
+      return (
+        <select
+          value={filter.value}
+          onChange={(e) => handleFilterChange(index, 'value', e.target.value === 'true')}
+          className="px-2 py-1 text-sm border rounded bg-background"
+        >
+          <option value="">Select...</option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      );
     }
+
+    return (
+      <input
+        type={inputType}
+        value={filter.value}
+        onChange={(e) => handleFilterChange(index, 'value', e.target.value)}
+        placeholder={`Enter ${filter.field} value`}
+        className="px-2 py-1 text-sm border rounded bg-background"
+      />
+    );
   };
 
   // Show loading state while fetching metadata
@@ -161,6 +143,12 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
       </div>
     );
   }
+
+  const availableFields = Object.entries(metadata.fields)
+    .filter(([, fieldMeta]) => !fieldMeta.hidden)
+    .map(([fieldName]) => fieldName);
+
+  const hasFilters = metadata.operators && Object.values(metadata.operators).some(param => param.field_name !== '');
 
   return (
     <div className={cn("bg-background border rounded-lg shadow-sm", className)}>
@@ -191,7 +179,7 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
                 </div>
               )}
 
-              {showFilters && metadata.operators && (
+              {showFilters && hasFilters && (
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -213,7 +201,7 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
           )}
 
           {/* Filter Panel */}
-          {showFilterPanel && showFilters && metadata.operators && (
+          {showFilterPanel && showFilters && hasFilters && (
             <div className="mt-4 p-3 border rounded-md bg-muted/20">
               <div className="space-y-3">
                 {filters.map((filter, index) => (
@@ -223,9 +211,9 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
                       onChange={(e) => handleFilterChange(index, 'field', e.target.value)}
                       className="px-2 py-1 text-sm border rounded bg-background"
                     >
-                      {Object.entries(metadata.fields).map(([fieldName, fieldMeta]) => (
+                      {availableFields.map((fieldName) => (
                         <option key={fieldName} value={fieldName}>
-                          {fieldMeta.label}
+                          {fieldName}
                         </option>
                       ))}
                     </select>
@@ -236,8 +224,8 @@ const PaginatedList: React.FC<PaginatedListProps> = (props) => {
                       className="px-2 py-1 text-sm border rounded bg-background"
                     >
                       {Object.entries(metadata.operators || {}).map(([opName, opMeta]) => (
-                        <option key={opName} value={opName}>
-                          {opMeta.label}
+                        <option key={opName} value={opMeta.operator}>
+                          {opMeta.operator}
                         </option>
                       ))}
                     </select>

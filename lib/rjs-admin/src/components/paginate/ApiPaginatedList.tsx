@@ -47,21 +47,6 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
   // Store previous data to prevent flicker during page changes
   const previousDataRef = useRef<Array<Record<string, any>>>([]);
 
-  // Generate sample data for demonstration (fallback when no dataUrl provided)
-  const generateSampleData = (count: number): Array<Record<string, any>> => {
-    const sampleData: Array<Record<string, any>> = [];
-    for (let i = 1; i <= count; i++) {
-      sampleData.push({
-        _id: `user_${i}`,
-        name__family: `LastName${i}`,
-        name__given: `FirstName${i}`,
-        email: `user${i}@example.com`,
-        status: i % 2 === 0 ? 'Active' : 'Inactive',
-        created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-      });
-    }
-    return sampleData;
-  };
 
   // Fetch metadata from API
   const fetchMetadata = async () => {
@@ -136,13 +121,14 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
       }
       
       if (filters && filters.length > 0) {
-        filters.forEach((filter, index) => {
+        let query: Record<string, any> = {};
+        filters.forEach((filter) => {
+          console.log('🔧 ApiPaginatedList: Adding filter:', filter);
           if (filter.value) {
-            params[`filter[${index}][field]`] = filter.field;
-            params[`filter[${index}][operator]`] = filter.operator;
-            params[`filter[${index}][value]`] = filter.value;
+            query[filter.operator] = filter.value;
           }
         });
+        params.query = JSON.stringify(query);
         console.log('🔧 ApiPaginatedList: Adding filters:', filters);
       }
 
@@ -245,12 +231,7 @@ const ApiPaginatedList: React.FC<ApiPaginatedListProps> = ({
 
   // Show loading screen while fetching initial metadata or data
   if (loading || metadataLoading) {
-    return (
-      <div className="p-8 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <div>Loading...</div>
-      </div>
-    );
+    return null;
   }
 
   if (error) {

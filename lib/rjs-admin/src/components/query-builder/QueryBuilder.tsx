@@ -1,12 +1,25 @@
+/**
+ * QueryBuilder - Complete Visual Query Building Interface
+ * 
+ * This is the main component for building complex database queries visually.
+ * It includes:
+ * - Field selection (select specific fields)
+ * - Sorting rules (multiple sort criteria)
+ * - Filtering with composite operators (AND/OR groups, nested conditions)
+ * - Pagination controls
+ * - Real-time query generation and display
+ * 
+ * The component automatically detects API capabilities (like composite operators)
+ * and adapts the UI accordingly. It fetches metadata from the provided API
+ * endpoint to understand available fields and operators.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { APIManager } from 'rjs-frame';
 import { cn } from '../../lib/utils';
-import { Button } from '../common/Button';
-import { PaginatedListMetadata } from '../paginate/types';
-import { transformApiMetadata } from '../paginate/utils';
+import { QueryMetadata } from '../paginate/types';
 import FieldSelector from './FieldSelector';
 import FilterBuilder from './FilterBuilder';
-import QueryDisplay from './QueryDisplay';
 import SortBuilder from './SortBuilder';
 import { FrontendQuery, QueryBuilderProps, QueryBuilderState } from './types';
 import { transformFromBackendQuery, transformToBackendQuery } from './utils';
@@ -19,7 +32,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
   title = "Query Builder",
   className,
 }) => {
-  const [metadata, setMetadata] = useState<PaginatedListMetadata | null>(null);
+  const [metadata, setMetadata] = useState<QueryMetadata | null>(null);
   const [metadataLoading, setMetadataLoading] = useState(false);
   const [metadataError, setMetadataError] = useState<string | null>(null);
   
@@ -27,7 +40,6 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
     limit: initialQuery.limit || 10,
     page: initialQuery.page || 1,
     selectedFields: initialQuery.select || [],
-    deselectedFields: initialQuery.deselect || [],
     sortRules: [],
     filterRules: [],
   });
@@ -46,15 +58,15 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
         
         console.log('🔄 QueryBuilder: Fetching metadata from:', metadataApi);
         const response = await APIManager.queryMeta(metadataApi);
-        const apiMetadata = response.data;
-        console.log('📊 QueryBuilder: Received metadata:', apiMetadata);
+        const metadata = response.data;
+        console.log('📊 QueryBuilder: Received metadata:', metadata);
         
-        const processedMetadata = transformApiMetadata(apiMetadata);
-        setMetadata(processedMetadata);
+        // Use metadata directly without transformation
+        setMetadata(metadata);
         
         // Initialize state from initial query if metadata is available
         if (Object.keys(initialQuery).length > 0) {
-          const initialState = transformFromBackendQuery(initialQuery, processedMetadata);
+          const initialState = transformFromBackendQuery(initialQuery, metadata);
           setState(initialState);
         }
       } catch (error) {
@@ -84,7 +96,6 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
       limit: 10,
       page: 1,
       selectedFields: [],
-      deselectedFields: [],
       sortRules: [],
       filterRules: [],
     });
@@ -113,9 +124,12 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
           <div className="text-sm text-destructive mb-2">
             Failed to load metadata: {metadataError || 'No metadata available'}
           </div>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <button 
+            className="inline-flex items-center px-3 py-1 text-sm border rounded bg-white hover:bg-gray-50 font-medium"
+            onClick={() => window.location.reload()}
+          >
             Retry
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -133,13 +147,19 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={resetQuery}>
+            <button 
+              className="inline-flex items-center px-3 py-1 text-sm border rounded bg-white hover:bg-gray-50 font-medium"
+              onClick={resetQuery}
+            >
               Reset
-            </Button>
+            </button>
             {onExecute && (
-              <Button size="sm" onClick={executeQuery}>
+              <button 
+                className="inline-flex items-center px-3 py-1 text-sm border rounded bg-blue-600 text-white hover:bg-blue-700 font-medium"
+                onClick={executeQuery}
+              >
                 Execute Query
-              </Button>
+              </button>
             )}
           </div>
         </div>
@@ -179,9 +199,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
         <FieldSelector
           metadata={metadata}
           selectedFields={state.selectedFields}
-          deselectedFields={state.deselectedFields}
           onSelectedFieldsChange={(fields) => updateState({ selectedFields: fields })}
-          onDeselectedFieldsChange={(fields) => updateState({ deselectedFields: fields })}
         />
 
         {/* Sort Rules */}
@@ -196,17 +214,6 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
           metadata={metadata}
           filterRules={state.filterRules}
           onFilterRulesChange={(rules) => updateState({ filterRules: rules })}
-        />
-
-        {/* Generated Query Display */}
-        <QueryDisplay
-          query={currentQuery}
-          onQueryChange={(query) => {
-            if (metadata) {
-              const newState = transformFromBackendQuery(query, metadata);
-              setState(newState);
-            }
-          }}
         />
       </div>
     </div>

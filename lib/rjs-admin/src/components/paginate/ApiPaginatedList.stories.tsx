@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../common/Button';
 import ApiPaginatedList from './ApiPaginatedList';
 import PaginatedList from './PaginatedList';
-import type { ApiMetadata } from './types';
+import type { QueryMetadata } from './types';
 
 // Mock API metadata for the direct metadata example only
-const mockApiMetadata: ApiMetadata = {
+const mockApiMetadata: QueryMetadata = {
   fields: {
     "_id": {
       "label": "User ID",
@@ -48,7 +48,7 @@ const mockApiMetadata: ApiMetadata = {
       "source": null
     }
   },
-  params: {
+  operators: {
     ":and": {
       "index": 1,
       "field_name": "",

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { QueryDisplayProps } from './types';
 import { Button } from '../common/Button';
-import { cn } from '../../lib/utils';
+import { QueryDisplayProps } from './types';
 
 const QueryDisplay: React.FC<QueryDisplayProps> = ({
   query,
@@ -86,13 +85,6 @@ const QueryDisplay: React.FC<QueryDisplayProps> = ({
                 <div>
                   <span className="text-green-700 font-medium">Include Fields:</span>{' '}
                   <span className="font-mono text-green-800">{query.select.join(', ')}</span>
-                </div>
-              )}
-              
-              {query.deselect && query.deselect.length > 0 && (
-                <div>
-                  <span className="text-red-700 font-medium">Exclude Fields:</span>{' '}
-                  <span className="font-mono text-red-800">{query.deselect.join(', ')}</span>
                 </div>
               )}
               

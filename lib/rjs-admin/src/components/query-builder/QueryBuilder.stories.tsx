@@ -1,7 +1,181 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { QueryMetadata } from '../paginate/types';
 import QueryBuilder from './QueryBuilder';
 import { FrontendQuery } from './types';
+
+// Mock metadata with composite operators for demonstration
+const mockMetadataWithCompositeOperators: QueryMetadata = {
+  fields: {
+    "_id": {
+      "label": "User ID",
+      "sortable": true,
+      "hidden": false,
+      "identifier": true,
+      "factory": null,
+      "source": null
+    },
+    "name__family": {
+      "label": "Family Name",
+      "sortable": true,
+      "hidden": false,
+      "identifier": false,
+      "factory": null,
+      "source": null
+    },
+    "name__given": {
+      "label": "Given Name", 
+      "sortable": true,
+      "hidden": false,
+      "identifier": false,
+      "factory": null,
+      "source": null
+    },
+    "email": {
+      "label": "Email Address",
+      "sortable": true,
+      "hidden": false,
+      "identifier": false,
+      "factory": null,
+      "source": null
+    },
+    "status": {
+      "label": "Status",
+      "sortable": true,
+      "hidden": false,
+      "identifier": false,
+      "factory": null,
+      "source": null
+    },
+    "age": {
+      "label": "Age",
+      "sortable": true,
+      "hidden": false,
+      "identifier": false,
+      "factory": null,
+      "source": null
+    }
+  },
+  operators: {
+    ":and": {
+      "index": 1,
+      "field_name": "",
+      "operator": "and",
+      "widget": {
+        "name": "AND",
+        "desc": "Logical AND operator",
+        "inversible": true,
+        "data_query": null
+      }
+    },
+    ":or": {
+      "index": 2,
+      "field_name": "",
+      "operator": "or",
+      "widget": {
+        "name": "OR", 
+        "desc": "Logical OR operator",
+        "inversible": true,
+        "data_query": null
+      }
+    },
+    "_id:eq": {
+      "index": 3,
+      "field_name": "_id",
+      "operator": "eq",
+      "widget": null
+    },
+    "_id:in": {
+      "index": 4,
+      "field_name": "_id",
+      "operator": "in",
+      "widget": null
+    },
+    "name__family:eq": {
+      "index": 5,
+      "field_name": "name__family",
+      "operator": "eq",
+      "widget": null
+    },
+    "name__family:ilike": {
+      "index": 6,
+      "field_name": "name__family",
+      "operator": "ilike",
+      "widget": null
+    },
+    "name__family:in": {
+      "index": 7,
+      "field_name": "name__family",
+      "operator": "in",
+      "widget": null
+    },
+    "name__given:eq": {
+      "index": 8,
+      "field_name": "name__given",
+      "operator": "eq",
+      "widget": null
+    },
+    "name__given:ilike": {
+      "index": 9,
+      "field_name": "name__given",
+      "operator": "ilike",
+      "widget": null
+    },
+    "email:eq": {
+      "index": 10,
+      "field_name": "email",
+      "operator": "eq",
+      "widget": null
+    },
+    "email:ilike": {
+      "index": 11,
+      "field_name": "email",
+      "operator": "ilike",
+      "widget": null
+    },
+    "status:eq": {
+      "index": 12,
+      "field_name": "status",
+      "operator": "eq",
+      "widget": null
+    },
+    "status:in": {
+      "index": 13,
+      "field_name": "status",
+      "operator": "in",
+      "widget": null
+    },
+    "age:eq": {
+      "index": 14,
+      "field_name": "age",
+      "operator": "eq",
+      "widget": null
+    },
+    "age:gt": {
+      "index": 15,
+      "field_name": "age",
+      "operator": "gt",
+      "widget": null
+    },
+    "age:lt": {
+      "index": 16,
+      "field_name": "age",
+      "operator": "lt",
+      "widget": null
+    }
+  },
+  sortables: [
+    "_id",
+    "name__family", 
+    "name__given",
+    "email",
+    "status",
+    "age"
+  ],
+  default_order: [
+    "_id:asc"
+  ]
+};
 
 const meta: Meta<typeof QueryBuilder> = {
   title: 'Components/QueryBuilder',
@@ -180,9 +354,6 @@ export const WithLiveDataExecution: Story = {
         if (query.select?.length) {
           params.set('select', query.select.join(','));
         }
-        if (query.deselect?.length) {
-          params.set('deselect', query.deselect.join(','));
-        }
         if (query.sort?.length) {
           params.set('sort', query.sort.join(','));
         }
@@ -281,7 +452,7 @@ export const FieldSelectionOnly: Story = {
     return (
       <div className="space-y-6">
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
-          <strong>🎯 Field Selection Focus:</strong> A simplified example focusing mainly on field selection (include/exclude). 
+          <strong>🎯 Field Selection Focus:</strong> A simplified example focusing on field selection. 
           Perfect for scenarios where you just need to control which fields are returned.
         </div>
         
@@ -303,12 +474,81 @@ export const FieldSelectionOnly: Story = {
               <strong>Selected Fields:</strong> Only these fields will be returned: {currentQuery.select.join(', ')}
             </div>
           )}
+        </div>
+      </div>
+    );
+  },
+};
+
+// Composite Operators (AND/OR Groups) Demonstration
+export const CompositeOperators: Story = {
+  render: () => {
+    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
+
+    // Mock the APIManager for this demo
+    useEffect(() => {
+      const originalQueryMeta = (window as any).APIManager?.queryMeta;
+      
+      // Mock the queryMeta call for composite operators demo
+      if ((window as any).APIManager) {
+        (window as any).APIManager.queryMeta = async (apiName: string) => {
+          if (apiName === 'demo:composite') {
+            return { data: mockMetadataWithCompositeOperators };
+          }
+          return originalQueryMeta ? originalQueryMeta(apiName) : Promise.reject('API not found');
+        };
+      }
+
+      return () => {
+        if ((window as any).APIManager && originalQueryMeta) {
+          (window as any).APIManager.queryMeta = originalQueryMeta;
+        }
+      };
+    }, []);
+
+    return (
+      <div className="space-y-6">
+        <div className="p-3 bg-indigo-50 border border-indigo-200 rounded text-sm">
+          <strong>🧩 Composite Operators Demo:</strong> This example showcases AND/OR groups with nested filters. 
+          Build complex queries like: <code>(name = "Smith" OR name = "Jones") AND (age {'>'}= 25 AND status = "active")</code>
+        </div>
+        
+        <QueryBuilder
+          metadataApi="demo:composite"
+          title="Advanced Query Builder with Composite Operators"
+          onQueryChange={setCurrentQuery}
+        />
+
+        <div className="border rounded p-4">
+          <h3 className="font-medium mb-2">Generated Query Structure</h3>
+          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+            {currentQuery ? JSON.stringify(currentQuery, null, 2) : 'No query built yet'}
+          </pre>
           
-          {currentQuery?.deselect && currentQuery.deselect.length > 0 && (
-            <div className="mt-3 p-2 bg-red-50 rounded text-sm">
-              <strong>Excluded Fields:</strong> These fields will be hidden: {currentQuery.deselect.join(', ')}
-            </div>
-          )}
+          <div className="mt-3 text-sm text-gray-600">
+            <p><strong>Try these interactions:</strong></p>
+            <ul className="list-disc list-inside mt-1 space-y-1">
+              <li>Click the AND/OR button to toggle between logical operators</li>
+              <li>Use "+ Add AND Group" to create nested AND conditions</li>
+              <li>Use "+ Add OR Group" to create nested OR conditions</li>
+              <li>Check "NOT" to negate individual filters or entire groups</li>
+              <li>Build complex nested structures up to 5 levels deep</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="border rounded p-3">
+            <h4 className="font-medium mb-2">🔵 AND Groups (Blue)</h4>
+            <p>All conditions must be true. Use for restrictive filtering.</p>
+            <code className="text-xs bg-blue-50 p-1 rounded">age {'>'} 25 AND status = "active"</code>
+          </div>
+          
+          <div className="border rounded p-3">
+            <h4 className="font-medium mb-2">🟢 OR Groups (Green)</h4>
+            <p>Any condition can be true. Use for inclusive filtering.</p>
+            <code className="text-xs bg-green-50 p-1 rounded">name = "Smith" OR name = "Jones"</code>
+          </div>
         </div>
       </div>
     );

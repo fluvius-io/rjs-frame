@@ -8,7 +8,8 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   onSort,
 }) => {
   const handleSort = (fieldName: string) => {
-    if (!metadata?.fields?.[fieldName]?.sortable || !onSort) return;
+    const fieldMeta = metadata?.fields?.[fieldName];
+    if (!fieldMeta?.sortable || !onSort) return;
 
     const newDirection = 
       sort?.field === fieldName && sort.direction === 'asc' ? 'desc' : 'asc';
@@ -17,7 +18,8 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   };
 
   const getSortIcon = (fieldName: string) => {
-    if (!metadata?.fields?.[fieldName]?.sortable) return null;
+    const fieldMeta = metadata?.fields?.[fieldName];
+    if (!fieldMeta?.sortable) return null;
     
     if (sort?.field === fieldName) {
       return sort.direction === 'asc' ? '↑' : '↓';
@@ -25,15 +27,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
     return '↕';
   };
 
-  const getAlignmentClass = (align?: string) => {
-    switch (align) {
-      case 'center':
-        return 'text-center';
-      case 'right':
-        return 'text-right';
-      default:
-        return 'text-left';
-    }
+  const getAlignmentClass = (fieldMeta: any) => {
+    if (fieldMeta.identifier) return 'text-center';
+    return 'text-left';
   };
 
   // Return empty header if no metadata or fields
@@ -49,21 +45,20 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
     );
   }
 
+  // Filter out hidden fields
+  const visibleFields = Object.entries(metadata.fields).filter(([, fieldMeta]) => !fieldMeta.hidden);
+
   return (
     <thead className="bg-muted/50">
       <tr className="border-b">
-        {Object.entries(metadata.fields).map(([fieldName, fieldMeta]) => (
+        {visibleFields.map(([fieldName, fieldMeta]) => (
           <th
             key={fieldName}
             className={cn(
               "px-4 py-3 font-medium text-sm text-muted-foreground",
-              getAlignmentClass(fieldMeta.align),
-              fieldMeta.sortable && onSort && "cursor-pointer hover:text-foreground transition-colors",
-              fieldMeta.className
+              getAlignmentClass(fieldMeta),
+              fieldMeta.sortable && onSort && "cursor-pointer hover:text-foreground transition-colors"
             )}
-            style={{
-              width: fieldMeta.width
-            }}
             onClick={() => handleSort(fieldName)}
           >
             <div className="flex items-center gap-2">

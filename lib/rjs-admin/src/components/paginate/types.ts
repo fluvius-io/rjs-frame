@@ -8,8 +8,8 @@ export interface FieldMetadata {
   className?: string;
 }
 
-// New API metadata format types
-export interface ApiFieldMetadata {
+// Unified metadata format - matches API structure directly
+export interface QueryFieldMetadata {
   label: string;
   sortable: boolean;
   hidden: boolean;
@@ -18,7 +18,7 @@ export interface ApiFieldMetadata {
   source: string | null;
 }
 
-export interface ApiQueryOperator {
+export interface QueryParamMetadata {
   index: number;
   field_name: string;
   operator: string;
@@ -30,23 +30,11 @@ export interface ApiQueryOperator {
   } | null;
 }
 
-export interface ApiMetadata {
-  fields: Record<string, ApiFieldMetadata>;
-  params: Record<string, ApiQueryOperator>;
+export interface QueryMetadata {
+  fields: Record<string, QueryFieldMetadata>;
+  operators: Record<string, QueryParamMetadata>;
   sortables: string[];
   default_order: string[];
-}
-
-export interface QueryOperator {
-  label: string;
-  type: 'text' | 'number' | 'date' | 'select' | 'boolean';
-  options?: Array<{ value: any; label: string }>;
-  placeholder?: string;
-}
-
-export interface PaginatedListMetadata {
-  fields: Record<string, FieldMetadata>;
-  operators?: Record<string, QueryOperator>;
 }
 
 export interface SortConfig {
@@ -89,17 +77,17 @@ interface BasePaginatedListProps {
 
 // PaginatedList only accepts metadata directly - no URL fetching
 export interface PaginatedListProps extends BasePaginatedListProps {
-  metadata: PaginatedListMetadata | ApiMetadata;
+  metadata: QueryMetadata;
 }
 
 export interface HeaderComponentProps {
-  metadata: PaginatedListMetadata;
+  metadata: QueryMetadata;
   sort?: SortConfig;
   onSort?: (sort: SortConfig) => void;
 }
 
 export interface RowComponentProps {
-  metadata: PaginatedListMetadata;
+  metadata: QueryMetadata;
   data: Record<string, any>;
   index: number;
 }
