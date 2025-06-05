@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useEffect, useState } from 'react';
-import '../../lib/api'; // Import to ensure APIManager is initialized
-import type { QueryMetadata } from '../paginate/types';
+import { useState } from 'react';
+import type { QueryMetadata } from '../data-table/types';
 import QueryBuilder from './QueryBuilder';
-import { FrontendQuery } from './types';
+import { QueryBuilderState, toResourceQuery } from './types';
 
 // Mock metadata with composite operators for demonstration
 const mockMetadataWithCompositeOperators: QueryMetadata = {
@@ -185,7 +184,15 @@ const meta: Meta<typeof QueryBuilder> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A visual query builder that generates FrontendQuery objects from API metadata. Allows users to build complex queries through a visual interface.',
+        component: `A visual query builder that provides a unified interface for building complex database queries.
+
+Features configurable section visibility, allowing you to show/hide:
+- Field selection
+- Sort rules 
+- Filter rules (including complex AND/OR groups)
+- Query display
+
+Operates on QueryBuilderState internally and can be converted to ResourceQuery objects for backend APIs.`,
       },
     },
   },
@@ -195,40 +202,57 @@ const meta: Meta<typeof QueryBuilder> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Basic QueryBuilder with User metadata
-export const UsersQuery: Story = {
+// Basic QueryBuilder
+export const BasicQueryBuilder: Story = {
   render: () => {
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
-    const [executedQuery, setExecutedQuery] = useState<FrontendQuery | null>(null);
+    const [currentState, setCurrentState] = useState<QueryBuilderState>({
+      selectedFields: [],
+      sortRules: [],
+      filterRules: []
+    });
+    const [executedState, setExecutedState] = useState<QueryBuilderState | null>(null);
 
     return (
       <div className="space-y-6">
         <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
-          <strong>🔧 Visual Query Builder:</strong> This example fetches user metadata from your backend server and provides a visual interface to build queries. 
-          Make sure your server is running on <code>http://localhost:8000</code>.
+          <strong>🔧 Visual Query Builder:</strong> This example demonstrates the visual interface for building queries with field selection, sorting, and filters.
         </div>
         
         <QueryBuilder
-          metadataApi="idm:user"
+          metadata={mockMetadataWithCompositeOperators}
           title="User Query Builder"
-          onQueryChange={setCurrentQuery}
-          onExecute={setExecutedQuery}
+          onQueryChange={setCurrentState}
+          onExecute={setExecutedState}
         />
 
-        {/* Display current and executed queries */}
+        {/* Display current and executed states */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="border rounded p-4">
-            <h3 className="font-medium mb-2">Current Query</h3>
+            <h3 className="font-medium mb-2">Current State</h3>
             <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-              {currentQuery ? JSON.stringify(currentQuery, null, 2) : 'No query built yet'}
+              {JSON.stringify(currentState, null, 2)}
+            </pre>
+            
+            <h4 className="font-medium mt-3 mb-2">As ResourceQuery:</h4>
+            <pre className="text-xs bg-blue-50 p-2 rounded overflow-x-auto">
+              {JSON.stringify(toResourceQuery(currentState), null, 2)}
             </pre>
           </div>
           
           <div className="border rounded p-4">
-            <h3 className="font-medium mb-2">Last Executed Query</h3>
+            <h3 className="font-medium mb-2">Last Executed State</h3>
             <pre className="text-xs bg-green-100 p-2 rounded overflow-x-auto">
-              {executedQuery ? JSON.stringify(executedQuery, null, 2) : 'No query executed yet'}
+              {executedState ? JSON.stringify(executedState, null, 2) : 'No query executed yet'}
             </pre>
+            
+            {executedState && (
+              <>
+                <h4 className="font-medium mt-3 mb-2">As ResourceQuery:</h4>
+                <pre className="text-xs bg-green-50 p-2 rounded overflow-x-auto">
+                  {JSON.stringify(toResourceQuery(executedState), null, 2)}
+                </pre>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -236,64 +260,43 @@ export const UsersQuery: Story = {
   },
 };
 
-// QueryBuilder with Organization metadata
-export const OrganizationsQuery: Story = {
+// QueryBuilder with initial state
+export const WithInitialState: Story = {
   render: () => {
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
-
-    return (
-      <div className="space-y-6">
-        <div className="p-3 bg-purple-50 border border-purple-200 rounded text-sm">
-          <strong>🏢 Organization Query Builder:</strong> Build queries for organization data using the organization metadata endpoint.
-        </div>
-        
-        <QueryBuilder
-          metadataApi="idm:organization"
-          title="Build Organization Query"
-          onQueryChange={setCurrentQuery}
-        />
-
-        <div className="border rounded p-4">
-          <h3 className="font-medium mb-2">Generated Query</h3>
-          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-            {currentQuery ? JSON.stringify(currentQuery, null, 2) : 'No query built yet'}
-          </pre>
-        </div>
-      </div>
-    );
-  },
-};
-
-// QueryBuilder with initial query
-export const WithInitialQuery: Story = {
-  render: () => {
-    const initialQuery: Partial<FrontendQuery> = {
-      limit: 25,
-      page: 1,
-      select: ['_id', 'name__family', 'name__given', 'email'],
-      sort: ['name__family:asc', 'name__given:asc'],
-      query: 'name__family:ilike:Smith'
+    const initialState: Partial<QueryBuilderState> = {
+      selectedFields: ['name__family', 'email'],
+      sortRules: [{ field: 'name__family', direction: 'asc' }],
+      filterRules: [{
+        id: 'filter-1',
+        type: 'field',
+        field: 'name__family',
+        operator: 'ilike',
+        value: 'Smith'
+      }]
     };
 
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
+    const [state, setState] = useState<QueryBuilderState | null>(null);
 
     return (
       <div className="space-y-6">
-        <div className="p-3 bg-orange-50 border border-orange-200 rounded text-sm">
-          <strong>⚡ Pre-configured Query:</strong> This example starts with a predefined query that selects specific fields, sorts by name, and filters for family names containing "Smith".
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+          <strong>🔄 Initial State:</strong> This example starts with predefined field selection, sorting, and filters.
         </div>
         
         <QueryBuilder
-          metadataApi="idm:user"
-          title="Pre-configured User Query"
-          initialQuery={initialQuery}
-          onQueryChange={setCurrentQuery}
+          metadata={mockMetadataWithCompositeOperators}
+          initialQuery={initialState}
+          onQueryChange={setState}
+          title="Query Builder with Initial State"
+          showFieldSelection
+          showSortRules
+          showFilterRules
         />
 
         <div className="border rounded p-4">
-          <h3 className="font-medium mb-2">Current Query State</h3>
+          <h3 className="font-medium mb-2">Current State</h3>
           <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-            {currentQuery ? JSON.stringify(currentQuery, null, 2) : JSON.stringify(initialQuery, null, 2)}
+            {state ? JSON.stringify(state, null, 2) : 'No changes yet'}
           </pre>
         </div>
       </div>
@@ -304,7 +307,7 @@ export const WithInitialQuery: Story = {
 // Compact QueryBuilder
 export const CompactMode: Story = {
   render: () => {
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
+    const [currentState, setCurrentState] = useState<QueryBuilderState | null>(null);
 
     return (
       <div className="space-y-6">
@@ -314,17 +317,17 @@ export const CompactMode: Story = {
         
         <div className="max-w-4xl">
           <QueryBuilder
-            metadataApi="idm:user"
+            metadata={mockMetadataWithCompositeOperators}
             title="Compact User Query Builder"
-            onQueryChange={setCurrentQuery}
+            onQueryChange={setCurrentState}
             className="max-w-none"
           />
         </div>
 
         <div className="border rounded p-4">
-          <h3 className="font-medium mb-2">Query Output</h3>
+          <h3 className="font-medium mb-2">State Output</h3>
           <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-            {currentQuery ? JSON.stringify(currentQuery, null, 2) : 'Build a query above'}
+            {currentState ? JSON.stringify(currentState, null, 2) : 'Build a query above'}
           </pre>
         </div>
       </div>
@@ -335,42 +338,35 @@ export const CompactMode: Story = {
 // QueryBuilder integrated with live data execution
 export const WithLiveDataExecution: Story = {
   render: () => {
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const executeQuery = async (query: FrontendQuery) => {
+    const executeQuery = async (state: QueryBuilderState) => {
       setIsLoading(true);
       setError(null);
       setData(null);
-
+      
       try {
-        // Build query parameters
-        const params = new URLSearchParams({
-          page: query.page.toString(),
-          limit: query.limit.toString(),
-        });
-
-        if (query.select?.length) {
-          params.set('select', query.select.join(','));
-        }
-        if (query.sort?.length) {
-          params.set('sort', query.sort.join(','));
-        }
-        if (query.query) {
-          params.set('query', query.query);
-        }
-
-        const response = await fetch(`/api/idm.user/?${params.toString()}`);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        setData(result);
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Convert to ResourceQuery for API
+        const resourceQuery = toResourceQuery(state);
+        
+        // Mock data response based on query
+        const mockResponse = {
+          query: resourceQuery,
+          results: [
+            { _id: '1', name__family: 'Smith', email: 'john@example.com' },
+            { _id: '2', name__family: 'Johnson', email: 'jane@example.com' },
+          ],
+          total: 2,
+        };
+        
+        setData(mockResponse);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setIsLoading(false);
       }
@@ -379,13 +375,12 @@ export const WithLiveDataExecution: Story = {
     return (
       <div className="space-y-6">
         <div className="p-3 bg-red-50 border border-red-200 rounded text-sm">
-          <strong>🚀 Live Data Execution:</strong> Build a query and execute it against real data. The results will be displayed below.
+          <strong>🚀 Live Data Execution:</strong> Build a query and execute it against mock data. The results will be displayed below.
         </div>
         
         <QueryBuilder
-          metadataApi="idm:user"
+          metadata={mockMetadataWithCompositeOperators}
           title="Query Builder with Live Execution"
-          onQueryChange={setCurrentQuery}
           onExecute={executeQuery}
         />
 
@@ -443,39 +438,38 @@ export const WithLiveDataExecution: Story = {
 // Minimal QueryBuilder for simple field selection
 export const FieldSelectionOnly: Story = {
   render: () => {
-    const simpleQuery: Partial<FrontendQuery> = {
-      limit: 10,
-      page: 1,
+    const simpleState: Partial<QueryBuilderState> = {
+      selectedFields: ['_id', 'name__family'],
     };
 
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
+    const [currentState, setCurrentState] = useState<QueryBuilderState | null>(null);
 
     return (
       <div className="space-y-6">
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm">
-          <strong>🎯 Field Selection Focus:</strong> A simplified example focusing on field selection. 
-          Perfect for scenarios where you just need to control which fields are returned.
+        <div className="p-3 bg-green-50 border border-green-200 rounded text-sm">
+          <strong>🎯 Field Selection Only:</strong> This mode only shows field selection, hiding all other sections.
         </div>
         
         <QueryBuilder
-          metadataApi="idm:user"
-          title="Field Selection Query Builder"
-          initialQuery={simpleQuery}
-          onQueryChange={setCurrentQuery}
+          metadata={mockMetadataWithCompositeOperators}
+          initialQuery={simpleState}
+          title="Field Selection Only"
+          onQueryChange={setCurrentState}
+          showFieldSelection={true}
+          showSortRules={false}
+          showFilterRules={false}
+          showQueryDisplay={true}
+          className="max-w-2xl"
         />
-
-        <div className="border rounded p-4">
-          <h3 className="font-medium mb-2">Field Selection Query</h3>
-          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-            {currentQuery ? JSON.stringify(currentQuery, null, 2) : 'Select fields above'}
-          </pre>
-          
-          {currentQuery?.select && currentQuery.select.length > 0 && (
-            <div className="mt-3 p-2 bg-green-50 rounded text-sm">
-              <strong>Selected Fields:</strong> Only these fields will be returned: {currentQuery.select.join(', ')}
-            </div>
-          )}
-        </div>
+        
+        {currentState && (
+          <div className="mt-4 p-3 bg-gray-50 border rounded max-w-2xl">
+            <div className="text-sm font-medium mb-2">Generated State:</div>
+            <pre className="text-xs text-gray-600 overflow-auto">
+              {JSON.stringify(currentState, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     );
   },
@@ -484,28 +478,7 @@ export const FieldSelectionOnly: Story = {
 // Composite Operators (AND/OR Groups) Demonstration
 export const CompositeOperators: Story = {
   render: () => {
-    const [currentQuery, setCurrentQuery] = useState<FrontendQuery | null>(null);
-
-    // Mock the APIManager for this demo
-    useEffect(() => {
-      const originalQueryMeta = (window as any).APIManager?.queryMeta;
-      
-      // Mock the queryMeta call for composite operators demo
-      if ((window as any).APIManager) {
-        (window as any).APIManager.queryMeta = async (apiName: string) => {
-          if (apiName === 'demo:composite') {
-            return { data: mockMetadataWithCompositeOperators };
-          }
-          return originalQueryMeta ? originalQueryMeta(apiName) : Promise.reject('API not found');
-        };
-      }
-
-      return () => {
-        if ((window as any).APIManager && originalQueryMeta) {
-          (window as any).APIManager.queryMeta = originalQueryMeta;
-        }
-      };
-    }, []);
+    const [currentState, setCurrentState] = useState<QueryBuilderState | null>(null);
 
     return (
       <div className="space-y-6">
@@ -515,15 +488,15 @@ export const CompositeOperators: Story = {
         </div>
         
         <QueryBuilder
-          metadataApi="demo:composite"
+          metadata={mockMetadataWithCompositeOperators}
           title="Advanced Query Builder with Composite Operators"
-          onQueryChange={setCurrentQuery}
+          onQueryChange={setCurrentState}
         />
 
         <div className="border rounded p-4">
           <h3 className="font-medium mb-2">Generated Query Structure</h3>
           <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-            {currentQuery ? JSON.stringify(currentQuery, null, 2) : 'No query built yet'}
+            {currentState ? JSON.stringify(currentState, null, 2) : 'No query built yet'}
           </pre>
           
           <div className="mt-3 text-sm text-gray-600">
@@ -550,6 +523,68 @@ export const CompositeOperators: Story = {
             <p>Any condition can be true. Use for inclusive filtering.</p>
             <code className="text-xs bg-green-50 p-1 rounded">name = "Smith" OR name = "Jones"</code>
           </div>
+        </div>
+      </div>
+    );
+  },
+};
+
+// QueryBuilder with direct metadata
+export const WithDirectMetadata: Story = {
+  render: () => {
+    const [currentState, setCurrentState] = useState<QueryBuilderState | null>(null);
+
+    return (
+      <div className="space-y-6">
+        <div className="p-3 bg-green-50 border border-green-200 rounded text-sm">
+          <strong>📋 Direct Metadata Mode:</strong> This example uses metadata provided directly to the component, 
+          perfect for embedded use cases where metadata is already available.
+        </div>
+        
+        <QueryBuilder
+          metadata={mockMetadataWithCompositeOperators}
+          title="Query Builder with Direct Metadata"
+          onQueryChange={setCurrentState}
+        />
+
+        <div className="border rounded p-4">
+          <h3 className="font-medium mb-2">Generated State</h3>
+          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+            {currentState ? JSON.stringify(currentState, null, 2) : 'No query built yet'}
+          </pre>
+        </div>
+      </div>
+    );
+  },
+};
+
+// QueryBuilder with custom section visibility
+export const CustomSectionVisibility: Story = {
+  render: () => {
+    const [currentState, setCurrentState] = useState<QueryBuilderState | null>(null);
+
+    return (
+      <div className="space-y-6">
+        <div className="p-3 bg-purple-50 border border-purple-200 rounded text-sm">
+          <strong>🎛️ Custom Configuration:</strong> This example shows the flexible section visibility controls.
+          Only filters are enabled, hiding field selection and sorting.
+        </div>
+        
+        <QueryBuilder
+          metadata={mockMetadataWithCompositeOperators}
+          title="Filters Only"
+          onQueryChange={setCurrentState}
+          showFieldSelection={false}
+          showSortRules={false}
+          showFilterRules={true}
+          className="max-w-4xl"
+        />
+
+        <div className="border rounded p-4">
+          <h3 className="font-medium mb-2">Filter State Output</h3>
+          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+            {currentState ? JSON.stringify(currentState, null, 2) : 'No filters applied yet'}
+          </pre>
         </div>
       </div>
     );

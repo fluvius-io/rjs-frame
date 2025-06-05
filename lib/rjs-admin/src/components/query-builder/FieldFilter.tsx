@@ -1,20 +1,29 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ChevronDownIcon, Cross2Icon, ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import React, { useCallback } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { cn } from '../../lib/utils';
 import { FieldValueInput } from './FieldValueInput';
 import { FieldFilterProps } from './types';
 import { getOperatorsForField } from './utils';
 
-const FieldFilter: React.FC<FieldFilterProps> = ({
+const FieldFilter = memo<FieldFilterProps>(({
   metadata,
   filter,
   onFilterChange,
   onRemove,
 }) => {
-  const updateFilter = useCallback((updates: Partial<typeof filter>) => {
-    onFilterChange({ ...filter, ...updates });
+  // Use refs to capture latest values without causing re-renders
+  const filterRef = useRef(filter);
+  const onFilterChangeRef = useRef(onFilterChange);
+  
+  useEffect(() => {
+    filterRef.current = filter;
+    onFilterChangeRef.current = onFilterChange;
   }, [filter, onFilterChange]);
+
+  const updateFilter = useCallback((updates: Partial<typeof filter>) => {
+    onFilterChangeRef.current({ ...filterRef.current, ...updates });
+  }, []);
 
   const operatorKey = `${filter.field}:${filter.operator}`;
   const operatorLabel = metadata.fields[filter.field]?.label || filter.operator;
@@ -24,14 +33,12 @@ const FieldFilter: React.FC<FieldFilterProps> = ({
   return (
     <div
       className={cn(
-        "p-2", filter.negate ? "bg-red-50" : ""
+        filter.negate ? "bg-red-50" : ""
       )}
     >
       <div>
-        <label className="block text-xs text-gray-600 mb-1">
-          {operatorLabel} <span className="text-xs text-gray-500">({filter.field})</span>
-        </label>
         <div className="flex items-center gap-2">
+          <div className="flex-col" style={{minWidth: '120px'}}>{operatorLabel}</div>
           {/* Operator selection dropdown */}
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
@@ -93,6 +100,8 @@ const FieldFilter: React.FC<FieldFilterProps> = ({
       </div>
     </div>
   );
-};
+});
+
+FieldFilter.displayName = 'FieldFilter';
 
 export default FieldFilter; 

@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ChevronDownIcon, PlusIcon } from '@radix-ui/react-icons';
-import React, { useCallback } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../common/Button';
 import CompositeFilterGroup from './CompositeFilterGroup';
 import FieldFilter from './FieldFilter';
@@ -8,13 +8,13 @@ import { CompositeFilterRule, FieldFilterRule, FilterBuilderProps, FilterRule } 
 import { generateFilterId, getAvailableFields, getOperatorsForField } from './utils';
 
 // Reusable Add Filter Dropdown Component using Radix UI
-const AddFilterDropdown: React.FC<{
+const AddFilterDropdown = memo<{
   metadata: any;
   onAddFilter: (fieldName: string) => void;
   onAddGroup?: (operator: ':and' | ':or') => void;
   disabled?: boolean;
   showGroupOptions?: boolean;
-}> = ({ metadata, onAddFilter, onAddGroup, disabled = false, showGroupOptions = false }) => {
+}>(({ metadata, onAddFilter, onAddGroup, disabled = false, showGroupOptions = false }) => {
   const availableFields = getAvailableFields(metadata);
 
   if (availableFields.length === 0) {
@@ -29,7 +29,7 @@ const AddFilterDropdown: React.FC<{
           className="inline-flex items-center gap-2 px-3 py-1 text-sm border rounded bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           <PlusIcon className="w-3 h-3" />
-          Add Filter
+          Add Condition
           <ChevronDownIcon className="w-3 h-3" />
         </button>
       </DropdownMenu.Trigger>
@@ -76,9 +76,11 @@ const AddFilterDropdown: React.FC<{
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
-};
+});
 
-const FilterBuilder: React.FC<FilterBuilderProps> = ({
+AddFilterDropdown.displayName = 'AddFilterDropdown';
+
+const FilterBuilder = memo<FilterBuilderProps>(({
   metadata,
   filterRules,
   onFilterRulesChange,
@@ -86,11 +88,14 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
   const availableFields = getAvailableFields(metadata);
   const hasCompositeOperators = metadata.operators && Object.values(metadata.operators).some((param: any) => param.field_name === "");
 
-  // No longer auto-create root AND group - display filters as simple list
+  // Use a ref to always get the latest filterRules
+  const filterRulesRef = useRef(filterRules);
+  useEffect(() => {
+    filterRulesRef.current = filterRules;
+  }, [filterRules]);
 
   const addFieldFilter = useCallback((fieldName: string) => {
     const availableOperators = getOperatorsForField(fieldName, metadata);
-    
     const newRule: FieldFilterRule = {
       id: generateFilterId(),
       type: 'field',
@@ -99,10 +104,8 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
       value: '',
       negate: false,
     };
-    
-    // Always add as a simple filter at the top level
-    onFilterRulesChange([...filterRules, newRule]);
-  }, [metadata, filterRules, onFilterRulesChange]);
+    onFilterRulesChange([...filterRulesRef.current, newRule]);
+  }, [onFilterRulesChange, metadata]);
 
   const addCompositeGroup = useCallback((operator: ':and' | ':or') => {
     const newGroup: CompositeFilterRule = {
@@ -112,21 +115,19 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
       children: [],
       negate: false,
     };
-
-    // Add composite group at the top level
-    onFilterRulesChange([...filterRules, newGroup]);
-  }, [filterRules, onFilterRulesChange]);
+    onFilterRulesChange([...filterRulesRef.current, newGroup]);
+  }, [onFilterRulesChange]);
 
   const updateFilter = useCallback((index: number, updatedFilter: FilterRule) => {
-    const newRules = [...filterRules];
+    const newRules = [...filterRulesRef.current];
     newRules[index] = updatedFilter;
     onFilterRulesChange(newRules);
-  }, [filterRules, onFilterRulesChange]);
+  }, [onFilterRulesChange]);
 
   const removeFilter = useCallback((index: number) => {
-    const newRules = filterRules.filter((_, i) => i !== index);
+    const newRules = filterRulesRef.current.filter((_, i) => i !== index);
     onFilterRulesChange(newRules);
-  }, [filterRules, onFilterRulesChange]);
+  }, [onFilterRulesChange]);
 
   const clearAllFilters = useCallback(() => {
     onFilterRulesChange([]);
@@ -136,15 +137,13 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
   const hasFilters = filterRules.length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Filter Rules</h3>
+        <h3 className="font-medium">Filter Rules</h3>
         <div className="flex gap-2">
-          {hasFilters && (
-            <Button variant="outline" size="sm" onClick={clearAllFilters}>
+           <Button variant="outline" disabled={!hasFilters} size="sm" onClick={clearAllFilters}>
               Clear All
             </Button>
-          )}
           <AddFilterDropdown
             metadata={metadata}
             onAddFilter={addFieldFilter}
@@ -154,7 +153,7 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
           />
         </div>
       </div>
-      <div className="border rounded-md">
+      <div className="border rounded-md p-3 space-y-4">
 
       {availableFields.length === 0 && (
         <div className="p-2 text-sm text-gray-500 italic">
@@ -192,7 +191,9 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
       </div>
     </div>
   );
-};
+});
+
+FilterBuilder.displayName = 'FilterBuilder';
 
 export { AddFilterDropdown };
 export default FilterBuilder; 

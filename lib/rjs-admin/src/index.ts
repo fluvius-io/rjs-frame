@@ -13,22 +13,22 @@ export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 // Form Components
 export { Input } from './components/form/Input';
 
-// Pagination Components
+// Data Table Components
 export {
-    HeaderComponent, PaginatedList, PaginationControls, RowComponent
-} from './components/paginate';
+    DataTable, HeaderComponent, PaginationControls, ResourceDataTable, RowComponent
+} from './components/data-table';
 
 export type {
-    FieldMetadata, FilterConfig, HeaderComponentProps, PaginatedListProps, PaginationConfig, PaginationControlsProps, RowComponentProps, SortConfig
-} from './components/paginate';
+    DataTableProps, FieldMetadata, FilterConfig, HeaderComponentProps, PaginationConfig, PaginationControlsProps, RowComponentProps, SortConfig
+} from './components/data-table';
 
 // Query Builder Components
 export {
-    FieldSelector, QueryBuilder, QueryDisplay, SortBuilder
+    FieldSelector, QueryBuilder, QueryBuilderModal, SortBuilder
 } from './components/query-builder';
 
 export type {
-    FieldSelectorProps, FilterBuilderProps, FilterRule, FrontendQuery, QueryBuilderProps, QueryBuilderState, QueryDisplayProps, SortBuilderProps, SortRule
+    FieldSelectorProps, FilterBuilderProps, FilterRule, QueryBuilderModalProps, QueryBuilderProps, QueryBuilderState, ResourceQuery, SortBuilderProps, SortRule
 } from './components/query-builder';
 
 // Utilities

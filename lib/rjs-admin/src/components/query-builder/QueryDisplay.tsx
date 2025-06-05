@@ -73,14 +73,6 @@ const QueryDisplay: React.FC<QueryDisplayProps> = ({
           <div className="border rounded p-4 bg-blue-50">
             <h4 className="text-sm font-medium mb-2">Query Summary</h4>
             <div className="space-y-2 text-sm">
-              <div>
-                <span className="text-gray-600">Page:</span>{' '}
-                <span className="font-mono">{query.page}</span>
-                <span className="text-gray-600 mx-2">•</span>
-                <span className="text-gray-600">Limit:</span>{' '}
-                <span className="font-mono">{query.limit}</span>
-              </div>
-              
               {query.select && query.select.length > 0 && (
                 <div>
                   <span className="text-green-700 font-medium">Include Fields:</span>{' '}

@@ -1,15 +1,10 @@
+export { default as CompositeFilterGroup } from './CompositeFilterGroup';
+export { default as FieldFilter } from './FieldFilter';
 export { default as FieldSelector } from './FieldSelector';
-export { default as FieldValueInput } from './FieldValueInput';
-export { default as MetadataQueryBuilder } from './MetadataQueryBuilder';
+export { AddFilterDropdown, default as FilterBuilder } from './FilterBuilder';
 export { default as QueryBuilder } from './QueryBuilder';
-export { default as QueryDisplay } from './QueryDisplay';
+export { default as QueryBuilderModal } from './QueryBuilderModal';
 export { default as SortBuilder } from './SortBuilder';
-
-// Internal components (not exported)
-// - FilterBuilder
-// - CompositeFilterGroup  
-// - FieldFilter
-
 export * from './types';
 export * from './utils';
 

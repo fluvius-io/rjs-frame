@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import React, { useCallback } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { cn } from '../../lib/utils';
 import { Button } from '../common/Button';
 import FieldFilter from './FieldFilter';
@@ -7,7 +7,7 @@ import { AddFilterDropdown } from './FilterBuilder';
 import { CompositeFilterGroupProps, CompositeFilterRule, FieldFilterRule, FilterRule } from './types';
 import { generateFilterId, getAvailableFields, getOperatorsForField } from './utils';
 
-const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
+const CompositeFilterGroup = memo<CompositeFilterGroupProps>(({
   metadata,
   filter,
   onFilterChange,
@@ -18,6 +18,15 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
   const maxDepth = 5; // Prevent infinite nesting
   const availableFields = getAvailableFields(metadata);
   const hasCompositeOperators = metadata.operators && Object.values(metadata.operators).some((param: any) => param.field_name === "");
+
+  // Use refs to capture latest values without causing re-renders
+  const filterRef = useRef(filter);
+  const onFilterChangeRef = useRef(onFilterChange);
+  
+  useEffect(() => {
+    filterRef.current = filter;
+    onFilterChangeRef.current = onFilterChange;
+  }, [filter, onFilterChange]);
 
   const addFieldFilter = useCallback((fieldName: string) => {
     const availableOperators = getOperatorsForField(fieldName, metadata);
@@ -31,11 +40,11 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
       negate: false,
     };
     
-    onFilterChange({
-      ...filter,
-      children: [...filter.children, newFilter],
+    onFilterChangeRef.current({
+      ...filterRef.current,
+      children: [...filterRef.current.children, newFilter],
     });
-  }, [metadata, filter, onFilterChange]);
+  }, [metadata]);
 
   const addCompositeFilter = useCallback((operator: ':and' | ':or') => {
     const newFilter: CompositeFilterRule = {
@@ -46,42 +55,42 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
       negate: false,
     };
     
-    onFilterChange({
-      ...filter,
-      children: [...filter.children, newFilter],
+    onFilterChangeRef.current({
+      ...filterRef.current,
+      children: [...filterRef.current.children, newFilter],
     });
-  }, [filter, onFilterChange]);
+  }, []);
 
   const updateChild = useCallback((index: number, updatedChild: FilterRule) => {
-    const newChildren = [...filter.children];
+    const newChildren = [...filterRef.current.children];
     newChildren[index] = updatedChild;
-    onFilterChange({
-      ...filter,
+    onFilterChangeRef.current({
+      ...filterRef.current,
       children: newChildren,
     });
-  }, [filter, onFilterChange]);
+  }, []);
 
   const removeChild = useCallback((index: number) => {
-    const newChildren = filter.children.filter((_, i) => i !== index);
-    onFilterChange({
-      ...filter,
+    const newChildren = filterRef.current.children.filter((_, i) => i !== index);
+    onFilterChangeRef.current({
+      ...filterRef.current,
       children: newChildren,
     });
-  }, [filter, onFilterChange]);
+  }, []);
 
   const toggleNegate = useCallback(() => {
-    onFilterChange({
-      ...filter,
-      negate: !filter.negate,
+    onFilterChangeRef.current({
+      ...filterRef.current,
+      negate: !filterRef.current.negate,
     });
-  }, [filter, onFilterChange]);
+  }, []);
 
   const changeOperator = useCallback((newOperator: ':and' | ':or') => {
-    onFilterChange({
-      ...filter,
+    onFilterChangeRef.current({
+      ...filterRef.current,
       operator: newOperator,
     });
-  }, [filter, onFilterChange]);
+  }, []);
 
   const operatorDisplay = filter.operator === ':and' ? 'AND' : 'OR';
   const alternateOperator = filter.operator === ':and' ? ':or' : ':and';
@@ -90,13 +99,9 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
   return (
     <div
       className={cn(
-        "p-3 border-b border-t", filter.negate ? "bg-red-50" : "bg-gray-100",
+        filter.negate ? "bg-red-50" : "",
         depth > 0 && "ml-4"
       )}
-      style={{
-        marginTop: "-1px",
-        marginBottom: "-1px",
-      }}
     >
       {/* Header with operator and controls */}
       <div className="flex items-center justify-between gap-2 pb-2">
@@ -159,7 +164,7 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
       </div>
 
       {/* Children */}
-      <div className="space-y-2 rounded-md border">
+      <div className="space-y-2 rounded-md border bg-gray-100 p-3">
         {filter.children.length === 0 && (
           <div className="text-sm text-gray-500 italic text-center py-2">
             This group is empty. Add some filters below.
@@ -193,6 +198,8 @@ const CompositeFilterGroup: React.FC<CompositeFilterGroupProps> = ({
 
     </div>
   );
-};
+});
+
+CompositeFilterGroup.displayName = 'CompositeFilterGroup';
 
 export default CompositeFilterGroup; 

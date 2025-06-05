@@ -1,6 +1,6 @@
 # Query Builder Components
 
-The Query Builder provides a complete visual interface for building complex database queries with field selection, sorting, filtering, and pagination.
+The Query Builder provides a complete visual interface for building complex database queries with field selection, sorting, and filtering.
 
 ## Main Component
 
@@ -12,24 +12,25 @@ The primary component that provides the complete query building interface:
 import { QueryBuilder } from 'rjs-admin';
 
 function MyComponent() {
+  const [queryState, setQueryState] = useState<QueryBuilderState>();
+  
   return (
     <QueryBuilder
-      metadataApi="idm:user"
+      metadata={myMetadata}
       title="User Query Builder"
-      onQueryChange={(query) => console.log('Query changed:', query)}
-      onExecute={(query) => console.log('Execute query:', query)}
+      onQueryChange={setQueryState}
+      onExecute={(state) => console.log('Execute state:', state)}
     />
   );
 }
 ```
 
 **Features:**
-- 📊 **Field Selection**: Choose which fields to include/exclude in results
+- 📊 **Field Selection**: Choose which fields to include in results
 - 🔄 **Sorting**: Define multiple sort criteria with direction control
 - 🔍 **Advanced Filtering**: Build complex filters with AND/OR groups and nested conditions
-- 📄 **Pagination**: Control page size and current page
-- ⚡ **Real-time**: Live query generation and validation
-- 🎯 **Auto-detection**: Automatically adapts UI based on API capabilities
+- ⚡ **Real-time**: Live query state generation and validation
+- 🎯 **Auto-detection**: Automatically adapts UI based on metadata capabilities
 
 ## Component Architecture
 
@@ -40,8 +41,7 @@ QueryBuilder (main component)
 ├── FilterBuilder (internal - filtering logic)
 │   ├── CompositeFilterGroup (AND/OR groups)
 │   └── FieldFilter (individual field filters)
-├── QueryDisplay (generated query preview)
-└── Pagination controls
+└── QueryDisplay (query state preview)
 ```
 
 ## Props
@@ -50,28 +50,53 @@ QueryBuilder (main component)
 
 ```tsx
 interface QueryBuilderProps {
-  metadataApi: string;           // API endpoint for field metadata
-  initialQuery?: Partial<FrontendQuery>;  // Initial query state
-  onQueryChange?: (query: FrontendQuery) => void;  // Query change callback
-  onExecute?: (query: FrontendQuery) => void;      // Execute button callback
+  metadata: QueryMetadata;           // Field metadata (required)
+  initialQuery?: Partial<QueryBuilderState>;  // Initial state
+  onQueryChange?: (state: QueryBuilderState) => void;  // State change callback
+  onExecute?: (state: QueryBuilderState) => void;      // Execute button callback
   title?: string;                // Component title
   className?: string;            // Additional CSS classes
+  
+  // Section visibility controls
+  showFieldSelection?: boolean;  // Show/hide field selection (default: true)
+  showSortRules?: boolean;      // Show/hide sort rules (default: true)
+  showFilterRules?: boolean;    // Show/hide filter rules (default: true)
+  showQueryDisplay?: boolean;   // Show/hide query display (default: true)
 }
 ```
 
-## Query Structure
+## Query State Structure
 
-The component generates queries in this format:
+The component operates on `QueryBuilderState` internally:
 
 ```tsx
-interface FrontendQuery {
-  limit: number;           // Page size
-  page: number;           // Current page
-  select?: string[];      // Fields to include
-  deselect?: string[];    // Fields to exclude
-  sort?: string[];        // Sort criteria ['field:asc', 'field:desc']
-  query?: string;         // Filter query string
+interface QueryBuilderState {
+  selectedFields: string[];      // Fields to include
+  sortRules: SortRule[];        // Sort criteria
+  filterRules: FilterRule[];    // Filter conditions
 }
+
+interface SortRule {
+  field: string;
+  direction: 'asc' | 'desc';
+}
+
+interface FilterRule {
+  id: string;
+  type: 'field' | 'composite';
+  // ... additional properties based on type
+}
+```
+
+## Converting to Backend Format
+
+To convert `QueryBuilderState` to `ResourceQuery` for API calls:
+
+```tsx
+import { toResourceQuery } from 'rjs-admin';
+
+const resourceQuery = toResourceQuery(queryBuilderState);
+// Results in: { select?: string[], sort?: string[], query?: string }
 ```
 
 ## Filtering Capabilities
@@ -102,7 +127,7 @@ For APIs with `:and`/`:or` operators:
 }
 ```
 
-## API Metadata Requirements
+## Metadata Requirements
 
 The component expects metadata in this format:
 
@@ -113,8 +138,11 @@ interface QueryMetadata {
     sortable: boolean;
     hidden: boolean;
     identifier: boolean;
+    factory: string | null;
+    source: string | null;
   }>;
   operators: Record<string, {
+    index: number;
     field_name: string;
     operator: string;
     widget?: any;
@@ -129,44 +157,57 @@ interface QueryMetadata {
 ### Basic Usage
 ```tsx
 <QueryBuilder
-  metadataApi="idm:user"
-  onQueryChange={(query) => setCurrentQuery(query)}
+  metadata={myMetadata}
+  onQueryChange={(state) => setCurrentState(state)}
 />
 ```
 
-### With Initial Query
+### With Initial State
 ```tsx
 <QueryBuilder
-  metadataApi="idm:user"
+  metadata={myMetadata}
   initialQuery={{
-    limit: 25,
-    page: 1,
-    select: ['name', 'email'],
-    sort: ['name:asc']
+    selectedFields: ['name', 'email'],
+    sortRules: [{ field: 'name', direction: 'asc' }],
+    filterRules: []
   }}
-  onExecute={(query) => executeSearch(query)}
+  onExecute={(state) => executeSearch(state)}
+/>
+```
+
+### Section Visibility Control
+```tsx
+<QueryBuilder
+  metadata={myMetadata}
+  showFieldSelection={false}  // Hide field selection
+  showSortRules={true}       // Show sorting
+  showFilterRules={true}     // Show filters
+  showQueryDisplay={false}   // Hide raw state display
 />
 ```
 
 ### Integration with Data Table
 ```tsx
-function UserList() {
-  const [query, setQuery] = useState<FrontendQuery>();
+function MyDataTable() {
+  const [queryState, setQueryState] = useState<QueryBuilderState>();
   
+  const handleExecute = (state: QueryBuilderState) => {
+    const resourceQuery = toResourceQuery(state);
+    // Send resourceQuery to your API
+    fetchData(resourceQuery);
+  };
+
   return (
     <div>
       <QueryBuilder
-        metadataApi="idm:user"
-        onQueryChange={setQuery}
+        metadata={myMetadata}
+        onExecute={handleExecute}
       />
       
-      {query && (
-        <ApiPaginatedList
-          metadataApi="idm:user"
-          dataApi="idm:user"
-          initialQuery={query}
-        />
-      )}
+      <DataTable
+        data={data}
+        // ... other props
+      />
     </div>
   );
 }

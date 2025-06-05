@@ -99,9 +99,9 @@ const SortBuilder: React.FC<SortBuilderProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Sort Rules</h3>
+        <h3 className="text-lg font-medium">Sort Rules</h3>
         <div className="flex gap-2">
           {sortRules.length > 0 && (
             <Button variant="outline" size="sm" onClick={clearAllSorts}>
@@ -206,15 +206,15 @@ const SortBuilder: React.FC<SortBuilderProps> = ({
                 </div>
 
                 {/* Remove button */}
-                <div className="flex-1">
+                <div className="flex-col">
                   <label className="block text-xs text-gray-600 mb-1">Remove</label>
-                <button
-                  onClick={() => removeSortRule(index)}
-                  className="p-1 rounded border bg-gray-100 border-gray-300 text-gray-500 hover:bg-red-100 hover:border-red-300 hover:text-red-600"
-                  title="Remove sort rule"
-                >
-                  <Cross2Icon className="w-4 h-4" />
-                </button>
+                  <button
+                    onClick={() => removeSortRule(index)}
+                    className="p-1 rounded border bg-gray-100 border-gray-300 text-gray-500 hover:bg-red-100 hover:border-red-300 hover:text-red-600"
+                    title="Remove sort rule"
+                  >
+                    <Cross2Icon className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             );

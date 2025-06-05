@@ -32,9 +32,9 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Field Selection ({selectedFields.length})</h3>
+        <h3 className="text-lg font-medium">Field Selection ({selectedFields.length})</h3>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={selectAllFields}>
             Select All

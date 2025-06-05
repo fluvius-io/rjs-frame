@@ -1,14 +1,12 @@
-import { QueryMetadata } from '../paginate/types';
-import { FilterRule, FrontendQuery, QueryBuilderState } from './types';
+import { fetchJson } from '../../lib/api';
+import { QueryMetadata } from '../data-table/types';
+import { QueryBuilderState, ResourceQuery, buildQueryString, parseQueryString } from './types';
 
 /**
  * Transform UI state to backend query format
  */
-export function transformToBackendQuery(state: QueryBuilderState): FrontendQuery {
-  const query: FrontendQuery = {
-    limit: state.limit,
-    page: state.page,
-  };
+export function transformToBackendQuery(state: QueryBuilderState): ResourceQuery {
+  const query: ResourceQuery = {};
 
   // Add select fields if any are specified
   if (state.selectedFields.length > 0) {
@@ -32,12 +30,9 @@ export function transformToBackendQuery(state: QueryBuilderState): FrontendQuery
  * Transform backend query to UI state
  */
 export function transformFromBackendQuery(
-  query: Partial<FrontendQuery>, 
-  metadata: QueryMetadata
+  query: Partial<ResourceQuery>
 ): QueryBuilderState {
   const state: QueryBuilderState = {
-    limit: query.limit || 10,
-    page: query.page || 1,
     selectedFields: query.select || [],
     sortRules: [],
     filterRules: [],
@@ -45,7 +40,7 @@ export function transformFromBackendQuery(
 
   // Parse sort rules
   if (query.sort) {
-    state.sortRules = query.sort.map(sortStr => {
+    state.sortRules = query.sort.map((sortStr: string) => {
       const [field, direction] = sortStr.split(':');
       return {
         field,
@@ -56,92 +51,10 @@ export function transformFromBackendQuery(
 
   // Parse filter rules from query string
   if (query.query) {
-    state.filterRules = parseQueryString(query.query, metadata);
+    state.filterRules = parseQueryString(query.query);
   }
 
   return state;
-}
-
-/**
- * Build query string from filter rules
- * Groups filters by field_name and handles negation
- */
-export function buildQueryString(filterRules: FilterRule[]): string {
-  const queryParts: string[] = [];
-
-  filterRules.forEach(rule => {
-    // Only process field filters, skip composite filters for now
-    if (rule.type !== 'field') return;
-    if (!rule.value) return;
-
-    const separator = rule.negate ? '!' : ':';
-    const queryPart = `${rule.operator}${separator}${rule.value}`;
-    queryParts.push(queryPart);
-  });
-
-  return queryParts.join(' AND ');
-}
-
-/**
- * Parse query string into filter rules
- */
-export function parseQueryString(queryString: string, metadata: QueryMetadata): FilterRule[] {
-  const filterRules: FilterRule[] = [];
-  
-  // Split by AND/OR operators (simplified parsing)
-  const parts = queryString.split(/\s+(AND|OR)\s+/i);
-  
-  parts.forEach((part, index) => {
-    if (part.toUpperCase() === 'AND' || part.toUpperCase() === 'OR') return;
-    
-    // Parse individual filter: operator:value or operator!value
-    const negateMatch = part.match(/^(.+?)!(.+)$/);
-    const normalMatch = part.match(/^(.+?):(.+)$/);
-    
-    if (negateMatch) {
-      const [, operator, value] = negateMatch;
-      const field = extractFieldFromOperator(operator, metadata);
-      filterRules.push({
-        id: `filter_${index}`,
-        type: 'field',
-        field,
-        operator,
-        value,
-        negate: true,
-      });
-    } else if (normalMatch) {
-      const [, operator, value] = normalMatch;
-      const field = extractFieldFromOperator(operator, metadata);
-      filterRules.push({
-        id: `filter_${index}`,
-        type: 'field',
-        field,
-        operator,
-        value,
-        negate: false,
-      });
-    }
-  });
-
-  return filterRules;
-}
-
-/**
- * Extract field name from operator (e.g., "name__family:eq" -> "name__family")
- */
-function extractFieldFromOperator(operator: string, metadata: QueryMetadata): string {
-  // Check if the operator matches any field-based operators in metadata
-  if (metadata.operators) {
-    for (const [paramKey, paramMeta] of Object.entries(metadata.operators)) {
-      if (paramKey.includes(operator) && paramMeta.field_name) {
-        return paramMeta.field_name;
-      }
-    }
-  }
-  
-  // Fallback: assume the field is the first part before the last colon
-  const parts = operator.split(':');
-  return parts.length > 1 ? parts.slice(0, -1).join(':') : operator;
 }
 
 /**
@@ -178,4 +91,52 @@ export function getSortableFields(metadata: QueryMetadata): string[] {
   return Object.entries(metadata.fields)
     .filter(([, fieldMeta]) => fieldMeta.sortable && !fieldMeta.hidden)
     .map(([fieldName]) => fieldName);
+}
+
+/**
+ * Checks if metadata is in the correct QueryMetadata format
+ */
+export function isQueryMetadata(metadata: any): metadata is QueryMetadata {
+  return metadata && 
+    typeof metadata === 'object' && 
+    'operators' in metadata && 
+    'sortables' in metadata && 
+    'default_order' in metadata &&
+    metadata.fields &&
+    Object.values(metadata.fields).some((field: any) => 
+      'hidden' in field && 'identifier' in field
+    );
+}
+
+/**
+ * Fetches metadata from API endpoint
+ */
+export async function fetchMetadata(url: string): Promise<QueryMetadata> {
+  try {
+    const metadata = await fetchJson<QueryMetadata>(url);
+    
+    if (!isQueryMetadata(metadata)) {
+      throw new Error('Invalid metadata format received from API');
+    }
+    
+    return metadata;
+  } catch (error) {
+    console.error('Error fetching metadata:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets default sort configuration from QueryMetadata
+ */
+export function getDefaultSort(metadata: QueryMetadata): { field: string; direction: 'asc' | 'desc' } | undefined {
+  if (metadata.default_order && metadata.default_order.length > 0) {
+    const defaultOrder = metadata.default_order[0];
+    const [field, direction] = defaultOrder.split(':');
+    return {
+      field,
+      direction: direction === 'desc' ? 'desc' : 'asc'
+    };
+  }
+  return undefined;
 } 
