@@ -136,8 +136,11 @@ export class APICollection {
   ): Promise<ApiResponse<T>> {
     const queryConfig = this.getQueryConfig(queryName);
     const pathParams = { _id: itemId, ...(params?.path || {}) };
-    const itemUri = queryConfig.item || queryConfig.uri;
-    const uri = this.resolveUri(itemUri, { path: pathParams, ...params });
+    const itemUri = queryConfig.item || queryConfig.uri + "/{_id}";
+    const uri = this.resolveUri(itemUri, {
+      path: pathParams,
+      ...params,
+    });
     const headers = this.resolveHeaders(queryConfig.headers, params);
     const cache = params?.cache ?? false;
     const cacheKey = cache && this.generateMetadataCacheKey(uri, headers);
