@@ -47,7 +47,9 @@ export interface CommandConfig extends BaseApiConfig {
 // Query configuration
 export interface QueryConfig extends BaseApiConfig {
   meta?: UriGenerator;
+  item?: UriGenerator;
   response?: ResponseProcessor;
+  itemResponse?: ResponseProcessor;
 }
 
 // Socket configuration
@@ -125,6 +127,7 @@ export interface RTCConnection {
 
 // Utility types
 export type ApiParams = {
+  cached?: boolean;
   search?: Record<string, string>;   // url search parameters
   headers?: Record<string, string>;  // headers to be added to the request
   path?: Record<string, string>;     // path parameters to be used by the uri generator

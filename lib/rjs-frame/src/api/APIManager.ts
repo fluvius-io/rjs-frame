@@ -96,6 +96,26 @@ export class APICollection {
     }
   }
 
+  async queryItem<T = any>(
+    queryName: string,
+    itemId: string,
+    params?: ApiParams
+  ): Promise<ApiResponse<T>> {
+    const queryConfig = this.getQueryConfig(queryName);
+    const pathParams = {_id: itemId, ...(params?.path || {})};
+    const itemUri = queryConfig.item || queryConfig.uri;
+    const uri = this.resolveUri(itemUri, {path: pathParams, ...params});
+    const headers = this.resolveHeaders(queryConfig.headers, params);
+
+    try {
+      const response = await fetch(uri, {method: 'GET', headers});
+      const responseProcessor = queryConfig.itemResponse || queryConfig.response;
+      return await this.createResponse<T>(response, responseProcessor);
+    } catch (error) {
+      throw new ApiError(`Query '${queryName}' failed: ${error}`, undefined, error);
+    }
+  }
+
   /**
    * Get metadata for a query
    * @param queryName Name of the query from configuration
@@ -562,6 +582,13 @@ export class APIManager {
   static query<T = any>(apiName: string, params?: any) {
     const { collection, name } = this.parseApiName(apiName);
     return collection.query<T>(name, params);
+  }
+  /**
+   * Route query calls
+   */
+  static queryItem<T = any>(apiName: string, itemId: string, params?: any) {
+    const { collection, name } = this.parseApiName(apiName);
+    return collection.queryItem<T>(name, itemId, params);
   }
 
   /**
