@@ -1,9 +1,9 @@
 /**
- * APICollection Examples
- * Comprehensive examples demonstrating various APICollection features
+ * API Manager Examples and Demonstrations
+ * Comprehensive examples showing how to use the APIManager system
  */
 
-import { APICollection } from '../APIManager';
+import { APICollection } from '../APICollection';
 import { ApiCollectionConfig } from '../types';
 
 // Basic API configuration example

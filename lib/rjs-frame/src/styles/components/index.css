@@ -1,3 +1,4 @@
 /* Component Styles */
-@import './PageLayoutOptions.css';
-@import './PageParamsManager.css'; 
+@import "./EntityFormat.css";
+@import "./PageLayoutOptions.css";
+@import "./PageParamsManager.css";

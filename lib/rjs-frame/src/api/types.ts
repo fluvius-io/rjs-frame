@@ -4,20 +4,29 @@
  */
 
 // HTTP Methods
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
+export type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "OPTIONS"
+  | "HEAD";
 
 // Real-time communication types
-export type RTCTransport = 'mqtt' | 'websockets' | 'sse' | 'webrtc';
+export type RTCTransport = "mqtt" | "websockets" | "sse" | "webrtc";
 
 // URI Generator function type
 export type UriGenerator = string | ((params?: Record<string, any>) => string);
 
 // Data processor types
-export type DataProcessor<TInput = any, TOutput = any> = (data: TInput) => TOutput;
+export type DataProcessor<TInput = any, TOutput = any> = (
+  data: TInput
+) => TOutput;
 
 /**
  * Data Schema Configuration
- * 
+ *
  * Supports two patterns:
  * 1. Static object: Use the object as-is (merged with user data)
  * 2. Function: Validates and/or processes the input data
@@ -27,10 +36,15 @@ export type DataProcessor<TInput = any, TOutput = any> = (data: TInput) => TOutp
  */
 
 // Header generator type
-export type HeaderProcessor = (params?: Record<string, any>, headers?: Record<string, string>) => Record<string, string>;
+export type HeaderProcessor = (
+  params?: Record<string, any>,
+  headers?: Record<string, string>
+) => Record<string, string>;
 
 // Response processor type
-export type ResponseProcessor<TInput = any, TOutput = any> = (response: TInput) => TOutput;
+export type ResponseProcessor<TInput = any, TOutput = any> = (
+  response: TInput
+) => TOutput;
 
 // Base configuration interface
 interface BaseApiConfig {
@@ -85,31 +99,29 @@ export interface ApiResponse<T = any> {
   status: number;
   statusText: string;
   headers: Headers;
+  timestamp: number;
+  cache?: boolean;
 }
 
 // Error types
 export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-    public response?: any
-  ) {
+  constructor(message: string, public status?: number, public response?: any) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
 export class ValidationError extends Error {
   constructor(message: string, public field?: string) {
     super(message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
   }
 }
 
 export class ConfigurationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ConfigurationError';
+    this.name = "ConfigurationError";
   }
 }
 
@@ -127,10 +139,10 @@ export interface RTCConnection {
 
 // Utility types
 export type ApiParams = {
-  cached?: boolean;
-  search?: Record<string, string>;   // url search parameters
-  headers?: Record<string, string>;  // headers to be added to the request
-  path?: Record<string, string>;     // path parameters to be used by the uri generator
+  cache?: boolean;
+  search?: Record<string, string>; // url search parameters
+  headers?: Record<string, string>; // headers to be added to the request
+  path?: Record<string, string>; // path parameters to be used by the uri generator
 };
 
-export type ApiPayload = Record<string, any> | FormData | string; 
+export type ApiPayload = Record<string, any> | FormData | string;

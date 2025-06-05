@@ -1,0 +1,144 @@
+.entity-format {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.entity-format-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.loading-spinner {
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-spinner::after {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  border: 2px solid transparent;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.entity-format-error {
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #dc3545;
+  border-radius: 6px;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.error-message {
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.retry-button {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background-color: #c82333;
+}
+
+.entity-format-default {
+  padding: 0;
+}
+
+.entity-format-default h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.entity-data {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 16px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #495057;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.entity-format-empty {
+  padding: 40px;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .entity-format {
+    padding: 12px;
+  }
+
+  .entity-data {
+    font-size: 12px;
+    padding: 12px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .entity-format {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+  }
+
+  .entity-format-default h3 {
+    color: #e0e0e0;
+  }
+
+  .entity-data {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #e0e0e0;
+  }
+
+  .entity-format-empty {
+    background-color: #2d2d2d;
+    color: #a0a0a0;
+  }
+}

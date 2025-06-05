@@ -4,6 +4,7 @@
  */
 
 // Components
+export { EntityFormat } from './components/EntityFormat';
 export { PageLayout } from './components/PageLayout';
 export { PageLayoutOptions } from './components/PageLayoutOptions';
 export { PageModule, RoutingModule } from './components/PageModule';
@@ -22,12 +23,12 @@ export type { ConfigManagerOptions } from './config/ConfigManager';
 
 // API Management
 export {
-    APICollection, ApiError, APIManager, ConfigurationError,
+    APICollection, APIManager, ApiError, ConfigurationError,
     RTCConnectionFactory, SSEConnection, WebSocketConnection
 } from './api';
 
 export type {
-    ApiCollectionConfig, ApiParams, ApiPayload, ApiResponse, CommandConfig, DataProcessor, HeaderProcessor, HttpMethod, QueryConfig, RequestConfig, ResponseProcessor, RTCConnection, RTCTransport, SocketConfig, SubscriptionHandler,
+    ApiCollectionConfig, ApiParams, ApiPayload, ApiResponse, CommandConfig, DataProcessor, HeaderProcessor, HttpMethod, QueryConfig, RTCConnection, RTCTransport, RequestConfig, ResponseProcessor, SocketConfig, SubscriptionHandler,
     UnsubscribeFunction, UriGenerator
 } from './api';
 
@@ -38,8 +39,8 @@ export type {
 
 // Utils
 export {
-    buildPathFromPageState, buildUrlFragments, FRAGMENT_NAME_PATTERN, isValidFragmentName, parseBrowserLocation, parseSearchParams, parseUrl, parseUrlFragments, updateBrowserLocation,
-    updateBrowserTitle, URL_FRAGMENT_SEPARATOR
+    FRAGMENT_NAME_PATTERN, URL_FRAGMENT_SEPARATOR, buildPathFromPageState, buildUrlFragments, isValidFragmentName, parseBrowserLocation, parseSearchParams, parseUrl, parseUrlFragments, updateBrowserLocation,
+    updateBrowserTitle
 } from './utils/urlUtils';
 
 // Contexts
@@ -54,6 +55,7 @@ export type {
 } from './contexts/LayoutContexts';
 
 // Re-export types for convenience
+export type { EntityFormatProps } from './components/EntityFormat';
 export type { PageParamsManagerProps } from './components/PageParamsManager';
 export type { ParsedUrl } from './utils/urlUtils';
 

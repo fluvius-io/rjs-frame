@@ -3,15 +3,15 @@
  * Provides all API-related classes, types, and utilities
  */
 
-// Main API class
-export { APICollection, APIManager } from './APIManager';
+// Main API classes
+export { APICollection } from './APICollection';
+export { APIManager } from './APIManager';
 
 // Types and interfaces
 export type {
     ApiCollectionConfig, ApiParams, ApiPayload,
     ApiResponse, CommandConfig, DataProcessor, HeaderProcessor,
-    HttpMethod, QueryConfig, RequestConfig, ResponseProcessor,
-    RTCConnection, RTCTransport, SocketConfig, SubscriptionHandler, UnsubscribeFunction, UriGenerator
+    HttpMethod, QueryConfig, RTCConnection, RTCTransport, RequestConfig, ResponseProcessor, SocketConfig, SubscriptionHandler, UnsubscribeFunction, UriGenerator
 } from './types';
 
 // Error classes

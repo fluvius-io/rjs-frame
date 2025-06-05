@@ -85,7 +85,7 @@ export const fetchJson = async <T = any>(path: string, options?: RequestInit): P
 export const endpoints = {
   metadata: (entity: string) => `_meta/${entity}`,
   data: (entity: string) => `${entity}/`,
-  userMetadata: () => '_meta/idm.user',
+  userMetadata: () => '_meta/idm.user/',
   userData: () => 'idm.user/',
   organizationMetadata: () => '_meta/idm.organization/',
   organizationData: () => 'idm.organization/',
