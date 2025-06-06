@@ -56,4 +56,220 @@
   body {
     @apply bg-background text-foreground;
   }
-} 
+}
+
+@layer components {
+  /* EntityFormat semantic classes */
+  .entity-format {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm p-4;
+  }
+  .entity-format__loading {
+    @apply flex items-center justify-center min-h-[80px];
+  }
+  .entity-format__spinner {
+    @apply animate-spin text-muted-foreground;
+  }
+  .entity-format__error {
+    @apply bg-red-50 border border-red-200 rounded p-4 text-red-700;
+  }
+  .entity-format__error-message {
+    @apply mb-2 font-medium;
+  }
+  .entity-format__retry {
+    @apply px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200;
+  }
+  .entity-format__default {
+    @apply bg-gray-50 border rounded p-3;
+  }
+  .entity-format__title {
+    @apply text-lg font-semibold mb-2;
+  }
+  .entity-format__data {
+    @apply text-xs font-mono bg-gray-100 p-2 rounded;
+  }
+  .entity-format__empty {
+    @apply text-center text-muted-foreground py-4;
+  }
+
+  /* DataTable semantic classes */
+  .data-table {
+    @apply bg-background border rounded-lg shadow-sm;
+  }
+  .data-table--loading {
+    @apply opacity-60;
+  }
+  .data-table__loading-message {
+    @apply p-8 text-center;
+  }
+  .data-table__loading-text {
+    @apply text-sm text-muted-foreground;
+  }
+  .data-table__header {
+    @apply p-4 border-b;
+  }
+  .data-table__header-row {
+    @apply flex items-center justify-between mb-4;
+  }
+  .data-table__header-titles {
+    @apply flex flex-col;
+  }
+  .data-table__title {
+    @apply text-lg font-semibold;
+  }
+  .data-table__subtitle {
+    @apply text-sm text-muted-foreground;
+  }
+  .data-table__actions {
+    @apply flex items-center gap-2;
+  }
+  .data-table__search-filter-row {
+    @apply flex items-center gap-4;
+  }
+  .data-table__search {
+    @apply flex-1 max-w-sm;
+  }
+  .data-table__search-input {
+    @apply w-full px-3 py-2 text-sm border rounded-md bg-background;
+  }
+  .data-table__filters {
+    @apply flex items-center gap-2;
+  }
+  .data-table__filters-btn {
+    @apply inline-flex items-center gap-2 px-3 py-1 text-sm border rounded font-medium transition-colors;
+  }
+  .data-table__filters-btn--active {
+    @apply bg-blue-100 border-blue-300 text-blue-700;
+  }
+  .data-table__filters-btn--inactive {
+    @apply bg-white hover:bg-gray-50;
+  }
+  .data-table__filters-icon {
+    @apply w-4 h-4;
+  }
+  .data-table__filters-active {
+    @apply ml-1 px-1.5 py-0.5 bg-blue-200 text-blue-800 text-xs rounded-full;
+  }
+  .data-table__active-filters {
+    @apply mt-3 p-2 bg-blue-50 border border-blue-200 rounded-md;
+  }
+  .data-table__active-filters-row {
+    @apply flex items-center justify-between;
+  }
+  .data-table__active-filters-labels {
+    @apply flex items-center gap-2;
+  }
+  .data-table__active-filters-label {
+    @apply text-sm font-medium text-blue-700;
+  }
+  .data-table__active-filters-query {
+    @apply text-sm text-blue-600 font-mono;
+  }
+  .data-table__active-filters-clear {
+    @apply p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors;
+  }
+  .data-table__active-filters-icon {
+    @apply w-4 h-4;
+  }
+
+  /* TableLoadingOverlay semantic classes */
+  .table-loading-overlay {
+    @apply absolute inset-0 bg-background/80 flex items-center justify-center z-10;
+  }
+  .table-loading-overlay__content {
+    @apply flex items-center gap-2 text-sm text-muted-foreground;
+  }
+  .table-loading-overlay__spinner {
+    @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+  }
+
+  /* QueryBuilder semantic classes */
+  .query-builder {
+    @apply border rounded-lg bg-white shadow-sm p-3;
+  }
+  .query-builder--empty {
+    @apply opacity-60;
+  }
+  .query-builder__header {
+    @apply px-3 py-4 border-b bg-gray-50;
+  }
+  .query-builder__header-row {
+    @apply flex items-center justify-between;
+  }
+  .query-builder__title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+  .query-builder__actions {
+    @apply flex items-center gap-2;
+  }
+  .query-builder__execute-btn {
+    @apply px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 font-medium transition-colors;
+  }
+  .query-builder__clear-btn {
+    @apply px-3 py-1 border text-sm rounded hover:bg-gray-50 font-medium transition-colors;
+  }
+  .query-builder__sections {
+    @apply p-3 space-y-3;
+  }
+  .query-builder__section {
+    @apply mb-3;
+  }
+  .query-builder__display-title {
+    @apply text-sm font-medium text-gray-700 mb-3;
+  }
+  .query-builder__display-box {
+    @apply bg-gray-50 border rounded p-3;
+  }
+  .query-builder__display-json {
+    @apply text-xs text-gray-700 whitespace-pre-wrap font-mono;
+  }
+  .query-builder__empty-message {
+    @apply text-center;
+  }
+  .query-builder__empty-title {
+    @apply text-gray-600 text-sm;
+  }
+  .query-builder__empty-desc {
+    @apply text-xs text-gray-500 mt-1;
+  }
+  .query-builder__empty-all {
+    @apply text-center py-8 text-gray-500;
+  }
+  .query-builder__empty-all-title {
+    @apply text-sm;
+  }
+  .query-builder__empty-all-desc {
+    @apply text-xs mt-1;
+  }
+
+  /* QueryBuilderModal semantic classes */
+  .query-builder-modal {
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+  }
+  .query-builder-modal__container {
+    @apply bg-gray-100 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col;
+  }
+  .query-builder-modal__header {
+    @apply flex items-center justify-between p-4 border-b flex-shrink-0;
+  }
+  .query-builder-modal__title {
+    @apply text-lg font-semibold;
+  }
+  .query-builder-modal__close {
+    @apply p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors;
+  }
+  .query-builder-modal__close-icon {
+    @apply w-5 h-5;
+  }
+  .query-builder-modal__query-builder {
+    @apply border-0 shadow-none;
+  }
+  .query-builder-modal__footer {
+    @apply flex items-center justify-end gap-2 p-4 border-t bg-gray-50 flex-shrink-0;
+  }
+  .query-builder-modal__cancel {
+    @apply inline-flex items-center px-3 py-1 text-sm border rounded bg-white hover:bg-gray-50 font-medium transition-colors;
+  }
+  .query-builder-modal__apply {
+    @apply inline-flex items-center px-3 py-1 text-sm border rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition-colors;
+  }
+}

@@ -99,8 +99,8 @@ export class EntityFormat extends Component<
     }
 
     return (
-      <div className="entity-format-loading">
-        <div className="loading-spinner">Loading...</div>
+      <div className="entity-format__loading">
+        <div className="entity-format__spinner">Loading...</div>
       </div>
     );
   };
@@ -113,11 +113,11 @@ export class EntityFormat extends Component<
     }
 
     return (
-      <div className="entity-format-error">
-        <div className="error-message">
+      <div className="entity-format__error">
+        <div className="entity-format__error-message">
           Error loading entity: {error.message}
         </div>
-        <button onClick={this.fetchEntity} className="retry-button">
+        <button onClick={this.fetchEntity} className="entity-format__retry">
           Retry
         </button>
       </div>
@@ -133,9 +133,13 @@ export class EntityFormat extends Component<
 
     // Default rendering - show entity as formatted JSON
     return (
-      <div className="entity-format-default">
-        <h3>Entity {entity.id || entity._id || "Details"}</h3>
-        <pre className="entity-data">{JSON.stringify(entity, null, 2)}</pre>
+      <div className="entity-format__default">
+        <h3 className="entity-format__title">
+          Entity {entity.id || entity._id || "Details"}
+        </h3>
+        <pre className="entity-format__data">
+          {JSON.stringify(entity, null, 2)}
+        </pre>
       </div>
     );
   };
@@ -150,7 +154,7 @@ export class EntityFormat extends Component<
         {error && this.renderError(error)}
         {!loading && !error && entity && this.renderEntity(entity)}
         {!loading && !error && !entity && (
-          <div className="entity-format-empty">No entity found</div>
+          <div className="entity-format__empty">No entity found</div>
         )}
       </div>
     );
