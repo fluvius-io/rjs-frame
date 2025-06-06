@@ -22,16 +22,8 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx"
   },
-  "include": [
-    "tests/**/*",
-    "lib/rjs-frame/src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "lib/*/dist",
-    "app/*/dist"
-  ],
+  "include": ["tests/**/*", "lib/rjs-frame/src/**/*", "lib/rjs-frame/examples"],
+  "exclude": ["node_modules", "dist", "lib/*/dist", "app/*/dist"],
   "ts-node": {
     "esm": true,
     "compilerOptions": {
@@ -40,4 +32,4 @@
       "moduleResolution": "node"
     }
   }
-} 
+}

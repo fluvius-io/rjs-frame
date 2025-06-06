@@ -5,22 +5,22 @@
   "description": "RJS Framework Frontend - Monorepo with libraries and demo apps",
   "workspaces": [
     "lib/*",
-    "app/*"
+    "demo/*"
   ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "build:libs": "npm run build --workspace=lib/rjs-frame --workspace=lib/rjs-admin",
-    "build:apps": "npm run build --workspace=app/rjs-demo --workspace=app/rjs-shadcn",
-    "dev:demo": "npm run dev --workspace=app/rjs-demo",
-    "dev:shadcn": "npm run dev --workspace=app/rjs-shadcn",
+    "build:apps": "npm run build --workspace=demo/rjs-demo --workspace=demo/rjs-shadcn",
+    "dev:demo": "npm run dev --workspace=demo/rjs-demo",
+    "dev:shadcn": "npm run dev --workspace=demo/rjs-shadcn",
     "dev:frame": "npm run dev --workspace=lib/rjs-frame",
     "dev:admin": "npm run dev --workspace=lib/rjs-admin",
     "storybook": "npm run storybook --workspace=lib/rjs-admin",
     "storybook:build": "npm run build-storybook --workspace=lib/rjs-admin",
     "preview": "npm run preview --workspaces --if-present",
-    "clean": "rm -rf node_modules lib/*/node_modules app/*/node_modules",
-    "clean:dist": "rm -rf lib/*/dist app/*/dist",
+    "clean": "rm -rf node_modules lib/*/node_modules demo/*/node_modules",
+    "clean:dist": "rm -rf lib/*/dist demo/*/dist",
     "test:api": "node tests/api-simple.test.mjs",
     "test:api:full": "node tests/api-manager.test.mjs",
     "test:api:cache": "node tests/api-queryMeta.test.mjs",
@@ -35,4 +35,4 @@
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   }
-} 
+}

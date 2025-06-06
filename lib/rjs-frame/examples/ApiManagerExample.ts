@@ -3,8 +3,8 @@
  * Comprehensive examples showing how to use the APIManager system
  */
 
-import { APICollection } from "../APICollection";
-import { ApiCollectionConfig } from "../types";
+import { APICollection } from "../src/api/APICollection";
+import { ApiCollectionConfig } from "../src/api/types";
 
 // Basic API configuration example
 const basicApiConfig: ApiCollectionConfig = {

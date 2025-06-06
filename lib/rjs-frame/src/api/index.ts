@@ -18,10 +18,10 @@ export type {
   HeaderProcessor,
   HttpMethod,
   QueryConfig,
-  RTCConnection,
-  RTCTransport,
   RequestConfig,
   ResponseProcessor,
+  RTCConnection,
+  RTCTransport,
   SocketConfig,
   SubscriptionHandler,
   UnsubscribeFunction,
@@ -37,4 +37,4 @@ export { SSEConnection } from "./rtc/SSEConnection";
 export { WebSocketConnection } from "./rtc/WebSocketConnection";
 
 // Examples and demos
-export { ApiCollectionExamples } from "./examples/ApiManagerExample";
+export { ApiCollectionExamples } from "../../examples/ApiManagerExample";

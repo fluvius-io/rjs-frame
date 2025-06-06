@@ -1,5 +1,5 @@
 import React from "react";
-import { EntityFormat } from "./EntityFormat";
+import { EntityFormat } from "../src/components/EntityFormat";
 
 /**
  * EntityFormat Usage Examples
