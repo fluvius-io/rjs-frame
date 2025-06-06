@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": ["dom", "es6", "es2017"],
     "jsx": "react",
     "declaration": true,
@@ -13,6 +13,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "examples"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

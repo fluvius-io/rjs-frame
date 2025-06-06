@@ -35,6 +35,3 @@ export { ApiError, ConfigurationError } from "./types";
 export { RTCConnectionFactory } from "./rtc/RTCConnectionFactory";
 export { SSEConnection } from "./rtc/SSEConnection";
 export { WebSocketConnection } from "./rtc/WebSocketConnection";
-
-// Examples and demos
-export { ApiCollectionExamples } from "../../examples/ApiManagerExample";

@@ -167,6 +167,7 @@ async function errorHandlingExample() {
     );
 
     console.log("Config loaded successfully");
+    return config;
   } catch (error) {
     console.error("Config loading failed:", error);
 

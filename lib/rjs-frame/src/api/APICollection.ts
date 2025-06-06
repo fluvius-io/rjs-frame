@@ -242,22 +242,18 @@ export class APICollection {
 
     // If not cached, fetch the metadata
     const queryConfig = this.getQueryConfig(queryName);
-    const cache = params?.cache ?? true;
 
     const metaPath = this.resolveMetaPath(queryConfig);
-    const uri = resolveUrl(
-      this.config.baseUrl,
-      metaPath,
-      queryConfig.uri,
-      params
-    );
+    const uri =
+      (this.config.baseUrl || "") +
+      resolveUrl(metaPath, queryConfig.uri, params);
     const headers = this.resolveHeaders(queryConfig.headers, params);
-    const cacheKey = cache && this.generateMetadataCacheKey(uri, headers);
+    const useCache = params?.cache ?? true; // for queryMeta, cache is true by default
+    const cacheKey = useCache && this.generateMetadataCacheKey(uri, headers);
     if (cacheKey) {
       if (this.queryCache.has(cacheKey)) {
-        const cached = this.queryCache.get(cacheKey)!;
+        return this.queryCache.get(cacheKey)!;
         this.log(`📋 Using cached metadata for query '${queryName}'`);
-        return cached;
       }
     }
 
