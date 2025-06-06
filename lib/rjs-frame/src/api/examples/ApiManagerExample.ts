@@ -3,204 +3,209 @@
  * Comprehensive examples showing how to use the APIManager system
  */
 
-import { APICollection } from '../APICollection';
-import { ApiCollectionConfig } from '../types';
+import { APICollection } from "../APICollection";
+import { ApiCollectionConfig } from "../types";
 
 // Basic API configuration example
 const basicApiConfig: ApiCollectionConfig = {
-  name: 'BasicAPI',
-  baseUrl: 'https://api.example.com',
+  name: "BasicAPI",
+  baseUrl: "https://api.example.com",
   debug: true,
-  
+
   commands: {
     createUser: {
-      uri: '/users'
-    }
+      path: "/users",
+    },
   },
-  
+
   queries: {
     getUsers: {
-      uri: '/users'
+      path: "/users",
     },
-    
+
     getUserById: {
-      uri: "/users/{userId}"
+      path: "/users/{userId}",
     },
-    
+
     getUserProfile: {
-      uri: "/users/{userId}"
-    }
+      path: "/users/{userId}",
+    },
   },
-  
+
   sockets: {
     chatSocket: {
-      transport: 'websockets',
-      uri: '/ws/chat'
+      transport: "websockets",
+      path: "/ws/chat",
     },
-    
+
     notificationSocket: {
-      transport: 'sse',
-      uri: "/sse/notifications?user={userId}"
-    }
-  }
+      transport: "sse",
+      path: "/sse/notifications?user={userId}",
+    },
+  },
 };
 
 // Chat API configuration example
 const chatApiConfig: ApiCollectionConfig = {
-  name: 'ChatAPI',
-  baseUrl: 'https://chat.example.com',
+  name: "ChatAPI",
+  baseUrl: "https://chat.example.com",
   debug: false,
-  
+
   commands: {
     sendMessage: {
-      uri: '/messages'
-    }
+      path: "/messages",
+    },
   },
-  
+
   sockets: {
     messageSocket: {
-      transport: 'websockets',
-      uri: '/ws/messages'
-    }
-  }
+      transport: "websockets",
+      path: "/ws/messages",
+    },
+  },
 };
 
 // E-commerce API configuration example
 const ecommerceApiConfig: ApiCollectionConfig = {
-  name: 'EcommerceAPI',
-  baseUrl: 'https://shop.example.com/api',
+  name: "EcommerceAPI",
+  baseUrl: "https://shop.example.com/api",
   debug: true,
-  
+
   commands: {
     createOrder: {
-      uri: '/orders'
-    }
+      path: "/orders",
+    },
   },
-  
+
   queries: {
     getProducts: {
-      uri: "/products?category={category}&limit={limit}"
-    }
+      path: "/products?category={category}&limit={limit}",
+    },
   },
-  
+
   sockets: {
     priceUpdates: {
-      transport: 'websockets',
-      uri: '/ws/prices'
-    }
-  }
+      transport: "websockets",
+      path: "/ws/prices",
+    },
+  },
 };
 
 export class ApiCollectionExamples {
   static async basicExample() {
     const api = new APICollection(basicApiConfig);
-    
+
     try {
       // Create a new user
-      console.log('Creating user...');
-      const createResult = await api.send('createUser', {
-        name: 'John Doe',
-        email: 'john@example.com'
+      console.log("Creating user...");
+      const createResult = await api.send("createUser", {
+        name: "John Doe",
+        email: "john@example.com",
       });
-      console.log('User created:', createResult.data);
-      
+      console.log("User created:", createResult.data);
+
       // Get all users
-      console.log('Fetching users...');
-      const usersResult = await api.query('getUsers');
-      console.log('Users:', usersResult.data);
-      
+      console.log("Fetching users...");
+      const usersResult = await api.query("getUsers");
+      console.log("Users:", usersResult.data);
+
       // Get specific user
-      console.log('Fetching specific user...');
-      const userResult = await api.query('getUserById', { path: { userId: '123' } });
-      console.log('User:', userResult.data);
-      
+      console.log("Fetching specific user...");
+      const userResult = await api.query("getUserById", {
+        path: { userId: "123" },
+      });
+      console.log("User:", userResult.data);
     } catch (error) {
-      console.error('Basic example error:', error);
+      console.error("Basic example error:", error);
     }
   }
-  
+
   static async chatExample() {
     const api = new APICollection(chatApiConfig);
-    
+
     try {
       // Send a message
-      console.log('Sending message...');
-      const messageResult = await api.send('sendMessage', {
-        content: 'Hello, world!',
-        user_id: 'user123'
+      console.log("Sending message...");
+      const messageResult = await api.send("sendMessage", {
+        content: "Hello, world!",
+        user_id: "user123",
       });
-      console.log('Message sent:', messageResult.data);
-      
+      console.log("Message sent:", messageResult.data);
+
       // Subscribe to real-time messages
-      console.log('Subscribing to messages...');
-      const unsubscribe = api.subscribe('messageSocket', 'general')((message) => {
-        console.log('New message received:', message);
+      console.log("Subscribing to messages...");
+      const unsubscribe = api.subscribe(
+        "messageSocket",
+        "general"
+      )((message) => {
+        console.log("New message received:", message);
       });
-      
+
       // Clean up after 30 seconds
       setTimeout(() => {
         unsubscribe();
-        console.log('Unsubscribed from all channels');
+        console.log("Unsubscribed from all channels");
       }, 30000);
-      
     } catch (error) {
-      console.error('Chat example error:', error);
+      console.error("Chat example error:", error);
     }
   }
-  
+
   static async ecommerceExample() {
     const api = new APICollection(ecommerceApiConfig);
-    
+
     try {
       // Get products
-      console.log('Fetching products...');
-      const productsResult = await api.query('getProducts', {
+      console.log("Fetching products...");
+      const productsResult = await api.query("getProducts", {
         search: {
-          category: 'electronics',
-          limit: '10'
-        }
+          category: "electronics",
+          limit: "10",
+        },
       });
-      console.log('Products:', productsResult.data);
-      
+      console.log("Products:", productsResult.data);
+
       // Create an order
-      console.log('Creating order...');
-      const orderResult = await api.send('createOrder', {
+      console.log("Creating order...");
+      const orderResult = await api.send("createOrder", {
         items: [
-          { product_id: 'prod123', quantity: 2, price: 29.99 },
-          { product_id: 'prod456', quantity: 1, price: 49.99 }
+          { product_id: "prod123", quantity: 2, price: 29.99 },
+          { product_id: "prod456", quantity: 1, price: 49.99 },
         ],
-        customer_id: 'cust789'
+        customer_id: "cust789",
       });
-      console.log('Order created:', orderResult.data);
-      
+      console.log("Order created:", orderResult.data);
+
       // Subscribe to price updates
-      console.log('Subscribing to price updates...');
-      const unsubscribe = api.subscribe('priceUpdates', 'electronics')((priceUpdate) => {
-        console.log('Price update:', priceUpdate);
+      console.log("Subscribing to price updates...");
+      const unsubscribe = api.subscribe(
+        "priceUpdates",
+        "electronics"
+      )((priceUpdate) => {
+        console.log("Price update:", priceUpdate);
       });
-      
+
       // Clean up after 60 seconds
       setTimeout(() => {
         unsubscribe();
-        console.log('Unsubscribed from price updates');
+        console.log("Unsubscribed from price updates");
       }, 60000);
-      
     } catch (error) {
-      console.error('E-commerce example error:', error);
+      console.error("E-commerce example error:", error);
     }
   }
-  
+
   static async runAllExamples() {
-    console.log('🚀 Running APICollection Examples\n');
-    
+    console.log("🚀 Running APICollection Examples\n");
+
     await this.basicExample();
-    console.log('\n---\n');
-    
+    console.log("\n---\n");
+
     await this.chatExample();
-    console.log('\n---\n');
-    
+    console.log("\n---\n");
+
     await this.ecommerceExample();
-    
-    console.log('\n✅ All examples completed!');
+
+    console.log("\n✅ All examples completed!");
   }
-} 
+}

@@ -5,6 +5,7 @@
 
 import { RTCConnectionFactory } from "./rtc/RTCConnectionFactory";
 import {
+  ApiCollectionConfig,
   ApiError,
   ApiParams,
   ApiPayload,
@@ -20,15 +21,15 @@ import {
   SocketConfig,
   SubscriptionHandler,
   UnsubscribeFunction,
-  UriGenerator,
 } from "./types";
+import { resolveUrl } from "./utils";
 
 export class APICollection {
-  private config: any;
+  private config: ApiCollectionConfig;
   private rtcConnections = new Map<string, RTCConnection>();
   private queryCache = new Map<string, ApiResponse<any>>();
 
-  constructor(config: any) {
+  constructor(config: ApiCollectionConfig) {
     this.config = this.validateConfig(config);
   }
 
@@ -51,12 +52,14 @@ export class APICollection {
   ): Promise<ApiResponse<T>> {
     const commandConfig = this.getCommandConfig(commandName);
 
-    const uri = this.resolveUri(commandConfig.uri, params);
+    const url =
+      (this.config.baseUrl || "") +
+      resolveUrl(commandConfig.path, commandConfig.uri, params);
     const headers = this.resolveHeaders(commandConfig.headers, params);
     const processedData = this.resolveData(commandConfig.data, data);
 
     try {
-      const response = await fetch(uri, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,10 +96,12 @@ export class APICollection {
   ): Promise<ApiResponse<T>> {
     const queryConfig = this.getQueryConfig(queryName);
 
-    const uri = this.resolveUri(queryConfig.uri, params);
+    const url =
+      (this.config.baseUrl || "") +
+      resolveUrl(queryConfig.path, queryConfig.uri, params);
     const headers = this.resolveHeaders(queryConfig.headers, params);
     const cache = params?.cache ?? false;
-    const cacheKey = cache && this.generateMetadataCacheKey(uri, headers);
+    const cacheKey = cache && this.generateMetadataCacheKey(url, headers);
 
     if (cacheKey) {
       if (this.queryCache.has(cacheKey)) {
@@ -107,7 +112,7 @@ export class APICollection {
     }
 
     try {
-      const response = await fetch(uri, { method: "GET", headers });
+      const response = await fetch(url, { method: "GET", headers });
       const apiResponse = await this.createResponse<T>(
         response,
         queryConfig.response
@@ -136,14 +141,16 @@ export class APICollection {
   ): Promise<ApiResponse<T>> {
     const queryConfig = this.getQueryConfig(queryName);
     const pathParams = { _id: itemId, ...(params?.path || {}) };
-    const itemUri = queryConfig.item || queryConfig.uri + "/{_id}";
-    const uri = this.resolveUri(itemUri, {
-      path: pathParams,
-      ...params,
-    });
+    const itemPath = this.resolveItemPath(queryConfig);
+    const url =
+      (this.config.baseUrl || "") +
+      resolveUrl(itemPath, queryConfig.uri, {
+        path: pathParams,
+        ...params,
+      });
     const headers = this.resolveHeaders(queryConfig.headers, params);
     const cache = params?.cache ?? false;
-    const cacheKey = cache && this.generateMetadataCacheKey(uri, headers);
+    const cacheKey = cache && this.generateMetadataCacheKey(url, headers);
 
     if (cacheKey) {
       if (this.queryCache.has(cacheKey)) {
@@ -154,7 +161,7 @@ export class APICollection {
     }
 
     try {
-      const response = await fetch(uri, { method: "GET", headers });
+      const response = await fetch(url, { method: "GET", headers });
       const responseProcessor =
         queryConfig.itemResponse || queryConfig.response;
       const apiResponse = await this.createResponse<T>(
@@ -195,11 +202,13 @@ export class APICollection {
       );
     }
 
-    const uri = this.resolveUri(queryConfig.meta, params);
+    const url =
+      (this.config.baseUrl || "") +
+      resolveUrl(queryConfig.meta, queryConfig.uri, params);
     const headers = this.resolveHeaders(queryConfig.headers, params);
 
     try {
-      const response = await fetch(uri, { method: "GET", headers });
+      const response = await fetch(url, { method: "GET", headers });
       return await this.createResponse<T>(response, queryConfig.response);
     } catch (error) {
       throw new ApiError(
@@ -208,6 +217,14 @@ export class APICollection {
         error
       );
     }
+  }
+
+  resolveMetaPath(queryConfig: QueryConfig): string {
+    return queryConfig.meta || "/_meta/" + queryConfig.path;
+  }
+
+  resolveItemPath(queryConfig: QueryConfig): string {
+    return queryConfig.item || queryConfig.path + "/{_id}";
   }
 
   /**
@@ -227,13 +244,13 @@ export class APICollection {
     const queryConfig = this.getQueryConfig(queryName);
     const cache = params?.cache ?? true;
 
-    if (!queryConfig.meta) {
-      throw new ConfigurationError(
-        `Query '${queryName}' has no metadata configuration`
-      );
-    }
-
-    const uri = this.resolveUri(queryConfig.meta, params);
+    const metaPath = this.resolveMetaPath(queryConfig);
+    const uri = resolveUrl(
+      this.config.baseUrl,
+      metaPath,
+      queryConfig.uri,
+      params
+    );
     const headers = this.resolveHeaders(queryConfig.headers, params);
     const cacheKey = cache && this.generateMetadataCacheKey(uri, headers);
     if (cacheKey) {
@@ -330,7 +347,9 @@ export class APICollection {
   ): Promise<ApiResponse<T>> {
     const requestConfig = this.getRequestConfig(requestName);
 
-    const uri = this.resolveUri(requestConfig.uri, params);
+    const url =
+      (this.config.baseUrl || "") +
+      resolveUrl(requestConfig.path, requestConfig.uri, params);
     const headers = this.resolveHeaders(requestConfig.headers, params);
     const processedData = this.resolveData(requestConfig.data, data);
 
@@ -338,7 +357,7 @@ export class APICollection {
     const hasBody = ["POST", "PUT", "PATCH"].includes(method);
 
     try {
-      const response = await fetch(uri, {
+      const response = await fetch(url, {
         method: method,
         headers: {
           ...(hasBody && processedData
@@ -407,7 +426,7 @@ export class APICollection {
 
   // ===== PRIVATE HELPER METHODS =====
 
-  private validateConfig(config: any): any {
+  private validateConfig(config: ApiCollectionConfig): ApiCollectionConfig {
     if (!config.name) {
       throw new ConfigurationError("API Manager name is required");
     }
@@ -429,7 +448,13 @@ export class APICollection {
         `Command '${commandName}' not found in configuration`
       );
     }
-    return this.config.commands[commandName];
+
+    let config = this.config.commands[commandName];
+    if (typeof config === "string") {
+      config = { path: config } as CommandConfig;
+      this.config.commands[commandName] = config;
+    }
+    return config;
   }
 
   private getQueryConfig(queryName: string): QueryConfig {
@@ -438,7 +463,12 @@ export class APICollection {
         `Query '${queryName}' not found in configuration`
       );
     }
-    return this.config.queries[queryName];
+    let config = this.config.queries[queryName];
+    if (typeof config === "string") {
+      config = { path: config } as QueryConfig;
+      this.config.queries[queryName] = config;
+    }
+    return config;
   }
 
   private getSocketConfig(socketName: string): SocketConfig {
@@ -447,7 +477,12 @@ export class APICollection {
         `Socket '${socketName}' not found in configuration`
       );
     }
-    return this.config.sockets[socketName];
+    let config: SocketConfig | string = this.config.sockets[socketName];
+    if (typeof config === "string") {
+      config = { path: config, transport: "websockets" } as SocketConfig;
+      this.config.sockets[socketName] = config;
+    }
+    return config;
   }
 
   private getRequestConfig(requestName: string): RequestConfig {
@@ -456,43 +491,12 @@ export class APICollection {
         `Request '${requestName}' not found in configuration`
       );
     }
-    return this.config.requests[requestName];
-  }
-
-  private resolveUri(uri: UriGenerator, params?: ApiParams): string {
-    let url: string;
-
-    if (typeof uri === "function") {
-      url = uri(params);
-    } else {
-      url = uri;
+    let config = this.config.requests[requestName];
+    if (typeof config === "string") {
+      config = { path: config, method: "GET" } as RequestConfig;
+      this.config.requests[requestName] = config;
     }
-
-    if (url.includes("?")) {
-      throw new ConfigurationError(
-        `URI '${url}' contains a query string. Use ApiParams.search parameter instead.`
-      );
-    }
-
-    if (params?.search) {
-      let urlParams = new URLSearchParams(params.search);
-      url = url + "?" + urlParams.toString();
-    }
-
-    let pathParams = params?.path || {};
-    url = url.replace(/{(\w+)}/g, (match, key) => {
-      if (pathParams[key]) {
-        return pathParams[key];
-      } else {
-        throw new ConfigurationError(`Path parameter '${match}' not provided`);
-      }
-    });
-
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
-    }
-
-    return (this.config.baseUrl || "") + url;
+    return config;
   }
 
   private resolveHeaders(

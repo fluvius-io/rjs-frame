@@ -3,7 +3,14 @@
  * Handles SSE-based real-time communication
  */
 
-import { ApiParams, RTCConnection, SocketConfig, SubscriptionHandler, UnsubscribeFunction } from '../types';
+import {
+  ApiParams,
+  RTCConnection,
+  SocketConfig,
+  SubscriptionHandler,
+  UnsubscribeFunction,
+} from "../types";
+import { resolveUrl } from "../utils";
 
 export class SSEConnection implements RTCConnection {
   private eventSource: EventSource | null = null;
@@ -21,12 +28,14 @@ export class SSEConnection implements RTCConnection {
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        const uri = this.resolveUri();
-        
-        this.eventSource = new EventSource(uri);
+        const url =
+          (this.baseUrl || "") +
+          resolveUrl(this.config.path, this.config.uri, this.params);
+
+        this.eventSource = new EventSource(url);
 
         this.eventSource.onopen = () => {
-          console.log(`📡 SSE connected: ${uri}`);
+          console.log(`📡 SSE connected: ${url}`);
           this.reconnectAttempts = 0;
           resolve();
         };
@@ -36,14 +45,13 @@ export class SSEConnection implements RTCConnection {
         };
 
         this.eventSource.onerror = (error) => {
-          console.error('📡 SSE error:', error);
+          console.error("📡 SSE error:", error);
           if (this.eventSource?.readyState === EventSource.CLOSED) {
             this.handleReconnect();
           } else {
             reject(error);
           }
         };
-
       } catch (error) {
         reject(error);
       }
@@ -58,11 +66,14 @@ export class SSEConnection implements RTCConnection {
     this.subscriptions.clear();
   }
 
-  subscribe(channel: string, handler: SubscriptionHandler): UnsubscribeFunction {
+  subscribe(
+    channel: string,
+    handler: SubscriptionHandler
+  ): UnsubscribeFunction {
     if (!this.subscriptions.has(channel)) {
       this.subscriptions.set(channel, new Set());
     }
-    
+
     this.subscriptions.get(channel)!.add(handler);
 
     // For SSE, we typically add event listeners for specific channel types
@@ -85,18 +96,13 @@ export class SSEConnection implements RTCConnection {
   publish(channel: string, message: any): void {
     // SSE is typically one-way (server to client)
     // If publishing is needed, it would require a separate HTTP request
-    throw new Error('SSE does not support publishing. Use a separate HTTP request for sending data to server.');
+    throw new Error(
+      "SSE does not support publishing. Use a separate HTTP request for sending data to server."
+    );
   }
 
   isConnected(): boolean {
     return this.eventSource?.readyState === EventSource.OPEN;
-  }
-
-  private resolveUri(): string {
-    if (typeof this.config.uri === 'string') {
-      return this.baseUrl + this.config.uri;
-    }
-    return this.config.uri(this.params);
   }
 
   private handleMessage(event: MessageEvent): void {
@@ -106,7 +112,7 @@ export class SSEConnection implements RTCConnection {
 
       // Handle default channel (when no specific channel is specified)
       if (!channel) {
-        this.notifySubscribers('default', data);
+        this.notifySubscribers("default", data);
         return;
       }
 
@@ -115,12 +121,12 @@ export class SSEConnection implements RTCConnection {
       }
     } catch (error) {
       // If it's not JSON, treat as plain text message for default channel
-      this.notifySubscribers('default', event.data);
+      this.notifySubscribers("default", event.data);
     }
   }
 
   private addChannelListener(channel: string): void {
-    if (this.eventSource && channel !== 'default') {
+    if (this.eventSource && channel !== "default") {
       this.eventSource.addEventListener(channel, (event: any) => {
         try {
           const message = JSON.parse(event.data);
@@ -141,11 +147,14 @@ export class SSEConnection implements RTCConnection {
   private notifySubscribers(channel: string, message: any): void {
     const handlers = this.subscriptions.get(channel);
     if (handlers) {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         try {
           handler(message);
         } catch (error) {
-          console.error(`📡 Error in SSE handler for channel ${channel}:`, error);
+          console.error(
+            `📡 Error in SSE handler for channel ${channel}:`,
+            error
+          );
         }
       });
     }
@@ -154,17 +163,20 @@ export class SSEConnection implements RTCConnection {
   private handleReconnect(): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-      
-      console.log(`📡 Attempting to reconnect SSE in ${delay}ms (attempt ${this.reconnectAttempts})`);
-      
+      const delay =
+        this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+
+      console.log(
+        `📡 Attempting to reconnect SSE in ${delay}ms (attempt ${this.reconnectAttempts})`
+      );
+
       setTimeout(() => {
-        this.connect().catch(error => {
-          console.error('📡 SSE reconnection failed:', error);
+        this.connect().catch((error) => {
+          console.error("📡 SSE reconnection failed:", error);
         });
       }, delay);
     } else {
-      console.error('📡 SSE max reconnection attempts reached');
+      console.error("📡 SSE max reconnection attempts reached");
     }
   }
-} 
+}

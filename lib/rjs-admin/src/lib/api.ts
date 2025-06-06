@@ -1,37 +1,34 @@
 /**
  * API Configuration for RJS Admin
- * 
+ *
  * This utility ensures that all API calls use the correct base URL
  * depending on the environment (development, Storybook, production)
  */
 
-import { APIManager, ApiCollectionConfig } from 'rjs-frame';
+import { APIManager, ApiCollectionConfig } from "rjs-frame";
 
 // Set up IdmCollection
 const idmCollectionConfig: ApiCollectionConfig = {
-  name: 'idm',
-  baseUrl: '/api',
+  name: "idm",
+  baseUrl: "/api",
   debug: true,
   queries: {
-    user: {
-      uri: '/idm.user/',
-      meta: '/_meta/idm.user/',
-    },
+    user: "/idm.user/",
     organization: {
-      uri: '/idm.organization/',
-      meta: '/_meta/idm.organization/',
-    }
+      path: "/idm.organization/",
+      meta: "/_meta/idm.organization/",
+    },
   },
   processResponse: (response) => {
     let data = response.data;
     if (data && data.data) {
-        response.data = data.data;
+      response.data = data.data;
     }
     if (data && data.meta) {
       response.meta = data.meta;
     }
     return response;
-  }
+  },
 };
 
 // Create and register the IdmCollection
@@ -39,23 +36,26 @@ APIManager.register(idmCollectionConfig);
 
 // Get the API base URL from environment or default to / for proxy
 
-export const API_BASE_URL = '';
+export const API_BASE_URL = "";
 
 /**
  * Create a full API URL from a path
  */
 export const createApiUrl = (path: string): string => {
   // Remove leading slash if present to avoid double slashes
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   return `${API_BASE_URL}/${cleanPath}`;
 };
 
 /**
  * Enhanced fetch function that automatically uses the correct API base URL
  */
-export const apiFetch = async (path: string, options?: RequestInit): Promise<Response> => {
+export const apiFetch = async (
+  path: string,
+  options?: RequestInit
+): Promise<Response> => {
   const url = createApiUrl(path);
-  
+
   try {
     const response = await fetch(url, options);
     return response;
@@ -67,15 +67,20 @@ export const apiFetch = async (path: string, options?: RequestInit): Promise<Res
 /**
  * Fetch JSON data from API
  */
-export const fetchJson = async <T = any>(path: string, options?: RequestInit): Promise<T> => {
+export const fetchJson = async <T = any>(
+  path: string,
+  options?: RequestInit
+): Promise<T> => {
   const response = await apiFetch(path, options);
-  
+
   if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `API request failed: ${response.status} ${response.statusText}`
+    );
   }
-  
+
   const data = await response.json();
-  console.log('📊 API: JSON data received for', path, data);
+  console.log("📊 API: JSON data received for", path, data);
   return data;
 };
 
@@ -85,8 +90,8 @@ export const fetchJson = async <T = any>(path: string, options?: RequestInit): P
 export const endpoints = {
   metadata: (entity: string) => `_meta/${entity}`,
   data: (entity: string) => `${entity}/`,
-  userMetadata: () => '_meta/idm.user/',
-  userData: () => 'idm.user/',
-  organizationMetadata: () => '_meta/idm.organization/',
-  organizationData: () => 'idm.organization/',
-} as const; 
+  userMetadata: () => "_meta/idm.user/",
+  userData: () => "idm.user/",
+  organizationMetadata: () => "_meta/idm.organization/",
+  organizationData: () => "idm.organization/",
+} as const;

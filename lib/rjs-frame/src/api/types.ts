@@ -17,7 +17,12 @@ export type HttpMethod =
 export type RTCTransport = "mqtt" | "websockets" | "sse" | "webrtc";
 
 // URI Generator function type
-export type UriGenerator = string | ((params?: Record<string, any>) => string);
+export type UriProcessor = (
+  uri: string,
+  params?: Record<string, any>
+) => string;
+
+export type UriPattern = string;
 
 // Data processor types
 export type DataProcessor<TInput = any, TOutput = any> = (
@@ -47,32 +52,33 @@ export type ResponseProcessor<TInput = any, TOutput = any> = (
 ) => TOutput;
 
 // Base configuration interface
-interface BaseApiConfig {
-  uri: UriGenerator;
+export interface ApiConfig {
+  path: UriPattern;
+  uri?: UriProcessor;
   headers?: HeaderProcessor;
 }
 
 // Command configuration
-export interface CommandConfig extends BaseApiConfig {
+export interface CommandConfig extends ApiConfig {
   data?: DataProcessor;
   response?: ResponseProcessor;
 }
 
 // Query configuration
-export interface QueryConfig extends BaseApiConfig {
-  meta?: UriGenerator;
-  item?: UriGenerator;
+export interface QueryConfig extends ApiConfig {
+  meta?: UriPattern;
+  item?: UriPattern;
   response?: ResponseProcessor;
   itemResponse?: ResponseProcessor;
 }
 
 // Socket configuration
-export interface SocketConfig extends BaseApiConfig {
+export interface SocketConfig extends ApiConfig {
   transport: RTCTransport;
 }
 
 // Request configuration
-export interface RequestConfig extends BaseApiConfig {
+export interface RequestConfig extends ApiConfig {
   method: HttpMethod;
   data?: DataProcessor;
   response?: ResponseProcessor;
@@ -81,12 +87,12 @@ export interface RequestConfig extends BaseApiConfig {
 // Main API Manager configuration
 export interface ApiCollectionConfig {
   name: string;
-  baseUrl: string;
+  baseUrl?: string;
   debug?: boolean;
-  commands?: Record<string, CommandConfig>;
-  queries?: Record<string, QueryConfig>;
-  sockets?: Record<string, SocketConfig>;
-  requests?: Record<string, RequestConfig>;
+  commands?: Record<string, CommandConfig | string>;
+  queries?: Record<string, QueryConfig | string>;
+  sockets?: Record<string, SocketConfig | string>;
+  requests?: Record<string, RequestConfig | string>;
   processHeaders?: HeaderProcessor;
   processData?: DataProcessor;
   processResponse?: ResponseProcessor;
