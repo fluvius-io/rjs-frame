@@ -16,6 +16,8 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/common/Card";
+export { UserAvatar } from "./components/common/UserAvatar";
+export type { UserAvatarProps } from "./components/common/UserAvatar";
 
 // Form Components
 export { Input } from "./components/form/Input";

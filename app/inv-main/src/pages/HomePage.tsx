@@ -1,15 +1,10 @@
-import * as Avatar from "@radix-ui/react-avatar";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Bell,
   Filter,
-  LogOut,
   Package2,
   Search,
-  Settings,
   ShoppingCart,
   TrendingUp,
-  UserCircle,
 } from "lucide-react";
 import {
   Button,
@@ -18,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
   ThreeColumnLayout,
+  UserAvatar,
 } from "rjs-admin";
 import { PageModule } from "rjs-frame";
 import logoTransparent from "../assets/img/logo-transparent.png";
@@ -40,61 +36,14 @@ export default function HomePage() {
               <Search className="h-4 w-4" />
             </Button>
 
-            {/* User Avatar Dropdown */}
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <button className="flex items-center gap-3 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                  <Avatar.Root className="w-10 h-10">
-                    <Avatar.Image
-                      src="/api/placeholder/40/40"
-                      alt="John Doe"
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                    <Avatar.Fallback className="w-full h-full rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                      JD
-                    </Avatar.Fallback>
-                  </Avatar.Root>
-                  <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-semibold">John Doe</span>
-                    <span className="text-xs text-muted-foreground">
-                      john.doe@investmate.com
-                    </span>
-                  </div>
-                </button>
-              </DropdownMenu.Trigger>
-
-              <DropdownMenu.Portal>
-                <DropdownMenu.Content
-                  className="min-w-[220px] bg-background rounded-md border shadow-lg p-1 z-50"
-                  sideOffset={5}
-                  align="end"
-                >
-                  <div className="px-3 py-2 border-b">
-                    <p className="text-sm font-medium">John Doe</p>
-                    <p className="text-xs text-muted-foreground">
-                      john.doe@investmate.com
-                    </p>
-                  </div>
-
-                  <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground outline-none">
-                    <UserCircle className="h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenu.Item>
-
-                  <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground outline-none">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenu.Item>
-
-                  <DropdownMenu.Separator className="h-px bg-border my-1" />
-
-                  <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground outline-none text-destructive">
-                    <LogOut className="h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+            <UserAvatar
+              name="John Doe"
+              email="john.doe@investmate.com"
+              avatarUrl="/api/placeholder/40/40"
+              onProfileClick={() => console.log("Profile clicked")}
+              onSettingsClick={() => console.log("Settings clicked")}
+              onLogoutClick={() => console.log("Logout clicked")}
+            />
           </div>
         </div>
       </PageModule>
