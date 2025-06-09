@@ -26,7 +26,7 @@ export class ThreeColumnLayout extends PageLayout {
     return (
       <div className={cn("min-h-screen bg-background", className)}>
         {/* Header */}
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="w-full border-b bg-background/95">
           <PageSlot name="header" className="mx-auto px-4 py-4" />
         </header>
 

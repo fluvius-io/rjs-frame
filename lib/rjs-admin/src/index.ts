@@ -7,6 +7,9 @@ export { ThreeColumnLayout } from "./layout/ThreeColumnLayout";
 export { TwoColumnLayout } from "./layout/TwoColumnLayout";
 
 // Common Components
+export { AdminPanelTab } from "./components/common/AdminPanelTab";
+export { AuthUserAvatar } from "./components/common/AuthUserAvatar";
+export type { AuthUserAvatarProps } from "./components/common/AuthUserAvatar";
 export { Button, buttonVariants } from "./components/common/Button";
 export {
   Card,
@@ -18,6 +21,13 @@ export {
 } from "./components/common/Card";
 export { UserAvatar } from "./components/common/UserAvatar";
 export type { UserAvatarProps } from "./components/common/UserAvatar";
+export { UserDialog } from "./components/common/UserDialog";
+export type {
+  DialogTab,
+  UserDialogProps,
+} from "./components/common/UserDialog";
+export { UserProfileTab } from "./components/common/UserProfileTab";
+export { UserSettingsTab } from "./components/common/UserSettingsTab";
 
 // Form Components
 export { Input } from "./components/form/Input";

@@ -7,13 +7,13 @@ import {
   TrendingUp,
 } from "lucide-react";
 import {
+  AuthUserAvatar,
   Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   ThreeColumnLayout,
-  UserAvatar,
 } from "rjs-admin";
 import { PageModule } from "rjs-frame";
 import logoTransparent from "../assets/img/logo-transparent.png";
@@ -36,14 +36,7 @@ export default function HomePage() {
               <Search className="h-4 w-4" />
             </Button>
 
-            <UserAvatar
-              name="John Doe"
-              email="john.doe@investmate.com"
-              avatarUrl="/api/placeholder/40/40"
-              onProfileClick={() => console.log("Profile clicked")}
-              onSettingsClick={() => console.log("Settings clicked")}
-              onLogoutClick={() => console.log("Logout clicked")}
-            />
+            <AuthUserAvatar />
           </div>
         </div>
       </PageModule>
@@ -262,7 +255,7 @@ export default function HomePage() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Quick Actions</h3>
           <div className="space-y-2">
-            <Button className="w-full">
+            <Button className="w-full" variant="outline">
               <Package2 className="mr-2 h-4 w-4" />
               Add Investment
             </Button>

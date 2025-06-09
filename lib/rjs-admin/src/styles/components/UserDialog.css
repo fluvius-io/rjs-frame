@@ -1,0 +1,138 @@
+/**
+ * UserDialog Component Styles
+ * Dialog component using Radix UI primitives with semantic class names
+ */
+
+/* Dialog Overlay */
+.user-dialog__overlay {
+  @apply fixed inset-0 z-50;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Dialog Content */
+.user-dialog__content {
+  @apply fixed z-50 w-full bg-background rounded-lg border shadow-lg overflow-hidden;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 42rem; /* max-w-2xl */
+  max-height: 90vh;
+}
+
+/* Dialog Header */
+.user-dialog__header {
+  @apply flex items-center justify-between p-6 border-b;
+}
+
+.user-dialog__title {
+  @apply text-lg font-semibold;
+}
+
+.user-dialog__close-button {
+  @apply rounded-sm opacity-70 ring-offset-background transition-opacity;
+  @apply hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply disabled:pointer-events-none;
+}
+
+.user-dialog__close-icon {
+  @apply h-4 w-4;
+}
+
+/* Tabs Container */
+.user-dialog__tabs {
+  @apply flex flex-col;
+  max-height: calc(90vh - 80px);
+}
+
+/* Tab List */
+.user-dialog__tab-list {
+  @apply flex border-b;
+  background-color: rgba(0, 0, 0, 0.03); /* bg-muted/30 equivalent */
+}
+
+/* Tab Trigger */
+.user-dialog__tab-trigger {
+  @apply flex-1 px-6 py-3 text-sm font-medium text-muted-foreground;
+  @apply hover:text-foreground transition-colors;
+  border-bottom: 2px solid transparent;
+}
+
+.user-dialog__tab-trigger[data-state="active"] {
+  @apply border-primary text-foreground;
+}
+
+/* Tab Content Container */
+.user-dialog__tab-content-container {
+  @apply flex-1 overflow-auto;
+}
+
+/* Tab Content */
+.user-dialog__tab-content {
+  @apply h-full focus:outline-none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-dialog__content {
+    max-width: 95vw;
+    max-height: 95vh;
+    @apply mx-4;
+  }
+
+  .user-dialog__header {
+    @apply p-4;
+  }
+
+  .user-dialog__tab-trigger {
+    @apply px-4 py-2 text-xs;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .user-dialog__overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  .user-dialog__tab-list {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .user-dialog__content {
+    @apply border-2 border-foreground;
+  }
+
+  .user-dialog__close-button {
+    @apply border border-foreground;
+  }
+
+  .user-dialog__tab-trigger {
+    @apply border-b border-foreground;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .user-dialog__close-button {
+    @apply transition-none;
+  }
+
+  .user-dialog__tab-trigger {
+    @apply transition-none;
+  }
+
+  .user-dialog__overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Focus Visible */
+.user-dialog__tab-trigger:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2;
+}

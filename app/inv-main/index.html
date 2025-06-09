@@ -5,9 +5,158 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invest Mate</title>
+
+    <style>
+      /* Loading Screen Styles - Inline for immediate display */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        transition: opacity 250ms ease-out;
+      }
+
+      /* Fade-out state */
+      .loading-screen.fade-out {
+        opacity: 0;
+      }
+
+      .loading-screen__backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
+
+      .loading-screen__content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+      }
+
+      .loading-screen__spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        animation: loading-screen-spin 1s linear infinite;
+        margin-bottom: 16px;
+      }
+
+      .loading-screen__message {
+        font-size: 16px;
+        color: #6b7280;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+        font-weight: 400;
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      /* Spinner animation */
+      @keyframes loading-screen-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .loading-screen__spinner {
+          width: 32px;
+          height: 32px;
+          border-width: 2px;
+          margin-bottom: 12px;
+        }
+
+        .loading-screen__message {
+          font-size: 14px;
+          padding: 0 20px;
+        }
+      }
+
+      /* Dark theme support */
+      @media (prefers-color-scheme: dark) {
+        .loading-screen__backdrop {
+          background-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .loading-screen__spinner {
+          border-color: #374151;
+          border-top-color: #60a5fa;
+        }
+
+        .loading-screen__message {
+          color: #d1d5db;
+        }
+      }
+
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        .loading-screen__backdrop {
+          background-color: rgba(255, 255, 255, 0.98);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+        }
+
+        .loading-screen__spinner {
+          border-color: #000000;
+          border-top-color: #0066cc;
+        }
+
+        .loading-screen__message {
+          color: #000000;
+          font-weight: 500;
+        }
+      }
+
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        .loading-screen__spinner {
+          animation: none;
+          border: 3px solid #3b82f6;
+        }
+
+        .loading-screen {
+          transition: none;
+        }
+      }
+
+      /* Hide loading screen when app loads */
+      .app-loaded .loading-screen {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static Loading Screen - Shown immediately -->
+      <div id="static-loading-screen" class="loading-screen">
+        <div class="loading-screen__backdrop"></div>
+        <div class="loading-screen__content">
+          <div class="loading-screen__spinner"></div>
+          <div class="loading-screen__message">Loading application ...</div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

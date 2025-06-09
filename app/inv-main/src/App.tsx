@@ -3,7 +3,7 @@ import HomePage from "./pages/HomePage";
 
 function App() {
   return (
-    <RjsApp>
+    <RjsApp authRequired={true}>
       <Route path="/" element={<Navigate to="/portfolio" replace />} />
       <Route path="/portfolio/*" element={<HomePage />} />
     </RjsApp>

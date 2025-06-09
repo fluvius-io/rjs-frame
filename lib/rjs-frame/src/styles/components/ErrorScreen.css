@@ -1,0 +1,259 @@
+/**
+ * ErrorScreen Component Styles
+ * Full-screen error overlay with icon, message, and retry button
+ */
+
+.error-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-screen__backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.error-screen__content {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1;
+}
+
+.error-screen__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 24px 0 24px;
+}
+
+.error-screen__icon-svg {
+  width: 48px;
+  height: 48px;
+  color: #dc2626;
+}
+
+.error-screen__header {
+  padding: 16px 24px 0 24px;
+  text-align: center;
+}
+
+.error-screen__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #dc2626;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
+}
+
+.error-screen__body {
+  padding: 12px 24px 16px 24px;
+  text-align: center;
+}
+
+.error-screen__message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #374151;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
+}
+
+.error-screen__footer {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.error-screen__retry-button {
+  padding: 8px 16px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  min-width: 120px;
+}
+
+.error-screen__retry-button:hover {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.error-screen__retry-button:active {
+  transform: translateY(0);
+}
+
+.error-screen__retry-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .error-screen__content {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .error-screen__icon {
+    padding: 20px 20px 0 20px;
+  }
+
+  .error-screen__icon-svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .error-screen__header {
+    padding: 12px 20px 0 20px;
+  }
+
+  .error-screen__title {
+    font-size: 16px;
+  }
+
+  .error-screen__body {
+    padding: 12px 20px 16px 20px;
+  }
+
+  .error-screen__message {
+    font-size: 13px;
+  }
+
+  .error-screen__footer {
+    padding: 0 20px 20px 20px;
+  }
+
+  .error-screen__retry-button {
+    width: 100%;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .error-screen__backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .error-screen__content {
+    background-color: #1f2937;
+    border-color: #dc2626;
+  }
+
+  .error-screen__title {
+    color: #ef4444;
+  }
+
+  .error-screen__message {
+    color: #d1d5db;
+  }
+
+  .error-screen__retry-button {
+    background-color: #ef4444;
+  }
+
+  .error-screen__retry-button:hover {
+    background-color: #dc2626;
+  }
+
+  .error-screen__retry-button:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .error-screen__backdrop {
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .error-screen__content {
+    border-width: 2px;
+    border-color: #dc2626;
+  }
+
+  .error-screen__title {
+    color: #dc2626;
+    font-weight: 700;
+  }
+
+  .error-screen__message {
+    color: #000000;
+    font-weight: 500;
+  }
+
+  .error-screen__retry-button {
+    border: 2px solid #dc2626;
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .error-screen__retry-button {
+    transition: none;
+  }
+
+  .error-screen__retry-button:hover {
+    transform: none;
+  }
+
+  .error-screen__retry-button:active {
+    transform: none;
+  }
+}
+
+/* Print styles - hide error screen when printing */
+@media print {
+  .error-screen {
+    display: none !important;
+  }
+}
+
+/* Focus management for accessibility */
+.error-screen__retry-button:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Loading state for retry button */
+.error-screen__retry-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-screen__retry-button:disabled:hover {
+  background-color: #dc2626;
+  transform: none;
+}

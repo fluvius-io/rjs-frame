@@ -1,3 +1,8 @@
+/* Import component styles first */
+@import "./components/UserAvatar.css";
+@import "./components/UserDialog.css";
+@import "./components/UserTabs.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

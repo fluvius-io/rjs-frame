@@ -8,6 +8,8 @@ export interface UserAvatarProps {
   name: string;
   /** User's email address */
   email: string;
+  /** User's organization */
+  organization?: string;
   /** User's profile image URL */
   avatarUrl?: string;
   /** User's initials for fallback */
@@ -27,6 +29,7 @@ export interface UserAvatarProps {
 export function UserAvatar({
   name,
   email,
+  organization,
   avatarUrl,
   initials,
   menuItems,
@@ -48,20 +51,18 @@ export function UserAvatar({
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button
-          className={`flex items-center gap-3 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}
-        >
-          <div className="flex flex-col items-start text-left">
-            <span className="text-sm font-semibold">{name}</span>
-            <span className="text-xs text-muted-foreground">{email}</span>
+        <button className={`user-avatar__trigger ${className}`}>
+          <div className="user-avatar__user-info">
+            <span className="user-avatar__user-name">{name}</span>
+            <span className="user-avatar__user-email">{email}</span>
           </div>
-          <Avatar.Root className="w-10 h-10">
+          <Avatar.Root className="user-avatar__image-container">
             <Avatar.Image
               src={avatarUrl}
               alt={name}
-              className="w-full h-full rounded-full object-cover"
+              className="user-avatar__image"
             />
-            <Avatar.Fallback className="w-full h-full rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+            <Avatar.Fallback className="user-avatar__fallback">
               {fallbackInitials}
             </Avatar.Fallback>
           </Avatar.Root>
@@ -70,45 +71,50 @@ export function UserAvatar({
 
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="min-w-[220px] bg-background rounded-md border shadow-lg p-1 z-50"
+          className="user-avatar__dropdown-content"
           sideOffset={5}
           align="end"
         >
-          <div className="px-3 py-2 border-b">
-            <p className="text-sm font-medium">{name}</p>
-            <p className="text-xs text-muted-foreground">{email}</p>
+          <div className="user-avatar__dropdown-header">
+            <p className="user-avatar__dropdown-header-name">{name}</p>
+            <p className="user-avatar__dropdown-header-email">{email}</p>
+            {organization && (
+              <p className="user-avatar__dropdown-header-email">
+                {organization}
+              </p>
+            )}
           </div>
 
           <DropdownMenu.Item
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground outline-none"
-            onClick={onProfileClick}
+            className="user-avatar__dropdown-item"
+            onSelect={onProfileClick}
           >
-            <UserCircle className="h-4 w-4" />
+            <UserCircle className="user-avatar__dropdown-item-icon" />
             <span>Profile</span>
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground outline-none"
-            onClick={onSettingsClick}
+            className="user-avatar__dropdown-item"
+            onSelect={onSettingsClick}
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="user-avatar__dropdown-item-icon" />
             <span>Settings</span>
           </DropdownMenu.Item>
 
           {menuItems && (
             <>
-              <DropdownMenu.Separator className="h-px bg-border my-1" />
+              <DropdownMenu.Separator className="user-avatar__dropdown-separator" />
               {menuItems}
             </>
           )}
 
-          <DropdownMenu.Separator className="h-px bg-border my-1" />
+          <DropdownMenu.Separator className="user-avatar__dropdown-separator" />
 
           <DropdownMenu.Item
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground outline-none text-destructive"
-            onClick={onLogoutClick}
+            className="user-avatar__dropdown-item--destructive"
+            onSelect={onLogoutClick}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="user-avatar__dropdown-item-icon" />
             <span>Log out</span>
           </DropdownMenu.Item>
         </DropdownMenu.Content>

@@ -26,6 +26,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "examples/AuthUserAvatarExample.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
-} 
+}

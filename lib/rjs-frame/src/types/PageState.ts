@@ -1,3 +1,5 @@
+import type { AuthContext } from "./AuthContext";
+
 export type AuthState = {
   user?: Record<string, any>;
   profile?: Record<string, any>;
@@ -19,7 +21,6 @@ export type ModuleState = {
   };
 };
 
-
 export interface PageState {
   pageName: string;
   initTime: string;
@@ -30,4 +31,17 @@ export interface PageState {
   moduleState: ModuleState;
   auth: AuthState;
   other: Record<string, any>;
-} 
+}
+
+// Extended PageState with typed auth context for modern applications
+export interface TypedPageState {
+  pageName: string;
+  initTime: string;
+  breadcrumbs: string[];
+  pageParams: PageParams;
+  linkParams: LinkParams;
+  globalState: GlobalState;
+  moduleState: ModuleState;
+  auth: AuthContext | null;
+  other: Record<string, any>;
+}

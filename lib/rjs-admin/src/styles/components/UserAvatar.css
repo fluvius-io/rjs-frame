@@ -1,0 +1,155 @@
+/**
+ * UserAvatar Component Styles
+ * Avatar component with dropdown menu using Radix UI primitives and semantic class names
+ */
+
+/* Avatar Root Container */
+.user-avatar {
+  @apply relative;
+}
+
+/* Avatar Trigger Button */
+.user-avatar__trigger {
+  @apply flex items-center gap-3 rounded-sm px-5;
+  @apply hover:bg-accent hover:text-accent-foreground transition-colors;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-4;
+  @apply cursor-pointer;
+}
+
+/* Avatar User Info Container */
+.user-avatar__user-info {
+  @apply flex flex-col items-start text-left;
+}
+
+/* Avatar User Name */
+.user-avatar__user-name {
+  @apply text-sm font-semibold;
+}
+
+/* Avatar User Email */
+.user-avatar__user-email {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Avatar Image Container */
+.user-avatar__image-container {
+  @apply w-10 h-10;
+}
+
+/* Avatar Image */
+.user-avatar__image {
+  @apply w-full h-full rounded-full object-cover;
+}
+
+/* Avatar Fallback */
+.user-avatar__fallback {
+  @apply w-full h-full rounded-full bg-primary text-primary-foreground;
+  @apply flex items-center justify-center text-sm font-medium;
+}
+
+/* Dropdown Menu Content */
+.user-avatar__dropdown-content {
+  @apply min-w-[220px] bg-background rounded-md border shadow-lg p-1 z-50;
+}
+
+/* Dropdown Menu Header */
+.user-avatar__dropdown-header {
+  @apply px-3 py-2 border-b;
+}
+
+/* Dropdown Header Name */
+.user-avatar__dropdown-header-name {
+  @apply text-sm font-medium;
+}
+
+/* Dropdown Header Email */
+.user-avatar__dropdown-header-email {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Dropdown Menu Item */
+.user-avatar__dropdown-item {
+  @apply flex items-center gap-2 px-3 py-2 text-sm rounded-sm;
+  @apply hover:bg-accent hover:text-accent-foreground cursor-pointer;
+  @apply focus:bg-accent focus:text-accent-foreground outline-none;
+  @apply transition-colors;
+}
+
+/* Dropdown Menu Item - Destructive (Logout) */
+.user-avatar__dropdown-item--destructive {
+  @apply flex items-center gap-2 px-3 py-2 text-sm rounded-sm;
+  @apply hover:bg-accent hover:text-accent-foreground cursor-pointer;
+  @apply focus:bg-accent focus:text-accent-foreground outline-none;
+  @apply text-destructive transition-colors;
+}
+
+/* Dropdown Menu Item Icon */
+.user-avatar__dropdown-item-icon {
+  @apply h-4 w-4;
+}
+
+/* Dropdown Menu Separator */
+.user-avatar__dropdown-separator {
+  @apply h-px bg-border my-1;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .user-avatar__trigger {
+    @apply gap-2 p-1;
+  }
+
+  .user-avatar__user-info {
+    @apply hidden;
+  }
+
+  .user-avatar__image-container {
+    @apply w-8 h-8;
+  }
+
+  .user-avatar__dropdown-content {
+    @apply min-w-[200px];
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .user-avatar__dropdown-content {
+    @apply shadow-xl;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .user-avatar__trigger {
+    @apply border border-foreground;
+  }
+
+  .user-avatar__dropdown-content {
+    @apply border-2 border-foreground;
+  }
+
+  .user-avatar__dropdown-item,
+  .user-avatar__dropdown-item--destructive {
+    @apply border-b border-foreground;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .user-avatar__trigger,
+  .user-avatar__dropdown-item,
+  .user-avatar__dropdown-item--destructive {
+    @apply transition-none;
+  }
+}
+
+/* Focus Visible */
+.user-avatar__trigger:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2;
+}
+
+.user-avatar__dropdown-item:focus-visible,
+.user-avatar__dropdown-item--destructive:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-1;
+}
