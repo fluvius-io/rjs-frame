@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export interface LoadingScreenProps {
   /** Loading message to display */
   message?: string;
   /** Additional CSS class names */
-  className?: string;
-  /** Whether to show the loading screen */
-  visible?: boolean;
+  isLoading?: boolean;
+  /** Whether to fade out the loading screen */
+  isLoadingCompleted?: boolean;
 }
 
 /**
@@ -17,20 +17,8 @@ export interface LoadingScreenProps {
  */
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   message = "Starting up application ...",
-  className = "",
-  visible = true,
+  isLoading = true,
+  isLoadingCompleted = false,
 }) => {
-  if (!visible) {
-    return null;
-  }
-
-  return (
-    <div className={`loading-screen ${className}`}>
-      <div className="loading-screen__backdrop" />
-      <div className="loading-screen__content">
-        <div className="loading-screen__spinner" />
-        <div className="loading-screen__message">{message}</div>
-      </div>
-    </div>
-  );
+  return null;
 };

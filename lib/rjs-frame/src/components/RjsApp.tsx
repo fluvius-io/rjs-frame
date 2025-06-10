@@ -3,7 +3,6 @@ import { BrowserRouter, Routes } from "react-router-dom";
 import { ConfigManager } from "../config/ConfigManager";
 import type { AuthContext } from "../types/AuthContext";
 import { ErrorScreen } from "./ErrorScreen";
-import { LoadingScreen } from "./LoadingScreen";
 import { RjsRouteHandler } from "./RjsRouteHandler";
 
 // Import component styles
@@ -19,6 +18,7 @@ interface AppConfig {
 interface ConfigContextType {
   config: ConfigManager<AppConfig> | null;
   isLoading: boolean;
+  isRevealing: boolean;
   error: Error | null;
   authContext: AuthContext | null;
 }
@@ -30,10 +30,14 @@ const defaultConfig: AppConfig = {
   "auth.logout": "/api/auth/logout",
 };
 
+// Transition timing
+const REVEALING_TIME = 1000;
+
 // Create configuration context
 const ConfigContext = createContext<ConfigContextType>({
   config: null,
   isLoading: true,
+  isRevealing: false,
   error: null,
   authContext: null,
 });
@@ -90,13 +94,67 @@ const ConfigProvider: React.FC<{
 }) => {
   const [config, setConfig] = useState<ConfigManager<AppConfig> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [authContext, setAuthContext] = useState<AuthContext | null>(null);
+  let timestamp = 0;
+
+  const setLoadingStatus = (
+    loadingStatus: boolean,
+    availableAuthContext?: AuthContext | null
+  ) => {
+    if (loadingStatus == true) {
+      timestamp = new Date().getTime();
+    }
+
+    if (isLoading == loadingStatus) {
+      return;
+    }
+
+    availableAuthContext = availableAuthContext || authContext;
+
+    setIsLoading(loadingStatus);
+    if (!loadingStatus) {
+      if (error || (authRequired && !availableAuthContext)) {
+        return;
+      }
+
+      const timeDiff = new Date().getTime() - timestamp;
+      if (timeDiff < REVEALING_TIME * 2) {
+        return;
+      }
+
+      // Loading is complete, transition to the next state
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, REVEALING_TIME);
+    }
+  };
+
+  useEffect(() => {
+    // Add classes
+    if (isLoading) {
+      document.body.classList.add("app-loading");
+      return;
+    }
+
+    document.body.classList.remove("app-loading");
+    if (isTransitioning) {
+      document.body.classList.add("app-transition");
+    } else {
+      document.body.classList.remove("app-transition");
+      document.body.classList.add("app-done");
+    }
+
+    // Optional cleanup
+    return;
+  }, [isTransitioning, isLoading]);
 
   useEffect(() => {
     const initializeConfig = async () => {
       try {
-        setIsLoading(true);
+        setLoadingStatus(true);
         setError(null);
 
         // Load config and auth context in parallel
@@ -135,14 +193,15 @@ const ConfigProvider: React.FC<{
               ) {
                 return authData as AuthContext;
               } else {
-                console.warn(
-                  "Auth context response does not match expected structure:",
-                  authData
+                throw new Error(
+                  "Auth context response does not match expected structure: " +
+                    JSON.stringify(authData)
                 );
                 return null;
               }
             })
             .catch((authError) => {
+              console.error("Failed to fetch auth context:", authError);
               return null;
             });
         }
@@ -153,6 +212,7 @@ const ConfigProvider: React.FC<{
 
         setConfig(configManager);
         setAuthContext(authContextResult);
+        setLoadingStatus(false, authContextResult);
       } catch (configError) {
         console.error("Failed to initialize configuration:", configError);
         setError(
@@ -160,8 +220,7 @@ const ConfigProvider: React.FC<{
             ? configError
             : new Error("Configuration initialization failed")
         );
-      } finally {
-        setIsLoading(false);
+        setLoadingStatus(false);
       }
     };
 
@@ -171,6 +230,7 @@ const ConfigProvider: React.FC<{
   const contextValue: ConfigContextType = {
     config,
     isLoading,
+    isRevealing: isTransitioning,
     error,
     authContext,
   };
@@ -186,13 +246,12 @@ const ConfigProvider: React.FC<{
     return url + "?next=" + window.location.href;
   };
 
-  const renderContent = () => {
-    // Priority 1: Show loading screen while initializing
+  const renderOverlay = () => {
+    // Priority 1: Show error screen for configuration/network failures
     if (isLoading) {
-      return <LoadingScreen message="Starting up application ..." />;
+      return null;
     }
 
-    // Priority 2: Show error screen for configuration/network failures
     if (error) {
       return <ErrorScreen error={error} />;
     }
@@ -202,12 +261,21 @@ const ConfigProvider: React.FC<{
       return <UnauthorizedScreen loginRedirectUrl={loginRedirectUrl()} />;
     }
 
-    // Priority 4: Show normal app content
+    return null;
+  };
+
+  const renderContent = () => {
+    let hasOverlay = isLoading || error || (authRequired && !authContext);
+    if (hasOverlay) {
+      return null;
+    }
+
     return children;
   };
 
   return (
     <ConfigContext.Provider value={contextValue}>
+      {renderOverlay()}
       {renderContent()}
     </ConfigContext.Provider>
   );

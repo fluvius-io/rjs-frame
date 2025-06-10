@@ -6,6 +6,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
+    watch: {
+      // Watch for changes in lib directories (parent folder)
+      ignored: ["!**/../../lib/rjs-admin/**", "!**/../../lib/rjs-frame/**"],
+    },
     proxy: {
       "/api": {
         target: "http://localhost:8000",
