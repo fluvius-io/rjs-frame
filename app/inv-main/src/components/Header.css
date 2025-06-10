@@ -1,0 +1,174 @@
+/**
+ * Header Component Styles
+ * Navigation header with dropdown menus using Radix UI primitives
+ */
+
+/* Navigation Trigger Button */
+.header-nav__trigger {
+  @apply flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md;
+  @apply text-foreground hover:bg-accent hover:text-accent-foreground;
+  @apply transition-colors cursor-pointer;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+}
+
+.header-nav__trigger:hover .header-nav__chevron {
+  @apply transform rotate-180;
+}
+
+/* Navigation Icon */
+.header-nav__icon {
+  @apply h-4 w-4;
+}
+
+/* Navigation Label */
+.header-nav__label {
+  @apply font-medium;
+}
+
+/* Navigation Chevron */
+.header-nav__chevron {
+  @apply h-3 w-3 transition-transform duration-200;
+}
+
+/* Dropdown Content */
+.header-nav__dropdown-content {
+  @apply min-w-[280px] bg-background rounded-md border shadow-lg p-1 z-50;
+  @apply transition-all duration-200 ease-out;
+  @apply opacity-100 scale-100;
+}
+
+/* Dropdown Item */
+.header-nav__dropdown-item {
+  @apply flex items-start gap-3 px-3 py-3 text-sm rounded-sm;
+  @apply hover:bg-accent hover:text-accent-foreground cursor-pointer;
+  @apply focus:bg-accent focus:text-accent-foreground outline-none;
+  @apply transition-colors;
+  text-decoration: none;
+}
+
+/* Dropdown Item Icon */
+.header-nav__dropdown-icon {
+  @apply h-5 w-5 mt-0.5 flex-shrink-0;
+}
+
+/* Dropdown Item Text Container */
+.header-nav__dropdown-text {
+  @apply flex flex-col gap-1;
+}
+
+/* Dropdown Item Title */
+.header-nav__dropdown-title {
+  @apply font-medium leading-none;
+}
+
+/* Dropdown Item Description */
+.header-nav__dropdown-description {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Dropdown Separator */
+.header-nav__dropdown-separator {
+  @apply h-px bg-border my-1;
+}
+
+/* Header Actions Buttons */
+.header-actions__button {
+  @apply transition-colors;
+}
+
+/* Mobile Navigation Dropdown */
+.header-nav__mobile-dropdown {
+  @apply w-screen max-w-md bg-background rounded-md border shadow-lg p-1 z-50;
+  @apply transition-all duration-200 ease-out;
+  @apply opacity-100 scale-100;
+}
+
+/* Mobile Navigation Item */
+.header-nav__mobile-item {
+  @apply flex items-start gap-3 px-4 py-3 text-sm rounded-sm;
+  @apply hover:bg-accent hover:text-accent-foreground cursor-pointer;
+  @apply focus:bg-accent focus:text-accent-foreground outline-none;
+  @apply transition-colors border-b border-border last:border-b-0;
+  text-decoration: none;
+}
+
+/* Mobile Navigation Icon */
+.header-nav__mobile-icon {
+  @apply h-5 w-5 mt-0.5 flex-shrink-0;
+}
+
+/* Mobile Navigation Text Container */
+.header-nav__mobile-text {
+  @apply flex flex-col gap-1 flex-1;
+}
+
+/* Mobile Navigation Title */
+.header-nav__mobile-title {
+  @apply font-medium leading-none;
+}
+
+/* Mobile Navigation Description */
+.header-nav__mobile-description {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-nav__dropdown-content {
+    @apply min-w-[250px];
+  }
+
+  .header-nav__mobile-dropdown {
+    @apply max-w-sm;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .header-nav__dropdown-content,
+  .header-nav__mobile-dropdown {
+    @apply shadow-xl;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .header-nav__trigger {
+    @apply border border-foreground;
+  }
+
+  .header-nav__dropdown-content,
+  .header-nav__mobile-dropdown {
+    @apply border-2 border-foreground;
+  }
+
+  .header-nav__dropdown-item,
+  .header-nav__mobile-item {
+    @apply border-b border-foreground;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .header-nav__trigger,
+  .header-nav__dropdown-item,
+  .header-nav__mobile-item,
+  .header-nav__chevron {
+    @apply transition-none;
+  }
+
+  .header-nav__dropdown-content,
+  .header-nav__mobile-dropdown {
+    @apply transition-none;
+  }
+}
+
+/* Focus Visible */
+.header-nav__trigger:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2;
+}
+
+.header-nav__dropdown-item:focus-visible,
+.header-nav__mobile-item:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-1;
+}

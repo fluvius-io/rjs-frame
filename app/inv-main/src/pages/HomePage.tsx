@@ -7,7 +7,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import {
-  AuthUserAvatar,
   Button,
   Card,
   CardContent,
@@ -16,30 +15,12 @@ import {
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule } from "rjs-frame";
-import logoTransparent from "../assets/img/logo-transparent.png";
+import { Header } from "../components";
 
 export default function HomePage() {
   return (
     <ThreeColumnLayout>
-      <PageModule slotName="header">
-        <div className="flex items-center justify-between">
-          <img
-            src={logoTransparent}
-            alt="Invest Mate - Trading Management Platform"
-            style={{ height: "60px", margin: "-16px 0px" }}
-          />
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon">
-              <Bell className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon">
-              <Search className="h-4 w-4" />
-            </Button>
-
-            <AuthUserAvatar />
-          </div>
-        </div>
-      </PageModule>
+      <Header slotName="header" />
 
       <PageModule slotName="sidebar">
         <div className="space-y-4">

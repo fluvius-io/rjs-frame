@@ -28,11 +28,12 @@ const defaultConfig: AppConfig = {
   "auth.loginRedirect": "/api/auth/login",
   "auth.context": "/api/auth/info",
   "auth.logout": "/api/auth/logout",
+  "auth.callback": "/api/auth/callback",
 };
 
 // Transition timing
-const REVEALING_TIME = 1000;
-const SKIP_REVEALING_ON_FAST_LOAD = 1000;
+const REVEALING_TIME: number = 1000; // This must be consistent to the CSS transition time
+const SKIP_REVEALING_ON_FAST_LOAD: number = 10;
 
 // Create configuration context
 const ConfigContext = createContext<ConfigContextType>({
@@ -247,7 +248,7 @@ const ConfigProvider: React.FC<{
 
   const loginRedirectUrl = () => {
     const url = config?.get<string>("auth.loginRedirect") || "/api/auth/login";
-    return url + "?next=" + window.location.href;
+    return url + "?next=" + encodeURIComponent(window.location.href);
   };
 
   const renderOverlay = () => {

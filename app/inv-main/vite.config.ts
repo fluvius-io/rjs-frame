@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5174,
     watch: {
       // Watch for changes in lib directories (parent folder)
-      ignored: ["!**/../../lib/rjs-admin/**", "!**/../../lib/rjs-frame/**"],
+      ignored: ["!**/../../lib/rjs-frame/**"],
     },
     proxy: {
       "/api": {
