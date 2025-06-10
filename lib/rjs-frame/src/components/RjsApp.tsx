@@ -32,6 +32,7 @@ const defaultConfig: AppConfig = {
 
 // Transition timing
 const REVEALING_TIME = 1000;
+const SKIP_REVEALING_ON_FAST_LOAD = 1000;
 
 // Create configuration context
 const ConfigContext = createContext<ConfigContextType>({
@@ -120,7 +121,10 @@ const ConfigProvider: React.FC<{
       }
 
       const timeDiff = new Date().getTime() - timestamp;
-      if (timeDiff < REVEALING_TIME * 2) {
+      if (
+        SKIP_REVEALING_ON_FAST_LOAD > 0 &&
+        timeDiff < SKIP_REVEALING_ON_FAST_LOAD
+      ) {
         return;
       }
 
