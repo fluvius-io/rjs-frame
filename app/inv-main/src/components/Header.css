@@ -3,6 +3,11 @@
  * Navigation header with dropdown menus using Radix UI primitives
  */
 
+/* Navigation Container - handles hover area */
+.header-nav__container {
+  @apply relative;
+}
+
 /* Navigation Trigger Button */
 .header-nav__trigger {
   @apply flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md;
@@ -35,6 +40,29 @@
   @apply min-w-[280px] bg-background rounded-md border shadow-lg p-1 z-50;
   @apply transition-all duration-200 ease-out;
   @apply opacity-100 scale-100;
+  @apply absolute top-full left-0;
+  @apply hidden; /* Hidden by default */
+  margin-top: 2px; /* Small gap to prevent accidental hover loss */
+}
+
+/* Show dropdown on container hover OR dropdown hover */
+.header-nav__container:hover .header-nav__dropdown-content,
+.header-nav__dropdown-content:hover {
+  @apply block;
+}
+
+/* Create invisible bridge between button and dropdown to prevent hover gaps */
+.header-nav__container::before {
+  content: "";
+  @apply absolute top-full left-0 w-full;
+  height: 4px; /* Bridge height to cover the gap */
+  background: transparent;
+  z-index: 40;
+}
+
+/* Ensure dropdown appears above the bridge */
+.header-nav__dropdown-content {
+  z-index: 50;
 }
 
 /* Dropdown Item */

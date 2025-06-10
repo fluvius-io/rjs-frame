@@ -1,10 +1,14 @@
-import React, { Component, type ReactNode } from 'react';
-import { pageStore, updatePageState } from '../store/pageStore';
+import React from "react";
+import { Routes } from "react-router-dom";
 import { generate } from "short-uuid";
-import { PageLayoutContext, PageSlotContext, type PageSlotContextType } from "../contexts/LayoutContexts";
-import type { PageState, PageParams } from "../types/PageState";
+import {
+  PageLayoutContext,
+  PageSlotContext,
+  type PageSlotContextType,
+} from "../contexts/LayoutContexts";
+import { pageStore, updatePageState } from "../store/pageStore";
 import "../styles/index.css";
-import { Routes } from 'react-router-dom';
+import type { PageState } from "../types/PageState";
 
 export interface PageModuleState {
   pageState: PageState;
@@ -74,22 +78,27 @@ export class PageModule extends React.Component<
   // Override this method in subclasses to customize when the module should re-render
   protected shouldUpdate(newState: PageState): boolean {
     const prevState = this.state.pageState;
-    
-    // Default: update on any change to core state properties
+
+    // Default: only pageName and pageParams are checked for updates
     return (
       prevState.pageName !== newState.pageName ||
-      JSON.stringify(prevState.pageParams) !== JSON.stringify(newState.pageParams) ||
-      JSON.stringify(prevState.linkParams) !== JSON.stringify(newState.linkParams) ||
-      prevState.breadcrumbs !== newState.breadcrumbs ||
-      JSON.stringify(prevState.globalState) !== JSON.stringify(newState.globalState) ||
-      JSON.stringify(prevState.moduleState) !== JSON.stringify(newState.moduleState) ||
-      JSON.stringify(prevState.auth) !== JSON.stringify(newState.auth)
+      JSON.stringify(prevState.pageParams) !==
+        JSON.stringify(newState.pageParams)
     );
+
+    // TODO: Add more checks for other state properties if needed
+    // JSON.stringify(prevState.linkParams) !==
+    //   JSON.stringify(newState.linkParams) ||
+    // prevState.breadcrumbs !== newState.breadcrumbs ||
+    // JSON.stringify(prevState.globalState) !==
+    //   JSON.stringify(newState.globalState) ||
+    // JSON.stringify(prevState.moduleState) !==
+    //   JSON.stringify(newState.moduleState)
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    
+
     if (this.unsubscribe) {
       this.unsubscribe();
       this.unsubscribe = null;
@@ -134,13 +143,13 @@ export class PageModule extends React.Component<
     if (!this.state.initialized) {
       return <div className="page-module page-module--loading">Loading...</div>;
     }
-        
+
     return (
       <PageSlotContext.Consumer>
         {(slotContext) => {
           // Store the context in ref for access in other methods
           (this.slotContextRef as any).current = slotContext;
-          
+
           if (!slotContext) {
             return (
               <div className="page-module page-module--error">
@@ -157,14 +166,13 @@ export class PageModule extends React.Component<
 
   protected renderContent(): React.ReactNode {
     return this.props.children;
-  };
+  }
 }
 
 export class RoutingModule extends PageModule {
   render() {
     return <Routes>{this.props.children}</Routes>;
-  };
+  }
 }
 
-export {Route} from 'react-router-dom';
-
+export { Route } from "react-router-dom";

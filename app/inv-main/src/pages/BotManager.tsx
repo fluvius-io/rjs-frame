@@ -15,9 +15,9 @@ import {
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule } from "rjs-frame";
-import { Footer, Header } from "../components";
+import { Header } from "../components";
 
-export default function HomePage() {
+export default function BotManager() {
   return (
     <ThreeColumnLayout>
       <Header slotName="header" />
@@ -280,7 +280,12 @@ export default function HomePage() {
         </div>
       </PageModule>
 
-      <Footer slotName="footer" />
+      <PageModule slotName="footer">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
+          <p>Last updated: 2 minutes ago</p>
+        </div>
+      </PageModule>
     </ThreeColumnLayout>
   );
 }

@@ -1,0 +1,63 @@
+/**
+ * Footer Component Styles
+ * Application footer with copyright and status information
+ */
+
+/* Footer Container */
+.footer-container {
+  @apply w-full;
+}
+
+/* Footer Content */
+.footer-content {
+  @apply flex items-center justify-between text-sm text-muted-foreground;
+  @apply px-4 py-3;
+}
+
+/* Footer Copyright Text */
+.footer-copyright {
+  @apply font-medium;
+}
+
+/* Footer Last Updated Text */
+.footer-updated {
+  @apply font-normal;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-content {
+    @apply flex-col items-start gap-2 px-3 py-4;
+  }
+
+  .footer-copyright,
+  .footer-updated {
+    @apply text-xs;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .footer-content {
+    @apply border-t border-border/50;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .footer-content {
+    @apply border-t-2 border-foreground text-foreground;
+  }
+
+  .footer-copyright,
+  .footer-updated {
+    @apply font-bold;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .footer-content {
+    @apply transition-none;
+  }
+}

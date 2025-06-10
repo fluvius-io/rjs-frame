@@ -29,8 +29,6 @@ export interface PageState {
   linkParams: LinkParams;
   globalState: GlobalState;
   moduleState: ModuleState;
-  auth: AuthState;
-  other: Record<string, any>;
 }
 
 // Extended PageState with typed auth context for modern applications

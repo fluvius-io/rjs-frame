@@ -7,7 +7,7 @@ export default function NotFoundPage() {
   const location = useLocation();
 
   const handleGoHome = () => {
-    navigate("/portfolio");
+    navigate("/home");
   };
 
   const handleGoBack = () => {
@@ -22,7 +22,7 @@ export default function NotFoundPage() {
     <div className="min-h-screen flex items-center justify-center bg-overlay p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+          <div className="mx-auto mb-4 w-24 h-24 bg-muted rounded-full flex items-center justify-center">
             <span className="text-4xl font-bold text-muted-foreground">
               404
             </span>

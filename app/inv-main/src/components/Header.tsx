@@ -16,13 +16,7 @@ import { PageModule } from "rjs-frame";
 import logoTransparent from "../assets/img/logo-transparent.png";
 import "./Header.css";
 
-interface HeaderProps {
-  className?: string;
-  slotName?: string;
-  data?: Record<string, any>;
-}
-
-// Navigation Item Component using React Router
+// Simple Navigation Item without JavaScript hover management
 const NavigationItem: React.FC<{
   item: {
     label: string;
@@ -32,64 +26,55 @@ const NavigationItem: React.FC<{
   };
 }> = ({ item }) => {
   const handleNavigation = (href: string) => {
-    // Use window.history.pushState for client-side navigation
     window.history.pushState(null, "", href);
-    // Dispatch a popstate event to trigger React Router
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
   return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild>
-        <button className="header-nav__trigger">
-          <item.icon className="header-nav__icon" />
-          <span className="header-nav__label">{item.label}</span>
-          <ChevronDown className="header-nav__chevron" />
-        </button>
-      </DropdownMenu.Trigger>
+    <div className="header-nav__container">
+      <button className="header-nav__trigger">
+        <item.icon className="header-nav__icon" />
+        <span className="header-nav__label">{item.label}</span>
+        <ChevronDown className="header-nav__chevron" />
+      </button>
 
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          className="header-nav__dropdown-content"
-          sideOffset={5}
-          align="start"
+      {/* CSS-controlled dropdown */}
+      <div className="header-nav__dropdown-content absolute top-full left-0 mt-1">
+        <div
+          className="header-nav__dropdown-item"
+          onClick={() => handleNavigation(item.href)}
         >
-          <DropdownMenu.Item
-            className="header-nav__dropdown-item"
-            onSelect={() => handleNavigation(item.href)}
-          >
-            <item.icon className="header-nav__dropdown-icon" />
-            <div className="header-nav__dropdown-text">
-              <span className="header-nav__dropdown-title">{item.label}</span>
-              <span className="header-nav__dropdown-description">
-                {item.description}
-              </span>
-            </div>
-          </DropdownMenu.Item>
+          <item.icon className="header-nav__dropdown-icon" />
+          <div className="header-nav__dropdown-text">
+            <span className="header-nav__dropdown-title">{item.label}</span>
+            <span className="header-nav__dropdown-description">
+              {item.description}
+            </span>
+          </div>
+        </div>
 
-          <DropdownMenu.Separator className="header-nav__dropdown-separator" />
+        <div className="header-nav__dropdown-separator" />
 
-          <DropdownMenu.Item
-            className="header-nav__dropdown-item"
-            onSelect={() => handleNavigation(`${item.href}/settings`)}
-          >
-            <Activity className="header-nav__dropdown-icon" />
-            <div className="header-nav__dropdown-text">
-              <span className="header-nav__dropdown-title">
-                {item.label} Settings
-              </span>
-              <span className="header-nav__dropdown-description">
-                Configure {item.label.toLowerCase()} preferences
-              </span>
-            </div>
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+        <div
+          className="header-nav__dropdown-item"
+          onClick={() => handleNavigation(`${item.href}/settings`)}
+        >
+          <Activity className="header-nav__dropdown-icon" />
+          <div className="header-nav__dropdown-text">
+            <span className="header-nav__dropdown-title">
+              {item.label} Settings
+            </span>
+            <span className="header-nav__dropdown-description">
+              Configure {item.label.toLowerCase()} preferences
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-// Mobile Navigation Item Component
+// Mobile Navigation Item Component (unchanged)
 const MobileNavigationItem: React.FC<{
   item: {
     label: string;
@@ -158,7 +143,7 @@ export class Header extends PageModule {
   }
 
   private handleLogoClick = () => {
-    window.history.pushState(null, "", "/portfolio");
+    window.history.pushState(null, "", "/home");
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
