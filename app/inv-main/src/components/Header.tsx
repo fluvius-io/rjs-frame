@@ -22,6 +22,103 @@ interface HeaderProps {
   data?: Record<string, any>;
 }
 
+// Navigation Item Component using React Router
+const NavigationItem: React.FC<{
+  item: {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    href: string;
+    description: string;
+  };
+}> = ({ item }) => {
+  const handleNavigation = (href: string) => {
+    // Use window.history.pushState for client-side navigation
+    window.history.pushState(null, "", href);
+    // Dispatch a popstate event to trigger React Router
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button className="header-nav__trigger">
+          <item.icon className="header-nav__icon" />
+          <span className="header-nav__label">{item.label}</span>
+          <ChevronDown className="header-nav__chevron" />
+        </button>
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className="header-nav__dropdown-content"
+          sideOffset={5}
+          align="start"
+        >
+          <DropdownMenu.Item
+            className="header-nav__dropdown-item"
+            onSelect={() => handleNavigation(item.href)}
+          >
+            <item.icon className="header-nav__dropdown-icon" />
+            <div className="header-nav__dropdown-text">
+              <span className="header-nav__dropdown-title">{item.label}</span>
+              <span className="header-nav__dropdown-description">
+                {item.description}
+              </span>
+            </div>
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Separator className="header-nav__dropdown-separator" />
+
+          <DropdownMenu.Item
+            className="header-nav__dropdown-item"
+            onSelect={() => handleNavigation(`${item.href}/settings`)}
+          >
+            <Activity className="header-nav__dropdown-icon" />
+            <div className="header-nav__dropdown-text">
+              <span className="header-nav__dropdown-title">
+                {item.label} Settings
+              </span>
+              <span className="header-nav__dropdown-description">
+                Configure {item.label.toLowerCase()} preferences
+              </span>
+            </div>
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+};
+
+// Mobile Navigation Item Component
+const MobileNavigationItem: React.FC<{
+  item: {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    href: string;
+    description: string;
+  };
+}> = ({ item }) => {
+  const handleNavigation = (href: string) => {
+    window.history.pushState(null, "", href);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  return (
+    <DropdownMenu.Item
+      className="header-nav__mobile-item"
+      onSelect={() => handleNavigation(item.href)}
+    >
+      <item.icon className="header-nav__mobile-icon" />
+      <div className="header-nav__mobile-text">
+        <span className="header-nav__mobile-title">{item.label}</span>
+        <span className="header-nav__mobile-description">
+          {item.description}
+        </span>
+      </div>
+    </DropdownMenu.Item>
+  );
+};
+
 export class Header extends PageModule {
   private navigationItems = [
     {
@@ -51,7 +148,7 @@ export class Header extends PageModule {
     {
       label: "Dashboard",
       icon: BarChart3,
-      href: "/dashboard",
+      href: "/portfolio",
       description: "Analytics dashboard",
     },
   ];
@@ -59,6 +156,11 @@ export class Header extends PageModule {
   constructor(props: any) {
     super(props);
   }
+
+  private handleLogoClick = () => {
+    window.history.pushState(null, "", "/portfolio");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
 
   protected renderContent(): React.ReactNode {
     const className = (this.props as any).className;
@@ -68,70 +170,21 @@ export class Header extends PageModule {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-6">
-            <a href="/" className="flex-shrink-0">
+            <button
+              onClick={this.handleLogoClick}
+              className="flex-shrink-0 cursor-pointer border-none bg-transparent p-0"
+            >
               <img
                 src={logoTransparent}
                 alt="Invest Mate - Trading Management Platform"
                 style={{ height: "60px", margin: "-16px 0px" }}
               />
-            </a>
+            </button>
 
             {/* Main Navigation */}
             <nav className="hidden md:flex items-center gap-1">
               {this.navigationItems.map((item) => (
-                <DropdownMenu.Root key={item.label}>
-                  <DropdownMenu.Trigger asChild>
-                    <button className="header-nav__trigger">
-                      <item.icon className="header-nav__icon" />
-                      <span className="header-nav__label">{item.label}</span>
-                      <ChevronDown className="header-nav__chevron" />
-                    </button>
-                  </DropdownMenu.Trigger>
-
-                  <DropdownMenu.Portal>
-                    <DropdownMenu.Content
-                      className="header-nav__dropdown-content"
-                      sideOffset={5}
-                      align="start"
-                    >
-                      <DropdownMenu.Item
-                        className="header-nav__dropdown-item"
-                        asChild
-                      >
-                        <a href={item.href}>
-                          <item.icon className="header-nav__dropdown-icon" />
-                          <div className="header-nav__dropdown-text">
-                            <span className="header-nav__dropdown-title">
-                              {item.label}
-                            </span>
-                            <span className="header-nav__dropdown-description">
-                              {item.description}
-                            </span>
-                          </div>
-                        </a>
-                      </DropdownMenu.Item>
-
-                      <DropdownMenu.Separator className="header-nav__dropdown-separator" />
-
-                      <DropdownMenu.Item
-                        className="header-nav__dropdown-item"
-                        asChild
-                      >
-                        <a href={`${item.href}/settings`}>
-                          <Activity className="header-nav__dropdown-icon" />
-                          <div className="header-nav__dropdown-text">
-                            <span className="header-nav__dropdown-title">
-                              {item.label} Settings
-                            </span>
-                            <span className="header-nav__dropdown-description">
-                              Configure {item.label.toLowerCase()} preferences
-                            </span>
-                          </div>
-                        </a>
-                      </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Portal>
-                </DropdownMenu.Root>
+                <NavigationItem key={item.label} item={item} />
               ))}
             </nav>
           </div>
@@ -174,23 +227,7 @@ export class Header extends PageModule {
                 align="start"
               >
                 {this.navigationItems.map((item) => (
-                  <DropdownMenu.Item
-                    key={item.label}
-                    className="header-nav__mobile-item"
-                    asChild
-                  >
-                    <a href={item.href}>
-                      <item.icon className="header-nav__mobile-icon" />
-                      <div className="header-nav__mobile-text">
-                        <span className="header-nav__mobile-title">
-                          {item.label}
-                        </span>
-                        <span className="header-nav__mobile-description">
-                          {item.description}
-                        </span>
-                      </div>
-                    </a>
-                  </DropdownMenu.Item>
+                  <MobileNavigationItem key={item.label} item={item} />
                 ))}
               </DropdownMenu.Content>
             </DropdownMenu.Portal>

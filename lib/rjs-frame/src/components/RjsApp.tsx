@@ -33,7 +33,7 @@ const defaultConfig: AppConfig = {
 
 // Transition timing
 const REVEALING_TIME: number = 1000; // This must be consistent to the CSS transition time
-const SKIP_REVEALING_ON_FAST_LOAD: number = 10;
+const SKIP_REVEALING_ON_FAST_LOAD: number = 1000;
 
 // Create configuration context
 const ConfigContext = createContext<ConfigContextType>({
