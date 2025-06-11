@@ -1,9 +1,17 @@
-import React from 'react';
-import { PageLayoutOptions } from './PageLayoutOptions';
-import { getXRayEnabled, setXRayEnabled, pageStore, setPageName } from '../store/pageStore';
-import { PageModule } from './PageModule';
-import { PageLayoutContext, type PageLayoutContextType } from '../contexts/LayoutContexts';
-import type { PageState } from '../types/PageState';
+import React from "react";
+import {
+  PageLayoutContext,
+  type PageLayoutContextType,
+} from "../contexts/LayoutContexts";
+import {
+  getXRayEnabled,
+  pageStore,
+  setPageName,
+  setXRayEnabled,
+} from "../store/pageStore";
+import type { PageState } from "../types/PageState";
+import { PageLayoutOptions } from "./PageLayoutOptions";
+import { PageModule } from "./PageModule";
 
 type ModuleValue = React.ReactNode | React.ReactNode[];
 
@@ -18,7 +26,10 @@ interface PageLayoutState {
   pageState: PageState;
 }
 
-export abstract class PageLayout extends React.Component<PageLayoutProps, PageLayoutState> {
+export abstract class PageLayout extends React.Component<
+  PageLayoutProps,
+  PageLayoutState
+> {
   private layoutId: string;
   private static activeInstance: PageLayout | null = null;
   private static instanceCount: number = 0;
@@ -26,34 +37,47 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
 
   private gatherModulesFromChildren(): Record<string, React.ReactNode[]> {
     const pageModules: Record<string, React.ReactNode[]> = {};
-    
+
     React.Children.forEach(this.props.children, (child) => {
       if (!React.isValidElement(child)) {
-        console.warn('[PageLayout] Invalid child element found, skipping:', child);
+        console.warn(
+          "[PageLayout] Invalid child element found, skipping:",
+          child
+        );
         return;
       }
 
       // Check if child is a PageModule instance
       const childType = child.type as any;
-      const isPageModule = childType && (
-        childType.prototype instanceof PageModule ||
-        childType === PageModule ||
-        (childType.prototype && childType.prototype.constructor?.name === 'PageModule')
-      );
+      const isPageModule =
+        childType &&
+        (childType.prototype instanceof PageModule ||
+          childType === PageModule ||
+          (childType.prototype &&
+            childType.prototype.constructor?.name === "PageModule"));
 
       if (!isPageModule) {
         throw new Error(
-          `[PageLayout] All children must be PageModule instances. Found: ${childType?.name || 'Unknown'}. ` +
-          `Please ensure all children extend PageModule and have a slotName prop.`
+          `[PageLayout] All children must be PageModule instances. Found: ${
+            childType?.name || "Unknown"
+          }. ` +
+            `Please ensure all children extend PageModule and have a slotName prop.`
         );
       }
 
+      // Extract props from the child
+      const childProps = child.props as any;
+
       // Extract slotName from props, default to "main" if missing
-      let slotName = (child.props as any)?.slotName;
-      
-      if (!slotName || typeof slotName !== 'string') {
-        slotName = 'main';
-        console.log(`[PageLayout] PageModule child missing slotName prop, defaulting to "main". Component: ${childType?.name || 'Unknown'}`);
+      let slotName = childProps?.slotName;
+
+      if (!slotName || typeof slotName !== "string") {
+        slotName = "main";
+        console.log(
+          `[PageLayout] PageModule child missing slotName prop, defaulting to "main". Component: ${
+            childType?.name || "Unknown"
+          }`
+        );
       }
 
       // Add to modules grouped by slot name
@@ -75,7 +99,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     this.layoutId = this.constructor.name;
     this.state = {
       showOptions: false,
-      pageState: pageStore.get()
+      pageState: pageStore.get(),
     };
   }
 
@@ -89,7 +113,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
         `[PageLayout] Multiple PageLayout instances detected. Only one PageLayout should be active at a time.`,
         `Current: ${this.layoutId}, Previous: ${PageLayout.activeInstance.layoutId}`
       );
-      
+
       // Force cleanup of previous instance
       PageLayout.activeInstance.forceCleanup();
     }
@@ -116,7 +140,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     try {
       this.gatherModulesFromChildren();
     } catch (error) {
-      console.error('[PageLayout] Validation failed:', error);
+      console.error("[PageLayout] Validation failed:", error);
       throw error;
     }
 
@@ -151,11 +175,11 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
   }
 
   private setupEventListeners() {
-    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener("keydown", this.handleKeyDown);
   }
 
   private cleanupEventListeners() {
-    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener("keydown", this.handleKeyDown);
   }
 
   private forceCleanup() {
@@ -173,21 +197,21 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
     }
 
     // Option+O (Mac) / Alt+O (Windows) to toggle options dialog
-    if (event.altKey && event.code === 'KeyO') {
+    if (event.altKey && event.code === "KeyO") {
       event.preventDefault();
       this.setState({ showOptions: !this.state.showOptions });
       return;
     }
-    
+
     // Escape to close options dialog
-    if (event.key === 'Escape' && this.state.showOptions) {
+    if (event.key === "Escape" && this.state.showOptions) {
       event.preventDefault();
       this.setState({ showOptions: false });
       return;
     }
 
     // Option+X (Mac) / Alt+X (Windows) to toggle X-Ray mode directly
-    if (event.altKey && event.code === 'KeyX') {
+    if (event.altKey && event.code === "KeyX") {
       event.preventDefault();
       this.toggleXRay();
       return;
@@ -208,7 +232,7 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
   static getActiveInstanceInfo() {
     return {
       activeInstance: PageLayout.activeInstance?.layoutId || null,
-      totalInstances: PageLayout.instanceCount
+      totalInstances: PageLayout.instanceCount,
     };
   }
 
@@ -225,19 +249,19 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
   render() {
     const xRayEnabled = getXRayEnabled();
     const { breadcrumbs } = this.state.pageState;
-    
+
     const contextValue: PageLayoutContextType = {
       layoutId: this.layoutId,
       pageModules: this.modules,
       xRay: xRayEnabled,
       addPageModule: (slotName: string, content: React.ReactNode) => {
         // TODO: Implement dynamic module addition if needed
-        console.warn('[PageLayout] addPageModule not yet implemented');
+        console.warn("[PageLayout] addPageModule not yet implemented");
       },
       removePageModule: (slotName: string, content: React.ReactNode) => {
         // TODO: Implement dynamic module removal if needed
-        console.warn('[PageLayout] removePageModule not yet implemented');
-      }
+        console.warn("[PageLayout] removePageModule not yet implemented");
+      },
     };
 
     const className = xRayEnabled ? "page-layout x-ray" : "page-layout";
@@ -248,7 +272,9 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
           {this.renderContent()}
         </div>
         <PageLayoutOptions
-          isVisible={this.state.showOptions && PageLayout.activeInstance === this}
+          isVisible={
+            this.state.showOptions && PageLayout.activeInstance === this
+          }
           layoutId={this.layoutId}
           modules={this.modules}
           xRayEnabled={xRayEnabled}
@@ -260,4 +286,4 @@ export abstract class PageLayout extends React.Component<PageLayoutProps, PageLa
       </PageLayoutContext.Provider>
     );
   }
-} 
+}

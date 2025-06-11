@@ -118,6 +118,10 @@ export {
   updateBrowserTitle,
 } from "./utils/urlUtils";
 
+export { shouldRender } from "./utils/matchParams";
+
+export type { MatchParamValue, MatchParams } from "./utils/matchParams";
+
 // Contexts
 export {
   PageLayoutContext,

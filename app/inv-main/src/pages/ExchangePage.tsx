@@ -1,9 +1,9 @@
 import {
-  Bell,
+  ArrowUpDown,
+  DollarSign,
   Filter,
-  Package2,
-  Search,
-  ShoppingCart,
+  LineChart,
+  RefreshCw,
   TrendingUp,
 } from "lucide-react";
 import {
@@ -17,51 +17,51 @@ import {
 import { PageModule } from "rjs-frame";
 import { Header } from "../components";
 
-export default function BotManager() {
+export default function ExchangePage() {
   return (
     <ThreeColumnLayout>
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Bot Types</h2>
+          <h2 className="text-lg font-semibold">Trading Pairs</h2>
           <nav className="space-y-2">
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              All Bots
+              <DollarSign className="mr-2 h-4 w-4" />
+              USD Pairs
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Stocks
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Major Stocks
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              Bonds
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
+              <LineChart className="mr-2 h-4 w-4" />
               ETFs
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              Forex
+            </Button>
+            <Button variant="ghost" className="w-full justify-start">
+              <RefreshCw className="mr-2 h-4 w-4" />
               Crypto
             </Button>
           </nav>
 
           <div className="mt-6">
-            <h3 className="text-sm font-semibold mb-2">Quick Stats</h3>
+            <h3 className="text-sm font-semibold mb-2">Market Status</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Total Investments</span>
-                <span className="font-medium">2,847</span>
+                <span>NYSE</span>
+                <span className="font-medium text-green-600">Open</span>
               </div>
               <div className="flex justify-between">
-                <span>Low Performance</span>
-                <span className="font-medium text-orange-600">23</span>
+                <span>NASDAQ</span>
+                <span className="font-medium text-green-600">Open</span>
               </div>
               <div className="flex justify-between">
-                <span>High Risk</span>
-                <span className="font-medium text-red-600">5</span>
+                <span>Forex</span>
+                <span className="font-medium text-green-600">24/7</span>
               </div>
             </div>
           </div>
@@ -72,14 +72,16 @@ export default function BotManager() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Bot Manager</h2>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Exchange Trading
+              </h2>
               <p className="text-muted-foreground">
-                Monitor and manage your bots.
+                Real-time trading across multiple exchanges and markets.
               </p>
             </div>
             <Button>
-              <Package2 className="mr-2 h-4 w-4" />
-              Add Investment
+              <ArrowUpDown className="mr-2 h-4 w-4" />
+              New Order
             </Button>
           </div>
 
@@ -87,14 +89,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Value
+                  Available Balance
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$45,231</div>
+                <div className="text-2xl font-bold">$25,840</div>
                 <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
+                  Ready for trading
                 </p>
               </CardContent>
             </Card>
@@ -102,14 +104,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Active Investments
+                  Open Orders
                 </CardTitle>
-                <Package2 className="h-4 w-4 text-muted-foreground" />
+                <RefreshCw className="h-4 w-4 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">2,847</div>
+                <div className="text-2xl font-bold text-blue-600">7</div>
                 <p className="text-xs text-muted-foreground">
-                  +180 new investments this month
+                  Pending execution
                 </p>
               </CardContent>
             </Card>
@@ -117,14 +119,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Performance Alerts
+                  Today's P&L
                 </CardTitle>
-                <Bell className="h-4 w-4 text-muted-foreground" />
+                <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">23</div>
+                <div className="text-2xl font-bold text-green-600">+$1,247</div>
                 <p className="text-xs text-muted-foreground">
-                  Requires immediate attention
+                  +4.8% unrealized gain
                 </p>
               </CardContent>
             </Card>
@@ -132,14 +134,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Asset Classes
+                  Trade Volume
                 </CardTitle>
                 <Filter className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">$47,600</div>
                 <p className="text-xs text-muted-foreground">
-                  Active asset classes
+                  Today's total volume
                 </p>
               </CardContent>
             </Card>
@@ -148,36 +150,42 @@ export default function BotManager() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Investments</CardTitle>
+                <CardTitle>Active Positions</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Apple Inc. (AAPL)</p>
+                      <p className="text-sm font-medium">AAPL</p>
                       <p className="text-xs text-muted-foreground">
-                        Stocks • Shares: 100
+                        Long • 100 shares @ $175.50
                       </p>
                     </div>
-                    <span className="text-sm font-medium">$15,000</span>
+                    <span className="text-sm font-medium text-green-600">
+                      +$320
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">S&P 500 ETF</p>
+                      <p className="text-sm font-medium">TSLA</p>
                       <p className="text-xs text-muted-foreground">
-                        ETFs • Shares: 50
+                        Short • 50 shares @ $242.80
                       </p>
                     </div>
-                    <span className="text-sm font-medium">$25,000</span>
+                    <span className="text-sm font-medium text-red-600">
+                      -$180
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">US Treasury Bond</p>
+                      <p className="text-sm font-medium">SPY</p>
                       <p className="text-xs text-muted-foreground">
-                        Bonds • 10-Year
+                        Long • 200 shares @ $445.20
                       </p>
                     </div>
-                    <span className="text-sm font-medium">$10,000</span>
+                    <span className="text-sm font-medium text-green-600">
+                      +$560
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -185,102 +193,91 @@ export default function BotManager() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Performance Alerts</CardTitle>
+                <CardTitle>Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Tesla Inc. (TSLA)</p>
+                      <p className="text-sm font-medium">NVDA Buy</p>
                       <p className="text-xs text-muted-foreground">
-                        Stocks • High Volatility
+                        Market • 25 shares • Filled
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-orange-600">
-                      -5.2%
+                    <span className="text-sm font-medium text-green-600">
+                      Executed
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Bitcoin (BTC)</p>
+                      <p className="text-sm font-medium">MSFT Sell</p>
                       <p className="text-xs text-muted-foreground">
-                        Crypto • High Risk
+                        Limit • 50 shares @ $380.00
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-orange-600">
-                      -8.1%
+                    <span className="text-sm font-medium text-blue-600">
+                      Pending
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">GameStop Corp.</p>
+                      <p className="text-sm font-medium">AMZN Buy</p>
                       <p className="text-xs text-muted-foreground">
-                        Stocks • Meme Stock
+                        Stop • 30 shares @ $145.00
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-red-600">
-                      -15.3%
+                    <span className="text-sm font-medium text-yellow-600">
+                      Queued
                     </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
-      </PageModule>
 
-      <PageModule slotName="rightPanel">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Quick Actions</h3>
-          <div className="space-y-2">
-            <Button className="w-full" variant="outline">
-              <Package2 className="mr-2 h-4 w-4" />
-              Add Investment
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Search className="mr-2 h-4 w-4" />
-              Search Portfolio
-            </Button>
-            <Button variant="outline" className="w-full">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              View Reports
-            </Button>
-          </div>
-
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold mb-2">Portfolio Health</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Performing Well</span>
-                <span className="text-green-600">2,819</span>
+          <Card>
+            <CardHeader>
+              <CardTitle>Market Watchlist</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">AAPL</p>
+                    <p className="text-xs text-muted-foreground">Apple Inc.</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">$178.25</p>
+                    <p className="text-xs text-green-600">+1.8%</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">GOOGL</p>
+                    <p className="text-xs text-muted-foreground">
+                      Alphabet Inc.
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">$138.42</p>
+                    <p className="text-xs text-red-600">-0.5%</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">MSFT</p>
+                    <p className="text-xs text-muted-foreground">
+                      Microsoft Corp.
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">$378.50</p>
+                    <p className="text-xs text-green-600">+2.1%</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>Underperforming</span>
-                <span className="text-orange-600">23</span>
-              </div>
-              <div className="flex justify-between">
-                <span>High Risk</span>
-                <span className="text-red-600">5</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold mb-2">Recent Activity</h4>
-            <div className="space-y-2 text-xs text-muted-foreground">
-              <p>• AAPL position increased</p>
-              <p>• Portfolio rebalanced</p>
-              <p>• Performance alert for TSLA</p>
-              <p>• Asset class "Crypto" updated</p>
-            </div>
-          </div>
-        </div>
-      </PageModule>
-
-      <PageModule slotName="footer">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Last updated: 2 minutes ago</p>
+            </CardContent>
+          </Card>
         </div>
       </PageModule>
     </ThreeColumnLayout>

@@ -32,16 +32,18 @@ export class ThreeColumnLayout extends PageLayout {
 
         <div className="flex flex-1">
           {/* Left Sidebar */}
-          <aside
-            className={cn(
-              "sticky top-16 h-[calc(100vh-4rem)] border-r bg-muted/10",
-              widthClasses[sidebarWidth]
-            )}
-          >
-            <div className="p-4">
-              <PageSlot name="sidebar" />
-            </div>
-          </aside>
+          <PageSlot name="sidebar-outer" matchParams={{ sidebar: true }}>
+            <aside
+              className={cn(
+                "sticky top-16 h-[calc(100vh-4rem)] border-r bg-muted/10",
+                widthClasses[sidebarWidth]
+              )}
+            >
+              <div className="p-4">
+                <PageSlot name="sidebar" />
+              </div>
+            </aside>
+          </PageSlot>
 
           {/* Main Content */}
           <main className="flex-1 overflow-hidden">

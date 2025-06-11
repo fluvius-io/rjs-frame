@@ -1,76 +1,32 @@
-import React, { ReactNode, useEffect, useContext, createContext, useState, useRef } from 'react';
-import { PageLayoutContext } from '../contexts/LayoutContexts';
-import { PageSlotContext, type PageSlotContextType } from '../contexts/LayoutContexts';
-import { pageStore } from '../store/pageStore';
-import '../styles/index.css';
-import type { PageState } from '../types/PageState';
-import { PageParams } from '../types/PageState';
-import { getXRayEnabled } from '../store/pageStore';
-import { PageModule } from './PageModule';
+import React, { useContext } from "react";
+import {
+  PageLayoutContext,
+  PageSlotContext,
+  type PageSlotContextType,
+} from "../contexts/LayoutContexts";
+import { pageStore } from "../store/pageStore";
+import "../styles/index.css";
+import { shouldRender, type MatchParams } from "../utils/matchParams";
 
 export interface PageSlotProps {
   name?: string;
   renderEmpty?: boolean;
   allowToggle?: boolean;
-  visible?: 'show' | 'hide'| 'always';
+  matchParams?: MatchParams;
   defaultParamValue?: string;
   className?: string;
   children?: React.ReactNode;
 }
 
+// Default template component - defined outside to prevent recreation on every render
+const DefaultSlotTemplate: React.ComponentType<{
+  content: React.ReactNode[];
+}> = ({ content }) => <>{content}</>;
+
 export const PageSlot = (props: PageSlotProps) => {
-  const [pageState, setPageState] = useState<PageState>(pageStore.get());
-  const mountedRef = useRef(false);
   const context = useContext(PageLayoutContext);
-
-  useEffect(() => {
-    mountedRef.current = true;
-
-    if (!context) {
-      console.error('PageSlot must be rendered within a PageLayout');
-      return;
-    }
-
-    // Subscribe to store changes
-    const unsubscribe = pageStore.subscribe((value: PageState) => {
-      if (shouldUpdate(value)) {
-        setPageState(value);
-      }
-    });
-
-    return () => {
-      mountedRef.current = false;
-      unsubscribe();
-    };
-  }, [context]);
-
-  const shouldUpdate = (newState: PageState): boolean => {
-    if (!mountedRef.current) {
-      return false;
-    }
-
-    return (
-      JSON.stringify(pageState.pageParams) !== JSON.stringify(newState.pageParams) ||
-      pageState.pageName !== newState.pageName
-    );
-  };
-
-  const slotName = props.name || 'main';
-  const pageParams = pageState.pageParams || {};
-
-  const slotVisible = () => {
-    let defaultVisibility = props.visible || 'always';
-
-    if (defaultVisibility === 'show') {
-      return pageParams[slotName] !== false;
-    }
-
-    if (defaultVisibility === 'hide') {
-      return Boolean(pageParams[slotName]);
-    }
-
-    return true;
-  };
+  const { name: slotName = "main", renderEmpty = false } = props;
+  const pageParams = pageStore.get().pageParams || {};
 
   if (!context) {
     return (
@@ -80,35 +36,32 @@ export const PageSlot = (props: PageSlotProps) => {
     );
   }
 
-  if (!slotVisible()) {
+  // Check if slot should be rendered based on matchParams
+  if (!shouldRender(props.matchParams, pageParams, `PageSlot[${slotName}]`)) {
     return null;
   }
-
-  const { renderEmpty = false } = props;
 
   let slotContent = context.pageModules[slotName];
   let hasSlotContent = !!slotContent && slotContent.length > 0;
-  let renderingContent = hasSlotContent ? slotContent : [props.children];
-         
-  if (!renderEmpty && !renderingContent) {
+  let renderingContent = hasSlotContent
+    ? slotContent
+    : props.children
+    ? [props.children]
+    : [];
+
+  if (!renderEmpty && (!renderingContent || renderingContent.length === 0)) {
     return null;
   }
 
-  let slotContext: PageSlotContextType = { args: pageParams, name: slotName };
+  let slotContext: PageSlotContextType = { name: slotName };
 
-  const pageSlotClassName = props.className 
-    ? `page-slot ${props.className}` 
-    : 'page-slot';
+  const pageSlotClassName = `page-slot ${props.className || ""}`;
 
   return (
     <PageSlotContext.Provider value={slotContext}>
-      <div 
-        className={pageSlotClassName} 
-        data-slot-name={slotName}
-        data-slot-visibility={props.visible || 'always'}
-      >
+      <div className={pageSlotClassName} data-slot-name={slotName}>
         {renderingContent}
       </div>
     </PageSlotContext.Provider>
   );
-} 
+};

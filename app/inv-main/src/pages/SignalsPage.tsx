@@ -1,10 +1,10 @@
 import {
-  Bell,
+  AlertTriangle,
   Filter,
-  Package2,
-  Search,
-  ShoppingCart,
+  Signal,
+  TrendingDown,
   TrendingUp,
+  Zap,
 } from "lucide-react";
 import {
   Button,
@@ -17,51 +17,51 @@ import {
 import { PageModule } from "rjs-frame";
 import { Header } from "../components";
 
-export default function BotManager() {
+export default function SignalsPage() {
   return (
     <ThreeColumnLayout>
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Bot Types</h2>
+          <h2 className="text-lg font-semibold">Signal Types</h2>
           <nav className="space-y-2">
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              All Bots
+              <Signal className="mr-2 h-4 w-4" />
+              All Signals
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Stocks
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Buy Signals
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              Bonds
+              <TrendingDown className="mr-2 h-4 w-4" />
+              Sell Signals
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              ETFs
+              <AlertTriangle className="mr-2 h-4 w-4" />
+              Risk Alerts
             </Button>
             <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              Crypto
+              <Zap className="mr-2 h-4 w-4" />
+              Real-time
             </Button>
           </nav>
 
           <div className="mt-6">
-            <h3 className="text-sm font-semibold mb-2">Quick Stats</h3>
+            <h3 className="text-sm font-semibold mb-2">Signal Stats</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Total Investments</span>
-                <span className="font-medium">2,847</span>
+                <span>Active Signals</span>
+                <span className="font-medium">47</span>
               </div>
               <div className="flex justify-between">
-                <span>Low Performance</span>
-                <span className="font-medium text-orange-600">23</span>
+                <span>Buy Signals</span>
+                <span className="font-medium text-green-600">28</span>
               </div>
               <div className="flex justify-between">
-                <span>High Risk</span>
-                <span className="font-medium text-red-600">5</span>
+                <span>Sell Signals</span>
+                <span className="font-medium text-red-600">19</span>
               </div>
             </div>
           </div>
@@ -72,14 +72,16 @@ export default function BotManager() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Bot Manager</h2>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Trading Signals
+              </h2>
               <p className="text-muted-foreground">
-                Monitor and manage your bots.
+                Monitor real-time trading signals and market alerts.
               </p>
             </div>
             <Button>
-              <Package2 className="mr-2 h-4 w-4" />
-              Add Investment
+              <Signal className="mr-2 h-4 w-4" />
+              Create Signal
             </Button>
           </div>
 
@@ -87,14 +89,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Value
+                  Active Signals
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <Signal className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$45,231</div>
+                <div className="text-2xl font-bold">47</div>
                 <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
+                  +5 new signals today
                 </p>
               </CardContent>
             </Card>
@@ -102,14 +104,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Active Investments
+                  Buy Signals
                 </CardTitle>
-                <Package2 className="h-4 w-4 text-muted-foreground" />
+                <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">2,847</div>
+                <div className="text-2xl font-bold text-green-600">28</div>
                 <p className="text-xs text-muted-foreground">
-                  +180 new investments this month
+                  Strong upward momentum
                 </p>
               </CardContent>
             </Card>
@@ -117,14 +119,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Performance Alerts
+                  Sell Signals
                 </CardTitle>
-                <Bell className="h-4 w-4 text-muted-foreground" />
+                <TrendingDown className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">23</div>
+                <div className="text-2xl font-bold text-red-600">19</div>
                 <p className="text-xs text-muted-foreground">
-                  Requires immediate attention
+                  Market correction indicators
                 </p>
               </CardContent>
             </Card>
@@ -132,14 +134,14 @@ export default function BotManager() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Asset Classes
+                  Signal Accuracy
                 </CardTitle>
                 <Filter className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">87%</div>
                 <p className="text-xs text-muted-foreground">
-                  Active asset classes
+                  Last 30 days performance
                 </p>
               </CardContent>
             </Card>
@@ -148,36 +150,42 @@ export default function BotManager() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Investments</CardTitle>
+                <CardTitle>Recent Signals</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Apple Inc. (AAPL)</p>
+                      <p className="text-sm font-medium">AAPL Buy Signal</p>
                       <p className="text-xs text-muted-foreground">
-                        Stocks • Shares: 100
+                        Technical Analysis • 2 min ago
                       </p>
                     </div>
-                    <span className="text-sm font-medium">$15,000</span>
+                    <span className="text-sm font-medium text-green-600">
+                      +2.3%
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">S&P 500 ETF</p>
+                      <p className="text-sm font-medium">TSLA Sell Alert</p>
                       <p className="text-xs text-muted-foreground">
-                        ETFs • Shares: 50
+                        Momentum • 5 min ago
                       </p>
                     </div>
-                    <span className="text-sm font-medium">$25,000</span>
+                    <span className="text-sm font-medium text-red-600">
+                      -1.8%
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">US Treasury Bond</p>
+                      <p className="text-sm font-medium">SPY Neutral</p>
                       <p className="text-xs text-muted-foreground">
-                        Bonds • 10-Year
+                        Market Analysis • 8 min ago
                       </p>
                     </div>
-                    <span className="text-sm font-medium">$10,000</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      0.0%
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -185,102 +193,47 @@ export default function BotManager() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Performance Alerts</CardTitle>
+                <CardTitle>Top Performers</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Tesla Inc. (TSLA)</p>
+                      <p className="text-sm font-medium">NVDA</p>
                       <p className="text-xs text-muted-foreground">
-                        Stocks • High Volatility
+                        Technology • Strong Buy
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-orange-600">
-                      -5.2%
+                    <span className="text-sm font-medium text-green-600">
+                      +8.2%
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Bitcoin (BTC)</p>
+                      <p className="text-sm font-medium">AMD</p>
                       <p className="text-xs text-muted-foreground">
-                        Crypto • High Risk
+                        Semiconductors • Buy
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-orange-600">
-                      -8.1%
+                    <span className="text-sm font-medium text-green-600">
+                      +5.7%
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">GameStop Corp.</p>
+                      <p className="text-sm font-medium">MSFT</p>
                       <p className="text-xs text-muted-foreground">
-                        Stocks • Meme Stock
+                        Cloud Computing • Hold
                       </p>
                     </div>
-                    <span className="text-sm font-medium text-red-600">
-                      -15.3%
+                    <span className="text-sm font-medium text-green-600">
+                      +3.1%
                     </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
-      </PageModule>
-
-      <PageModule slotName="rightPanel">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Quick Actions</h3>
-          <div className="space-y-2">
-            <Button className="w-full" variant="outline">
-              <Package2 className="mr-2 h-4 w-4" />
-              Add Investment
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Search className="mr-2 h-4 w-4" />
-              Search Portfolio
-            </Button>
-            <Button variant="outline" className="w-full">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              View Reports
-            </Button>
-          </div>
-
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold mb-2">Portfolio Health</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Performing Well</span>
-                <span className="text-green-600">2,819</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Underperforming</span>
-                <span className="text-orange-600">23</span>
-              </div>
-              <div className="flex justify-between">
-                <span>High Risk</span>
-                <span className="text-red-600">5</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold mb-2">Recent Activity</h4>
-            <div className="space-y-2 text-xs text-muted-foreground">
-              <p>• AAPL position increased</p>
-              <p>• Portfolio rebalanced</p>
-              <p>• Performance alert for TSLA</p>
-              <p>• Asset class "Crypto" updated</p>
-            </div>
-          </div>
-        </div>
-      </PageModule>
-
-      <PageModule slotName="footer">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Last updated: 2 minutes ago</p>
         </div>
       </PageModule>
     </ThreeColumnLayout>

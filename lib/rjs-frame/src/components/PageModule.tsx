@@ -9,6 +9,7 @@ import {
 import { pageStore, updatePageState } from "../store/pageStore";
 import "../styles/index.css";
 import type { PageState } from "../types/PageState";
+import { shouldRender, type MatchParams } from "../utils/matchParams";
 
 export interface PageModuleState {
   pageState: PageState;
@@ -19,7 +20,11 @@ export interface PageModuleProps {
   children?: React.ReactNode;
   slotName?: string;
   data?: Record<string, any>;
+  matchParams?: MatchParams;
 }
+
+// Re-export types for convenience
+export type { MatchParams, MatchParamValue } from "../utils/matchParams";
 
 export class PageModule extends React.Component<
   PageModuleProps,
@@ -130,6 +135,18 @@ export class PageModule extends React.Component<
     return this.slotContextRef.current;
   }
 
+  // Method to check if this module should render based on matchParams
+  protected shouldRenderModule(): boolean {
+    const { matchParams } = this.props;
+    const { pageParams } = this.state.pageState;
+
+    return shouldRender(
+      matchParams,
+      pageParams,
+      `PageModule[${this.moduleName}]`
+    );
+  }
+
   render() {
     if (!this.context) {
       return (
@@ -142,6 +159,12 @@ export class PageModule extends React.Component<
 
     if (!this.state.initialized) {
       return <div className="page-module page-module--loading">Loading...</div>;
+    }
+
+    // Check if module should render based on matchParams
+    if (!this.shouldRenderModule()) {
+      // Module doesn't match current page parameters, don't render
+      return null;
     }
 
     return (

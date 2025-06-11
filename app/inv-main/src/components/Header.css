@@ -8,16 +8,36 @@
   @apply relative;
 }
 
+.header-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-ring;
+  outline-offset: 0px;
+  --tw-ring-offset-width: 0px;
+}
+
 /* Navigation Trigger Button */
 .header-nav__trigger {
   @apply flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md;
   @apply text-foreground hover:bg-accent hover:text-accent-foreground;
   @apply transition-colors cursor-pointer;
-  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply header-focus;
 }
 
 .header-nav__trigger:hover .header-nav__chevron {
   @apply transform rotate-180;
+}
+
+/* Simple Navigation Trigger (no dropdown) */
+.header-nav__trigger--simple {
+  @apply flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md;
+  @apply text-foreground hover:bg-accent hover:text-accent-foreground;
+  @apply transition-colors cursor-pointer;
+  @apply header-focus;
+  @apply border-none bg-transparent;
+}
+
+/* Active Navigation Trigger States */
+.header-nav__trigger--active {
+  @apply bg-accent text-primary;
 }
 
 /* Navigation Icon */
@@ -67,11 +87,17 @@
 
 /* Dropdown Item */
 .header-nav__dropdown-item {
-  @apply flex items-start gap-3 px-3 py-3 text-sm rounded-sm;
+  @apply flex items-start gap-3 px-3 py-3 text-sm;
   @apply hover:bg-accent hover:text-accent-foreground cursor-pointer;
   @apply focus:bg-accent focus:text-accent-foreground outline-none;
   @apply transition-colors;
+  @apply border-b-2 border-transparent;
   text-decoration: none;
+}
+
+/* Active Dropdown Item State */
+.header-nav__dropdown-item--active {
+  @apply border-b-2 border-primary bg-accent text-primary;
 }
 
 /* Dropdown Item Icon */
@@ -118,6 +144,12 @@
   @apply focus:bg-accent focus:text-accent-foreground outline-none;
   @apply transition-colors border-b border-border last:border-b-0;
   text-decoration: none;
+}
+
+/* Active Mobile Navigation Item State */
+.header-nav__mobile-item--active {
+  @apply bg-accent text-accent-foreground;
+  @apply border-l-4 border-primary;
 }
 
 /* Mobile Navigation Icon */
@@ -193,10 +225,10 @@
 
 /* Focus Visible */
 .header-nav__trigger:focus-visible {
-  @apply outline-none ring-2 ring-ring ring-offset-2;
+  @apply header-focus;
 }
 
 .header-nav__dropdown-item:focus-visible,
 .header-nav__mobile-item:focus-visible {
-  @apply outline-none ring-2 ring-ring ring-offset-1;
+  @apply header-focus;
 }

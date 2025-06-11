@@ -1,5 +1,4 @@
-import React, { createContext, useContext } from 'react';
-import type { PageParams } from '../types/PageState';
+import React, { createContext, useContext } from "react";
 
 /**
  * Global Layout Context - provides access to registered page modules and breadcrumbs
@@ -13,11 +12,12 @@ export interface PageLayoutContextType {
 }
 
 export interface PageSlotContextType {
-  args?: PageParams;
   name: string;
 }
 
-export const PageLayoutContext = createContext<PageLayoutContextType | null>(null);
+export const PageLayoutContext = createContext<PageLayoutContextType | null>(
+  null
+);
 
 export const PageSlotContext = createContext<PageSlotContextType | null>(null);
 
@@ -27,7 +27,7 @@ export const PageSlotContext = createContext<PageSlotContextType | null>(null);
 export const usePageLayout = () => {
   const context = useContext(PageLayoutContext);
   if (!context) {
-    throw new Error('usePageLayout must be used within a PageLayout component');
+    throw new Error("usePageLayout must be used within a PageLayout component");
   }
   return context;
-}; 
+};
