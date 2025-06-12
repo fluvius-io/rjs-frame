@@ -3,58 +3,47 @@
  * Allows global registration and routing of APICollection instances
  */
 
-import { APICollection } from './APICollection';
-import { ApiCollectionConfig } from './types';
+import { APICollection } from "./APICollection";
+import { ApiCollectionConfig } from "./types";
 
 export class APIManager {
   private static collectionRegistry: Map<string, APICollection> = new Map();
-  private static defaultCollection: APICollection | null = null;
 
   /**
    * Register an APICollection instance by name
    */
   static register(collectionConfig: ApiCollectionConfig) {
-    const collection = new APICollection(collectionConfig)
+    const collection = new APICollection(collectionConfig);
     const collectionName = collection.getName();
     if (this.collectionRegistry.has(collectionName)) {
-      throw new Error(`APICollection with name '${collectionName}' is already registered.`);
+      console.warn(
+        `API Collection with name '${collectionName}' is already registered.`
+      );
+      return this.collectionRegistry.get(collectionName);
     }
     this.collectionRegistry.set(collectionName, collection);
-    if (this.collectionRegistry.size === 1) {
-      this.defaultCollection = collection;
-    }
+
     return collection;
   }
 
   /**
-   * Set the default collection (required if more than one collection is registered)
+   * Get a collection by name
    */
-  static setDefaultCollection(name: string) {
+  static getCollection(name: string): APICollection {
     const collection = this.collectionRegistry.get(name);
-    if (!collection) throw new Error(`APICollection '${name}' is not registered`);
-    this.defaultCollection = collection;
-  }
-
-  /**
-   * Get a collection by name (or default)
-   */
-  static getCollection(name?: string | null): APICollection {
-    if (!name) {
-      if (!this.defaultCollection) {
-        throw new Error('No default APICollection set');
-      }
-      return this.defaultCollection;
-    }
-    const collection = this.collectionRegistry.get(name);
-    if (!collection) throw new Error(`APICollection '${name}' is not registered`);
+    if (!collection)
+      throw new Error(`API collection '${name}' is not registered`);
     return collection;
   }
 
   /**
    * Parse a full API name in the form 'collection:name' or just 'name'
    */
-  private static parseApiName(apiName: string): { collection: APICollection, name: string } {
-    const [collectionName, apiShortName] = apiName.includes(':') ? apiName.split(/:(.+)/) : [null, apiName];
+  private static parseApiName(apiName: string): {
+    collection: APICollection;
+    name: string;
+  } {
+    const [collectionName, apiShortName] = apiName.split(/:(.+)/);
     const collection = this.getCollection(collectionName);
     return { collection, name: apiShortName };
   }
@@ -126,6 +115,5 @@ export class APIManager {
    */
   static clear() {
     this.collectionRegistry.clear();
-    this.defaultCollection = null;
   }
 }

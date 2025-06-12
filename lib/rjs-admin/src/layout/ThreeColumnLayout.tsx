@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { PageLayout, PageSlot } from "../../../rjs-frame/src";
-import type { PageLayoutProps } from "../../../rjs-frame/src/components/PageLayout";
+import type { PageLayoutProps } from "rjs-frame";
+import { PageLayout, PageSlot } from "rjs-frame";
 
 export interface ThreeColumnLayoutProps extends PageLayoutProps {
   className?: string;

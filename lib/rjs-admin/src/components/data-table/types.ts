@@ -1,11 +1,11 @@
-import { ResourceQuery } from '../query-builder/types';
+import { ResourceQuery } from "../query-builder/types";
 
 export interface FieldMetadata {
   label: string;
   sortable?: boolean;
   width?: string | number;
-  align?: 'left' | 'center' | 'right';
-  type?: 'text' | 'number' | 'date' | 'boolean' | 'custom';
+  align?: "left" | "center" | "right";
+  type?: "text" | "number" | "date" | "boolean" | "custom";
   format?: (value: any) => string | React.ReactNode;
   className?: string;
 }
@@ -41,7 +41,7 @@ export interface QueryMetadata {
 
 export interface SortConfig {
   field: string;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
 export interface FilterConfig {
@@ -58,26 +58,38 @@ export interface PaginationConfig {
   pageSizeOptions?: number[];
 }
 
-// Base props interface
-interface BaseDataTableProps {
+// Shared state interface used by both DataTable and ResourceDataTable
+export interface DataTableState {
+  searchQuery: string;
+  showFilterModal: boolean;
+  currentSort?: SortConfig;
+  queryState: ResourceQuery;
   data: Array<Record<string, any>>;
+  metadata: QueryMetadata | null;
+  loading: boolean;
+  backgroundLoading: boolean;
+  error: string | null;
   pagination: PaginationConfig;
-  loading?: boolean;
-  backgroundLoading?: boolean;
+}
+
+// Base props interface
+export interface DataTableProps {
   title?: string;
   subtitle?: string;
   showSearch?: boolean;
   showFilters?: boolean;
   searchPlaceholder?: string;
-  onQueryChange?: (query: ResourceQuery & { searchQuery?: string }) => void;
+  onQueryChange?: (query: ResourceQuery) => void;
   onPageChange?: (page: number, pageSize: number) => void;
   actions?: React.ReactNode;
   className?: string;
-}
-
-// DataTable only accepts metadata directly - no URL fetching
-export interface DataTableProps extends BaseDataTableProps {
-  metadata: QueryMetadata;
+  data?: Array<Record<string, any>>;
+  dataApi?: string;
+  pagination: PaginationConfig;
+  metadata?: QueryMetadata;
+  loading?: boolean;
+  backgroundLoading?: boolean;
+  error?: string | null;
 }
 
 export interface HeaderComponentProps {
@@ -96,4 +108,4 @@ export interface PaginationControlsProps {
   pagination: PaginationConfig;
   onPageChange?: (page: number, pageSize: number) => void;
   loading?: boolean;
-} 
+}

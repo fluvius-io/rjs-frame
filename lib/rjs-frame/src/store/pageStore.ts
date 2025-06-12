@@ -1,19 +1,19 @@
-import { atom } from 'nanostores';
-import type { PageState, PageParams } from '../types/PageState';
-import { 
-  parseBrowserLocation, 
+import { atom } from "nanostores";
+import type { PageParams, TypedPageState } from "../types/PageState";
+import {
+  parseBrowserLocation,
   updateBrowserLocation,
   updateBrowserTitle,
-} from '../utils/urlUtils';
+} from "../utils/urlUtils";
 
 // LocalStorage keys
-const GLOBAL_STATE_KEY = 'rjs-frame:globalState';
-const MODULE_STATE_KEY = 'rjs-frame:moduleState';
+const GLOBAL_STATE_KEY = "rjs-frame:globalState";
+const MODULE_STATE_KEY = "rjs-frame:moduleState";
 
 // Helper functions for localStorage
 const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
   try {
-    if (typeof window === 'undefined') return defaultValue; // SSR safety
+    if (typeof window === "undefined") return defaultValue; // SSR safety
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : defaultValue;
   } catch (error) {
@@ -24,7 +24,7 @@ const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
 
 const saveToLocalStorage = <T>(key: string, value: T): void => {
   try {
-    if (typeof window === 'undefined') return; // SSR safety
+    if (typeof window === "undefined") return; // SSR safety
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.warn(`Failed to save ${key} to localStorage:`, error);
@@ -33,7 +33,7 @@ const saveToLocalStorage = <T>(key: string, value: T): void => {
 
 // Load persisted state from localStorage
 const loadPersistedGlobalState = () => {
-  return loadFromLocalStorage(GLOBAL_STATE_KEY, { _id: '', xRay: false });
+  return loadFromLocalStorage(GLOBAL_STATE_KEY, { _id: "", xRay: false });
 };
 
 const loadPersistedModuleState = () => {
@@ -41,47 +41,53 @@ const loadPersistedModuleState = () => {
 };
 
 // Initialize page store with default values and persisted state
-const initialState: PageState = {
-  pageName: '',
+const initialState: TypedPageState = {
+  pageName: "",
   initTime: new Date().toISOString(),
   breadcrumbs: [],
   pageParams: {},
   linkParams: {},
   globalState: loadPersistedGlobalState(),
   moduleState: loadPersistedModuleState(),
-  auth: {},
-  other: {}
+  auth: null,
+  other: {},
 };
 
 // Create the page store
-export const pageStore = atom<PageState>(initialState);
+export const pageStore = atom<TypedPageState>(initialState);
 
 // Update page state
 export const updatePageState = (
-  updater: (state: PageState) => PageState
+  updater: (state: TypedPageState) => TypedPageState
 ) => {
   const oldState = pageStore.get();
   let newState = updater(oldState);
-  
+
   // Persist globalState and moduleState to localStorage when they change
-  if (JSON.stringify(oldState.globalState) !== JSON.stringify(newState.globalState)) {
+  if (
+    JSON.stringify(oldState.globalState) !==
+    JSON.stringify(newState.globalState)
+  ) {
     saveToLocalStorage(GLOBAL_STATE_KEY, newState.globalState);
   }
-  if (JSON.stringify(oldState.moduleState) !== JSON.stringify(newState.moduleState)) {
+  if (
+    JSON.stringify(oldState.moduleState) !==
+    JSON.stringify(newState.moduleState)
+  ) {
     saveToLocalStorage(MODULE_STATE_KEY, newState.moduleState);
   }
-  
+
   pageStore.set(newState);
 };
 
 // Helper functions for managing globalState
 export const updateGlobalState = (newGlobalState: Record<string, any>) => {
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
     globalState: {
       ...state.globalState,
-      ...newGlobalState
-    }
+      ...newGlobalState,
+    },
   }));
 };
 
@@ -96,34 +102,36 @@ export const setGlobalState = <T = any>(key: string, value: T) => {
 
 // Helper functions for xRay flag specifically
 export const getXRayEnabled = (): boolean => {
-  return getGlobalState('xRay', false);
+  return getGlobalState("xRay", false);
 };
 
 export const setXRayEnabled = (enabled: boolean) => {
-  setGlobalState('xRay', enabled);
+  setGlobalState("xRay", enabled);
 };
 
 // Helper functions for managing moduleState
-export const updateModuleState = (updates: Record<string, { component: string; [key: string]: any }>) => {
-  updatePageState(state => ({
+export const updateModuleState = (
+  updates: Record<string, { component: string; [key: string]: any }>
+) => {
+  updatePageState((state) => ({
     ...state,
     moduleState: {
       ...state.moduleState,
-      ...updates
-    }
+      ...updates,
+    },
   }));
 };
 
 // Update linkParams
 export const updateLinkParams = (newParams: Record<string, string>) => {
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
     linkParams: {
       ...state.linkParams,
-      ...newParams
-    }
+      ...newParams,
+    },
   }));
-  
+
   // Pass updated state to URL update function
   const updatedState = pageStore.get();
   updateBrowserLocation(updatedState);
@@ -132,11 +140,11 @@ export const updateLinkParams = (newParams: Record<string, string>) => {
 // Update pageParams while preserving page name
 export const updatePageParams = (newParams: PageParams) => {
   const currentState = pageStore.get();
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
-    pageParams: newParams
+    pageParams: newParams,
   }));
-  
+
   // Use the central updateBrowserLocation method
   const updatedState = pageStore.get();
   updateBrowserLocation(updatedState);
@@ -147,13 +155,13 @@ export const addPageParam = (key: string, value: string) => {
   const currentState = pageStore.get();
   const updatedParams = {
     ...currentState.pageParams,
-    [key]: value
+    [key]: value,
   };
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
-    pageParams: updatedParams
+    pageParams: updatedParams,
   }));
-  
+
   // Pass updated state to URL function
   const updatedState = pageStore.get();
   updateBrowserLocation(updatedState);
@@ -163,23 +171,25 @@ export const addPageParam = (key: string, value: string) => {
 export const removePageParam = (key: string) => {
   const currentState = pageStore.get();
   const updatedParams = { ...currentState.pageParams };
-  
+
   delete updatedParams[key];
-  
-  updatePageState(state => ({
+
+  updatePageState((state) => ({
     ...state,
-    pageParams: updatedParams
+    pageParams: updatedParams,
   }));
-  
+
   // Pass updated state to URL function
   const updatedState = pageStore.get();
   updateBrowserLocation(updatedState);
 };
 
 // Update multiple page parameters while preserving page name
-export const updatePageParamsPartial = (paramsToUpdate: Partial<PageParams>) => {
+export const updatePageParamsPartial = (
+  paramsToUpdate: Partial<PageParams>
+) => {
   const currentState = pageStore.get();
-  
+
   // Filter out undefined values to ensure type safety
   const filteredParams: PageParams = {};
   Object.entries(paramsToUpdate).forEach(([key, value]) => {
@@ -190,13 +200,13 @@ export const updatePageParamsPartial = (paramsToUpdate: Partial<PageParams>) => 
 
   const updatedParams = {
     ...currentState.pageParams,
-    ...filteredParams
+    ...filteredParams,
   };
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
-    pageParams: updatedParams
+    pageParams: updatedParams,
   }));
-  
+
   // Pass updated state to URL function
   const updatedState = pageStore.get();
   updateBrowserLocation(updatedState);
@@ -204,16 +214,16 @@ export const updatePageParamsPartial = (paramsToUpdate: Partial<PageParams>) => 
 
 // Set page name only (logical page identifier, doesn't update URL)
 export const setPageName = (pageName: string) => {
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
-    pageName: pageName // Set the logical page name
+    pageName: pageName, // Set the logical page name
   }));
   updateBrowserTitle(pageStore.get());
 };
 
 // Breadcrumb management functions
 export const setBreadcrumbs = (breadcrumbs: string[]) => {
-  updatePageState(state => ({
+  updatePageState((state) => ({
     ...state,
     breadcrumbs: [...breadcrumbs.filter(Boolean)],
   }));
@@ -241,21 +251,22 @@ export const getBreadcrumbs = (): string[] => {
 
 // Initialize page state from current URL (useful on app start)
 export const initializeFromBrowserLocation = (windowLocation: Location) => {
-  const { pagePath, pageParams, linkParams } = parseBrowserLocation(windowLocation);
-  
-  const breadcrumbs = pagePath.split('/').filter(Boolean);
-  const pageName = breadcrumbs.pop() || '';
-  
-  const newState: PageState = {
+  const { pagePath, pageParams, linkParams } =
+    parseBrowserLocation(windowLocation);
+
+  const breadcrumbs = pagePath.split("/").filter(Boolean);
+  const pageName = breadcrumbs.pop() || "";
+
+  const newState: TypedPageState = {
     ...initialState,
     pageName,
     breadcrumbs,
     pageParams,
     linkParams,
-    initTime: new Date().toISOString()
+    initTime: new Date().toISOString(),
   };
-  
+
   updatePageState(() => newState);
   updateBrowserTitle(newState);
   return newState;
-}; 
+};

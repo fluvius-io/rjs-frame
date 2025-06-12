@@ -1,295 +1,460 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { APIManager } from 'rjs-frame';
-import { Button } from '../common/Button';
-import { ResourceQuery } from '../query-builder/types';
-import DataTable from './DataTable';
-import type { PaginationConfig } from './types';
+import React from "react";
+import { APIManager } from "rjs-frame";
+import { cn } from "../../lib/utils";
+import { Button } from "../common/Button";
+import { ResourceQuery, toResourceQuery } from "../query-builder/types";
+import { DataTable } from "./DataTable";
+import HeaderComponent from "./HeaderComponent";
+import RowComponent from "./RowComponent";
+import type { DataTableProps, PaginationConfig, SortConfig } from "./types";
 
-export interface ResourceDataTableProps {
-  dataApi: string;
-  title?: string;
-  subtitle?: string;
-  showSearch?: boolean;
-  showFilters?: boolean;
-  className?: string;
-  actions?: React.ReactNode;
-}
+const TableLoadingOverlay: React.FC<{ loading: boolean }> = ({
+  loading = false,
+}) =>
+  loading && (
+    <div className="table-loading-overlay">
+      <div className="table-loading-overlay__content">
+        <div className="table-loading-overlay__spinner"></div>
+        Loading...
+      </div>
+    </div>
+  );
 
 /**
- * A convenience component that fetches both metadata and data from API endpoints
+ * A convenience component that extends DataTable and fetches both metadata and data from API endpoints
  * This demonstrates the complete workflow of using API-driven metadata
  */
-const ResourceDataTable: React.FC<ResourceDataTableProps> = ({
-  dataApi,
-  title = "API Data Table",
-  subtitle = "Data fetched from API with dynamic metadata",
-  showSearch = true,
-  showFilters = true,
-  className,
-  actions,
-}) => {
-  const [data, setData] = useState<Array<Record<string, any>>>([]);
-  const [metadata, setMetadata] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [metadataLoading, setMetadataLoading] = useState(false);
-  const [backgroundLoading, setBackgroundLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<PaginationConfig>({
-    page: 1,
-    pageSize: 10,
-    total: 0,
-  });
-  
-  // Keep track of current request to prevent race conditions
-  const currentRequestRef = useRef<AbortController | null>(null);
-  const isInitialLoadRef = useRef(true);
-  // Store previous data to prevent flicker during page changes
-  const previousDataRef = useRef<Array<Record<string, any>>>([]);
-  
-  // Track previous pagination values
-  const previousPaginationRef = useRef(pagination);
+export class ResourceDataTable extends DataTable {
+  private currentRequestRef: AbortController | null = null;
+  private isInitialLoadRef: boolean = true;
+  private previousDataRef: Array<Record<string, any>> = [];
+  private previousPaginationRef: PaginationConfig;
+  private previousQueryRef: ResourceQuery & { searchQuery?: string };
 
-  // Current query state
-  const [currentQuery, setCurrentQuery] = useState<ResourceQuery & { searchQuery?: string }>({});
+  constructor(props: DataTableProps) {
+    // Create DataTable props with placeholder values for initial super() call
+    const dataTableProps: DataTableProps = {
+      ...props,
+      data: [],
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      metadata: props.metadata || {
+        fields: {},
+        operators: {},
+        sortables: [],
+        default_order: [],
+      },
+      loading: false,
+      backgroundLoading: false,
+      error: null,
+    };
 
+    super(dataTableProps);
 
+    // Override state with ResourceDataTable specific initial state
+    this.state = {
+      ...this.state,
+      data: [],
+      metadata: props.metadata || null,
+      loading: false,
+      backgroundLoading: false,
+      error: null,
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: 0,
+      },
+    };
 
-  // Example: Access previous pagination in useEffect
-  useEffect(() => {
-    if (metadata) {
-      const prevPagination = previousPaginationRef.current;
-      console.log('🔄 Pagination changed from:', prevPagination, 'to:', pagination);
-      
-      // Only fetch if page or pageSize actually changed
-      if (prevPagination.page !== pagination.page || prevPagination.pageSize !== pagination.pageSize) {
-        console.log('🔄 ResourceDataTable: Fetching data due to pagination change');
-        fetchData();
-      }
-      
-      // Update the ref with current value for next time
-      previousPaginationRef.current = pagination;
+    this.previousPaginationRef = this.state.pagination;
+    this.previousQueryRef = this.state.queryState;
+  }
+
+  componentDidMount() {
+    if (!this.state.metadata) {
+      this.fetchMetadata();
+    } else {
+      this.initializeDefaultSort();
+      this.fetchData();
     }
-  }, [pagination]);
+  }
 
-  // Track previous query values
-  const previousQueryRef = useRef(currentQuery);
-  
-  useEffect(() => {
-    if (metadata) {
-      const prevQuery = previousQueryRef.current;
-      console.log('🔄 Query changed from:', prevQuery, 'to:', currentQuery);
-      
-      // Reset to page 1 when query changes (but not pagination)
-      if (prevQuery.query !== currentQuery.query || 
-          prevQuery.searchQuery !== currentQuery.searchQuery ||
-          JSON.stringify(prevQuery.sort) !== JSON.stringify(currentQuery.sort)) {
-        console.log('🔄 ResourceDataTable: Fetching data due to query change');
-        
+  componentDidUpdate(prevProps: DataTableProps) {
+    // Type assertion for resource props
+    const currentResourceProps = this.props as unknown as DataTableProps;
+    const prevResourceProps = prevProps as unknown as DataTableProps;
+
+    // Check if dataApi changed
+    if (prevResourceProps.dataApi !== currentResourceProps.dataApi) {
+      this.fetchMetadata();
+      return;
+    }
+
+    // Call parent componentDidUpdate
+    super.componentDidUpdate(prevProps);
+
+    // Check pagination changes
+    if (this.state.metadata) {
+      const prevPagination = this.previousPaginationRef;
+      const currentPagination = this.state.pagination;
+
+      if (
+        prevPagination.page !== currentPagination.page ||
+        prevPagination.pageSize !== currentPagination.pageSize
+      ) {
+        console.log(
+          "🔄 ResourceDataTable: Fetching data due to pagination change"
+        );
+        this.fetchData();
+      }
+
+      this.previousPaginationRef = currentPagination;
+    }
+
+    // Check query changes
+    if (this.state.metadata) {
+      const prevQuery = this.previousQueryRef;
+      const currentQuery = this.state.queryState;
+
+      if (
+        prevQuery.query !== currentQuery.query ||
+        prevQuery.searchQuery !== currentQuery.searchQuery ||
+        JSON.stringify(prevQuery.sort) !== JSON.stringify(currentQuery.sort)
+      ) {
+        console.log("🔄 ResourceDataTable: Fetching data due to query change");
+
         // Reset pagination to page 1 when filter/search/sort changes
-        setPagination(prev => ({ ...prev, page: 1 }));
-        fetchData();
+        this.setState({ pagination: { ...this.state.pagination, page: 1 } });
+        this.fetchData();
       }
-      
-      // Update the ref with current value for next time
-      previousQueryRef.current = currentQuery;
+
+      this.previousQueryRef = currentQuery;
     }
-  }, [currentQuery]);
+  }
+
+  componentWillUnmount() {
+    // Cancel any pending requests
+    if (this.currentRequestRef) {
+      this.currentRequestRef.abort();
+    }
+  }
+
+  // Override initializeDefaultSort to use state.metadata instead of props.metadata
+  protected initializeDefaultSort = () => {
+    const { metadata } = this.state;
+    const { currentSort, queryState } = this.state;
+
+    if (
+      metadata?.default_order &&
+      metadata.default_order.length > 0 &&
+      !currentSort
+    ) {
+      const defaultOrder = metadata.default_order[0];
+      const [field, direction] = defaultOrder.split(".");
+      const newSort = {
+        field,
+        direction: direction === "desc" ? "desc" : "asc",
+      } as SortConfig;
+
+      // Initialize with default sort
+      const initialQuery = {
+        ...queryState,
+        sort: [`${field}.${direction}`],
+      };
+
+      this.setState({
+        currentSort: newSort,
+        queryState: initialQuery,
+      });
+    }
+  };
+
+  // Override sendQueryUpdate to handle data fetching internally
+  protected sendQueryUpdate = (
+    updates: Partial<ResourceQuery & { searchQuery?: string }>
+  ) => {
+    const newQuery = {
+      ...this.state.queryState,
+      ...updates,
+    };
+    this.setState({ queryState: newQuery });
+    // Handle data fetching internally instead of calling onQueryChange
+  };
+
+  // Override handleFilterApply to reset pagination
+  protected handleFilterApply = (queryBuilderState: any) => {
+    const resourceQuery = toResourceQuery(queryBuilderState);
+    this.sendQueryUpdate({
+      query: resourceQuery.query,
+      sort: resourceQuery.sort,
+    });
+    // Reset to first page on filter changes
+    this.setState({
+      pagination: { ...this.state.pagination, page: 1 },
+    });
+  };
+
+  // Override handlePageChange to update internal state
+  protected handlePageChange = (page: number, pageSize: number) => {
+    this.setState({
+      pagination: { ...this.state.pagination, page, pageSize },
+    });
+  };
 
   // Fetch metadata from API
-  const fetchMetadata = async () => {
-    setMetadataLoading(true);
-    try {
-      console.log('🌐 ResourceDataTable: Fetching metadata...');
-      
-      console.log('📋 ResourceDataTable: Using queryMeta on dataApi:', dataApi);
-      let metadataResult = await APIManager.queryMeta(dataApi);
-
-      
-      console.log('📋 ResourceDataTable: Received metadata:', metadataResult);
-      setMetadata(metadataResult.data);
-    } catch (error) {
-      console.error('❌ ResourceDataTable: Failed to fetch metadata:', error);
-      console.error('❌ ResourceDataTable: Error details:', {
-        dataApi: dataApi,
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      setError(error instanceof Error ? error.message : 'Failed to fetch metadata');
-    } finally {
-      setMetadataLoading(false);
+  private fetchMetadata = async () => {
+    if (this.props.dataApi === undefined || this.props.dataApi === "") {
+      this.setError("No dataApi provided");
+      return;
     }
+
+    this.setLoading(true);
+
+    try {
+      let metadataResult = await APIManager.queryMeta(this.props.dataApi!);
+      this.setState({ metadata: metadataResult.data });
+      // Initialize default sort after metadata is loaded
+      this.initializeDefaultSort();
+
+      // Fetch initial data after metadata is loaded
+      this.fetchData();
+    } catch (error) {
+      this.setError(
+        error instanceof Error ? error.message : "Failed to fetch metadata"
+      );
+    } finally {
+      this.setLoading(false);
+    }
+  };
+
+  private buildSearchParams = (
+    query: ResourceQuery & { searchQuery?: string }
+  ) => {
+    const params: Record<string, any> = {
+      page: this.state.pagination.page.toString(),
+      limit: this.state.pagination.pageSize.toString(),
+    };
+
+    // Add sort parameters from ResourceQuery
+    if (query.sort && query.sort.length > 0) {
+      params.sort = query.sort[0]; // Take the first sort rule
+    }
+
+    // Add search query if provided
+    if (query.searchQuery) {
+      params.search = query.searchQuery;
+    }
+
+    // Add filter query from ResourceQuery
+    if (query.query) {
+      params.q = query.query;
+    }
+
+    return params;
   };
 
   // Fetch data from API using ResourceQuery
-  const fetchData = async () => {
-    // Cancel previous request if still in progress
-    if (currentRequestRef.current) {
-      currentRequestRef.current.abort();
+  private fetchData = async () => {
+    if (this.props.dataApi === undefined || this.props.dataApi === "") {
+      this.setError("No dataApi provided");
+      return;
     }
-    
+
+    // Cancel previous request if still in progress
+    if (this.currentRequestRef) {
+      this.currentRequestRef.abort();
+    }
+
     // Create new abort controller for this request
     const abortController = new AbortController();
-    currentRequestRef.current = abortController;
-    
-    // Determine loading state: initial load shows full loading, subsequent loads show background loading
-    const isInitialLoad = isInitialLoadRef.current;
-    if (isInitialLoad) {
-      setLoading(true);
-      isInitialLoadRef.current = false;
-    } else {
-      // Store current data before starting background load
-      previousDataRef.current = data;
-      setBackgroundLoading(true);
-    }
-    
-    setError(null);
-    
-    try {
-      // Build query parameters from current state
-      const params: Record<string, any> = {
-        page: pagination.page.toString(),
-        limit: pagination.pageSize.toString(),
-      };
-      
-      // Add sort parameters from ResourceQuery
-      if (currentQuery.sort && currentQuery.sort.length > 0) {
-        params.sort = currentQuery.sort[0]; // Take the first sort rule
-        console.log('🔄 ResourceDataTable: Adding sort parameter:', currentQuery.sort[0]);
-      }
-      
-      // Add search query if provided
-      if (currentQuery.searchQuery) {
-        params.search = currentQuery.searchQuery;
-        console.log('🔍 ResourceDataTable: Adding search parameter:', currentQuery.searchQuery);
-      }
-      
-      // Add filter query from ResourceQuery
-      if (currentQuery.query) {
-        params.query = currentQuery.query;
-        console.log('🔧 ResourceDataTable: Adding query string:', currentQuery.query);
-      }
+    this.currentRequestRef = abortController;
 
-      console.log('🌐 ResourceDataTable: Fetching data from API:', dataApi);
-      const result = await APIManager.query(dataApi, {search: params});
-      console.log('📊 ResourceDataTable: Received response:', result);
-      
+    // Determine loading state: initial load shows full loading, subsequent loads show background loading
+    const isInitialLoad = this.isInitialLoadRef;
+    if (isInitialLoad) {
+      this.setLoading(true);
+      this.isInitialLoadRef = false;
+    } else {
+      this.setBackgroundLoading(true);
+    }
+
+    try {
+      const params = this.buildSearchParams(this.state.queryState);
+
+      const result = await APIManager.query(this.props.dataApi!, {
+        search: params,
+      });
+
       // Handle different response formats
-      if (!(Array.isArray(result.data) && result.meta)) {
-        throw new Error('Invalid response format: ' + JSON.stringify(result));
+      if (!result || typeof result !== "object") {
+        throw new Error("Invalid response format: " + JSON.stringify(result));
       }
 
       // Check for meta object format: { data: [...], meta: { total_items, page_no, limit, ... } }
-      console.log('✅ ResourceDataTable: Using meta-based response format');
-      console.log('📊 ResourceDataTable: Meta object:', result.meta);
-      console.log('📊 ResourceDataTable: Data count:', result.data.length);
-      
-      setData(result.data);
-      setPagination(prev => ({
-        ...prev,
-        page: result.meta?.page_no || prev.page,
-        pageSize: result.meta?.limit || prev.pageSize,
-        total: result.meta?.total_items || result.data.length,
-      }));
+      this.setState({
+        data: result.data,
+        pagination: {
+          ...this.state.pagination,
+          page: result.meta?.page_no || this.state.pagination.page,
+          pageSize: result.meta?.limit || this.state.pagination.pageSize,
+          total: result.meta?.total_items || result.data.length,
+        },
+        error: null,
+      });
     } catch (error) {
-      // Only set error if the request wasn't aborted
-      if (!abortController.signal.aborted) {
-        console.error('❌ ResourceDataTable: Failed to fetch data:', error);
-        console.error('❌ ResourceDataTable: Data fetch error details:', {
-          dataApi,
-          currentQuery,
-          pagination,
-          message: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined
-        });
-        setError(error instanceof Error ? error.message : 'Failed to fetch data');
-      }
+      console.error("❌ ResourceDataTable: Failed to fetch data:", error);
+      console.error("❌ ResourceDataTable: Data fetch error details:", {
+        dataApi: this.props.dataApi,
+        pagination: this.state.pagination,
+        query: this.state.queryState,
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      this.setError(
+        error instanceof Error ? error.message : "Failed to fetch data"
+      );
     } finally {
-      // Clear loading states if this request wasn't aborted
-      if (!abortController.signal.aborted) {
-        setLoading(false);
-        setBackgroundLoading(false);
-        currentRequestRef.current = null;
-      }
+      this.setLoading(false);
+      this.setBackgroundLoading(false);
+      this.currentRequestRef = null;
     }
   };
 
-  // Initial data and metadata load
-  useEffect(() => {
-    fetchMetadata();
-    fetchData();
-    
-    // Cleanup function to abort any pending requests
-    return () => {
-      if (currentRequestRef.current) {
-        currentRequestRef.current.abort();
-      }
+  // Override render methods to use state instead of props
+  protected renderError = () => {
+    const { metadata, error } = this.state;
+    return (
+      <tbody>
+        <tr>
+          <td
+            colSpan={metadata?.fields ? Object.keys(metadata.fields).length : 1}
+            className="px-4 py-8 text-center text-muted-foreground"
+          >
+            {error}
+          </td>
+        </tr>
+      </tbody>
+    );
+  };
+
+  protected renderBody = () => {
+    const { data, metadata, loading } = this.state;
+
+    if (data.length === 0) {
+      return (
+        <tr>
+          <td
+            colSpan={metadata?.fields ? Object.keys(metadata.fields).length : 1}
+            className="px-4 py-8 text-center text-muted-foreground"
+          >
+            {loading ? "Loading..." : "No data available"}
+          </td>
+        </tr>
+      );
+    }
+
+    return data.map((row, index) => (
+      <RowComponent key={index} metadata={metadata} data={row} index={index} />
+    ));
+  };
+
+  protected renderTableHeader = () => {
+    const { metadata } = this.state;
+    const { currentSort } = this.state;
+
+    if (!metadata) return null;
+
+    return (
+      <HeaderComponent
+        metadata={metadata}
+        sort={currentSort}
+        onSort={this.handleSort}
+      />
+    );
+  };
+
+  protected renderTable = () => {
+    const { loading = false } = this.state;
+
+    return (
+      <div className="relative">
+        <TableLoadingOverlay loading={loading} />
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            {this.renderTableHeader()}
+            <tbody>{this.renderTableContent()}</tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  render() {
+    const { error, loading, backgroundLoading, metadata } = this.state;
+    const { className } = this.props;
+
+    // Show loading state while fetching metadata
+    if (!metadata) {
+      return (
+        <div className={cn("data-table data-table--loading", className)}>
+          <div className="data-table__loading-message">
+            <div className="data-table__loading-text">Loading metadata...</div>
+          </div>
+        </div>
+      );
+    }
+
+    // Show error state with retry option
+    if (error && !loading && !backgroundLoading) {
+      return (
+        <div className="p-8 text-center">
+          <div className="text-destructive mb-4">{error}</div>
+          <Button
+            onClick={() => {
+              this.fetchMetadata();
+            }}
+          >
+            Retry
+          </Button>
+          <Button
+            className="ml-2"
+            onClick={() => {
+              this.setState({
+                queryState: {
+                  select: [],
+                  sort: [],
+                  query: undefined,
+                  searchQuery: undefined,
+                },
+              });
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+      );
+    }
+
+    // Use parent render
+    return super.render();
+  }
+
+  // Override props getter to provide DataTable props from state
+  get props(): DataTableProps {
+    const resourceProps = this.props as ResourceDataTableProps;
+    return {
+      ...resourceProps,
+      metadata: this.state.metadata!,
+      data: this.state.data,
+      pagination: this.state.pagination,
+      loading: this.state.loading,
+      backgroundLoading: this.state.backgroundLoading,
+      error: this.state.error,
     };
-  }, [dataApi]);
-
-  // Handle query changes (filters, search, sort)
-  const handleQueryChange = (query: ResourceQuery & { searchQuery?: string }) => {
-    setCurrentQuery(query);
-  };
-
-  // Handle pagination changes
-  const handlePageChange = (page: number, pageSize: number) => {
-    setPagination(prev => ({
-      ...prev,
-      page,
-      pageSize
-    }));
-  };
-
-  // Determine which data to show: use previous data during background loading to prevent flicker
-  const displayData = backgroundLoading && previousDataRef.current.length > 0 ? previousDataRef.current : data;
-
-  // Show loading screen while fetching initial metadata or data
-  if (loading || metadataLoading) {
-    return null;
   }
+}
 
-  if (error) {
-    return (
-      <div className="p-8 text-center">
-        <div className="text-destructive mb-4">{error}</div>
-        <Button onClick={() => {
-          fetchMetadata();
-          fetchData();
-        }}>Retry</Button>
-        <Button className="ml-2" onClick={() => {
-          setCurrentQuery({});
-        }}>Reset</Button>
-
-      </div>
-    );
-  }
-
-  // Only render DataTable when we have metadata
-  if (!metadata) {
-    return (
-      <div className="p-8 text-center">
-        <div>No metadata available</div>
-      </div>
-    );
-  }
-
-  return (
-    <DataTable
-      metadata={metadata}
-      data={displayData}
-      pagination={pagination}
-      loading={loading}
-      backgroundLoading={backgroundLoading}
-      title={title}
-      subtitle={subtitle}
-      showSearch={showSearch}
-      showFilters={showFilters}
-      onQueryChange={handleQueryChange}
-      onPageChange={handlePageChange}
-      actions={actions}
-      className={className}
-    />
-  );
-};
-
-export default ResourceDataTable; 
+export default ResourceDataTable;

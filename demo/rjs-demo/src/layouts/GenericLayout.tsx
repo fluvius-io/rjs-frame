@@ -1,6 +1,6 @@
 import { PageLayout, PageSlot } from "rjs-frame";
 
-export class GenericLayout extends PageLayout {
+export class GenericLayout<T extends PageLayoutProps> extends PageLayout<T> {
   renderContent() {
     return (
       <>

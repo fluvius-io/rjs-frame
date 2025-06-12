@@ -54,8 +54,8 @@ export type { ConfigManagerOptions } from "./config/ConfigManager";
 // API Management
 export {
   APICollection,
-  APIManager,
   ApiError,
+  APIManager,
   ConfigurationError,
   RTCConnectionFactory,
   SSEConnection,
@@ -72,10 +72,10 @@ export type {
   HeaderProcessor,
   HttpMethod,
   QueryConfig,
-  RTCConnection,
-  RTCTransport,
   RequestConfig,
   ResponseProcessor,
+  RTCConnection,
+  RTCTransport,
   SocketConfig,
   SubscriptionHandler,
   UnsubscribeFunction,
@@ -105,10 +105,9 @@ export type {
 
 // Utils
 export {
-  FRAGMENT_NAME_PATTERN,
-  URL_FRAGMENT_SEPARATOR,
   buildPathFromPageState,
   buildUrlFragments,
+  FRAGMENT_NAME_PATTERN,
   isValidFragmentName,
   parseBrowserLocation,
   parseSearchParams,
@@ -116,11 +115,12 @@ export {
   parseUrlFragments,
   updateBrowserLocation,
   updateBrowserTitle,
+  URL_FRAGMENT_SEPARATOR,
 } from "./utils/urlUtils";
 
 export { shouldRender } from "./utils/matchParams";
 
-export type { MatchParamValue, MatchParams } from "./utils/matchParams";
+export type { MatchParams, MatchParamValue } from "./utils/matchParams";
 
 // Contexts
 export {
@@ -135,5 +135,6 @@ export type {
 
 // Re-export types for convenience
 export type { ErrorScreenProps } from "./components/ErrorScreen";
+export type { PageLayoutProps } from "./components/PageLayout";
 export type { PageParamsManagerProps } from "./components/PageParamsManager";
 export type { ParsedUrl } from "./utils/urlUtils";

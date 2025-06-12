@@ -9,7 +9,7 @@ import {
   setPageName,
   setXRayEnabled,
 } from "../store/pageStore";
-import type { PageState } from "../types/PageState";
+import type { TypedPageState } from "../types/PageState";
 import { PageLayoutOptions } from "./PageLayoutOptions";
 import { PageModule } from "./PageModule";
 
@@ -23,7 +23,7 @@ export interface PageLayoutProps {
 
 interface PageLayoutState {
   showOptions: boolean;
-  pageState: PageState;
+  pageState: TypedPageState;
 }
 
 export abstract class PageLayout extends React.Component<
@@ -122,9 +122,11 @@ export abstract class PageLayout extends React.Component<
     PageLayout.activeInstance = this;
 
     // Subscribe to page store changes
-    this.unsubscribePageStore = pageStore.subscribe((pageState: PageState) => {
-      this.setState({ pageState });
-    });
+    this.unsubscribePageStore = pageStore.subscribe(
+      (pageState: TypedPageState) => {
+        this.setState({ pageState });
+      }
+    );
 
     // Initialize xRay from props if provided (for backward compatibility)
     if (this.props.xRay !== undefined) {

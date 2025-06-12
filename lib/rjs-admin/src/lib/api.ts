@@ -5,34 +5,32 @@
  * depending on the environment (development, Storybook, production)
  */
 
-import { APIManager, ApiCollectionConfig } from "rjs-frame";
+// // Set up IdmCollection
+// const idmCollectionConfig: ApiCollectionConfig = {
+//   name: "idm",
+//   baseUrl: "/api",
+//   debug: true,
+//   queries: {
+//     user: "/idm.user/",
+//     organization: {
+//       path: "/idm.organization/",
+//       meta: "/_meta/idm.organization/",
+//     },
+//   },
+//   processResponse: (response: any) => {
+//     let data = response.data;
+//     if (data && data.data) {
+//       response.data = data.data;
+//     }
+//     if (data && data.meta) {
+//       response.meta = data.meta;
+//     }
+//     return response;
+//   },
+// };
 
-// Set up IdmCollection
-const idmCollectionConfig: ApiCollectionConfig = {
-  name: "idm",
-  baseUrl: "/api",
-  debug: true,
-  queries: {
-    user: "/idm.user/",
-    organization: {
-      path: "/idm.organization/",
-      meta: "/_meta/idm.organization/",
-    },
-  },
-  processResponse: (response) => {
-    let data = response.data;
-    if (data && data.data) {
-      response.data = data.data;
-    }
-    if (data && data.meta) {
-      response.meta = data.meta;
-    }
-    return response;
-  },
-};
-
-// Create and register the IdmCollection
-APIManager.register(idmCollectionConfig);
+// // Create and register the IdmCollection
+// APIManager.register(idmCollectionConfig);
 
 // Get the API base URL from environment or default to / for proxy
 

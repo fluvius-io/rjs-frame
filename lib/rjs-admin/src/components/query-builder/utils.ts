@@ -1,11 +1,18 @@
-import { fetchJson } from '../../lib/api';
-import { QueryMetadata } from '../data-table/types';
-import { QueryBuilderState, ResourceQuery, buildQueryString, parseQueryString } from './types';
+import { fetchJson } from "../../lib/api";
+import { QueryMetadata } from "../data-table/types";
+import {
+  QueryBuilderState,
+  ResourceQuery,
+  buildQueryString,
+  parseQueryString,
+} from "./types";
 
 /**
  * Transform UI state to backend query format
  */
-export function transformToBackendQuery(state: QueryBuilderState): ResourceQuery {
+export function transformToBackendQuery(
+  state: QueryBuilderState
+): ResourceQuery {
   const query: ResourceQuery = {};
 
   // Add select fields if any are specified
@@ -15,7 +22,9 @@ export function transformToBackendQuery(state: QueryBuilderState): ResourceQuery
 
   // Add sort rules
   if (state.sortRules.length > 0) {
-    query.sort = state.sortRules.map(rule => `${rule.field}:${rule.direction}`);
+    query.sort = state.sortRules.map(
+      (rule) => `${rule.field}.${rule.direction}`
+    );
   }
 
   // Transform filter rules to query string
@@ -41,10 +50,10 @@ export function transformFromBackendQuery(
   // Parse sort rules
   if (query.sort) {
     state.sortRules = query.sort.map((sortStr: string) => {
-      const [field, direction] = sortStr.split(':');
+      const [field, direction] = sortStr.split(".");
       return {
         field,
-        direction: direction as 'asc' | 'desc',
+        direction: direction as "asc" | "desc",
       };
     });
   }
@@ -67,9 +76,12 @@ export function generateFilterId(): string {
 /**
  * Get available operators for a field
  */
-export function getOperatorsForField(field: string, metadata: QueryMetadata): string[] {
+export function getOperatorsForField(
+  field: string,
+  metadata: QueryMetadata
+): string[] {
   if (!metadata.operators) return [];
-  
+
   return Object.entries(metadata.operators)
     .filter(([, paramMeta]) => paramMeta.field_name === field)
     .map(([, paramMeta]) => paramMeta.operator);
@@ -97,15 +109,17 @@ export function getSortableFields(metadata: QueryMetadata): string[] {
  * Checks if metadata is in the correct QueryMetadata format
  */
 export function isQueryMetadata(metadata: any): metadata is QueryMetadata {
-  return metadata && 
-    typeof metadata === 'object' && 
-    'operators' in metadata && 
-    'sortables' in metadata && 
-    'default_order' in metadata &&
+  return (
+    metadata &&
+    typeof metadata === "object" &&
+    "operators" in metadata &&
+    "sortables" in metadata &&
+    "default_order" in metadata &&
     metadata.fields &&
-    Object.values(metadata.fields).some((field: any) => 
-      'hidden' in field && 'identifier' in field
-    );
+    Object.values(metadata.fields).some(
+      (field: any) => "hidden" in field && "identifier" in field
+    )
+  );
 }
 
 /**
@@ -114,14 +128,14 @@ export function isQueryMetadata(metadata: any): metadata is QueryMetadata {
 export async function fetchMetadata(url: string): Promise<QueryMetadata> {
   try {
     const metadata = await fetchJson<QueryMetadata>(url);
-    
+
     if (!isQueryMetadata(metadata)) {
-      throw new Error('Invalid metadata format received from API');
+      throw new Error("Invalid metadata format received from API");
     }
-    
+
     return metadata;
   } catch (error) {
-    console.error('Error fetching metadata:', error);
+    console.error("Error fetching metadata:", error);
     throw error;
   }
 }
@@ -129,14 +143,16 @@ export async function fetchMetadata(url: string): Promise<QueryMetadata> {
 /**
  * Gets default sort configuration from QueryMetadata
  */
-export function getDefaultSort(metadata: QueryMetadata): { field: string; direction: 'asc' | 'desc' } | undefined {
+export function getDefaultSort(
+  metadata: QueryMetadata
+): { field: string; direction: "asc" | "desc" } | undefined {
   if (metadata.default_order && metadata.default_order.length > 0) {
     const defaultOrder = metadata.default_order[0];
-    const [field, direction] = defaultOrder.split(':');
+    const [field, direction] = defaultOrder.split(".");
     return {
       field,
-      direction: direction === 'desc' ? 'desc' : 'asc'
+      direction: direction === "desc" ? "desc" : "asc",
     };
   }
   return undefined;
-} 
+}

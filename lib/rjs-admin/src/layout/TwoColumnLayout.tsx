@@ -1,21 +1,21 @@
-import React from 'react';
-import { PageLayout, PageSlot  } from 'rjs-frame';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
+import type { PageLayoutProps } from "rjs-frame";
+import { PageLayout, PageSlot } from "rjs-frame";
 
-export interface TwoColumnLayoutProps {
+export interface TwoColumnLayoutProps extends PageLayoutProps {
   className?: string;
-  sidebarWidth?: 'sm' | 'md' | 'lg';
-  children?: React.ReactNode;
+  sidebarWidth?: "sm" | "md" | "lg";
 }
 
 export class TwoColumnLayout extends PageLayout {
   renderContent() {
-    const { className, sidebarWidth = 'md' } = this.props as TwoColumnLayoutProps;
-    
+    const { className, sidebarWidth = "md" } = this
+      .props as TwoColumnLayoutProps;
+
     const sidebarWidthClasses = {
-      sm: 'w-64',
-      md: 'w-72',
-      lg: 'w-80'
+      sm: "w-64",
+      md: "w-72",
+      lg: "w-80",
     };
 
     return (
@@ -27,10 +27,12 @@ export class TwoColumnLayout extends PageLayout {
 
         <div className="flex flex-1">
           {/* Sidebar */}
-          <aside className={cn(
-            "sticky top-16 h-[calc(100vh-4rem)] border-r bg-muted/10",
-            sidebarWidthClasses[sidebarWidth]
-          )}>
+          <aside
+            className={cn(
+              "sticky top-16 h-[calc(100vh-4rem)] border-r bg-muted/10",
+              sidebarWidthClasses[sidebarWidth]
+            )}
+          >
             <div className="p-4">
               <PageSlot name="sidebar" />
             </div>
@@ -51,4 +53,4 @@ export class TwoColumnLayout extends PageLayout {
       </div>
     );
   }
-} 
+}

@@ -63,19 +63,20 @@ const CompositeFilterGroup = memo<CompositeFilterGroupProps>(
       [metadata]
     );
 
-    const addCompositeFilter = useCallback((operator: ":and" | ":or") => {
-      const newFilter: CompositeFilterRule = {
+    const addCompositeFilter = useCallback((operator: ".and" | ".or") => {
+      const newCompositeFilter: CompositeFilterRule = {
         id: generateFilterId(),
         type: "composite",
         operator,
         children: [],
-        negate: false,
       };
 
-      onFilterChangeRef.current({
+      const updatedFilter = {
         ...filterRef.current,
-        children: [...filterRef.current.children, newFilter],
-      });
+        children: [...filterRef.current.children, newCompositeFilter],
+      };
+
+      onFilterChangeRef.current(updatedFilter);
     }, []);
 
     const updateChild = useCallback(
@@ -107,16 +108,21 @@ const CompositeFilterGroup = memo<CompositeFilterGroupProps>(
       });
     }, []);
 
-    const changeOperator = useCallback((newOperator: ":and" | ":or") => {
+    const changeOperator = useCallback((newOperator: ".and" | ".or") => {
       onFilterChangeRef.current({
         ...filterRef.current,
         operator: newOperator,
       });
     }, []);
 
-    const operatorDisplay = filter.operator === ":and" ? "AND" : "OR";
-    const alternateOperator = filter.operator === ":and" ? ":or" : ":and";
-    const alternateDisplay = alternateOperator === ":and" ? "AND" : "OR";
+    const operatorDisplay = filter.operator === ".and" ? "AND" : "OR";
+    const alternateOperator = filter.operator === ".and" ? ".or" : ".and";
+    const alternateDisplay = alternateOperator === ".and" ? "AND" : "OR";
+
+    const dropdownBgColor =
+      filter.operator === ".and"
+        ? "bg-green-50 border-green-200"
+        : "bg-blue-50 border-blue-200";
 
     return (
       <div className={cn(depth > 0 && "ml-4")}>
@@ -130,7 +136,7 @@ const CompositeFilterGroup = memo<CompositeFilterGroupProps>(
                 className={cn(
                   "px-3 py-1 text-sm font-medium rounded border",
                   "transition-colors hover:bg-gray-100",
-                  filter.operator === ":and"
+                  filter.operator === ".and"
                     ? "bg-blue-100 border-blue-300 text-blue-700"
                     : "bg-green-100 border-green-300 text-green-700"
                 )}

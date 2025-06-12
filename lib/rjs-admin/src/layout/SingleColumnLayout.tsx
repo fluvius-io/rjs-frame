@@ -1,16 +1,15 @@
-import React from 'react';
-import { PageLayout, PageSlot } from 'rjs-frame';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
+import type { PageLayoutProps } from "rjs-frame";
+import { PageLayout, PageSlot } from "rjs-frame";
 
-export interface SingleColumnLayoutProps {
+export interface SingleColumnLayoutProps extends PageLayoutProps {
   className?: string;
-  children?: React.ReactNode;
 }
 
 export class SingleColumnLayout extends PageLayout {
   renderContent() {
     const { className } = this.props as SingleColumnLayoutProps;
-    
+
     return (
       <div className={cn("min-h-screen bg-background", className)}>
         {/* Header */}
@@ -32,4 +31,4 @@ export class SingleColumnLayout extends PageLayout {
       </div>
     );
   }
-} 
+}

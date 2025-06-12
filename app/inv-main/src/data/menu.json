@@ -101,7 +101,7 @@
         {
           "label": "User Management",
           "icon": "Users",
-          "href": "/portfolio/-/users",
+          "href": "/users",
           "description": "Manage dashboard users"
         }
       ]

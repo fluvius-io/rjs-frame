@@ -144,7 +144,7 @@ export function UserProfileTab() {
               Realm Access Roles
             </label>
             <div className="user-tab__tags">
-              {user.realm_access?.roles?.map((role, index) => (
+              {user.realm_access?.roles?.map((role: string, index: number) => (
                 <span key={index} className="user-tab__tag">
                   <Tag className="h-3 w-3" />
                   {role}
