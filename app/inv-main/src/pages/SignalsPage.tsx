@@ -19,7 +19,7 @@ import { Header } from "../components";
 
 export default function SignalsPage() {
   return (
-    <ThreeColumnLayout>
+    <ThreeColumnLayout sidebarWidth="lg" rightPanelWidth="lg">
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">

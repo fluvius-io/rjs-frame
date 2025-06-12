@@ -1,12 +1,11 @@
 import { cn } from "@/lib/utils";
-import React from "react";
-import { PageLayout, PageSlot } from "rjs-frame";
+import { PageLayout, PageSlot } from "../../../rjs-frame/src";
+import type { PageLayoutProps } from "../../../rjs-frame/src/components/PageLayout";
 
-export interface ThreeColumnLayoutProps {
+export interface ThreeColumnLayoutProps extends PageLayoutProps {
   className?: string;
   sidebarWidth?: "sm" | "md" | "lg";
   rightPanelWidth?: "sm" | "md" | "lg";
-  children?: React.ReactNode;
 }
 
 export class ThreeColumnLayout extends PageLayout {
