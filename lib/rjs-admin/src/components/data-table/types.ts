@@ -60,14 +60,11 @@ export interface PaginationConfig {
 
 // Shared state interface used by both DataTable and ResourceDataTable
 export interface DataTableState {
-  searchQuery: string;
   showFilterModal: boolean;
-  currentSort?: SortConfig;
   queryState: ResourceQuery;
   data: Array<Record<string, any>>;
   metadata: QueryMetadata | null;
   loading: boolean;
-  backgroundLoading: boolean;
   error: string | null;
   pagination: PaginationConfig;
 }

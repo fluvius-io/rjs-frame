@@ -13,6 +13,7 @@ export interface QueryBuilderState {
   selectedFields: string[];
   sortRules: SortRule[];
   filterRules: FilterRule[];
+  searchQuery?: string;
 }
 
 export interface SortRule {

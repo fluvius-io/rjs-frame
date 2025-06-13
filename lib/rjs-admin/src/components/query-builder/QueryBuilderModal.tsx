@@ -10,6 +10,7 @@ const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
   onClose,
   onApply,
 }) => {
+  console.log("QueryBuilderModal", isOpen, metadata, currentQuery);
   // Local state for the query builder state being built in the modal
   const [modalState, setModalState] = useState<QueryBuilderState>({
     selectedFields: [],

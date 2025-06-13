@@ -1,9 +1,8 @@
 import React from "react";
 import { APIManager } from "rjs-frame";
-import { cn } from "../../lib/utils";
 import { ResourceQuery } from "../query-builder/types";
 import { DataTable } from "./DataTable";
-import type { DataTableProps, PaginationConfig } from "./types";
+import type { DataTableProps } from "./types";
 
 const TableLoadingOverlay: React.FC<{ loading: boolean }> = ({ loading }) => {
   if (!loading) return null;
@@ -104,7 +103,6 @@ export class ResourceDataTable extends DataTable {
 
   // Fetch data from API using ResourceQuery
   protected fetchData = async () => {
-    console.log("fetchData", this.state.pagination);
     if (!this.props.dataApi) {
       this.setError("No dataApi provided");
       return;
@@ -118,16 +116,9 @@ export class ResourceDataTable extends DataTable {
     // Create new AbortController for this request
     this.currentRequestRef = new AbortController();
 
-    const isInitialLoad = this.isInitialLoadRef;
-    if (isInitialLoad) {
-      this.setLoading(true);
-      this.isInitialLoadRef = false;
-    } else {
-      this.setBackgroundLoading(true);
-    }
-
     try {
       const params = this.buildSearchParams(this.state.queryState);
+      this.setLoading(true);
 
       const result = await APIManager.query(this.props.dataApi, {
         search: params,
@@ -139,67 +130,26 @@ export class ResourceDataTable extends DataTable {
       }
 
       const meta = result.meta || {};
-      this.setState({
-        data: result.data,
-        pagination: {
-          page: meta.page_no || 1,
-          pageSize: meta.limit || 10,
-          total: meta.total_items || 0,
+      this.setState(
+        {
+          data: result.data,
+          pagination: {
+            page: meta.page_no || 1,
+            pageSize: meta.limit || 10,
+            total: meta.total_items || 0,
+          },
         },
-      });
+        () => this.setError(null)
+      );
     } catch (error) {
-      console.error("❌ ResourceDataTable: Failed to fetch data:", error);
       this.setError(
         error instanceof Error ? error.message : "Failed to fetch data"
       );
     } finally {
       this.setLoading(false);
-      this.setBackgroundLoading(false);
       this.currentRequestRef = null;
     }
   };
-
-  protected setPagination = (pagination: PaginationConfig) => {
-    this.setState({ pagination }, () => {
-      // This callback runs after the state has been updated
-      console.log("Pagination updated:", this.state.pagination);
-    });
-  };
-
-  protected handlePageChange = (page: number, pageSize: number) => {
-    this.setPagination({
-      page,
-      pageSize,
-      total: this.state.pagination.total,
-    });
-    // Move fetchData to the setState callback to ensure it uses the updated pagination
-    this.setState({}, () => {
-      this.fetchData();
-    });
-  };
-
-  render() {
-    const { className } = this.props;
-    const { loading, backgroundLoading } = this.state;
-
-    return (
-      <>
-        <div className={cn("data-table", className)}>
-          {this.renderLayoutHeader()}
-          <div className="data-table__table-container">
-            <TableLoadingOverlay loading={loading} />
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                {this.renderTableHeader()}
-                <tbody>{this.renderTableContent()}</tbody>
-              </table>
-            </div>
-          </div>
-          {this.renderPagination()}
-        </div>
-      </>
-    );
-  }
 }
 
 export default ResourceDataTable;

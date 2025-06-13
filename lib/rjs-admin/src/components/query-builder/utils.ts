@@ -91,9 +91,10 @@ export function getOperatorsForField(
  * Get all available fields from metadata
  */
 export function getAvailableFields(metadata: QueryMetadata): string[] {
-  return Object.entries(metadata.fields)
+  const fields = Object.entries(metadata.fields)
     .filter(([, fieldMeta]) => !fieldMeta.hidden)
     .map(([fieldName]) => fieldName);
+  return fields;
 }
 
 /**

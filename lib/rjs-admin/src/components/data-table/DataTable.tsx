@@ -11,7 +11,13 @@ import {
 import HeaderComponent from "./HeaderComponent";
 import PaginationControls from "./PaginationControls";
 import RowComponent from "./RowComponent";
-import type { DataTableProps, DataTableState, SortConfig } from "./types";
+import type {
+  DataTableProps,
+  DataTableState,
+  PaginationConfig,
+  QueryMetadata,
+  SortConfig,
+} from "./types";
 
 const TableLoadingOverlay: React.FC<{ loading: boolean }> = ({
   loading = false,
@@ -29,19 +35,16 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   constructor(props: DataTableProps) {
     super(props);
     this.state = {
-      searchQuery: "",
       showFilterModal: false,
-      currentSort: undefined,
       queryState: {
         select: [],
         sort: [],
         query: undefined,
-        searchQuery: undefined,
+        searchQuery: "",
       },
       data: props.data || [],
       metadata: props.metadata || null,
       loading: false,
-      backgroundLoading: false,
       error: null,
       pagination: {
         page: 1,
@@ -63,9 +66,6 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   protected setLoading = (loading: boolean) => {
     this.setState({ loading });
   };
-  protected setBackgroundLoading = (backgroundLoading: boolean) => {
-    this.setState({ backgroundLoading });
-  };
 
   componentDidUpdate(prevProps: DataTableProps) {
     // Re-initialize sort if metadata changes
@@ -84,19 +84,15 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
 
   protected initializeDefaultSort = () => {
     const { metadata } = this.state;
-    const { currentSort, queryState } = this.state;
+    const { queryState } = this.state;
 
     if (
       metadata?.default_order &&
       metadata.default_order.length > 0 &&
-      !currentSort
+      !queryState.sort
     ) {
       const defaultOrder = metadata.default_order[0];
       const [field, direction] = defaultOrder.split(".");
-      const newSort = {
-        field,
-        direction: direction === "desc" ? "desc" : "asc",
-      } as SortConfig;
 
       // Initialize with default sort
       const initialQuery = {
@@ -105,7 +101,6 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
       };
 
       this.setState({
-        currentSort: newSort,
         queryState: initialQuery,
       });
     }
@@ -131,7 +126,6 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   };
 
   protected handleSort = (sort: SortConfig) => {
-    this.setState({ currentSort: sort });
     this.sendQueryUpdate({
       sort: [`${sort.field}.${sort.direction}`],
     });
@@ -155,17 +149,16 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
     this.setState({ showFilterModal: true });
   };
 
+  protected setPagination = (pagination: PaginationConfig) => {
+    this.setState({ pagination }, this.fetchData);
+  };
+
+  protected setMetadata = (metadata: QueryMetadata) => {
+    this.setState({ metadata });
+  };
+
   protected handlePageChange = (page: number, pageSize: number) => {
-    this.setState(
-      {
-        pagination: {
-          ...this.state.pagination,
-          page,
-          pageSize,
-        },
-      },
-      this.fetchData
-    );
+    this.setPagination({ ...this.state.pagination, page, pageSize });
   };
 
   protected getCurrentQueryBuilderState = (): QueryBuilderState => {
@@ -224,14 +217,13 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   };
 
   protected renderTableHeader = () => {
-    const { metadata } = this.state;
-    const { currentSort } = this.state;
+    const { metadata, queryState } = this.state;
     if (!metadata) return null;
 
     return (
       <HeaderComponent
         metadata={metadata}
-        sort={currentSort}
+        sort={queryState.sort}
         onSort={this.handleSort}
       />
     );
@@ -241,7 +233,6 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
     const { loading = false } = this.state;
     return (
       <div className="relative">
-        <TableLoadingOverlay loading={loading} />
         <div className="overflow-x-auto">
           <table className="w-full">
             {this.renderTableHeader()}
@@ -272,45 +263,43 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
     const hasActiveFilters =
       currentFilterQuery && currentFilterQuery.length > 0;
 
-    if (!showSearch && !showFilters) return null;
+    if (!(showSearch || showFilters)) return null;
 
     return (
       <>
-        {(showSearch || showFilters) && (
-          <div className="data-table__search-filter-row">
-            {showSearch && (
-              <div className="data-table__search">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={this.handleSearchChange}
-                  placeholder={searchPlaceholder}
-                  className="data-table__search-input"
-                />
-              </div>
-            )}
+        <div className="data-table__search-filter-row">
+          {showSearch && (
+            <div className="data-table__search">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={this.handleSearchChange}
+                placeholder={searchPlaceholder}
+                className="data-table__search-input"
+              />
+            </div>
+          )}
 
-            {showFilters && hasFilters && (
-              <div className="data-table__filters">
-                <button
-                  onClick={this.openFilterModal}
-                  className={cn(
-                    "data-table__filters-btn",
-                    hasActiveFilters
-                      ? "data-table__filters-btn--active"
-                      : "data-table__filters-btn--inactive"
-                  )}
-                >
-                  <MixerHorizontalIcon className="data-table__filters-icon" />
-                  Filters
-                  {hasActiveFilters && (
-                    <span className="data-table__filters-active">Active</span>
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+          {showFilters && hasFilters && (
+            <div className="data-table__filters">
+              <button
+                onClick={this.openFilterModal}
+                className={cn(
+                  "data-table__filters-btn",
+                  hasActiveFilters
+                    ? "data-table__filters-btn--active"
+                    : "data-table__filters-btn--inactive"
+                )}
+              >
+                <MixerHorizontalIcon className="data-table__filters-icon" />
+                Filters
+                {hasActiveFilters && (
+                  <span className="data-table__filters-active">Active</span>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Active Filters Display */}
         {hasActiveFilters && (
@@ -338,18 +327,6 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
     );
   };
 
-  get page() {
-    return this.state.pagination.page;
-  }
-
-  get pageSize() {
-    return this.state.pagination.pageSize;
-  }
-
-  get total() {
-    return this.state.pagination.total;
-  }
-
   protected renderLayoutHeader = () => {
     const { title, subtitle, showSearch, showFilters, actions } = this.props;
 
@@ -372,18 +349,18 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   };
 
   protected renderPagination = () => {
-    const { pagination } = this.state;
     return (
       <PaginationControls
-        pagination={pagination}
+        pagination={this.state.pagination}
+        loading={this.state.loading}
         onPageChange={this.handlePageChange}
       />
     );
   };
 
   protected renderFilterModal = () => {
-    const { metadata } = this.state;
-    const { showFilterModal } = this.state;
+    const { metadata, showFilterModal } = this.state;
+    console.log("renderFilterModal", showFilterModal, metadata);
     if (!metadata) return null;
 
     return (

@@ -1,6 +1,6 @@
-import React from 'react';
-import { cn } from '../../lib/utils';
-import { HeaderComponentProps } from './types';
+import React from "react";
+import { cn } from "../../lib/utils";
+import { HeaderComponentProps } from "./types";
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({
   metadata,
@@ -11,25 +11,25 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
     const fieldMeta = metadata?.fields?.[fieldName];
     if (!fieldMeta?.sortable || !onSort) return;
 
-    const newDirection = 
-      sort?.field === fieldName && sort.direction === 'asc' ? 'desc' : 'asc';
-    
+    const newDirection =
+      sort?.field === fieldName && sort.direction === "asc" ? "desc" : "asc";
+
     onSort({ field: fieldName, direction: newDirection });
   };
 
   const getSortIcon = (fieldName: string) => {
     const fieldMeta = metadata?.fields?.[fieldName];
     if (!fieldMeta?.sortable) return null;
-    
+
     if (sort?.field === fieldName) {
-      return sort.direction === 'asc' ? '↑' : '↓';
+      return sort.direction === "asc" ? "↑" : "↓";
     }
-    return '↕';
+    return "↕";
   };
 
   const getAlignmentClass = (fieldMeta: any) => {
-    if (fieldMeta.identifier) return 'text-center';
-    return 'text-left';
+    if (fieldMeta.identifier) return "text-center";
+    return "text-left";
   };
 
   // Return empty header if no metadata or fields
@@ -46,7 +46,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   }
 
   // Filter out hidden fields
-  const visibleFields = Object.entries(metadata.fields).filter(([, fieldMeta]) => !fieldMeta.hidden);
+  const visibleFields = Object.entries(metadata.fields).filter(
+    ([, fieldMeta]) => !fieldMeta.hidden
+  );
 
   return (
     <thead className="bg-muted/50">
@@ -57,7 +59,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
             className={cn(
               "px-4 py-3 font-medium text-sm text-muted-foreground",
               getAlignmentClass(fieldMeta),
-              fieldMeta.sortable && onSort && "cursor-pointer hover:text-foreground transition-colors"
+              fieldMeta.sortable &&
+                onSort &&
+                "cursor-pointer hover:text-foreground transition-colors"
             )}
             onClick={() => handleSort(fieldName)}
           >
@@ -76,4 +80,4 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   );
 };
 
-export default HeaderComponent; 
+export default HeaderComponent;
