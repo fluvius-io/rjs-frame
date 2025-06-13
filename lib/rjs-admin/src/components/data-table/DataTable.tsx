@@ -40,10 +40,14 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
       },
       data: props.data || [],
       metadata: props.metadata || null,
-      loading: props.loading || false,
-      backgroundLoading: props.backgroundLoading || false,
-      error: props.error || null,
-      pagination: props.pagination,
+      loading: false,
+      backgroundLoading: false,
+      error: null,
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: 0,
+      },
     };
   }
 
@@ -75,20 +79,6 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
     }
     if (prevProps.metadata !== this.props.metadata) {
       this.setState({ metadata: this.props.metadata || null });
-    }
-    if (prevProps.loading !== this.props.loading) {
-      this.setState({ loading: this.props.loading || false });
-    }
-    if (prevProps.backgroundLoading !== this.props.backgroundLoading) {
-      this.setState({
-        backgroundLoading: this.props.backgroundLoading || false,
-      });
-    }
-    if (prevProps.error !== this.props.error) {
-      this.setState({ error: this.props.error || null });
-    }
-    if (prevProps.pagination !== this.props.pagination) {
-      this.setState({ pagination: this.props.pagination });
     }
   }
 
@@ -166,7 +156,16 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   };
 
   protected handlePageChange = (page: number, pageSize: number) => {
-    this.props.onPageChange?.(page, pageSize);
+    this.setState(
+      {
+        pagination: {
+          ...this.state.pagination,
+          page,
+          pageSize,
+        },
+      },
+      this.fetchData
+    );
   };
 
   protected getCurrentQueryBuilderState = (): QueryBuilderState => {
@@ -338,6 +337,18 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
       </>
     );
   };
+
+  get page() {
+    return this.state.pagination.page;
+  }
+
+  get pageSize() {
+    return this.state.pagination.pageSize;
+  }
+
+  get total() {
+    return this.state.pagination.total;
+  }
 
   protected renderLayoutHeader = () => {
     const { title, subtitle, showSearch, showFilters, actions } = this.props;

@@ -85,11 +85,7 @@ export interface DataTableProps {
   className?: string;
   data?: Array<Record<string, any>>;
   dataApi?: string;
-  pagination: PaginationConfig;
   metadata?: QueryMetadata;
-  loading?: boolean;
-  backgroundLoading?: boolean;
-  error?: string | null;
 }
 
 export interface HeaderComponentProps {
