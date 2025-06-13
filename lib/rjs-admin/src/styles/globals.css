@@ -96,86 +96,6 @@
     @apply text-center text-muted-foreground py-4;
   }
 
-  /* DataTable semantic classes */
-  .data-table {
-    @apply bg-background border rounded-lg shadow-sm;
-  }
-  .data-table--loading {
-    @apply opacity-60;
-  }
-  .data-table__loading-message {
-    @apply p-8 text-center;
-  }
-  .data-table__loading-text {
-    @apply text-sm text-muted-foreground;
-  }
-  .data-table__header {
-    @apply p-4 border-b;
-  }
-  .data-table__header-row {
-    @apply flex items-center justify-between mb-4;
-  }
-  .data-table__header-titles {
-    @apply flex flex-col;
-  }
-  .data-table__title {
-    @apply text-lg font-semibold;
-  }
-  .data-table__subtitle {
-    @apply text-sm text-muted-foreground;
-  }
-  .data-table__actions {
-    @apply flex items-center gap-2;
-  }
-  .data-table__search-filter-row {
-    @apply flex items-center gap-4;
-  }
-  .data-table__search {
-    @apply flex-1 max-w-sm;
-  }
-  .data-table__search-input {
-    @apply w-full px-3 py-2 text-sm border rounded-md bg-background;
-  }
-  .data-table__filters {
-    @apply flex items-center gap-2;
-  }
-  .data-table__filters-btn {
-    @apply inline-flex items-center gap-2 px-3 py-1 text-sm border rounded font-medium transition-colors;
-  }
-  .data-table__filters-btn--active {
-    @apply bg-blue-100 border-blue-300 text-blue-700;
-  }
-  .data-table__filters-btn--inactive {
-    @apply bg-white hover:bg-gray-50;
-  }
-  .data-table__filters-icon {
-    @apply w-4 h-4;
-  }
-  .data-table__filters-active {
-    @apply ml-1 px-1.5 py-0.5 bg-blue-200 text-blue-800 text-xs rounded-full;
-  }
-  .data-table__active-filters {
-    @apply mt-3 p-2 bg-blue-50 border border-blue-200 rounded-md;
-  }
-  .data-table__active-filters-row {
-    @apply flex items-center justify-between;
-  }
-  .data-table__active-filters-labels {
-    @apply flex items-center gap-2;
-  }
-  .data-table__active-filters-label {
-    @apply text-sm font-medium text-blue-700;
-  }
-  .data-table__active-filters-query {
-    @apply text-sm text-blue-600 font-mono;
-  }
-  .data-table__active-filters-clear {
-    @apply p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors;
-  }
-  .data-table__active-filters-icon {
-    @apply w-4 h-4;
-  }
-
   /* TableLoadingOverlay semantic classes */
   .table-loading-overlay {
     @apply absolute inset-0 bg-background/80 flex items-center justify-center z-10;
@@ -189,7 +109,7 @@
 
   /* QueryBuilder semantic classes */
   .query-builder {
-    @apply border rounded-lg bg-white shadow-sm p-3;
+    @apply border bg-white shadow-sm p-3;
   }
   .query-builder--empty {
     @apply opacity-60;

@@ -1,17 +1,7 @@
-import React from "react";
 import { APIManager } from "rjs-frame";
 import { QueryBuilderState } from "../query-builder/types";
 import { DataTable } from "./DataTable";
 import type { DataTableProps } from "./types";
-
-const TableLoadingOverlay: React.FC<{ loading: boolean }> = ({ loading }) => {
-  if (!loading) return null;
-  return (
-    <div className="data-table__loading-overlay">
-      <div className="data-table__loading-spinner" />
-    </div>
-  );
-};
 
 /**
  * ResourceDataTable component that extends DataTable to fetch data from an API
@@ -41,7 +31,7 @@ export class ResourceDataTable extends DataTable {
 
     // Check if query state changed
     if (prevProps.onQueryChange !== this.props.onQueryChange) {
-      this.sendQueryUpdate(this.state.queryState);
+      this.sendQueryUpdate();
     }
   }
 
@@ -80,18 +70,18 @@ export class ResourceDataTable extends DataTable {
     };
 
     // Add sort parameters from ResourceQuery
-    if (query.sort && query.sort.length > 0) {
-      params.sort = query.sort[0]; // Take the first sort rule
+    if (query.sortRules && query.sortRules.length > 0) {
+      params.sort = query.sortRules[0]; // Take the first sort rule
     }
 
     // Add search query if provided
-    if (query.searchQuery) {
-      params.search = query.searchQuery;
+    if (query.universalQuery) {
+      params.search = query.universalQuery;
     }
 
     // Add filter query from ResourceQuery
-    if (query.query) {
-      params.q = query.query;
+    if (query.filterRules) {
+      params.q = query.filterRules;
     }
 
     return params;

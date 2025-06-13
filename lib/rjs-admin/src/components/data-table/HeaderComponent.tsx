@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "../../lib/utils";
+import "../../styles/components/DataTable.css";
 import { HeaderComponentProps, QueryFieldMetadata } from "./types";
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({
@@ -30,18 +31,17 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   };
 
   const getAlignmentClass = (fieldMeta: QueryFieldMetadata) => {
-    if (fieldMeta.identifier) return "text-center";
-    return "text-left";
+    return fieldMeta.identifier
+      ? "data-table-header__cell--center"
+      : "data-table-header__cell--left";
   };
 
   // Return empty header if no metadata or fields
   if (!metadata?.fields) {
     return (
-      <thead className="bg-muted/50">
-        <tr className="border-b">
-          <th className="px-4 py-3 font-medium text-sm text-muted-foreground">
-            Loading...
-          </th>
+      <thead className="data-table-header">
+        <tr className="data-table-header__row">
+          <th className="data-table-header__cell">Loading...</th>
         </tr>
       </thead>
     );
@@ -54,24 +54,26 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
       : Object.values(metadata.fields);
 
   return (
-    <thead className="bg-muted/50">
-      <tr className="border-b">
+    <thead className="data-table-header">
+      <tr className="data-table-header__row">
         {visibleFields.map((fieldMeta) => (
           <th
             key={fieldMeta.key}
             className={cn(
-              "px-4 py-3 font-medium text-sm text-muted-foreground",
+              "data-table-header__cell",
               getAlignmentClass(fieldMeta),
               fieldMeta.sortable &&
                 onSort &&
-                "cursor-pointer hover:text-foreground transition-colors"
+                "data-table-header__cell--sortable"
             )}
             onClick={() => handleSort(fieldMeta)}
           >
-            <div className="flex items-center gap-2">
-              <span>{fieldMeta.label}</span>
+            <div className="data-table-header__content">
+              <span className="data-table-header__label">
+                {fieldMeta.label}
+              </span>
               {fieldMeta.sortable && onSort && (
-                <span className="text-xs opacity-60">
+                <span className="data-table-header__sort-icon">
                   {getSortIcon(fieldMeta)}
                 </span>
               )}

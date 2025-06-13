@@ -5,7 +5,7 @@ export interface QueryBuilderState {
   visibleFields: QueryFieldMetadata[];
   sortRules: SortRule[];
   filterRules: FilterRule[];
-  searchQuery?: string;
+  universalQuery?: string;
 }
 
 export interface SortRule {

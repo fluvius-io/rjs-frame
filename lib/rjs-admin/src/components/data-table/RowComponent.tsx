@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "../../lib/utils";
+import "../../styles/components/DataTable.css";
 import { QueryFieldMetadata, RowComponentProps } from "./types";
 
 const RowComponent: React.FC<RowComponentProps> = ({
@@ -9,14 +10,19 @@ const RowComponent: React.FC<RowComponentProps> = ({
   queryState,
 }) => {
   const getAlignmentClass = (fieldMeta: QueryFieldMetadata) => {
-    if (fieldMeta.identifier) return "text-center";
-    return "text-left";
+    return fieldMeta.identifier
+      ? "data-table-row__cell--center"
+      : "data-table-row__cell--left";
   };
 
   const formatValue = (value: any, fieldMeta: QueryFieldMetadata) => {
     // Simple formatting for common data types
     if (value === null || value === undefined) {
       return "-";
+    }
+
+    if (fieldMeta.dtype === "date") {
+      return new Date(value).toLocaleDateString();
     }
 
     if (typeof value === "boolean") {
@@ -35,11 +41,13 @@ const RowComponent: React.FC<RowComponentProps> = ({
     return (
       <tr
         className={cn(
-          "border-b hover:bg-muted/30 transition-colors",
-          index % 2 === 0 ? "bg-background" : "bg-muted/10"
+          "data-table-row",
+          index % 2 === 0 ? "data-table-row--even" : "data-table-row--odd"
         )}
       >
-        <td className="px-4 py-3 text-sm text-muted-foreground">Loading...</td>
+        <td className="data-table-row__cell data-table-row__loading">
+          Loading...
+        </td>
       </tr>
     );
   }
@@ -50,21 +58,19 @@ const RowComponent: React.FC<RowComponentProps> = ({
       ? queryState.visibleFields
       : Object.values(metadata.fields);
 
-  console.log("visibleFields", visibleFields);
-
   return (
     <tr
       className={cn(
-        "border-b hover:bg-muted/30 transition-colors",
-        index % 2 === 0 ? "bg-background" : "bg-muted/10"
+        "data-table-row",
+        index % 2 === 0 ? "data-table-row--even" : "data-table-row--odd"
       )}
     >
       {visibleFields.map((fieldMeta) => (
         <td
           key={fieldMeta.key}
-          className={cn("px-4 py-3 text-sm", getAlignmentClass(fieldMeta))}
+          className={cn("data-table-row__cell", getAlignmentClass(fieldMeta))}
         >
-          {formatValue(data[fieldMeta.key], fieldMeta.key)}
+          {formatValue(data[fieldMeta.key], fieldMeta)}
         </td>
       ))}
     </tr>
