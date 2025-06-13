@@ -13,9 +13,9 @@ const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
   console.log("QueryBuilderModal", isOpen, metadata, currentQuery);
   // Local state for the query builder state being built in the modal
   const [modalState, setModalState] = useState<QueryBuilderState>({
-    selectedFields: [],
-    sortRules: [],
-    filterRules: [],
+    visibleFields: currentQuery.visibleFields || Object.entries(metadata.fields),
+    sortRules: currentQuery.sortRules || [],
+    filterRules: currentQuery.filterRules || [],
   });
 
   // Update modal state when currentQuery changes (e.g., when modal opens)

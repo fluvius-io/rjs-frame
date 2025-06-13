@@ -1,8 +1,8 @@
-import React from 'react';
-import { cn } from '../../lib/utils';
-import { Button } from '../common/Button';
-import { FieldSelectorProps } from './types';
-import { getAvailableFields } from './utils';
+import React from "react";
+import { cn } from "../../lib/utils";
+import { Button } from "../common/Button";
+import { FieldSelectorProps } from "./types";
+import { getAvailableFields } from "./utils";
 
 const FieldSelector: React.FC<FieldSelectorProps> = ({
   metadata,
@@ -11,16 +11,19 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
 }) => {
   const availableFields = getAvailableFields(metadata);
 
-  const handleFieldToggle = (fieldName: string, isSelected: boolean) => {
+  const handleFieldToggle = (fieldKey: string, isSelected: boolean) => {
     if (isSelected) {
       // Add to selected fields
-      if (!selectedFields.includes(fieldName)) {
-        onSelectedFieldsChange([...selectedFields, fieldName]);
+      if (!selectedFields.some((field) => field.key === fieldKey)) {
+        onSelectedFieldsChange([...selectedFields, metadata.fields[fieldKey]]);
       }
     } else {
       // Remove from selected fields
-      onSelectedFieldsChange(selectedFields.filter(f => f !== fieldName));
+      onSelectedFieldsChange(
+        selectedFields.filter((field) => field.key !== fieldKey)
+      );
     }
+    console.log("handleFieldToggle", fieldKey, isSelected, selectedFields);
   };
 
   const clearAllSelections = () => {
@@ -28,13 +31,17 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
   };
 
   const selectAllFields = () => {
-    onSelectedFieldsChange(availableFields);
+    onSelectedFieldsChange(
+      availableFields.map((fieldKey) => metadata.fields[fieldKey])
+    );
   };
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Field Selection ({selectedFields.length})</h3>
+        <h3 className="text-lg font-medium">
+          Field Selection ({selectedFields.length})
+        </h3>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={selectAllFields}>
             Select All
@@ -42,20 +49,22 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
           <Button variant="outline" size="sm" onClick={clearAllSelections}>
             Clear All
           </Button>
-        </div>        
+        </div>
       </div>
 
       <div className="space-y-4">
         {/* Select Fields Section */}
         <div>
           <div className="max-h-48 overflow-y-auto border rounded p-2 bg-green-50/50">
-            {availableFields.map(fieldName => {
-              const fieldMeta = metadata.fields[fieldName];
-              const isSelected = selectedFields.includes(fieldName);
-              
+            {availableFields.map((fieldKey) => {
+              const fieldMeta = metadata.fields[fieldKey];
+              const isSelected = selectedFields.some(
+                (field) => field.key === fieldKey
+              );
+
               return (
                 <label
-                  key={fieldName}
+                  key={fieldKey}
                   className={cn(
                     "flex items-center gap-2 p-1 rounded text-sm cursor-pointer hover:bg-green-100",
                     isSelected && "bg-green-100"
@@ -64,10 +73,12 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
                   <input
                     type="checkbox"
                     checked={isSelected}
-                    onChange={(e) => handleFieldToggle(fieldName, e.target.checked)}
+                    onChange={(e) =>
+                      handleFieldToggle(fieldKey, e.target.checked)
+                    }
                     className="rounded border-gray-300"
                   />
-                  <span className="font-mono text-xs">{fieldName}</span>
+                  <span className="font-mono text-xs">{fieldKey}</span>
                   <span className="text-gray-600">({fieldMeta.label})</span>
                 </label>
               );
@@ -79,10 +90,9 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
         </div>
 
         {/* Summary */}
-
       </div>
     </div>
   );
 };
 
-export default FieldSelector; 
+export default FieldSelector;

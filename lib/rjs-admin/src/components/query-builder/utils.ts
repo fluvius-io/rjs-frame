@@ -16,8 +16,8 @@ export function transformToBackendQuery(
   const query: ResourceQuery = {};
 
   // Add select fields if any are specified
-  if (state.selectedFields.length > 0) {
-    query.select = state.selectedFields;
+  if (state.visibleFields.length > 0) {
+    query.select = state.visibleFields.map((field) => field.key);
   }
 
   // Add sort rules
@@ -39,10 +39,13 @@ export function transformToBackendQuery(
  * Transform backend query to UI state
  */
 export function transformFromBackendQuery(
-  query: Partial<ResourceQuery>
+  query: Partial<ResourceQuery>,
+  metadata: QueryMetadata
 ): QueryBuilderState {
   const state: QueryBuilderState = {
-    selectedFields: query.select || [],
+    visibleFields: query.select
+      ? query.select.map((field) => [field, metadata.fields[field]])
+      : [],
     sortRules: [],
     filterRules: [],
   };
@@ -91,10 +94,7 @@ export function getOperatorsForField(
  * Get all available fields from metadata
  */
 export function getAvailableFields(metadata: QueryMetadata): string[] {
-  const fields = Object.entries(metadata.fields)
-    .filter(([, fieldMeta]) => !fieldMeta.hidden)
-    .map(([fieldName]) => fieldName);
-  return fields;
+  return Object.keys(metadata.fields);
 }
 
 /**
@@ -102,7 +102,7 @@ export function getAvailableFields(metadata: QueryMetadata): string[] {
  */
 export function getSortableFields(metadata: QueryMetadata): string[] {
   return Object.entries(metadata.fields)
-    .filter(([, fieldMeta]) => fieldMeta.sortable && !fieldMeta.hidden)
+    .filter(([, fieldMeta]) => fieldMeta.sortable)
     .map(([fieldName]) => fieldName);
 }
 

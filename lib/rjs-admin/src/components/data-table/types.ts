@@ -1,4 +1,4 @@
-import { ResourceQuery } from "../query-builder/types";
+import { QueryBuilderState } from "../query-builder/types";
 
 export interface FieldMetadata {
   label: string;
@@ -14,22 +14,17 @@ export interface FieldMetadata {
 export interface QueryFieldMetadata {
   label: string;
   sortable: boolean;
-  hidden: boolean;
   identifier: boolean;
-  factory: string | null;
   source: string | null;
+  key: string;
+  dtype: string;
 }
 
 export interface QueryParamMetadata {
-  index: number;
   field_name: string;
   operator: string;
-  widget: {
-    name: string;
-    desc: string | null;
-    inversible: boolean;
-    data_query: any | null;
-  } | null;
+  label: string;
+  type: string;
 }
 
 export interface QueryMetadata {
@@ -60,8 +55,9 @@ export interface PaginationConfig {
 
 // Shared state interface used by both DataTable and ResourceDataTable
 export interface DataTableState {
+  searchQuery: string;
   showFilterModal: boolean;
-  queryState: ResourceQuery;
+  queryState: QueryBuilderState;
   data: Array<Record<string, any>>;
   metadata: QueryMetadata | null;
   loading: boolean;
@@ -76,8 +72,11 @@ export interface DataTableProps {
   showSearch?: boolean;
   showFilters?: boolean;
   searchPlaceholder?: string;
-  onQueryChange?: (query: ResourceQuery) => void;
+  onQueryChange?: (queryState: QueryBuilderState) => void;
   onPageChange?: (page: number, pageSize: number) => void;
+  onFetch?: (
+    params: URLSearchParams
+  ) => Promise<{ data: any[]; total: number }>;
   actions?: React.ReactNode;
   className?: string;
   data?: Array<Record<string, any>>;
@@ -87,14 +86,15 @@ export interface DataTableProps {
 
 export interface HeaderComponentProps {
   metadata: QueryMetadata;
-  sort?: SortConfig;
-  onSort?: (sort: SortConfig) => void;
+  queryState: QueryBuilderState;
+  onSort?: (sort: { field: string; direction: "asc" | "desc" }) => void;
 }
 
 export interface RowComponentProps {
   metadata: QueryMetadata;
   data: Record<string, any>;
   index: number;
+  queryState: QueryBuilderState;
 }
 
 export interface PaginationControlsProps {

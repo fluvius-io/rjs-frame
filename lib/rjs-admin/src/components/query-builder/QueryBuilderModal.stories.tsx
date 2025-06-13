@@ -157,7 +157,7 @@ export const Interactive: Story = {
   render: () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentFilters, setCurrentFilters] = useState<QueryBuilderState>({
-      selectedFields: [],
+      visibleFields: [],
       sortRules: [],
       filterRules: [],
     });
@@ -218,7 +218,7 @@ export const Interactive: Story = {
 export const AlwaysOpen: Story = {
   render: () => {
     const [currentFilters, setCurrentFilters] = useState<QueryBuilderState>({
-      selectedFields: [],
+      visibleFields: [],
       sortRules: [],
       filterRules: [],
     });
@@ -283,7 +283,7 @@ export const WithPrefilledFilters: Story = {
   render: () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentFilters, setCurrentFilters] = useState<QueryBuilderState>({
-      selectedFields: ["name__family", "email"],
+      visibleFields: ["name__family", "email"],
       sortRules: [{ field: "name__family", direction: "asc" }],
       filterRules: [
         {
@@ -358,7 +358,7 @@ export const ScrollBehaviorDemo: Story = {
   render: () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentFilters, setCurrentFilters] = useState<QueryBuilderState>({
-      selectedFields: [],
+      visibleFields: [],
       sortRules: [],
       filterRules: [],
     });

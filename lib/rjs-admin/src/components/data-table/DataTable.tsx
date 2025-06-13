@@ -1,23 +1,11 @@
-import { Cross2Icon, MixerHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 import { cn } from "../../lib/utils";
 import QueryBuilderModal from "../query-builder/QueryBuilderModal";
-import {
-  fromResourceQuery,
-  QueryBuilderState,
-  ResourceQuery,
-  toResourceQuery,
-} from "../query-builder/types";
+import { QueryBuilderState } from "../query-builder/types";
 import HeaderComponent from "./HeaderComponent";
 import PaginationControls from "./PaginationControls";
 import RowComponent from "./RowComponent";
-import type {
-  DataTableProps,
-  DataTableState,
-  PaginationConfig,
-  QueryMetadata,
-  SortConfig,
-} from "./types";
+import { DataTableProps, DataTableState } from "./types";
 
 const TableLoadingOverlay: React.FC<{ loading: boolean }> = ({
   loading = false,
@@ -35,15 +23,16 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   constructor(props: DataTableProps) {
     super(props);
     this.state = {
+      searchQuery: "",
       showFilterModal: false,
       queryState: {
-        select: [],
-        sort: [],
-        query: undefined,
+        visibleFields: [],
+        sortRules: [],
+        filterRules: [],
         searchQuery: "",
       },
-      data: props.data || [],
-      metadata: props.metadata || null,
+      data: [],
+      metadata: null,
       loading: false,
       error: null,
       pagination: {
@@ -55,349 +44,168 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
   }
 
   componentDidMount() {
-    this.initializeDefaultSort();
+    this.fetchData();
   }
 
-  protected fetchData = async () => {};
-  protected fetchMetadata = async () => {};
-  protected setError = (error: string | null) => {
-    this.setState({ error });
-  };
+  componentDidUpdate(prevProps: DataTableProps, prevState: DataTableState) {
+    if (
+      prevProps.metadata !== this.props.metadata ||
+      prevState.queryState !== this.state.queryState ||
+      prevState.pagination.page !== this.state.pagination.page ||
+      prevState.pagination.pageSize !== this.state.pagination.pageSize
+    ) {
+      this.fetchData();
+    }
+  }
+
   protected setLoading = (loading: boolean) => {
     this.setState({ loading });
   };
 
-  componentDidUpdate(prevProps: DataTableProps) {
-    // Re-initialize sort if metadata changes
-    if (prevProps.metadata !== this.props.metadata) {
-      this.initializeDefaultSort();
-    }
+  async fetchData() {}
 
-    // Update state if props change
-    if (prevProps.data !== this.props.data) {
-      this.setState({ data: this.props.data || [] });
-    }
-    if (prevProps.metadata !== this.props.metadata) {
-      this.setState({ metadata: this.props.metadata || null });
-    }
-  }
-
-  protected initializeDefaultSort = () => {
-    const { metadata } = this.state;
-    const { queryState } = this.state;
-
-    if (
-      metadata?.default_order &&
-      metadata.default_order.length > 0 &&
-      !queryState.sort
-    ) {
-      const defaultOrder = metadata.default_order[0];
-      const [field, direction] = defaultOrder.split(".");
-
-      // Initialize with default sort
-      const initialQuery = {
-        ...queryState,
-        sort: [`${field}.${direction}`],
-      };
-
-      this.setState({
-        queryState: initialQuery,
-      });
-    }
-  };
-
-  protected sendQueryUpdate = (
-    updates: Partial<ResourceQuery & { searchQuery?: string }>
-  ) => {
-    const newQuery = {
-      ...this.state.queryState,
-      ...updates,
-    };
-    this.setState({ queryState: newQuery });
-    this.props.onQueryChange?.(newQuery);
-  };
-
-  protected handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    this.setState({ searchQuery: query });
-    this.sendQueryUpdate({
-      searchQuery: query || undefined,
-    });
-  };
-
-  protected handleSort = (sort: SortConfig) => {
-    this.sendQueryUpdate({
-      sort: [`${sort.field}.${sort.direction}`],
-    });
-  };
-
-  protected handleFilterApply = (queryBuilderState: QueryBuilderState) => {
-    const resourceQuery = toResourceQuery(queryBuilderState);
-    this.sendQueryUpdate({
-      query: resourceQuery.query,
-      sort: resourceQuery.sort,
-    });
-    // Reset to first page on filter changes
-    this.props.onPageChange?.(1, this.state.pagination.pageSize);
-  };
-
-  protected handleFilterClose = () => {
-    this.setState({ showFilterModal: false });
-  };
-
-  protected openFilterModal = () => {
-    this.setState({ showFilterModal: true });
-  };
-
-  protected setPagination = (pagination: PaginationConfig) => {
-    this.setState({ pagination }, this.fetchData);
-  };
-
-  protected setMetadata = (metadata: QueryMetadata) => {
-    this.setState({ metadata });
-  };
-
-  protected handlePageChange = (page: number, pageSize: number) => {
-    this.setPagination({ ...this.state.pagination, page, pageSize });
-  };
-
-  protected getCurrentQueryBuilderState = (): QueryBuilderState => {
-    const { queryState } = this.state;
-    return fromResourceQuery({
-      select: queryState.select,
-      sort: queryState.sort,
-      query: queryState.query,
-    });
-  };
-
-  protected renderError = () => {
-    const { metadata, error } = this.state;
-    return (
-      <tbody>
-        <tr>
-          <td
-            colSpan={metadata?.fields ? Object.keys(metadata.fields).length : 1}
-            className="px-4 py-8 text-center text-muted-foreground"
-          >
-            {error}
-          </td>
-        </tr>
-      </tbody>
+  private handleSort = (sort: { field: string; direction: "asc" | "desc" }) => {
+    this.setState(
+      (prevState) => ({
+        queryState: {
+          ...prevState.queryState,
+          sortRules: [sort],
+        },
+      }),
+      this.sendQueryUpdate
     );
   };
 
-  protected renderTableBody = () => {
-    const { data, metadata, loading } = this.state;
-    if (!metadata) return null;
-
-    if (data.length === 0) {
-      return (
-        <tr>
-          <td
-            colSpan={metadata.fields ? Object.keys(metadata.fields).length : 1}
-            className="px-4 py-8 text-center text-muted-foreground"
-          >
-            {loading ? "Loading..." : "No data available"}
-          </td>
-        </tr>
-      );
-    }
-
-    return data.map((row, index) => (
-      <RowComponent key={index} metadata={metadata} data={row} index={index} />
-    ));
+  handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    this.setState(
+      (prevState) => ({
+        searchQuery: query,
+        queryState: {
+          ...prevState.queryState,
+          searchQuery: query,
+        },
+      }),
+      this.sendQueryUpdate
+    );
   };
 
-  protected renderTableContent = () => {
-    const { error } = this.state;
-    if (error) {
-      return this.renderError();
-    }
-    return this.renderTableBody();
+  handleFilterApply = (queryBuilderState: QueryBuilderState) => {
+    this.setState(
+      (prevState) => ({
+        queryState: {
+          ...prevState.queryState,
+          ...queryBuilderState,
+        },
+      }),
+      this.sendQueryUpdate
+    );
   };
 
-  protected renderTableHeader = () => {
+  sendQueryUpdate = () => {
+    const { onQueryChange, onPageChange } = this.props;
+    const { queryState } = this.state;
+    onQueryChange?.(queryState);
+    onPageChange?.(1, this.state.pagination.pageSize);
+    this.fetchData();
+  };
+
+  protected setError = (error: string) => {
+    this.setState({ error });
+  };
+
+  renderTableHeader() {
     const { metadata, queryState } = this.state;
-    if (!metadata) return null;
+    if (!metadata?.fields) return null;
 
     return (
       <HeaderComponent
         metadata={metadata}
-        sort={queryState.sort}
+        queryState={queryState}
         onSort={this.handleSort}
       />
     );
-  };
+  }
 
-  protected renderTable = () => {
-    const { loading = false } = this.state;
-    return (
-      <div className="relative">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            {this.renderTableHeader()}
-            <tbody>{this.renderTableContent()}</tbody>
-          </table>
-        </div>
-      </div>
-    );
-  };
-
-  protected renderActions = () => {
-    const { actions } = this.props;
-    if (!actions) return null;
-    return <div className="data-table__actions">{actions}</div>;
-  };
-
-  protected renderSearchAndFilters = () => {
-    const { showSearch, showFilters, searchPlaceholder } = this.props;
-    const { searchQuery, queryState, metadata } = this.state;
-
-    const hasFilters =
-      metadata?.operators &&
-      Object.values(metadata.operators).some(
-        (param) => param.field_name !== ""
-      );
-
-    const currentFilterQuery = queryState.query;
-    const hasActiveFilters =
-      currentFilterQuery && currentFilterQuery.length > 0;
-
-    if (!(showSearch || showFilters)) return null;
+  renderTableBody() {
+    const { data, metadata, queryState } = this.state;
+    if (!data || !metadata?.fields) return null;
 
     return (
-      <>
-        <div className="data-table__search-filter-row">
-          {showSearch && (
-            <div className="data-table__search">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={this.handleSearchChange}
-                placeholder={searchPlaceholder}
-                className="data-table__search-input"
-              />
-            </div>
-          )}
-
-          {showFilters && hasFilters && (
-            <div className="data-table__filters">
-              <button
-                onClick={this.openFilterModal}
-                className={cn(
-                  "data-table__filters-btn",
-                  hasActiveFilters
-                    ? "data-table__filters-btn--active"
-                    : "data-table__filters-btn--inactive"
-                )}
-              >
-                <MixerHorizontalIcon className="data-table__filters-icon" />
-                Filters
-                {hasActiveFilters && (
-                  <span className="data-table__filters-active">Active</span>
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Active Filters Display */}
-        {hasActiveFilters && (
-          <div className="data-table__active-filters">
-            <div className="data-table__active-filters-row">
-              <div className="data-table__active-filters-labels">
-                <span className="data-table__active-filters-label">
-                  Active Filters:
-                </span>
-                <span className="data-table__active-filters-query">
-                  {currentFilterQuery}
-                </span>
-              </div>
-              <button
-                onClick={() => this.sendQueryUpdate({ query: undefined })}
-                className="data-table__active-filters-clear"
-                title="Clear all filters"
-              >
-                <Cross2Icon className="data-table__active-filters-icon" />
-              </button>
-            </div>
-          </div>
-        )}
-      </>
+      <tbody>
+        {data.map((row, index) => (
+          <RowComponent
+            key={row.id || index}
+            metadata={metadata}
+            queryState={queryState}
+            data={row}
+            index={index}
+          />
+        ))}
+      </tbody>
     );
-  };
-
-  protected renderLayoutHeader = () => {
-    const { title, subtitle, showSearch, showFilters, actions } = this.props;
-
-    if (!title && !subtitle && !actions && !showSearch && !showFilters) {
-      return null;
-    }
-
-    return (
-      <div className="data-table__header">
-        <div className="data-table__header-row">
-          <div className="data-table__header-titles">
-            {title && <h2 className="data-table__title">{title}</h2>}
-            {subtitle && <p className="data-table__subtitle">{subtitle}</p>}
-          </div>
-          {this.renderActions()}
-        </div>
-        {this.renderSearchAndFilters()}
-      </div>
-    );
-  };
-
-  protected renderPagination = () => {
-    return (
-      <PaginationControls
-        pagination={this.state.pagination}
-        loading={this.state.loading}
-        onPageChange={this.handlePageChange}
-      />
-    );
-  };
-
-  protected renderFilterModal = () => {
-    const { metadata, showFilterModal } = this.state;
-    console.log("renderFilterModal", showFilterModal, metadata);
-    if (!metadata) return null;
-
-    return (
-      <QueryBuilderModal
-        isOpen={showFilterModal}
-        metadata={metadata}
-        currentQuery={this.getCurrentQueryBuilderState()}
-        onClose={this.handleFilterClose}
-        onApply={this.handleFilterApply}
-      />
-    );
-  };
+  }
 
   render() {
+    const {
+      metadata,
+      loading,
+      error,
+      pagination,
+      showFilterModal,
+      queryState,
+    } = this.state;
     const { className } = this.props;
-    const { metadata } = this.state;
 
-    // Show loading state while fetching metadata
-    if (!metadata) {
-      return (
-        <div className={cn("data-table data-table--loading", className)}>
-          <div className="data-table__loading-message">
-            <div className="data-table__loading-text">Loading metadata...</div>
-          </div>
-        </div>
-      );
+    if (error) {
+      return <div className="data-table__error">{error}</div>;
     }
 
     return (
-      <>
-        <div className={cn("data-table", className)}>
-          {this.renderLayoutHeader()}
-          {this.renderTable()}
-          {this.renderPagination()}
+      <div className={cn("data-table", className)}>
+        <div className="data-table__toolbar">
+          <div className="data-table__search">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={queryState.searchQuery}
+              onChange={this.handleSearchChange}
+            />
+          </div>
+          {metadata?.operators &&
+            Object.keys(metadata.operators).length > 0 && (
+              <button
+                className="data-table__filter-button"
+                onClick={() => this.setState({ showFilterModal: true })}
+              >
+                Show Filters
+              </button>
+            )}
         </div>
-        {this.renderFilterModal()}
-      </>
+
+        <div className="data-table__table-container">
+          <table className="data-table__table">
+            {this.renderTableHeader()}
+            {this.renderTableBody()}
+          </table>
+        </div>
+
+        <PaginationControls
+          pagination={pagination}
+          loading={loading}
+          onPageChange={this.props.onPageChange}
+        />
+
+        {showFilterModal && metadata && (
+          <QueryBuilderModal
+            isOpen={showFilterModal}
+            metadata={metadata}
+            currentQuery={queryState}
+            onClose={() => this.setState({ showFilterModal: false })}
+            onApply={this.handleFilterApply}
+          />
+        )}
+      </div>
     );
   }
 }

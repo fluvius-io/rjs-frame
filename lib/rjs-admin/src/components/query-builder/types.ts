@@ -1,16 +1,8 @@
-import { QueryMetadata } from "../data-table/types";
-
-// Backend query format - no longer manages pagination
-export interface ResourceQuery {
-  select?: string[];
-  sort?: string[];
-  query?: string; // JSON.stringify string of {"field_name:operator": value} format
-  searchQuery?: string;
-}
+import { QueryFieldMetadata, QueryMetadata } from "../data-table/types";
 
 // UI state for building queries
 export interface QueryBuilderState {
-  selectedFields: string[];
+  visibleFields: QueryFieldMetadata[];
   sortRules: SortRule[];
   filterRules: FilterRule[];
   searchQuery?: string;
@@ -24,10 +16,10 @@ export interface SortRule {
 // Base filter interface
 export interface BaseFilterRule {
   id: string;
-  negate?: boolean;
+  type: "field" | "composite";
 }
 
-// Simple field-based filter
+// Field filter rule
 export interface FieldFilterRule extends BaseFilterRule {
   type: "field";
   field: string;
@@ -44,15 +36,6 @@ export interface CompositeFilterRule extends BaseFilterRule {
 
 // Union type for all filter rules
 export type FilterRule = FieldFilterRule | CompositeFilterRule;
-
-// Legacy interface for backward compatibility
-export interface LegacyFilterRule {
-  id: string;
-  field: string;
-  operator: string;
-  value: any;
-  negate: boolean;
-}
 
 // Query builder component props
 export interface QueryBuilderProps {
@@ -76,8 +59,8 @@ export interface QueryBuilderProps {
 // Field selection component props
 export interface FieldSelectorProps {
   metadata: QueryMetadata;
-  selectedFields: string[];
-  onSelectedFieldsChange: (fields: string[]) => void;
+  selectedFields: QueryFieldMetadata[];
+  onSelectedFieldsChange: (fields: QueryFieldMetadata[]) => void;
 }
 
 // Sort builder component props
@@ -110,12 +93,6 @@ export interface FieldFilterProps {
   filter: FieldFilterRule;
   onFilterChange: (filter: FieldFilterRule) => void;
   onRemove: () => void;
-}
-
-// Query display component props
-export interface QueryDisplayProps {
-  query: ResourceQuery;
-  onQueryChange?: (query: ResourceQuery) => void;
 }
 
 // Query transformation functions
@@ -168,30 +145,25 @@ export function parseQueryString(queryString: string): FilterRule[] {
 }
 
 // Transform QueryBuilderState to ResourceQuery
-export function toResourceQuery(state: QueryBuilderState): ResourceQuery {
+export function toResourceQuery(filterRules: FilterRule[]): ResourceQuery {
   const query: ResourceQuery = {};
 
-  if (state.selectedFields.length > 0) {
-    query.select = state.selectedFields;
-  }
-
-  if (state.sortRules.length > 0) {
-    query.sort = state.sortRules.map(
-      (rule) => `${rule.field}.${rule.direction}`
-    );
-  }
-
-  if (state.filterRules.length > 0) {
-    query.query = buildQueryString(state.filterRules);
+  if (filterRules.length > 0) {
+    query.query = buildQueryString(filterRules);
   }
 
   return query;
 }
 
 // Transform ResourceQuery to QueryBuilderState
-export function fromResourceQuery(query: ResourceQuery): QueryBuilderState {
+export function fromResourceQuery(
+  query: ResourceQuery,
+  metadata: QueryMetadata
+): QueryBuilderState {
   const state: QueryBuilderState = {
-    selectedFields: query.select || [],
+    visibleFields: query.select
+      ? query.select.map((field) => metadata.fields[field])
+      : [],
     sortRules: [],
     filterRules: [],
   };
@@ -220,4 +192,11 @@ export interface QueryBuilderModalProps {
   currentQuery: QueryBuilderState;
   onClose: () => void;
   onApply: (queryState: QueryBuilderState) => void;
+}
+
+// Backend query format
+export interface ResourceQuery {
+  select?: string[];
+  sort?: string[];
+  query?: string;
 }

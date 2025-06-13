@@ -1,6 +1,6 @@
 import React from "react";
 import { APIManager } from "rjs-frame";
-import { ResourceQuery } from "../query-builder/types";
+import { QueryBuilderState } from "../query-builder/types";
 import { DataTable } from "./DataTable";
 import type { DataTableProps } from "./types";
 
@@ -19,8 +19,7 @@ const TableLoadingOverlay: React.FC<{ loading: boolean }> = ({ loading }) => {
  */
 export class ResourceDataTable extends DataTable {
   private currentRequestRef: AbortController | null = null;
-  private isInitialLoadRef: boolean = true;
-  private previousQueryRef: ResourceQuery;
+  private previousQueryRef: QueryBuilderState;
 
   constructor(props: DataTableProps) {
     // Pass the original props to the parent constructor
@@ -64,9 +63,6 @@ export class ResourceDataTable extends DataTable {
     try {
       let metadataResult = await APIManager.queryMeta(this.props.dataApi);
       this.setState({ metadata: metadataResult.data });
-      // Initialize default sort after metadata is loaded
-      this.initializeDefaultSort();
-      // Fetch initial data
       this.fetchData();
     } catch (error) {
       this.setError(
@@ -77,7 +73,7 @@ export class ResourceDataTable extends DataTable {
     }
   };
 
-  private buildSearchParams = (query: ResourceQuery) => {
+  private buildSearchParams = (query: QueryBuilderState) => {
     const params: Record<string, any> = {
       page: this.state.pagination.page.toString(),
       limit: this.state.pagination.pageSize.toString(),

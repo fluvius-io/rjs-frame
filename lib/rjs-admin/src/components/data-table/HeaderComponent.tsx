@@ -1,33 +1,35 @@
 import React from "react";
 import { cn } from "../../lib/utils";
-import { HeaderComponentProps } from "./types";
+import { HeaderComponentProps, QueryFieldMetadata } from "./types";
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({
   metadata,
-  sort,
+  queryState,
   onSort,
 }) => {
-  const handleSort = (fieldName: string) => {
-    const fieldMeta = metadata?.fields?.[fieldName];
+  const handleSort = (fieldMeta: QueryFieldMetadata) => {
     if (!fieldMeta?.sortable || !onSort) return;
 
+    const currentSort = queryState.sortRules[0];
     const newDirection =
-      sort?.field === fieldName && sort.direction === "asc" ? "desc" : "asc";
+      currentSort?.field === fieldMeta.key && currentSort.direction === "asc"
+        ? "desc"
+        : "asc";
 
-    onSort({ field: fieldName, direction: newDirection });
+    onSort({ field: fieldMeta.key, direction: newDirection });
   };
 
-  const getSortIcon = (fieldName: string) => {
-    const fieldMeta = metadata?.fields?.[fieldName];
+  const getSortIcon = (fieldMeta: QueryFieldMetadata) => {
     if (!fieldMeta?.sortable) return null;
 
-    if (sort?.field === fieldName) {
-      return sort.direction === "asc" ? "↑" : "↓";
+    const currentSort = queryState.sortRules[0];
+    if (currentSort?.field === fieldMeta.key) {
+      return currentSort.direction === "asc" ? "↑" : "↓";
     }
-    return "↕";
+    return "";
   };
 
-  const getAlignmentClass = (fieldMeta: any) => {
+  const getAlignmentClass = (fieldMeta: QueryFieldMetadata) => {
     if (fieldMeta.identifier) return "text-center";
     return "text-left";
   };
@@ -45,17 +47,18 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
     );
   }
 
-  // Filter out hidden fields
-  const visibleFields = Object.entries(metadata.fields).filter(
-    ([, fieldMeta]) => !fieldMeta.hidden
-  );
+  // Filter out hidden fields and only show selected fields
+  const visibleFields =
+    queryState.visibleFields.length > 0
+      ? queryState.visibleFields
+      : Object.values(metadata.fields);
 
   return (
     <thead className="bg-muted/50">
       <tr className="border-b">
-        {visibleFields.map(([fieldName, fieldMeta]) => (
+        {visibleFields.map((fieldMeta) => (
           <th
-            key={fieldName}
+            key={fieldMeta.key}
             className={cn(
               "px-4 py-3 font-medium text-sm text-muted-foreground",
               getAlignmentClass(fieldMeta),
@@ -63,13 +66,13 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
                 onSort &&
                 "cursor-pointer hover:text-foreground transition-colors"
             )}
-            onClick={() => handleSort(fieldName)}
+            onClick={() => handleSort(fieldMeta)}
           >
             <div className="flex items-center gap-2">
               <span>{fieldMeta.label}</span>
               {fieldMeta.sortable && onSort && (
                 <span className="text-xs opacity-60">
-                  {getSortIcon(fieldName)}
+                  {getSortIcon(fieldMeta)}
                 </span>
               )}
             </div>

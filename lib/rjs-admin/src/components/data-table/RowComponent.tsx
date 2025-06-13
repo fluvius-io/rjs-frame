@@ -1,18 +1,19 @@
 import React from "react";
 import { cn } from "../../lib/utils";
-import { RowComponentProps } from "./types";
+import { QueryFieldMetadata, RowComponentProps } from "./types";
 
 const RowComponent: React.FC<RowComponentProps> = ({
   metadata,
   data,
   index,
+  queryState,
 }) => {
-  const getAlignmentClass = (fieldMeta: any) => {
+  const getAlignmentClass = (fieldMeta: QueryFieldMetadata) => {
     if (fieldMeta.identifier) return "text-center";
     return "text-left";
   };
 
-  const formatValue = (value: any, fieldName: string) => {
+  const formatValue = (value: any, fieldMeta: QueryFieldMetadata) => {
     // Simple formatting for common data types
     if (value === null || value === undefined) {
       return "-";
@@ -24,21 +25,6 @@ const RowComponent: React.FC<RowComponentProps> = ({
 
     if (typeof value === "number") {
       return value.toLocaleString();
-    }
-
-    // Handle date strings
-    if (
-      typeof value === "string" &&
-      (fieldName.includes("date") || fieldName.includes("time"))
-    ) {
-      try {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          return date.toLocaleDateString();
-        }
-      } catch {
-        // Fall through to return original value
-      }
     }
 
     return String(value);
@@ -59,9 +45,12 @@ const RowComponent: React.FC<RowComponentProps> = ({
   }
 
   // Filter out hidden fields
-  const visibleFields = Object.entries(metadata.fields).filter(
-    ([, fieldMeta]) => !fieldMeta.hidden
-  );
+  const visibleFields =
+    queryState.visibleFields.length > 0
+      ? queryState.visibleFields
+      : Object.values(metadata.fields);
+
+  console.log("visibleFields", visibleFields);
 
   return (
     <tr
@@ -70,12 +59,12 @@ const RowComponent: React.FC<RowComponentProps> = ({
         index % 2 === 0 ? "bg-background" : "bg-muted/10"
       )}
     >
-      {visibleFields.map(([fieldName, fieldMeta]) => (
+      {visibleFields.map((fieldMeta) => (
         <td
-          key={fieldName}
+          key={fieldMeta.key}
           className={cn("px-4 py-3 text-sm", getAlignmentClass(fieldMeta))}
         >
-          {formatValue(data[fieldName], fieldName)}
+          {formatValue(data[fieldMeta.key], fieldMeta.key)}
         </td>
       ))}
     </tr>

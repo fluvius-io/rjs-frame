@@ -14,6 +14,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { cn } from "../../lib/utils";
+import { QueryFieldMetadata } from "../data-table/types";
 import FieldSelector from "./FieldSelector";
 import FilterBuilder from "./FilterBuilder";
 import SortBuilder from "./SortBuilder";
@@ -35,7 +36,8 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
   const [state, setState] = useState<QueryBuilderState>(() => {
     // Initialize from initialQuery if provided, otherwise use defaults
     return {
-      selectedFields: initialQuery.selectedFields || [],
+      visibleFields:
+        initialQuery.visibleFields || Object.values(metadata.fields),
       sortRules: initialQuery.sortRules || [],
       filterRules: initialQuery.filterRules || [],
     };
@@ -47,9 +49,15 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
   }, [state, onQueryChange]);
 
   // Update handlers
-  const handleSelectedFieldsChange = useCallback((selectedFields: string[]) => {
-    setState((prev) => ({ ...prev, selectedFields }));
-  }, []);
+  const handleSelectedFieldsChange = useCallback(
+    (selectedFields: QueryFieldMetadata[]) => {
+      setState((prev) => ({
+        ...prev,
+        visibleFields: selectedFields,
+      }));
+    },
+    []
+  );
 
   const handleSortRulesChange = useCallback(
     (sortRules: typeof state.sortRules) => {
@@ -71,7 +79,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
 
   const handleClearAll = useCallback(() => {
     setState({
-      selectedFields: [],
+      visibleFields: [],
       sortRules: [],
       filterRules: [],
     });
@@ -143,7 +151,7 @@ const QueryBuilder: React.FC<QueryBuilderProps> = ({
           <div className="query-builder__section query-builder__section--fields">
             <FieldSelector
               metadata={metadata}
-              selectedFields={state.selectedFields}
+              selectedFields={state.visibleFields}
               onSelectedFieldsChange={handleSelectedFieldsChange}
             />
           </div>

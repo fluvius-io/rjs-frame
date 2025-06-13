@@ -197,7 +197,7 @@ type Story = StoryObj<typeof meta>;
 export const BasicQueryBuilder: Story = {
   render: () => {
     const [currentState, setCurrentState] = useState<QueryBuilderState>({
-      selectedFields: [],
+      visibleFields: [],
       sortRules: [],
       filterRules: [],
     });
@@ -260,7 +260,7 @@ export const BasicQueryBuilder: Story = {
 export const WithInitialState: Story = {
   render: () => {
     const initialState: Partial<QueryBuilderState> = {
-      selectedFields: ["name__family", "email"],
+      visibleFields: ["name__family", "email"],
       sortRules: [{ field: "name__family", direction: "asc" }],
       filterRules: [
         {
@@ -455,7 +455,7 @@ export const WithLiveDataExecution: Story = {
 export const FieldSelectionOnly: Story = {
   render: () => {
     const simpleState: Partial<QueryBuilderState> = {
-      selectedFields: ["_id", "name__family"],
+      visibleFields: ["_id", "name__family"],
     };
 
     const [currentState, setCurrentState] = useState<QueryBuilderState | null>(
