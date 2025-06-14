@@ -25,6 +25,7 @@ export interface FieldFilterRule extends BaseFilterRule {
   field: string;
   operator: string;
   value: any;
+  negate?: boolean;
 }
 
 // Composite filter (AND/OR)

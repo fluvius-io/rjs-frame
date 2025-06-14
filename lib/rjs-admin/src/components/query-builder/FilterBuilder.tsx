@@ -9,6 +9,7 @@ import {
   FieldFilterRule,
   FilterBuilderProps,
   FilterRule,
+  QueryParamMetadata,
 } from "./types";
 import {
   generateFilterId,
@@ -19,7 +20,7 @@ import {
 // Reusable Add Filter Dropdown Component using Radix UI
 const AddFilterDropdown = memo<{
   metadata: any;
-  onAddFilter: (fieldName: string) => void;
+  onAddFilter: (fieldMeta: QueryParamMetadata) => void;
   onAddGroup?: (operator: ".and" | ".or") => void;
   disabled?: boolean;
   showGroupOptions?: boolean;
@@ -57,13 +58,12 @@ const AddFilterDropdown = memo<{
             align="start"
           >
             {/* Field options */}
-            {availableFields.map((fieldName) => {
-              const fieldMeta = metadata.fields[fieldName];
+            {availableFields.map((fieldMeta) => {
               return (
                 <DropdownMenu.Item
-                  key={fieldName}
+                  key={fieldMeta.key}
                   className="flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded outline-none"
-                  onSelect={() => onAddFilter(fieldName)}
+                  onSelect={() => onAddFilter(fieldMeta.key)}
                 >
                   {fieldMeta.label}
                 </DropdownMenu.Item>
@@ -113,13 +113,16 @@ const FilterBuilder = memo<FilterBuilderProps>(
     }, [filterRules]);
 
     const addFieldFilter = useCallback(
-      (fieldName: string) => {
-        const availableOperators = getOperatorsForField(fieldName, metadata);
+      (fieldMeta: QueryParamMetadata) => {
+        const availableOperators = getOperatorsForField(
+          fieldMeta.key,
+          metadata
+        );
         const newRule: FieldFilterRule = {
           id: generateFilterId(),
           type: "field",
-          field: fieldName,
-          operator: availableOperators[0] || "",
+          field: fieldMeta.key,
+          operator: availableOperators[0]?.operator || "",
           value: "",
           negate: false,
         };

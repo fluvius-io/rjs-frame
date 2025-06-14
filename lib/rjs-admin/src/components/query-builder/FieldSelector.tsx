@@ -78,8 +78,8 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
                     }
                     className="rounded border-gray-300"
                   />
-                  <span className="font-mono text-xs">{fieldKey}</span>
-                  <span className="text-gray-600">({fieldMeta.label})</span>
+                  <span className="font-mono text-xs">{fieldMeta.label}</span>
+                  <span className="text-gray-600">({fieldKey})</span>
                 </label>
               );
             })}

@@ -10,10 +10,9 @@ const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
   onClose,
   onApply,
 }) => {
-  console.log("QueryBuilderModal", isOpen, metadata, currentQuery);
   // Local state for the query builder state being built in the modal
   const [modalState, setModalState] = useState<QueryBuilderState>({
-    visibleFields: currentQuery.visibleFields || Object.entries(metadata.fields),
+    visibleFields: currentQuery.visibleFields || Object.values(metadata.fields),
     sortRules: currentQuery.sortRules || [],
     filterRules: currentQuery.filterRules || [],
   });
@@ -28,12 +27,18 @@ const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
   // Handle body scroll lock when modal is open
   useEffect(() => {
     if (isOpen) {
-      // Prevent body scrolling
+      // Prevent body scrolling, also fix the scrollbar in position
+      // so the layout doesn't shift when the modal is open
       const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = "hidden";
+      document.body.style.setProperty("overflow-y", "scroll", "important");
+      document.body.style.setProperty("position", "fixed", "important");
+      document.body.style.setProperty("width", "100%", "important");
 
       return () => {
         // Restore original overflow when modal closes
+        document.body.style.setProperty("overflow-y", "scroll");
+        document.body.style.setProperty("position", "static");
+        document.body.style.setProperty("width", "auto");
         document.body.style.overflow = originalStyle;
       };
     }

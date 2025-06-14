@@ -25,6 +25,12 @@ export interface QueryParamMetadata {
   operator: string;
   label: string;
   type: string;
+  widget?: {
+    name: string;
+    desc: string | null;
+    inversible: boolean;
+    data_query: any | null;
+  } | null;
 }
 
 export interface QueryMetadata {

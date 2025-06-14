@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
-import dts from 'vite-plugin-dts';
-import { fileURLToPath } from 'url';
+import react from "@vitejs/plugin-react";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
+import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
   plugins: [
@@ -12,18 +12,22 @@ export default defineConfig({
     }),
   ],
   build: {
+    emptyOutDir: false,
     lib: {
-      entry: resolve(fileURLToPath(new URL('.', import.meta.url)), 'src/index.ts'),
-      name: 'rjs-frame',
-      formats: ['es', 'umd'],
+      entry: resolve(
+        fileURLToPath(new URL(".", import.meta.url)),
+        "src/index.ts"
+      ),
+      name: "rjs-frame",
+      formats: ["es", "umd"],
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ["react", "react-dom"],
       output: {
         globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
+          react: "React",
+          "react-dom": "ReactDOM",
         },
       },
     },
@@ -31,4 +35,4 @@ export default defineConfig({
     // Prevent CSS code splitting
     cssCodeSplit: false,
   },
-}); 
+});

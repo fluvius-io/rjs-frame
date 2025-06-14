@@ -127,7 +127,8 @@
   @apply bg-muted/10;
 }
 
-.data-table-row__cell {
+.data-table-row__cell,
+.data-table-error__message {
   @apply px-4 py-3 text-sm;
 }
 

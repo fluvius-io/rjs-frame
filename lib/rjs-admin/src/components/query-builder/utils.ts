@@ -1,5 +1,5 @@
 import { fetchJson } from "../../lib/api";
-import { QueryMetadata } from "../data-table/types";
+import { QueryMetadata, QueryParamMetadata } from "../data-table/types";
 import {
   QueryBuilderState,
   ResourceQuery,
@@ -82,12 +82,12 @@ export function generateFilterId(): string {
 export function getOperatorsForField(
   field: string,
   metadata: QueryMetadata
-): string[] {
+): QueryParamMetadata[] {
   if (!metadata.operators) return [];
 
   return Object.entries(metadata.operators)
     .filter(([, paramMeta]) => paramMeta.field_name === field)
-    .map(([, paramMeta]) => paramMeta.operator);
+    .map(([, paramMeta]) => paramMeta);
 }
 
 /**

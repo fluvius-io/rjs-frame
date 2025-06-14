@@ -1,5 +1,5 @@
 import { APIManager } from "rjs-frame";
-import { QueryBuilderState } from "../query-builder/types";
+import { FilterRule, QueryBuilderState } from "../query-builder/types";
 import { DataTable } from "./DataTable";
 import type { DataTableProps } from "./types";
 
@@ -64,24 +64,67 @@ export class ResourceDataTable extends DataTable {
   };
 
   private buildSearchParams = (query: QueryBuilderState) => {
-    const params: Record<string, any> = {
-      page: this.state.pagination.page.toString(),
-      limit: this.state.pagination.pageSize.toString(),
+    const params: Record<string, string> = {
+      page: String(this.state.pagination.page),
+      limit: String(this.state.pagination.pageSize),
     };
 
     // Add sort parameters from ResourceQuery
     if (query.sortRules && query.sortRules.length > 0) {
-      params.sort = query.sortRules[0]; // Take the first sort rule
+      const sortString = query.sortRules
+        .map((rule) => `${rule.field}.${rule.direction}`)
+        .join(",");
+      if (sortString && sortString !== "null" && sortString !== "undefined")
+        params.sort = String(sortString);
     }
 
     // Add search query if provided
-    if (query.universalQuery) {
-      params.search = query.universalQuery;
+    if (
+      query.universalQuery != null &&
+      query.universalQuery !== undefined &&
+      String(query.universalQuery).length > 0
+    ) {
+      params.search = String(query.universalQuery);
     }
 
     // Add filter query from ResourceQuery
-    if (query.filterRules) {
-      params.q = query.filterRules;
+    if (query.filterRules && query.filterRules.length > 0) {
+      const processFilterRule = (rule: FilterRule): object | null => {
+        if (rule.type === "field") {
+          const value = rule.value != null ? String(rule.value) : "";
+          if (value !== "") {
+            return { [`${rule.field}.${rule.operator}`]: value };
+          }
+          return null;
+        } else if (rule.type === "composite") {
+          const processedChildren = rule.children
+            .map(processFilterRule)
+            .filter((child): child is object => child !== null);
+          if (processedChildren.length > 0) {
+            return {
+              [rule.operator === ".and" ? "and" : "or"]: processedChildren,
+            };
+          }
+          return null;
+        }
+        return null;
+      };
+
+      const filterObject = query.filterRules
+        .map(processFilterRule)
+        .filter((child): child is object => child !== null);
+
+      if (Array.isArray(filterObject) && filterObject.length > 0) {
+        const qString = JSON.stringify(filterObject);
+        if (
+          qString &&
+          qString !== "null" &&
+          qString !== "undefined" &&
+          qString.length > 0
+        ) {
+          params.q = qString;
+        }
+      }
     }
 
     return params;

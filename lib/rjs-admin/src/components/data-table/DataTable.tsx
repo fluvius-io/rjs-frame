@@ -226,6 +226,15 @@ export class DataTable extends React.Component<DataTableProps, DataTableState> {
             {hasActiveFilters ? "Edit Filters" : "Show Filters"}
           </button>
         )}
+
+        {/* Refresh Button */}
+        <button
+          className="data-table-toolbar__refresh"
+          onClick={() => this.fetchData()}
+          title="Refresh"
+        >
+          &#x21bb; Refresh
+        </button>
       </div>
     );
   }

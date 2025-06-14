@@ -10,9 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch --config vite.develop.ts",
     "build": "tsc && vite build",
-    "build-dev": "tsc && vite build --watch",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
