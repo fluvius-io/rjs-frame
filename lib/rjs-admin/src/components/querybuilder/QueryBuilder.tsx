@@ -1,6 +1,7 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
+import * as Select from "@radix-ui/react-select";
 import { AlertCircle, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../lib/utils";
@@ -562,8 +563,14 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
         <div className="qb-filter-row">
           <span className="qb-filter-field-name">{field.label}</span>
 
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
+          <Select.Root
+            value={filter.operator!.replace("!", ".")}
+            onValueChange={(val) => {
+              const newOperator = isNegated ? val.replace(".", "!") : val;
+              updateFilter(filter.id, { operator: newOperator });
+            }}
+          >
+            <Select.Trigger asChild>
               <Button
                 variant="outline"
                 size="sm"
@@ -572,27 +579,32 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
                   isNegated && "qb-filter-operator--negated"
                 )}
               >
-                {isNegated && <AlertCircle className="inline w-4 h-4 mr-1" />}
-                {filterMetadata.label} <ChevronDown className="w-4 h-4 ml-1" />
+                {isNegated && "Not"}
+                &nbsp;
+                <Select.Value />
+                <ChevronDown className="w-4 h-4 ml-1" />
               </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content className="qb-dropdown-content">
-              {availableOperators.map((op) => (
-                <DropdownMenu.Item
-                  key={op.key}
-                  onSelect={() => {
-                    const newOperator = isNegated
-                      ? op.key.replace(".", "!")
-                      : op.key;
-                    updateFilter(filter.id, { operator: newOperator });
-                  }}
-                  className="qb-dropdown-item"
-                >
-                  {op.label}
-                </DropdownMenu.Item>
-              ))}
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Content
+                position="popper"
+                sideOffset={4}
+                className="qb-dropdown-content"
+              >
+                <Select.Viewport className="p-1">
+                  {availableOperators.map((op) => (
+                    <Select.Item
+                      key={op.key}
+                      value={op.key}
+                      className="qb-dropdown-item"
+                    >
+                      <Select.ItemText>{op.label}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Viewport>
+              </Select.Content>
+            </Select.Portal>
+          </Select.Root>
 
           <Button
             variant={isNegated ? "default" : "outline"}
