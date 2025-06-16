@@ -1,7 +1,7 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../lib/utils";
 import {
@@ -161,6 +161,7 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
     onSortChange(newSort);
   };
 
+  const sortFieldsTotal = Object.entries(metadata.fields).length;
   const availableFields = Object.entries(metadata.fields)
     .filter(([key, field]) => {
       const fieldMetadata = field as QueryFieldMetadata;
@@ -175,40 +176,62 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
     <div className="qb-sort-editor qb-panel">
       <div className="qb-header">
         <Label.Root className="qb-label">Sort By</Label.Root>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <Button variant="outline" size="sm">
-              Add Sort Field
+        <div className="qb-sort-actions">
+          {sort && sort.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={() => onSortChange([])}>
+              Clear All
             </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content className="qb-dropdown-content">
-            <DropdownMenu.Label className="qb-dropdown-label">
-              Available Fields
-            </DropdownMenu.Label>
-            {availableFields.map(({ key, label }) => (
-              <DropdownMenu.Item
-                key={key}
-                onSelect={() => addSortField(key)}
-                className="qb-dropdown-item"
-              >
-                {label}
-              </DropdownMenu.Item>
-            ))}
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+          )}
+          {(!sort || sort.length < sortFieldsTotal) && (
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <Button variant="outline" size="sm">
+                  Add Sort Field <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content className="qb-dropdown-content">
+                <DropdownMenu.Label className="qb-dropdown-label">
+                  Available Fields
+                </DropdownMenu.Label>
+                {availableFields.map(({ key, label }) => (
+                  <DropdownMenu.Item
+                    key={key}
+                    onSelect={() => addSortField(key)}
+                    className="qb-dropdown-item"
+                  >
+                    {label}
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          )}
+        </div>
       </div>
 
       <div className="qb-list">
         {sort.map((sortItem, index) => {
           const field = metadata.fields[sortItem.field] as QueryFieldMetadata;
 
-          if (!field) return null;
-
           return (
             <div
               key={`${sortItem.field}-${sortItem.direction}-${index}`}
               className="qb-sort-item"
             >
+              <Button
+                variant={sortItem.direction === "desc" ? "default" : "outline"}
+                size="sm"
+                onClick={() => toggleSortDirection(index)}
+                title="Toggle direction"
+                className="min-w-32"
+              >
+                {sortItem.direction === "desc" ? "Descending" : "Ascending"}
+              </Button>
+
+              <span className="qb-sort-priority">{index + 1}.</span>
+              <span className="qb-sort-field">
+                {field?.label || sortItem.field} (
+                {sortItem.direction.toUpperCase()})
+              </span>
               <div className="qb-sort-controls">
                 {index > 0 && (
                   <Button
@@ -231,20 +254,6 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
                   </Button>
                 )}
               </div>
-              <Button
-                variant={sortItem.direction === "desc" ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleSortDirection(index)}
-                title="Toggle direction"
-                className="min-w-32"
-              >
-                {sortItem.direction === "desc" ? "Descending" : "Ascending"}
-              </Button>
-
-              <span className="qb-sort-priority">{index + 1}.</span>
-              <span className="qb-sort-field">
-                {field.label} ({sortItem.direction.toUpperCase()})
-              </span>
             </div>
           );
         })}
@@ -359,15 +368,18 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
   onFiltersChange,
   customInput = {},
 }) => {
-  const [nextId, setNextId] = React.useState(1);
+  // Use ref to maintain a unique incremental id without causing extra renders
+  const idRef = React.useRef(1);
 
+  // Ensure idRef is ahead of any ids that might come from props (e.g., initial queryState)
   React.useEffect(() => {
-    // Update nextId based on existing filters
     const maxId = (filters || []).reduce((max, filter) => {
       const currentId = parseInt(filter.id.split("-")[1]) || 0;
       return Math.max(max, currentId);
     }, 0);
-    setNextId(maxId + 1);
+    if (maxId + 1 > idRef.current) {
+      idRef.current = maxId + 1;
+    }
   }, [filters]);
 
   const addFilter = (
@@ -376,7 +388,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
     parentId?: string
   ) => {
     const newFilter: FilterState = {
-      id: `filter-${nextId}`,
+      id: `filter-${idRef.current}`,
       type,
       operator,
       field: type === "field" ? operator.split(".")[0] : undefined,
@@ -404,7 +416,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
     }
 
     onFiltersChange(newFilters);
-    setNextId(nextId + 1);
+    idRef.current += 1;
   };
 
   const removeFilter = (filterId: string) => {
@@ -459,7 +471,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
                   <Button variant="outline" size="sm">
-                    Add Filter
+                    Add Filter <ChevronDown className="w-4 h-4 ml-1" />
                   </Button>
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content className="qb-dropdown-content">
@@ -560,8 +572,8 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
                   isNegated && "qb-filter-operator--negated"
                 )}
               >
-                {isNegated && "Not "}
-                {filterMetadata.label}
+                {isNegated && <AlertCircle className="inline w-4 h-4 mr-1" />}
+                {filterMetadata.label} <ChevronDown className="w-4 h-4 ml-1" />
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content className="qb-dropdown-content">
@@ -622,10 +634,20 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
       <div className="qb-header">
         <Label.Root className="qb-label">Filters</Label.Root>
         <div className="qb-filter-actions">
+          {filters.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onFiltersChange([])}
+            >
+              Clear All
+            </Button>
+          )}
+
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <Button variant="outline" size="sm">
-                Add Filter
+                Add Filter <ChevronDown className="w-4 h-4 ml-1" />
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content className="qb-dropdown-content">
@@ -678,33 +700,6 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
   );
 };
 
-// Helper functions for conversion from legacy string-based sort format
-const convertLegacySort = (
-  sort: string[] | SortItem[] | undefined,
-  defaultOrder?: string[]
-): SortItem[] => {
-  if (!sort) {
-    // Convert default_order strings to SortItem format
-    return (defaultOrder || []).map((sortStr) => {
-      const [field, direction] = sortStr.split(".");
-      return { field, direction: direction as "asc" | "desc" };
-    });
-  }
-
-  if (sort.length === 0) return [];
-
-  // Check if it's already SortItem format
-  if (typeof sort[0] === "object" && "field" in sort[0]) {
-    return sort as SortItem[];
-  }
-
-  // Convert from string format
-  return (sort as string[]).map((sortStr) => {
-    const [field, direction] = sortStr.split(".");
-    return { field, direction: direction as "asc" | "desc" };
-  });
-};
-
 // Main QueryBuilder Component
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   metadata,
@@ -754,10 +749,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
 
   // Convert legacy formats if needed
   const currentQuery = queryState.query || [];
-  const currentSort = convertLegacySort(
-    queryState.sort,
-    metadata.default_order
-  );
+  const currentSort = queryState.sort;
   const currentSelect = queryState.select || getDefaultFields();
   const currentSearch = queryState.search || "";
 
@@ -779,7 +771,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
       />
 
       <QBSortEditor
-        sort={currentSort}
+        sort={currentSort || []}
         metadata={metadata}
         onSortChange={handleSortChange}
       />

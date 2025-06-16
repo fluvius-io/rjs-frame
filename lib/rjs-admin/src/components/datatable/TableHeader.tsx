@@ -49,7 +49,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   // Handle column sort
-  const handleSort = (fieldKey: string) => {
+  const handleSort = (fieldKey: string, multiple: boolean = false) => {
     const field = metadata.fields[fieldKey];
     if (!field.sortable) return;
 
@@ -60,7 +60,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
     if (!direction) {
       // Not currently sorted, add ascending
-      newSort.push({ field: fieldKey, direction: "asc" });
+      if (multiple) {
+        newSort.push({ field: fieldKey, direction: "asc" });
+      } else {
+        newSort = [{ field: fieldKey, direction: "asc" }];
+      }
     } else if (direction === "asc") {
       // Currently ascending, change to descending
       const sortIndex = newSort.findIndex(

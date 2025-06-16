@@ -63,6 +63,9 @@ export interface DataTableProps {
   customTableRow?: React.ComponentType<TableRowProps>;
   customPagination?: React.ComponentType<PaginationProps>;
 
+  // Debug
+  debug?: boolean;
+
   // Styling
   className?: string;
 }
@@ -73,6 +76,7 @@ export interface TableControlProps {
   queryState: QueryState;
   onQueryStateChange: (state: QueryState) => void;
   loading: boolean;
+  debug?: boolean;
   className?: string;
 }
 

@@ -9,6 +9,7 @@ export const TableControl: React.FC<TableControlProps> = ({
   queryState,
   onQueryStateChange,
   loading,
+  debug = false,
   className,
 }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -66,6 +67,12 @@ export const TableControl: React.FC<TableControlProps> = ({
         </div>
 
         <div className="dt-control-actions">
+          {loading && (
+            <div className="flex items-center text-sm text-gray-500">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Loading...
+            </div>
+          )}
           <button
             onClick={() => setModalOpen(true)}
             className="dt-query-builder-trigger"
@@ -79,13 +86,6 @@ export const TableControl: React.FC<TableControlProps> = ({
               </span>
             )}
           </button>
-
-          {loading && (
-            <div className="flex items-center text-sm text-gray-500">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
-            </div>
-          )}
         </div>
       </div>
 
@@ -146,6 +146,7 @@ export const TableControl: React.FC<TableControlProps> = ({
         onQueryStateChange={onQueryStateChange}
         open={modalOpen}
         onOpenChange={setModalOpen}
+        showDebug={debug}
       />
     </div>
   );

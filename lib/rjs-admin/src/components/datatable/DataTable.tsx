@@ -8,7 +8,7 @@ import {
   LoadingState,
   PaginationState,
 } from "../../types/datatable";
-import { QueryState } from "../../types/querybuilder";
+import { QueryMetadata, QueryState, SortItem } from "../../types/querybuilder";
 import { Pagination } from "./Pagination";
 import { TableControl } from "./TableControl";
 import { TableView } from "./TableView";
@@ -18,13 +18,12 @@ export const DataTable: React.FC<DataTableProps> = ({
   metadata: propMetadata,
   dataApi,
   queryState: propQueryState,
-  onQueryStateChange,
   pagination: propPagination,
-  onPaginationChange,
   customTableHeader,
   customTableRow,
   customPagination: CustomPagination,
   className,
+  debug = false,
 }) => {
   // Internal state for data and metadata
   const [data, setData] = React.useState<DataRow[]>(propData || []);
@@ -41,6 +40,7 @@ export const DataTable: React.FC<DataTableProps> = ({
       sort: [],
       select: [],
       search: "",
+      ...propQueryState,
     }));
 
   // Internal pagination state if not controlled
@@ -49,33 +49,21 @@ export const DataTable: React.FC<DataTableProps> = ({
       page: 1,
       pageSize: 25,
       total: 0,
+      ...propPagination,
     }));
 
-  // Use controlled or internal state
-  const currentQueryState = propQueryState || internalQueryState;
-  const currentPagination = propPagination || internalPagination;
+  const handleQueryStateChange = (newState: QueryState) => {
+    setInternalQueryState(newState);
+  };
 
-  const handleQueryStateChange = React.useCallback(
-    (newState: QueryState) => {
-      if (onQueryStateChange) {
-        onQueryStateChange(newState);
-      } else {
-        setInternalQueryState(newState);
-      }
-    },
-    [onQueryStateChange]
-  );
-
-  const handlePaginationChange = React.useCallback(
-    (newPagination: PaginationState) => {
-      if (onPaginationChange) {
-        onPaginationChange(newPagination);
-      } else {
-        setInternalPagination(newPagination);
-      }
-    },
-    [onPaginationChange]
-  );
+  const handlePaginationChange = (newPagination: PaginationState) => {
+    if (
+      newPagination.page !== internalPagination.page ||
+      newPagination.pageSize !== internalPagination.pageSize
+    ) {
+      fetchData(newPagination);
+    }
+  };
 
   // Fetch metadata
   const fetchMetadata = React.useCallback(async () => {
@@ -88,14 +76,12 @@ export const DataTable: React.FC<DataTableProps> = ({
 
       setMetadata(metadata);
 
-      // Initialize query state with default values if not controlled
+      // // Initialize query state with default values if not controlled
       if (!propQueryState && metadata) {
         const initialState: QueryState = {
           query: [],
-          sort: metadata.default_order || [],
-          select: Object.keys(metadata.fields).filter(
-            (key) => !metadata.fields[key]?.hidden
-          ),
+          sort: parseSort(metadata.default_order || []),
+          select: getDefaultSelect(metadata),
           search: "",
         };
         setInternalQueryState(initialState);
@@ -108,39 +94,45 @@ export const DataTable: React.FC<DataTableProps> = ({
   }, [dataApi, propMetadata, propQueryState]);
 
   // Fetch data
-  const fetchData = React.useCallback(async () => {
-    if (!dataApi || propData) return;
+  const fetchData = React.useCallback(
+    async (pagination?: PaginationState) => {
+      if (!dataApi || propData) return;
 
-    setLoading((prev) => ({ ...prev, data: true }));
-    try {
-      // Build query parameters from current state
-      const queryParams = {
-        ...currentQueryState,
-        page: currentPagination.page,
-        pageSize: currentPagination.pageSize,
-      };
+      setLoading((prev) => ({ ...prev, data: true }));
+      pagination = pagination || internalPagination;
+      try {
+        // Build query parameters from current state
+        const queryParams = {
+          page: pagination.page,
+          limit: pagination.pageSize,
+        };
 
-      const response = await APIManager.query(dataApi, queryParams);
+        const response = await APIManager.query(dataApi, {
+          search: queryParams,
+        });
 
-      if (response.data) {
-        setData(response.data);
+        if (response.data) {
+          setData(response.data);
+        }
+
+        // Update pagination total if not controlled
+        if (!propPagination) {
+          const meta = response.meta;
+          setInternalPagination((prev) => ({
+            ...prev,
+            total: meta?.total_items || 0,
+            page: meta?.page_no || 1,
+            pageSize: meta?.limit || 25,
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading((prev) => ({ ...prev, data: false }));
       }
-
-      // Update pagination total if not controlled
-      if (!propPagination) {
-        setInternalPagination((prev) => ({
-          ...prev,
-          total:
-            response.meta?.total ||
-            (Array.isArray(response.data) ? response.data.length : 1),
-        }));
-      }
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
-    } finally {
-      setLoading((prev) => ({ ...prev, data: false }));
-    }
-  }, [dataApi, propData, currentQueryState, currentPagination, propPagination]);
+    },
+    [dataApi, internalQueryState]
+  );
 
   // Initial fetch
   React.useEffect(() => {
@@ -179,16 +171,17 @@ export const DataTable: React.FC<DataTableProps> = ({
       {/* Table Control */}
       <TableControl
         metadata={metadata}
-        queryState={currentQueryState}
+        queryState={internalQueryState}
         onQueryStateChange={handleQueryStateChange}
         loading={loading.data || loading.metadata}
+        debug={debug}
       />
 
       {/* Table View */}
       <TableView
         data={data}
         metadata={metadata}
-        queryState={currentQueryState}
+        queryState={internalQueryState}
         onQueryStateChange={handleQueryStateChange}
         customTableHeader={customTableHeader}
         customTableRow={customTableRow}
@@ -196,10 +189,45 @@ export const DataTable: React.FC<DataTableProps> = ({
 
       {/* Pagination */}
       <PaginationComponent
-        pagination={currentPagination}
+        pagination={internalPagination}
         onChange={handlePaginationChange}
         loading={loading.data}
       />
+
+      {debug && (
+        <div className="dt-debug border-t">
+          <h3 className="text-sm bg-yellow-300 font-medium p-3">
+            DataTable State
+          </h3>
+          <pre className="bg-gray-100 border-t p-3 text-xs overflow-auto max-h-64">
+            {JSON.stringify(
+              {
+                queryState: internalQueryState,
+                pagination: internalPagination,
+              },
+              null,
+              2
+            )}
+          </pre>
+        </div>
+      )}
     </div>
+  );
+};
+
+// Helper functions for conversion from legacy string-based sort format
+const parseSort = (sort: string[]): SortItem[] => {
+  if (sort.length === 0) return [];
+  return sort
+    .map((sortStr) => {
+      const [field, direction] = sortStr.split(".");
+      return { field, direction: direction as "asc" | "desc" };
+    })
+    .filter((s) => s.field);
+};
+
+const getDefaultSelect = (metadata: QueryMetadata) => {
+  return Object.keys(metadata.fields).filter(
+    (key) => !metadata.fields[key]?.hidden
   );
 };
