@@ -39,43 +39,54 @@ export type { EntityFormatProps } from "./components/entity";
 // Data Table Components
 export {
   DataTable,
-  HeaderComponent,
-  PaginationControls,
-  ResourceDataTable,
-  RowComponent,
-} from "./components/data-table";
-
-export type {
-  DataTableProps,
-  FieldMetadata,
-  FilterConfig,
-  HeaderComponentProps,
-  PaginationConfig,
-  PaginationControlsProps,
-  QueryMetadata,
-  RowComponentProps,
-  SortConfig,
-} from "./components/data-table";
+  Pagination,
+  TableControl,
+  TableFilter,
+  TableHeader,
+  TableRow,
+  TableView,
+} from "./components/datatable";
 
 // Query Builder Components
 export {
-  FieldSelector,
+  FilterInput,
   QueryBuilder,
   QueryBuilderModal,
-  SortBuilder,
-} from "./components/query-builder";
+} from "./components/querybuilder";
 
+// Query Builder Types
 export type {
-  FieldSelectorProps,
-  FilterBuilderProps,
-  FilterRule,
+  DataType,
+  FilterInputConfig,
+  FilterInputProps,
+  FilterState,
   QueryBuilderModalProps,
   QueryBuilderProps,
-  QueryBuilderState,
-  ResourceQuery,
-  SortBuilderProps,
-  SortRule,
-} from "./components/query-builder";
+  QueryCompositeMetadata,
+  QueryFieldMetadata,
+  QueryFilterMetadata,
+  QueryMetadata,
+  QueryState,
+  QueryStatement,
+  QueryValue,
+  SortItem,
+} from "./types/querybuilder";
+
+// Data Table Types
+export type {
+  ColumnConfig,
+  DataResponse,
+  DataRow,
+  DataTableProps,
+  LoadingState,
+  PaginationProps,
+  PaginationState,
+  TableControlProps,
+  TableFilterProps,
+  TableHeaderProps,
+  TableRowProps,
+  TableViewProps,
+} from "./types/datatable";
 
 // Utilities
 export { cn, formatDate, formatDateTime } from "./lib/utils";

@@ -2,6 +2,8 @@
 @import "./components/UserAvatar.css";
 @import "./components/UserDialog.css";
 @import "./components/UserTabs.css";
+@import "./components/querybuilder.css";
+@import "./components/datatable/DataTable.css";
 
 @tailwind base;
 @tailwind components;
@@ -105,97 +107,5 @@
   }
   .table-loading-overlay__spinner {
     @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
-  }
-
-  /* QueryBuilder semantic classes */
-  .query-builder {
-    @apply border bg-white shadow-sm p-3;
-  }
-  .query-builder--empty {
-    @apply opacity-60;
-  }
-  .query-builder__header {
-    @apply px-3 py-4 border-b bg-gray-50;
-  }
-  .query-builder__header-row {
-    @apply flex items-center justify-between;
-  }
-  .query-builder__title {
-    @apply text-lg font-semibold text-gray-900;
-  }
-  .query-builder__actions {
-    @apply flex items-center gap-2;
-  }
-  .query-builder__execute-btn {
-    @apply px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 font-medium transition-colors;
-  }
-  .query-builder__clear-btn {
-    @apply px-3 py-1 border text-sm rounded hover:bg-gray-50 font-medium transition-colors;
-  }
-  .query-builder__sections {
-    @apply p-3 space-y-3;
-  }
-  .query-builder__section {
-    @apply mb-3;
-  }
-  .query-builder__display-title {
-    @apply text-sm font-medium text-gray-700 mb-3;
-  }
-  .query-builder__display-box {
-    @apply bg-gray-50 border rounded p-3;
-  }
-  .query-builder__display-json {
-    @apply text-xs text-gray-700 whitespace-pre-wrap font-mono;
-  }
-  .query-builder__empty-message {
-    @apply text-center;
-  }
-  .query-builder__empty-title {
-    @apply text-gray-600 text-sm;
-  }
-  .query-builder__empty-desc {
-    @apply text-xs text-gray-500 mt-1;
-  }
-  .query-builder__empty-all {
-    @apply text-center py-8 text-gray-500;
-  }
-  .query-builder__empty-all-title {
-    @apply text-sm;
-  }
-  .query-builder__empty-all-desc {
-    @apply text-xs mt-1;
-  }
-
-  /* QueryBuilderModal semantic classes */
-  .query-builder-modal {
-    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
-    margin-top: 0;
-  }
-  .query-builder-modal__container {
-    @apply bg-gray-100 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col;
-  }
-  .query-builder-modal__header {
-    @apply flex items-center justify-between p-4 border-b flex-shrink-0;
-  }
-  .query-builder-modal__title {
-    @apply text-lg font-semibold;
-  }
-  .query-builder-modal__close {
-    @apply p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors;
-  }
-  .query-builder-modal__close-icon {
-    @apply w-5 h-5;
-  }
-  .query-builder-modal__query-builder {
-    @apply border-0 shadow-none;
-  }
-  .query-builder-modal__footer {
-    @apply flex items-center justify-end gap-2 p-4 border-t bg-gray-50 flex-shrink-0;
-  }
-  .query-builder-modal__cancel {
-    @apply inline-flex items-center px-3 py-1 text-sm border rounded bg-white hover:bg-gray-50 font-medium transition-colors;
-  }
-  .query-builder-modal__apply {
-    @apply inline-flex items-center px-3 py-1 text-sm border rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition-colors;
   }
 }

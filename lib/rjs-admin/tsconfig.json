@@ -27,6 +27,10 @@
       "rjs-frame": ["../rjs-frame/src/index.ts"]
     }
   },
-  "include": ["src", "examples/AuthUserAvatarExample.tsx"],
+  "include": [
+    "src",
+    "examples/AuthUserAvatarExample.tsx",
+    "examples/DataGridExample.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
