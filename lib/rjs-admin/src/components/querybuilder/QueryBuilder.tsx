@@ -84,22 +84,26 @@ const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
               )}
               onClick={() => handleFieldToggle(fieldKey, !isSelected)}
             >
-              {/* Hidden native checkbox for accessibility */}
+              {/* Visible round checkbox indicator */}
               <Checkbox.Root
                 id={`field-${fieldKey}`}
                 checked={isSelected}
                 onCheckedChange={(checked) =>
                   handleFieldToggle(fieldKey, checked === true)
                 }
-                className="qb-checkbox sr-only"
+                className="qb-checkbox"
               >
-                <Checkbox.Indicator className="qb-checkbox-indicator" />
+                <Checkbox.Indicator className="qb-checkbox-indicator">
+                  ✓
+                </Checkbox.Indicator>
               </Checkbox.Root>
 
               <div className="qb-field-card-content">
                 <span className="qb-field-name">{fieldMetadata.label}</span>
                 {fieldMetadata.desc && (
-                  <span className="qb-field-desc">{fieldMetadata.desc}</span>
+                  <span className="qb-field-desc text-xs">
+                    {fieldMetadata.desc}
+                  </span>
                 )}
               </div>
             </div>

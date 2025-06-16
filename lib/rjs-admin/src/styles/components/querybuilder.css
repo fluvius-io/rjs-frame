@@ -44,8 +44,9 @@
 }
 
 .qb-checkbox {
-  @apply w-4 h-4 border border-gray-300 rounded flex items-center justify-center
+  @apply min-w-4 w-4 h-4 border border-gray-300 rounded flex items-center justify-center
          data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600;
+  margin-top: 0.2rem;
 }
 
 .qb-checkbox-indicator {
@@ -61,7 +62,7 @@
 }
 
 .qb-field-desc {
-  @apply text-xs text-gray-500;
+  @apply text-gray-500;
 }
 
 /* Sort Editor Component */
@@ -204,12 +205,12 @@
 
 .qb-modal-content {
   @apply fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-         w-full max-w-4xl max-h-[90vh] overflow-auto
+         w-full max-w-4xl overflow-hidden
          bg-white rounded-lg border border-gray-200 shadow-xl;
 }
 
 .qb-modal-header {
-  @apply flex items-center justify-between p-6 border-b border-gray-200;
+  @apply flex items-center justify-between p-3 border-b border-gray-200 bg-slate-200;
 }
 
 .qb-modal-title {
@@ -217,19 +218,19 @@
 }
 
 .qb-modal-body {
-  @apply p-6;
+  @apply p-3 max-h-[80vh] overflow-auto;
 }
 
 .qb-modal-footer {
-  @apply flex items-center justify-end gap-3 p-6 border-t border-gray-200;
+  @apply flex items-center justify-end gap-3 p-3 border-t border-gray-200;
 }
 
 .qb-panel {
-  @apply flex flex-col border border-gray-200 rounded-md gap-0;
+  @apply flex flex-col border border-gray-200 rounded-md gap-0 overflow-hidden;
 }
 
 .qb-header {
-  @apply flex items-center justify-between p-3 bg-accent;
+  @apply flex items-center justify-between p-2 bg-accent;
 }
 
 .qb-list {
@@ -239,15 +240,23 @@
 .qb-field-cards {
   @apply flex flex-wrap gap-2 flex-row;
 }
+
 .qb-field-card {
-  @apply cursor-pointer border rounded p-3 w-48 hover:bg-accent/20;
+  @apply cursor-pointer border rounded p-3 w-48 hover:bg-accent/20 flex gap-2;
 }
+
+.qb-field-card-content {
+  @apply flex flex-col;
+}
+
 .qb-field-card--selected {
   @apply border-primary bg-primary/10;
 }
+
 .qb-field-name {
   @apply font-medium;
 }
+
 .qb-field-desc {
   @apply text-sm text-muted-foreground;
 }
