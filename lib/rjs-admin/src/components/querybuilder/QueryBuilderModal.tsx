@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as React from "react";
 import { cn } from "../../lib/utils";
 import { QueryBuilderModalProps } from "../../types/querybuilder";
+import { Button } from "../common/Button";
 import { QueryBuilder } from "./QueryBuilder";
 
 export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
@@ -23,12 +24,9 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
           <div className="qb-modal-header">
             <Dialog.Title className="qb-modal-title">{title}</Dialog.Title>
             <Dialog.Close asChild>
-              <button
-                className="qb-button qb-button--ghost qb-button--sm"
-                aria-label="Close"
-              >
+              <Button variant="ghost" size="sm" aria-label="Close">
                 ✕
-              </button>
+              </Button>
             </Dialog.Close>
           </div>
 
@@ -44,10 +42,10 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
 
           <div className="qb-modal-footer">
             <Dialog.Close asChild>
-              <button className="qb-button qb-button--outline">Cancel</button>
+              <Button variant="outline">Cancel</Button>
             </Dialog.Close>
             <Dialog.Close asChild>
-              <button className="qb-button qb-button--default">Apply</button>
+              <Button variant="default">Apply</Button>
             </Dialog.Close>
           </div>
         </Dialog.Content>

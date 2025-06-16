@@ -1,6 +1,7 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
+import { AlertCircle } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../lib/utils";
 import {
@@ -13,47 +14,8 @@ import {
   QueryValue,
   SortItem,
 } from "../../types/querybuilder";
+import { Button } from "../common/Button";
 import { FilterInput } from "./FilterInput";
-
-// Internal Button Component
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline" | "ghost";
-  size?: "default" | "sm";
-  children: React.ReactNode;
-}
-
-const Button: React.FC<ButtonProps> = ({
-  variant = "default",
-  size = "default",
-  className,
-  children,
-  ...props
-}) => {
-  const baseClasses = "qb-button";
-  const variantClasses = {
-    default: "qb-button--default",
-    outline: "qb-button--outline",
-    ghost: "qb-button--ghost",
-  };
-  const sizeClasses = {
-    default: "",
-    sm: "qb-button--sm",
-  };
-
-  return (
-    <button
-      className={cn(
-        baseClasses,
-        variantClasses[variant],
-        sizeClasses[size],
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
 
 // QBTextInput Component for search functionality
 interface QBTextInputProps {
@@ -68,15 +30,19 @@ const QBTextInput: React.FC<QBTextInputProps> = ({
   placeholder = "Enter search terms...",
 }) => {
   return (
-    <div className="qb-text-input">
-      <Label.Root className="qb-label">Search</Label.Root>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="qb-input"
-      />
+    <div className="qb-text-input qb-panel">
+      <div className="qb-header">
+        <Label.Root className="qb-label">Search</Label.Root>
+      </div>
+      <div className="qb-list">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="qb-input"
+        />
+      </div>
     </div>
   );
 };
@@ -101,34 +67,41 @@ const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
   };
 
   return (
-    <div className="qb-field-selector">
-      <Label.Root className="qb-label">Select Fields</Label.Root>
-      <div className="qb-field-list">
+    <div className="qb-field-selector qb-panel">
+      <div className="qb-header">
+        <Label.Root className="qb-label">Select Fields</Label.Root>
+      </div>
+      <div className="qb-list qb-field-cards">
         {Object.entries(metadata.fields).map(([fieldKey, field]) => {
           const fieldMetadata = field as QueryFieldMetadata;
+          const isSelected = select.includes(fieldKey);
           return (
-            <div key={fieldKey} className="qb-field-item">
+            <div
+              key={fieldKey}
+              className={cn(
+                "qb-field-card",
+                isSelected && "qb-field-card--selected"
+              )}
+              onClick={() => handleFieldToggle(fieldKey, !isSelected)}
+            >
+              {/* Hidden native checkbox for accessibility */}
               <Checkbox.Root
                 id={`field-${fieldKey}`}
-                checked={select.includes(fieldKey)}
+                checked={isSelected}
                 onCheckedChange={(checked) =>
                   handleFieldToggle(fieldKey, checked === true)
                 }
-                className="qb-checkbox"
+                className="qb-checkbox sr-only"
               >
-                <Checkbox.Indicator className="qb-checkbox-indicator">
-                  ✓
-                </Checkbox.Indicator>
+                <Checkbox.Indicator className="qb-checkbox-indicator" />
               </Checkbox.Root>
-              <Label.Root
-                htmlFor={`field-${fieldKey}`}
-                className="qb-field-label"
-              >
+
+              <div className="qb-field-card-content">
                 <span className="qb-field-name">{fieldMetadata.label}</span>
                 {fieldMetadata.desc && (
                   <span className="qb-field-desc">{fieldMetadata.desc}</span>
                 )}
-              </Label.Root>
+              </div>
             </div>
           );
         })}
@@ -195,8 +168,8 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
     }));
 
   return (
-    <div className="qb-sort-editor">
-      <div className="qb-sort-header">
+    <div className="qb-sort-editor qb-panel">
+      <div className="qb-header">
         <Label.Root className="qb-label">Sort By</Label.Root>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
@@ -221,7 +194,7 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
         </DropdownMenu.Root>
       </div>
 
-      <div className="qb-sort-list">
+      <div className="qb-list">
         {sort.map((sortItem, index) => {
           const field = metadata.fields[sortItem.field] as QueryFieldMetadata;
 
@@ -232,11 +205,6 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
               key={`${sortItem.field}-${sortItem.direction}-${index}`}
               className="qb-sort-item"
             >
-              <span className="qb-sort-priority">{index + 1}.</span>
-              <span className="qb-sort-field">
-                {field.label} ({sortItem.direction.toUpperCase()})
-              </span>
-
               <div className="qb-sort-controls">
                 {index > 0 && (
                   <Button
@@ -258,33 +226,21 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
                     ↓
                   </Button>
                 )}
-                <Button
-                  variant={sortItem.direction === "asc" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleSortDirection(index)}
-                  title="Toggle direction"
-                >
-                  ASC
-                </Button>
-                <Button
-                  variant={
-                    sortItem.direction === "desc" ? "default" : "outline"
-                  }
-                  size="sm"
-                  onClick={() => toggleSortDirection(index)}
-                  title="Toggle direction"
-                >
-                  DESC
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeSortField(index)}
-                  title="Remove"
-                >
-                  ✕
-                </Button>
               </div>
+              <Button
+                variant={sortItem.direction === "desc" ? "default" : "outline"}
+                size="sm"
+                onClick={() => toggleSortDirection(index)}
+                title="Toggle direction"
+                className="min-w-32"
+              >
+                {sortItem.direction === "desc" ? "Descending" : "Ascending"}
+              </Button>
+
+              <span className="qb-sort-priority">{index + 1}.</span>
+              <span className="qb-sort-field">
+                {field.label} ({sortItem.direction.toUpperCase()})
+              </span>
             </div>
           );
         })}
@@ -487,8 +443,11 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
 
     if (filter.type === "composite") {
       return (
-        <div key={filter.id} className={cn("qb-filter-composite", indentClass)}>
-          <div className="qb-filter-header">
+        <div
+          key={filter.id}
+          className={cn("qb-filter-composite", "qb-panel", indentClass)}
+        >
+          <div className="qb-header">
             <span className="qb-filter-operator">
               {metadata.composites[filter.operator!]?.label || filter.operator}
             </span>
@@ -549,7 +508,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
             </div>
           </div>
 
-          <div className="qb-filter-children">
+          <div className="qb-filter-children qb-list">
             {filter.children && filter.children.length > 0 ? (
               filter.children.map((child) => renderFilter(child, depth + 1))
             ) : (
@@ -589,8 +548,15 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
 
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <Button variant="outline" size="sm">
-                {isNegated ? "NOT " : ""}
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "qb-filter-operator",
+                  isNegated && "qb-filter-operator--negated"
+                )}
+              >
+                {isNegated && "Not "}
                 {filterMetadata.label}
               </Button>
             </DropdownMenu.Trigger>
@@ -623,7 +589,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
             }}
             title="Toggle negation"
           >
-            NOT
+            <AlertCircle className="w-4 h-4" />
           </Button>
 
           <FilterInput
@@ -648,8 +614,8 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
   };
 
   return (
-    <div className="qb-filter-editor">
-      <div className="qb-filter-header">
+    <div className="qb-filter-editor qb-panel">
+      <div className="qb-header">
         <Label.Root className="qb-label">Filters</Label.Root>
         <div className="qb-filter-actions">
           <DropdownMenu.Root>
@@ -694,7 +660,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
         </div>
       </div>
 
-      <div className="qb-filter-list">
+      <div className="qb-list">
         {filters.map((filter) => renderFilter(filter))}
 
         {filters.length === 0 && (

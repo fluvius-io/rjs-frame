@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
+import { APIManager } from "rjs-frame";
+// Ensure API collections (e.g., 'idm') are registered for Storybook runtime
 import {
   QueryBuilder,
   QueryBuilderModal,
 } from "../src/components/querybuilder";
+import "../src/lib/api";
 import { QueryMetadata, QueryState } from "../src/types/querybuilder";
 
 // Import the CSS file
@@ -339,6 +342,64 @@ export const Modal: StoryObj<typeof QueryBuilderModal> = {
   args: {
     metadata: QUERY_METADATA,
     title: "Build Your Query",
+    showDebug: true,
+  },
+};
+
+// QueryBuilder fetching metadata remotely using APIManager
+export const WithOrganizationMetadata: Story = {
+  render: (args) => {
+    const [metadata, setMetadata] = React.useState<QueryMetadata | null>(null);
+    const [loading, setLoading] = React.useState(true);
+    const initialState: QueryState = {
+      query: [],
+      sort: [],
+      select: [],
+      search: "",
+    };
+    const [queryState, setQueryState] =
+      React.useState<QueryState>(initialState);
+
+    React.useEffect(() => {
+      let isMounted = true;
+      // Prefer getMeta alias if exists, otherwise use queryMeta
+      const fetchMeta = async () => {
+        try {
+          const response =
+            typeof (APIManager as any)["getMeta"] === "function"
+              ? await (APIManager as any)["getMeta"]("idm:organization")
+              : await APIManager.queryMeta("idm:organization");
+          if (isMounted) {
+            // Response may contain data or meta key depending on backend; try data first.
+            const metaData: QueryMetadata | undefined =
+              (response as any)?.data ?? (response as any)?.meta ?? response;
+            setMetadata(metaData as QueryMetadata);
+          }
+        } catch (error) {
+          console.error("Failed to fetch metadata", error);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+      };
+      fetchMeta();
+      return () => {
+        isMounted = false;
+      };
+    }, []);
+
+    if (loading) return <div>Loading metadata…</div>;
+    if (!metadata) return <div>Error loading metadata.</div>;
+
+    return (
+      <QueryBuilder
+        {...args}
+        metadata={metadata}
+        queryState={queryState}
+        onQueryStateChange={setQueryState}
+      />
+    );
+  },
+  args: {
     showDebug: true,
   },
 };
