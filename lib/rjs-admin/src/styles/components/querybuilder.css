@@ -22,7 +22,7 @@
 }
 
 .qb-label {
-  @apply text-sm font-medium text-gray-700;
+  @apply text-base font-semibold text-gray-700;
 }
 
 .qb-input {
@@ -126,6 +126,7 @@
 
 .qb-filter-composite.qb-panel {
   @apply border-none;
+  padding: 0 0.5rem 0.5rem;
 }
 
 .qb-filter-operator {
@@ -148,15 +149,12 @@
 
 /* Nested filter indentation helpers */
 .qb-filter-nested-1 {
-  @apply ml-4;
 }
 
 .qb-filter-nested-2 {
-  @apply ml-8;
 }
 
 .qb-filter-nested-3 {
-  @apply ml-12;
 }
 
 .qb-filter-row {
@@ -205,12 +203,13 @@
 
 .qb-modal-content {
   @apply fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-         w-full max-w-4xl overflow-hidden
+         w-full max-w-4xl
          bg-white rounded-lg border border-gray-200 shadow-xl;
 }
 
 .qb-modal-header {
-  @apply flex items-center justify-between p-3 border-b border-gray-200 bg-slate-200;
+  @apply flex items-center justify-between p-3 border-b border-gray-300 bg-slate-200;
+  @apply rounded-t-md;
 }
 
 .qb-modal-title {
@@ -219,6 +218,7 @@
 
 .qb-modal-body {
   @apply p-3 max-h-[80vh] overflow-auto;
+  @apply bg-accent;
 }
 
 .qb-modal-footer {
@@ -226,15 +226,17 @@
 }
 
 .qb-panel {
-  @apply flex flex-col border border-gray-200 rounded-md gap-0 overflow-hidden;
+  @apply flex flex-col gap-0;
 }
 
 .qb-header {
-  @apply flex items-center justify-between p-2 bg-accent;
+  @apply flex items-center justify-between py-2;
 }
 
 .qb-list {
   @apply flex flex-col gap-2 p-2;
+  @apply bg-white;
+  @apply border border-border rounded-md;
 }
 
 .qb-field-cards {

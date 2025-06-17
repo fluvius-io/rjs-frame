@@ -485,7 +485,7 @@ export const LargeDataset: Story = {
 
 export const WithOrganizationApi: Story = {
   args: {
-    dataApi: "idm:organization",
+    dataApi: "idm:user",
     // Let DataTable handle internal fetching of metadata + data via APIManager
     debug: true,
   },

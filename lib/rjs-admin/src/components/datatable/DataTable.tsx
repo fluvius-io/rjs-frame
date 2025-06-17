@@ -173,7 +173,7 @@ export const DataTable: React.FC<DataTableProps> = ({
         metadata={metadata}
         queryState={internalQueryState}
         onQueryStateChange={handleQueryStateChange}
-        loading={loading.data || loading.metadata}
+        loading={loading.metadata}
         debug={debug}
       />
 

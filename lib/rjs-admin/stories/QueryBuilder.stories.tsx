@@ -365,10 +365,7 @@ export const WithOrganizationMetadata: Story = {
       // Prefer getMeta alias if exists, otherwise use queryMeta
       const fetchMeta = async () => {
         try {
-          const response =
-            typeof (APIManager as any)["getMeta"] === "function"
-              ? await (APIManager as any)["getMeta"]("idm:organization")
-              : await APIManager.queryMeta("idm:organization");
+          const response = await APIManager.queryMeta("idm:organization");
           if (isMounted) {
             // Response may contain data or meta key depending on backend; try data first.
             const metaData: QueryMetadata | undefined =
