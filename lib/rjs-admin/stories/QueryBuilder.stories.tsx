@@ -17,8 +17,8 @@ const QUERY_METADATA: QueryMetadata = {
   name: "user",
   title: "UserQuery",
   desc: "List all user accounts",
-  fields: {
-    id: {
+  fields: [
+    {
       label: "User ID",
       name: "id",
       desc: null,
@@ -26,7 +26,7 @@ const QUERY_METADATA: QueryMetadata = {
       hidden: true,
       sortable: true,
     },
-    name__given: {
+    {
       label: "Given Name",
       name: "name__given",
       desc: null,
@@ -34,7 +34,7 @@ const QUERY_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    name__family: {
+    {
       label: "Family Name",
       name: "name__family",
       desc: null,
@@ -42,7 +42,7 @@ const QUERY_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-  },
+  ],
   filters: {
     "id.eq": {
       field: "id",

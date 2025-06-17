@@ -116,12 +116,6 @@ export const TableControl: React.FC<TableControlProps> = ({
         </div>
 
         <div className="dt-control-actions">
-          {loading && (
-            <div className="flex items-center text-sm text-gray-500 px-4">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
-            </div>
-          )}
           <button
             onClick={() => setModalOpen(true)}
             className="dt-query-builder-trigger"
@@ -130,6 +124,12 @@ export const TableControl: React.FC<TableControlProps> = ({
             <Filter className="h-4 w-4" />
             <span>Filters</span>
           </button>
+          {loading && (
+            <div className="flex items-center text-sm text-gray-500 px-4">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Loading...
+            </div>
+          )}
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { AlertCircle, Table } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableViewProps } from "../../types/datatable";
+import { QueryFieldMetadata } from "../../types/querybuilder";
 import { TableFilter } from "./TableFilter";
 import { TableHeader } from "./TableHeader";
 import { TableRow } from "./TableRow";
@@ -20,6 +21,20 @@ export const TableView: React.FC<TableViewProps> = ({
   const selectionEnabled = !!(allowSelection && idField);
 
   const selectedItems: string[] = queryState.selectedItems || [];
+
+  // Local state to show/hide header filters
+  const [showHeaderFilters, setShowHeaderFilters] = React.useState(true);
+
+  // Normalize fields array
+  const fieldArray = React.useMemo<QueryFieldMetadata[]>(() => {
+    return metadata.fields as QueryFieldMetadata[];
+  }, [metadata.fields]);
+
+  // Create map for quick access to field metadata by name
+  const fieldMap = React.useMemo(
+    () => Object.fromEntries(fieldArray.map((f) => [f.name, f])),
+    [fieldArray]
+  );
 
   const toggleRow = (id: string, checked: boolean) => {
     let newSelected: string[];
@@ -60,19 +75,19 @@ export const TableView: React.FC<TableViewProps> = ({
   const getColumns = (): ColumnConfig[] => {
     const selectedFields =
       queryState.select ||
-      Object.keys(metadata.fields).filter(
-        (key) => !metadata.fields[key].hidden
-      );
+      fieldArray.filter((f) => !f.hidden).map((f) => f.name);
 
-    return selectedFields.map((fieldKey: string) => {
-      const field = metadata.fields[fieldKey];
-      return {
-        key: fieldKey,
-        label: field.label,
-        sortable: field.sortable,
-        hidden: false,
-      };
-    });
+    return selectedFields
+      .filter((fieldKey) => !!fieldMap[fieldKey])
+      .map<ColumnConfig>((fieldKey) => {
+        const field = fieldMap[fieldKey] as QueryFieldMetadata;
+        return {
+          key: fieldKey,
+          label: field.label,
+          sortable: field.sortable,
+          hidden: false,
+        };
+      });
   };
 
   const columns = getColumns();
@@ -162,11 +177,13 @@ export const TableView: React.FC<TableViewProps> = ({
               selectAllState={selectAllState}
               onSelectAll={selectAll}
               onClearAll={clearAll}
+              showHeaderFilters={showHeaderFilters}
+              onShowHeaderFiltersChange={setShowHeaderFilters}
               idField={idField}
             />
 
             {/* Filter Row */}
-            {columns.length > 0 ? (
+            {showHeaderFilters && columns.length > 0 ? (
               <TableFilter
                 metadata={metadata}
                 queryState={queryState}

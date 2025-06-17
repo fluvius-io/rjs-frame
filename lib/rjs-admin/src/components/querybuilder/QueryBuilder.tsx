@@ -73,24 +73,24 @@ const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
         <Label.Root className="qb-label">Select Fields</Label.Root>
       </div>
       <div className="qb-list qb-field-cards">
-        {Object.entries(metadata.fields).map(([fieldKey, field]) => {
+        {metadata.fields.map((field) => {
           const fieldMetadata = field as QueryFieldMetadata;
-          const isSelected = select.includes(fieldKey);
+          const isSelected = select.includes(field.name);
           return (
             <div
-              key={fieldKey}
+              key={field.name}
               className={cn(
                 "qb-field-card",
                 isSelected && "qb-field-card--selected"
               )}
-              onClick={() => handleFieldToggle(fieldKey, !isSelected)}
+              onClick={() => handleFieldToggle(field.name, !isSelected)}
             >
               {/* Visible round checkbox indicator */}
               <Checkbox.Root
-                id={`field-${fieldKey}`}
+                id={`field-${field.name}`}
                 checked={isSelected}
                 onCheckedChange={(checked) =>
-                  handleFieldToggle(fieldKey, checked === true)
+                  handleFieldToggle(field.name, checked === true)
                 }
                 className="qb-checkbox"
               >
@@ -162,16 +162,16 @@ const QBSortEditor: React.FC<QBSortEditorProps> = ({
     onSortChange(newSort);
   };
 
-  const sortFieldsTotal = Object.entries(metadata.fields).length;
-  const availableFields = Object.entries(metadata.fields)
-    .filter(([key, field]) => {
-      const fieldMetadata = field as QueryFieldMetadata;
-      return fieldMetadata.sortable && !sort.some((s) => s.field === key);
+  const availableFields = metadata.fields
+    .filter((field) => {
+      return field.sortable && !sort.some((s) => s.field === field.name);
     })
-    .map(([key, field]) => ({
-      key,
-      label: (field as QueryFieldMetadata).label,
+    .map((field) => ({
+      key: field.name,
+      label: field.label,
     }));
+
+  const sortFieldsTotal = availableFields.length;
 
   return (
     <div className="qb-sort-editor qb-panel">
@@ -479,21 +479,20 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
                   <DropdownMenu.Label className="qb-dropdown-label">
                     Field Filters
                   </DropdownMenu.Label>
-                  {Object.entries(metadata.fields).map(([key, field]) => {
-                    const fieldMetadata = field as QueryFieldMetadata;
+                  {metadata.fields.map((field) => {
                     return (
                       <DropdownMenu.Item
-                        key={key}
+                        key={field.name}
                         onSelect={() =>
                           addFilter(
                             "field",
-                            `${key}.${fieldMetadata.noop}`,
+                            `${field.name}.${field.noop}`,
                             filter.id
                           )
                         }
                         className="qb-dropdown-item"
                       >
-                        {fieldMetadata.label}
+                        {field.label}
                       </DropdownMenu.Item>
                     );
                   })}

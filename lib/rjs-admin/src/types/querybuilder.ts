@@ -32,6 +32,11 @@ export interface QueryFieldMetadata {
   noop: string; // default query operation
   hidden: boolean;
   sortable: boolean;
+  /**
+   * Relative ordering for the column; lower numbers appear earlier. Negative
+   * values allowed. Defaults to 0 if omitted.
+   */
+  order?: number;
 }
 
 // Filter metadata structure
@@ -52,7 +57,10 @@ export interface QueryMetadata {
   name: string;
   title: string;
   desc: string;
-  fields: Record<string, QueryFieldMetadata>;
+  /**
+   * List of field metadata objects. Each must have a unique `name` property.
+   */
+  fields: QueryFieldMetadata[];
   filters: Record<string, QueryFilterMetadata>;
   composites: Record<string, QueryCompositeMetadata>;
   default_order?: string[];

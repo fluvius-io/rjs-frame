@@ -9,6 +9,7 @@ import {
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableHeaderProps } from "../../types/datatable";
+import { QueryFieldMetadata } from "../../types/querybuilder";
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   metadata,
@@ -18,26 +19,33 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   selectAllState = false,
   onSelectAll = () => {},
   onClearAll = () => {},
+  showHeaderFilters = true,
+  onShowHeaderFiltersChange,
   idField,
   className,
 }) => {
-  // Generate column configurations from metadata and queryState
+  // Build a map for quick field access
+  const fieldMap: Record<string, QueryFieldMetadata> = React.useMemo(
+    () => Object.fromEntries(metadata.fields.map((f) => [f.name, f])),
+    [metadata.fields]
+  );
+
   const getColumns = (): ColumnConfig[] => {
     const selectedFields =
       queryState.select ||
-      Object.keys(metadata.fields).filter(
-        (key) => !metadata.fields[key].hidden
-      );
+      metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
 
-    return selectedFields.map((fieldKey: string) => {
-      const field = metadata.fields[fieldKey];
+    let fields = selectedFields.map((fieldKey: string) => {
+      const field = fieldMap[fieldKey];
       return {
         key: fieldKey,
         label: field.label,
         sortable: field.sortable,
-        hidden: false, // These are already filtered by queryState.select
+        hidden: false,
       };
     });
+    console.log(fields);
+    return fields;
   };
 
   const columns = getColumns();
@@ -55,7 +63,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
   // Handle column sort
   const handleSort = (fieldKey: string, multiple: boolean = false) => {
-    const field = metadata.fields[fieldKey];
+    const field = fieldMap[fieldKey];
     if (!field.sortable) return;
 
     const currentSort = queryState.sort || [];
@@ -93,9 +101,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const handleColumnToggle = (fieldKey: string, visible: boolean) => {
     const currentSelect =
       queryState.select ||
-      Object.keys(metadata.fields).filter(
-        (key) => !metadata.fields[key].hidden
-      );
+      metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
 
     let newSelect: string[];
     if (visible) {
@@ -130,14 +136,12 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   // Get all available fields for column toggle
-  const allFields = Object.entries(metadata.fields).map(
-    ([key, field]: [string, any]) => ({
-      key,
-      label: field.label,
-      visible: columns.some((col) => col.key === key),
-      hidden: field.hidden,
-    })
-  );
+  const allFields = metadata.fields.map((field) => ({
+    key: field.name,
+    label: field.label,
+    visible: columns.some((col) => col.key === field.name),
+    hidden: field.hidden,
+  }));
 
   return (
     <tr className={cn("dt-header-row", className)}>
@@ -162,7 +166,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         </th>
       )}
       {columns.map((column) => {
-        const field = metadata.fields[column.key];
+        const field = fieldMap[column.key];
         const { direction } = getSortInfo(column.key);
 
         return (
@@ -203,7 +207,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             </summary>
             <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
               <div className="p-2">
-                <div className="text-xs font-medium text-gray-500">Columns</div>
+                <div className="text-xs font-medium text-gray-500">
+                  Table Columns
+                </div>
                 {allFields.map((field) => (
                   <div
                     key={field.key}
@@ -248,8 +254,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 >
                   <Checkbox.Root
                     id="header-filters"
-                    checked={true}
-                    onCheckedChange={(checked) => {}}
+                    checked={showHeaderFilters}
+                    onCheckedChange={(checked) =>
+                      onShowHeaderFiltersChange?.(checked === true)
+                    }
                     className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                   >
                     <Checkbox.Indicator>

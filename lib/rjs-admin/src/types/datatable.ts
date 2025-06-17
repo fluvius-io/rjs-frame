@@ -69,6 +69,13 @@ export interface DataTableProps {
   // Selection feature
   allowSelection?: boolean;
 
+  /**
+   * Debounce delay in milliseconds for automatic data fetching when table
+   * state changes (pagination, etc.). Set to 0 or a negative number to disable
+   * debouncing entirely.
+   */
+  debounceDelay?: number;
+
   // Styling
   className?: string;
 }
@@ -110,6 +117,10 @@ export interface TableHeaderProps {
   onClearAll?: () => void;
   idField?: string;
   className?: string;
+  /** Whether header filters (TableFilter row) are visible */
+  showHeaderFilters?: boolean;
+  /** Callback when the header filter visibility checkbox is toggled */
+  onShowHeaderFiltersChange?: (visible: boolean) => void;
 }
 
 export interface TableFilterProps {

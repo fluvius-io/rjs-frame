@@ -13,6 +13,43 @@ import { Pagination } from "./Pagination";
 import { TableControl } from "./TableControl";
 import { TableView } from "./TableView";
 
+// Debounce hook helper
+function useDebouncedCallback<T extends (...args: any[]) => void>(
+  callback: T,
+  delay: number
+): T {
+  const callbackRef = React.useRef(callback);
+  React.useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedFn = React.useCallback(
+    (...args: Parameters<T>) => {
+      if (!delay || delay <= 20) {
+        callbackRef.current(...args);
+        return;
+      }
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        callbackRef.current(...args);
+      }, delay);
+    },
+    [delay]
+  );
+
+  // cleanup on unmount or delay change
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [delay]);
+
+  // Cast to original type
+  return debouncedFn as T;
+}
+
 export const DataTable: React.FC<DataTableProps> = ({
   data: propData,
   metadata: propMetadata,
@@ -24,6 +61,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   customPagination: CustomPagination,
   className,
   debug = false,
+  debounceDelay = 0,
 }) => {
   // Internal state for data and metadata
   const [data, setData] = React.useState<DataRow[]>(propData || []);
@@ -61,7 +99,7 @@ export const DataTable: React.FC<DataTableProps> = ({
       newPagination.page !== internalPagination.page ||
       newPagination.pageSize !== internalPagination.pageSize
     ) {
-      fetchData(newPagination);
+      debouncedFetchData(newPagination);
     }
   };
 
@@ -93,7 +131,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     }
   }, [dataApi, propMetadata, propQueryState]);
 
-  // Fetch data
+  // Fetch data (non-debounced)
   const fetchData = React.useCallback(
     async (pagination?: PaginationState) => {
       if (!dataApi || propData) return;
@@ -134,16 +172,23 @@ export const DataTable: React.FC<DataTableProps> = ({
     [dataApi, internalQueryState]
   );
 
+  // Create debounced versions of metadata and data fetchers
+  const debouncedFetchMetadata = useDebouncedCallback(
+    fetchMetadata,
+    debounceDelay
+  );
+  const debouncedFetchData = useDebouncedCallback(fetchData, debounceDelay);
+
   // Initial fetch
   React.useEffect(() => {
-    fetchMetadata();
-  }, [fetchMetadata]);
+    debouncedFetchMetadata();
+  }, [debouncedFetchMetadata]);
 
   React.useEffect(() => {
     if (metadata) {
-      fetchData();
+      debouncedFetchData();
     }
-  }, [fetchData, metadata]);
+  }, [debouncedFetchData, metadata]);
 
   // Update internal data when prop data changes
   React.useEffect(() => {
@@ -231,7 +276,5 @@ const parseSort = (sort: string[]): SortItem[] => {
 };
 
 const getDefaultSelect = (metadata: QueryMetadata) => {
-  return Object.keys(metadata.fields).filter(
-    (key) => !metadata.fields[key]?.hidden
-  );
+  return metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
 };

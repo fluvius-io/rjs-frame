@@ -2,7 +2,7 @@ import { Filter, X } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableFilterProps } from "../../types/datatable";
-import { QueryValue } from "../../types/querybuilder";
+import { QueryFieldMetadata, QueryValue } from "../../types/querybuilder";
 
 export const TableFilter: React.FC<TableFilterProps> = ({
   metadata,
@@ -11,16 +11,19 @@ export const TableFilter: React.FC<TableFilterProps> = ({
   allowSelection = false,
   className,
 }) => {
+  const fieldMap: Record<string, QueryFieldMetadata> = React.useMemo(
+    () => Object.fromEntries(metadata.fields.map((f) => [f.name, f])),
+    [metadata.fields]
+  );
+
   // Generate column configurations from metadata and queryState
   const getColumns = (): ColumnConfig[] => {
     const selectedFields =
       queryState.select ||
-      Object.keys(metadata.fields).filter(
-        (key) => !metadata.fields[key].hidden
-      );
+      metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
 
     return selectedFields.map((fieldKey) => {
-      const field = metadata.fields[fieldKey];
+      const field = fieldMap[fieldKey];
       return {
         key: fieldKey,
         label: field.label,
@@ -34,7 +37,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
 
   // Get current filter value for a field (using noop operator)
   const getFieldFilterValue = (fieldKey: string): QueryValue => {
-    const field = metadata.fields[fieldKey];
+    const field = fieldMap[fieldKey];
     const noopOperator = `${fieldKey}.${field.noop}`;
 
     if (!queryState.query) return "";
@@ -60,7 +63,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
 
   // Update filter value for a field
   const updateFieldFilter = (fieldKey: string, value: QueryValue) => {
-    const field = metadata.fields[fieldKey];
+    const field = fieldMap[fieldKey];
     const noopOperator = field.noop;
     const currentQuery = queryState.query || [];
 
@@ -109,7 +112,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
 
   // Render input based on filter metadata
   const renderFilterInput = (column: ColumnConfig) => {
-    const field = metadata.fields[column.key];
+    const field = fieldMap[column.key];
     const filterKey = `${column.key}.${field.noop}`;
     const filterMetadata = metadata.filters[filterKey];
     const currentValue = getFieldFilterValue(column.key);
@@ -202,7 +205,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
               {hasValue && (
                 <button
                   onClick={() => clearFieldFilter(column.key)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded"
                   title={`Clear ${column.label} filter`}
                 >
                   <X className="h-3 w-3 text-gray-400" />

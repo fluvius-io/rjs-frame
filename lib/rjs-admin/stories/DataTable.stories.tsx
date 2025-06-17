@@ -68,8 +68,8 @@ const sampleMetadata: QueryMetadata = {
   name: "user",
   title: "User Query",
   desc: "List all user accounts",
-  fields: {
-    name: {
+  fields: [
+    {
       label: "Name",
       name: "name",
       desc: "User full name",
@@ -77,7 +77,7 @@ const sampleMetadata: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    email: {
+    {
       label: "Email",
       name: "email",
       desc: "User email address",
@@ -85,7 +85,7 @@ const sampleMetadata: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    role: {
+    {
       label: "Role",
       name: "role",
       desc: "User role",
@@ -93,7 +93,7 @@ const sampleMetadata: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    status: {
+    {
       label: "Status",
       name: "status",
       desc: "User status",
@@ -101,7 +101,7 @@ const sampleMetadata: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-  },
+  ],
   filters: {
     "name.ilike": {
       field: "name",
@@ -140,8 +140,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
   name: "user",
   title: "User Management",
   desc: "List all user accounts with advanced filtering and sorting",
-  fields: {
-    id: {
+  fields: [
+    {
       label: "User ID",
       name: "id",
       desc: null,
@@ -149,7 +149,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: true,
       sortable: true,
     },
-    name__given: {
+    {
       label: "Given Name",
       name: "name__given",
       desc: null,
@@ -157,7 +157,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    name__family: {
+    {
       label: "Family Name",
       name: "name__family",
       desc: null,
@@ -165,7 +165,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    email: {
+    {
       label: "Email Address",
       name: "email",
       desc: null,
@@ -173,7 +173,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    status: {
+    {
       label: "Status",
       name: "status",
       desc: null,
@@ -181,7 +181,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-    created_at: {
+    {
       label: "Created At",
       name: "created_at",
       desc: null,
@@ -189,7 +189,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
     },
-  },
+  ],
   filters: {
     "id.eq": {
       field: "id",
