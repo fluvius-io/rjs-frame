@@ -102,6 +102,11 @@ const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
     onSelectChange(newOrder);
   };
 
+  const handleDragEnd = () => {
+    dragFrom.current = null;
+    setHoverIndex(-1);
+  };
+
   return (
     <div className="qb-field-selector qb-panel">
       <div className="qb-header">
@@ -136,6 +141,7 @@ const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
                   )}
                   draggable
                   onDragStart={handleDragStart(idx)}
+                  onDragEnd={handleDragEnd}
                   onDragOver={handleDragOver(
                     isPlaceholderBefore ? idx + 1 : idx
                   )}
