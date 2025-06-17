@@ -56,6 +56,7 @@ export interface QueryMetadata {
   filters: Record<string, QueryFilterMetadata>;
   composites: Record<string, QueryCompositeMetadata>;
   default_order?: string[];
+  idfield?: string;
 }
 
 // Query value types
@@ -72,6 +73,7 @@ export interface QueryState {
   sort?: SortItem[];
   select?: string[];
   search?: string;
+  selectedItems?: string[];
 }
 
 // Props for FilterInput component

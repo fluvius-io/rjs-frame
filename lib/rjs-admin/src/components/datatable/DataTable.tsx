@@ -192,6 +192,10 @@ export const DataTable: React.FC<DataTableProps> = ({
         pagination={internalPagination}
         onChange={handlePaginationChange}
         loading={loading.data}
+        selectedCount={internalQueryState.selectedItems?.length || 0}
+        onClearSelection={() =>
+          setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }))
+        }
       />
 
       {debug && (

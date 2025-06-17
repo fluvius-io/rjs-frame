@@ -1,3 +1,4 @@
+import * as Checkbox from "@radix-ui/react-checkbox";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { TableRowProps } from "../../types/datatable";
@@ -7,6 +8,9 @@ export const TableRow: React.FC<TableRowProps> = ({
   columns,
   rowIndex,
   className,
+  onSelect,
+  selected,
+  idValue,
 }) => {
   // Format cell value for display
   const formatCellValue = (value: any, columnKey: string): string => {
@@ -64,6 +68,22 @@ export const TableRow: React.FC<TableRowProps> = ({
 
   return (
     <tr className={cn("dt-tr", className)}>
+      {/* Selection Checkbox */}
+      {onSelect && (
+        <td className="dt-td w-10">
+          <Checkbox.Root
+            checked={selected}
+            onCheckedChange={(checked) =>
+              onSelect(idValue as string, checked === true)
+            }
+            className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          >
+            <Checkbox.Indicator className="text-white text-xs">
+              ✓
+            </Checkbox.Indicator>
+          </Checkbox.Root>
+        </td>
+      )}
       {columns.map((column) => {
         const cellValue = row[column.key];
         const formattedValue = formatCellValue(cellValue, column.key);
@@ -79,9 +99,6 @@ export const TableRow: React.FC<TableRowProps> = ({
           </td>
         );
       })}
-
-      {/* Empty cell for column toggle column */}
-      <td className="dt-td w-10"></td>
     </tr>
   );
 };

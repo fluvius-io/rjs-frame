@@ -66,6 +66,9 @@ export interface DataTableProps {
   // Debug
   debug?: boolean;
 
+  // Selection feature
+  allowSelection?: boolean;
+
   // Styling
   className?: string;
 }
@@ -88,12 +91,24 @@ export interface TableViewProps {
   customTableHeader?: React.ComponentType<TableHeaderProps>;
   customTableRow?: React.ComponentType<TableRowProps>;
   className?: string;
+  allowSelection?: boolean;
 }
 
 export interface TableHeaderProps {
   metadata: QueryMetadata;
   queryState: QueryState;
   onQueryStateChange: (state: QueryState) => void;
+  allowSelection?: boolean;
+  /**
+   * Tri-state value for the header checkbox. Should be `false`, `true`, or
+   * "indeterminate" (per Radix Checkbox API). Determined by the parent
+   * component, typically based on whether the current page's IDs are all / some
+   * / none in the global `selectedItems` list.
+   */
+  selectAllState?: boolean | "indeterminate";
+  onSelectAll?: () => void;
+  onClearAll?: () => void;
+  idField?: string;
   className?: string;
 }
 
@@ -101,6 +116,8 @@ export interface TableFilterProps {
   metadata: QueryMetadata;
   queryState: QueryState;
   onQueryStateChange: (state: QueryState) => void;
+  /** If the selection checkbox column is shown, add a padding cell */
+  allowSelection?: boolean;
   className?: string;
 }
 
@@ -108,6 +125,9 @@ export interface TableRowProps {
   row: DataRow;
   columns: ColumnConfig[];
   rowIndex: number;
+  idValue?: string;
+  selected?: boolean;
+  onSelect?: (id: string, selected: boolean) => void;
   className?: string;
 }
 
@@ -115,6 +135,16 @@ export interface PaginationProps {
   pagination: PaginationState;
   onChange: (pagination: PaginationState) => void;
   loading?: boolean;
+  /**
+   * Number of currently selected entries (row-selection feature).
+   * When provided and greater than zero, the pagination bar will show
+   * "| N entries selected".
+   */
+  selectedCount?: number;
+  /**
+   * Callback to clear all selected entries when the user clicks the clear (×) button.
+   */
+  onClearSelection?: () => void;
   className?: string;
 }
 

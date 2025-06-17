@@ -14,7 +14,48 @@ export const TableView: React.FC<TableViewProps> = ({
   customTableHeader: CustomTableHeader,
   customTableRow: CustomTableRow,
   className,
+  allowSelection = true,
 }) => {
+  const idField = metadata.idfield;
+  const selectionEnabled = !!(allowSelection && idField);
+
+  const selectedItems: string[] = queryState.selectedItems || [];
+
+  const toggleRow = (id: string, checked: boolean) => {
+    let newSelected: string[];
+    if (checked) {
+      newSelected = [...selectedItems, id];
+    } else {
+      newSelected = selectedItems.filter((v) => v !== id);
+    }
+    onQueryStateChange({ ...queryState, selectedItems: newSelected });
+  };
+
+  /**
+   * Select all rows currently visible (current page) in addition to any that
+   * may already be selected from other pages.
+   */
+  const selectAll = () => {
+    const pageIds = data.map((row) => String(row[idField as string]));
+    const newSelected = Array.from(
+      new Set([...(queryState.selectedItems || []), ...pageIds])
+    );
+
+    onQueryStateChange({ ...queryState, selectedItems: newSelected });
+  };
+
+  /**
+   * Clear selection for rows currently visible (current page) while preserving
+   * selections that belong to other pages.
+   */
+  const clearAll = () => {
+    const pageIds = data.map((row) => String(row[idField as string]));
+    const prevSelected = queryState.selectedItems || [];
+    const newSelected = prevSelected.filter((id) => !pageIds.includes(id));
+
+    onQueryStateChange({ ...queryState, selectedItems: newSelected });
+  };
+
   // Generate column configurations from metadata and queryState
   const getColumns = (): ColumnConfig[] => {
     const selectedFields =
@@ -35,6 +76,15 @@ export const TableView: React.FC<TableViewProps> = ({
   };
 
   const columns = getColumns();
+
+  // Determine header checkbox state for current page
+  const pageIds = data.map((row) => String(row[idField as string]));
+  let selectAllState: boolean | "indeterminate" = false;
+  if (pageIds.length > 0) {
+    const allSelected = pageIds.every((id) => selectedItems.includes(id));
+    const anySelected = pageIds.some((id) => selectedItems.includes(id));
+    selectAllState = allSelected ? true : anySelected ? "indeterminate" : false;
+  }
 
   // Render empty state
   if (data.length === 0) {
@@ -108,6 +158,11 @@ export const TableView: React.FC<TableViewProps> = ({
               metadata={metadata}
               queryState={queryState}
               onQueryStateChange={onQueryStateChange}
+              allowSelection={selectionEnabled}
+              selectAllState={selectAllState}
+              onSelectAll={selectAll}
+              onClearAll={clearAll}
+              idField={idField}
             />
 
             {/* Filter Row */}
@@ -116,6 +171,7 @@ export const TableView: React.FC<TableViewProps> = ({
                 metadata={metadata}
                 queryState={queryState}
                 onQueryStateChange={onQueryStateChange}
+                allowSelection={selectionEnabled}
               />
             ) : null}
           </thead>
@@ -125,10 +181,16 @@ export const TableView: React.FC<TableViewProps> = ({
             <tbody className="dt-tbody">
               {data.map((row, index) => (
                 <RowComponent
-                  key={row.id || index}
+                  key={index}
                   row={row}
                   columns={columns}
                   rowIndex={index}
+                  selected={
+                    selectionEnabled &&
+                    selectedItems.includes(String(row[idField as string]))
+                  }
+                  idValue={idField ? String(row[idField]) : undefined}
+                  onSelect={selectionEnabled ? toggleRow : undefined}
                 />
               ))}
             </tbody>

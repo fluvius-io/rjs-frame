@@ -14,6 +14,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   metadata,
   queryState,
   onQueryStateChange,
+  allowSelection = false,
+  selectAllState = false,
+  onSelectAll = () => {},
+  onClearAll = () => {},
+  idField,
   className,
 }) => {
   // Generate column configurations from metadata and queryState
@@ -136,6 +141,26 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
   return (
     <tr className={cn("dt-header-row", className)}>
+      {allowSelection && idField && (
+        <th className="dt-th w-10">
+          <Checkbox.Root
+            checked={selectAllState}
+            onCheckedChange={(checked) => {
+              if (checked === true || checked === "indeterminate") {
+                // Selecting all when indeterminate too
+                onSelectAll();
+              } else {
+                onClearAll();
+              }
+            }}
+            className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          >
+            <Checkbox.Indicator className="text-white text-xs">
+              ✓
+            </Checkbox.Indicator>
+          </Checkbox.Root>
+        </th>
+      )}
       {columns.map((column) => {
         const field = metadata.fields[column.key];
         const { direction } = getSortInfo(column.key);

@@ -8,6 +8,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
   metadata,
   queryState,
   onQueryStateChange,
+  allowSelection = false,
   className,
 }) => {
   // Generate column configurations from metadata and queryState
@@ -167,8 +168,25 @@ export const TableFilter: React.FC<TableFilterProps> = ({
     }
   };
 
+  const clearAllFiltersButton = () => {
+    return (
+      <div className="flex justify-center">
+        {hasActiveFilters && (
+          <button
+            onClick={clearAllFilters}
+            className="px-1 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
+            title="Clear all filters"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <tr className={cn("dt-filter-row", className)}>
+      {allowSelection && <td className="dt-filter-cell"></td>}
       {columns.map((column) => {
         const currentValue = getFieldFilterValue(column.key);
         const hasValue = currentValue && currentValue !== "";
@@ -192,19 +210,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
       })}
 
       {/* Clear all filters button */}
-      <td className="dt-filter-cell">
-        <div className="flex justify-center">
-          {hasActiveFilters && (
-            <button
-              onClick={clearAllFilters}
-              className="px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
-              title="Clear all filters"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
-        </div>
-      </td>
+      <td className="dt-filter-cell">{clearAllFiltersButton()} </td>
     </tr>
   );
 };

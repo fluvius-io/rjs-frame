@@ -1,5 +1,11 @@
 import * as Select from "@radix-ui/react-select";
-import { ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  X,
+} from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { PaginationProps } from "../../types/datatable";
@@ -11,6 +17,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   pagination,
   onChange,
   loading = false,
+  selectedCount = 0,
+  onClearSelection,
   className,
 }) => {
   const { page, pageSize, total } = pagination;
@@ -109,9 +117,29 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className={cn("dt-pagination", className)}>
-      <div className="dt-pagination-info">
-        Showing {startItem.toLocaleString()} to {endItem.toLocaleString()} of{" "}
-        {total.toLocaleString()} results
+      <div className="dt-pagination-info flex items-center gap-2 flex-wrap">
+        <span>
+          Showing {startItem.toLocaleString()} to {endItem.toLocaleString()} of{" "}
+          {total.toLocaleString()} entries
+        </span>
+        {selectedCount > 0 && (
+          <>
+            <span className="mx-3 text-gray-500 font-semibold">|</span>
+            <span className="flex items-center gap-1">
+              {selectedCount.toLocaleString()} entries selected
+              {onClearSelection && (
+                <button
+                  type="button"
+                  onClick={onClearSelection}
+                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                  title="Clear selection"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </span>
+          </>
+        )}
       </div>
       {/* Loading Indicator */}
       {loading && (
