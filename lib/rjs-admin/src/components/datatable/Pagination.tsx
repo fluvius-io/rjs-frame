@@ -117,75 +117,10 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className={cn("dt-pagination", className)}>
-      <div className="dt-pagination-info flex items-center gap-2 flex-wrap">
-        <span>
-          Showing {startItem.toLocaleString()} to {endItem.toLocaleString()} of{" "}
-          {total.toLocaleString()} entries
-        </span>
-        {selectedCount > 0 && (
-          <>
-            <span className="mx-3 text-gray-500 font-semibold">|</span>
-            <span className="flex items-center gap-1">
-              {selectedCount.toLocaleString()} entries selected
-              {onClearSelection && (
-                <button
-                  type="button"
-                  onClick={onClearSelection}
-                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
-                  title="Clear selection"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
-            </span>
-          </>
-        )}
-      </div>
-      {/* Loading Indicator */}
-      {loading && (
-        <div className="dt-pagination-loading">
-          <Loader2 className="dt-pagination-loading-spinner" />
-          Loading...
-        </div>
-      )}
-
-      <div className="dt-pagination-controls">
-        {/* Page Size Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Show</span>
-
-          {/* Radix Select for page size */}
-          <Select.Root
-            value={String(pageSize)}
-            onValueChange={(val) => handlePageSizeChange(Number(val))}
-            disabled={loading}
-          >
-            <Select.Trigger asChild>
-              <Button variant="outline" size="sm" className="h-8 min-w-16">
-                <Select.Value />
-                <ChevronDown className="w-4 h-4 ml-1" />
-              </Button>
-            </Select.Trigger>
-            <Select.Content className="qb-dropdown-content">
-              <Select.Viewport className="p-1">
-                {PAGE_SIZE_OPTIONS.map((opt) => (
-                  <Select.Item
-                    key={opt}
-                    value={String(opt)}
-                    className="qb-dropdown-item"
-                  >
-                    <Select.ItemText>{opt}</Select.ItemText>
-                  </Select.Item>
-                ))}
-              </Select.Viewport>
-            </Select.Content>
-          </Select.Root>
-
-          <span className="text-sm text-gray-500">per page</span>
-        </div>
-
+      {/* Left side: Pagination buttons and page size selector */}
+      <div className="dt-pagination-controls flex items-center gap-6 justify-between">
         {/* Page Navigation */}
-        <div className="dt-pagination-buttons">
+        <div className="dt-pagination-buttons flex items-center gap-1">
           {/* Previous Button */}
           <Button
             variant="outline"
@@ -239,6 +174,71 @@ export const Pagination: React.FC<PaginationProps> = ({
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+
+        {/* Page Size Selector */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Show</span>
+
+          {/* Radix Select for page size */}
+          <Select.Root
+            value={String(pageSize)}
+            onValueChange={(val) => handlePageSizeChange(Number(val))}
+            disabled={loading}
+          >
+            <Select.Trigger asChild>
+              <Button variant="outline" size="sm" className="h-8 min-w-16">
+                <Select.Value />
+                <ChevronDown className="w-4 h-4 ml-1" />
+              </Button>
+            </Select.Trigger>
+            <Select.Content className="qb-dropdown-content">
+              <Select.Viewport className="p-1">
+                {PAGE_SIZE_OPTIONS.map((opt) => (
+                  <Select.Item
+                    key={opt}
+                    value={String(opt)}
+                    className="qb-dropdown-item"
+                  >
+                    <Select.ItemText>{opt}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.Viewport>
+            </Select.Content>
+          </Select.Root>
+
+          <span className="text-sm text-gray-500">per page</span>
+        </div>
+      </div>
+
+      {/* Loading Indicator (optional) */}
+      {loading && (
+        <div className="dt-pagination-loading ml-4">
+          <Loader2 className="dt-pagination-loading-spinner" />
+          Loading...
+        </div>
+      )}
+
+      {/* Right side: Info */}
+      <div className="dt-pagination-info flex items-center gap-4 flex-wrap ml-auto">
+        {selectedCount > 0 && (
+          <span className="flex items-center gap-1 border-r-2 pr-4 border-gray-400">
+            {selectedCount.toLocaleString()} entries selected
+            {onClearSelection && (
+              <button
+                type="button"
+                onClick={onClearSelection}
+                className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                title="Clear selection"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </span>
+        )}
+        <span>
+          Showing {startItem.toLocaleString()} - {endItem.toLocaleString()} /{" "}
+          {total.toLocaleString()} entries
+        </span>
       </div>
     </div>
   );

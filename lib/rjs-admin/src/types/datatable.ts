@@ -129,6 +129,13 @@ export interface TableRowProps {
   selected?: boolean;
   onSelect?: (id: string, selected: boolean) => void;
   className?: string;
+  rowActions?: React.ComponentType<TableRowActionProps>[];
+}
+
+export interface TableRowActionProps {
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
 }
 
 export interface PaginationProps {

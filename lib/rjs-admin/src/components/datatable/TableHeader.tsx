@@ -3,8 +3,8 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronsUpDown,
-  Eye,
   EyeOff,
+  Menu,
 } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
@@ -174,8 +174,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             <div className="dt-th-content">
               <span className="font-medium">{column.label}</span>
               <div className="flex items-center">
-                {column.sortable && renderSortIndicator(column.key)}
-
                 {/* Column visibility toggle */}
                 <div className="dt-column-toggle ml-1">
                   <button
@@ -189,6 +187,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     <EyeOff className="h-3 w-3 text-gray-400" />
                   </button>
                 </div>
+                {column.sortable && renderSortIndicator(column.key)}
               </div>
             </div>
           </th>
@@ -200,13 +199,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         <div className="flex justify-center">
           <details className="relative">
             <summary className="cursor-pointer p-1 hover:bg-gray-200 rounded list-none">
-              <Eye className="h-4 w-4 text-gray-400" />
+              <Menu className="h-4 w-4 text-gray-400" />
             </summary>
             <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
               <div className="p-2">
-                <div className="text-xs font-medium text-gray-500 mb-2">
-                  Show/Hide Columns
-                </div>
+                <div className="text-xs font-medium text-gray-500">Columns</div>
                 {allFields.map((field) => (
                   <div
                     key={field.key}
@@ -236,12 +233,46 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     </Checkbox.Root>
                     <label
                       htmlFor={`column-${field.key}`}
-                      className="text-sm text-gray-700 cursor-pointer flex-1"
+                      className="text-sm text-gray-700 cursor-pointer flex-1  capitalize"
                     >
                       {field.label}
                     </label>
                   </div>
                 ))}
+                <div className="text-xs font-medium text-gray-500 mt-2">
+                  Header Filters
+                </div>
+                <div
+                  key="header-filters"
+                  className="flex items-center space-x-2 py-1"
+                >
+                  <Checkbox.Root
+                    id="header-filters"
+                    checked={true}
+                    onCheckedChange={(checked) => {}}
+                    className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  >
+                    <Checkbox.Indicator>
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                  <label
+                    htmlFor="header-filters"
+                    className="text-sm text-gray-700 cursor-pointer flex-1  capitalize"
+                  >
+                    Show Header Filters
+                  </label>
+                </div>
               </div>
             </div>
           </details>

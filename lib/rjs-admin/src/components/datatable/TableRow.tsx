@@ -11,6 +11,7 @@ export const TableRow: React.FC<TableRowProps> = ({
   onSelect,
   selected,
   idValue,
+  rowActions = [],
 }) => {
   // Format cell value for display
   const formatCellValue = (value: any, columnKey: string): string => {
@@ -99,6 +100,17 @@ export const TableRow: React.FC<TableRowProps> = ({
           </td>
         );
       })}
+      <td className="dt-td w-10">
+        {rowActions.map((action) => (
+          <button
+            key={action.label}
+            onClick={action.onClick}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            {action.icon}
+          </button>
+        ))}
+      </td>
     </tr>
   );
 };

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableFilterProps } from "../../types/datatable";
@@ -186,7 +186,11 @@ export const TableFilter: React.FC<TableFilterProps> = ({
 
   return (
     <tr className={cn("dt-filter-row", className)}>
-      {allowSelection && <td className="dt-filter-cell"></td>}
+      {allowSelection && (
+        <td className="dt-filter-cell">
+          <Filter className="h-4 w-4 text-gray-400" />
+        </td>
+      )}
       {columns.map((column) => {
         const currentValue = getFieldFilterValue(column.key);
         const hasValue = currentValue && currentValue !== "";
