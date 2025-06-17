@@ -44,7 +44,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         hidden: false,
       };
     });
-    console.log(fields);
+
     return fields;
   };
 

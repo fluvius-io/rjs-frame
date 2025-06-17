@@ -150,6 +150,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             const isActive = pageNumber === page;
             return (
               <Button
+                key={`page-${pageNumber}`}
                 variant={isActive ? "default" : "outline"}
                 size="sm"
                 className="dt-pagination-button h-8 w-8 p-0"
