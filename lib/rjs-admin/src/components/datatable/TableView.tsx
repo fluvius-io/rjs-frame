@@ -54,22 +54,45 @@ export const TableView: React.FC<TableViewProps> = ({
   }
 
   // Check if we have any columns to display
-  if (columns.length === 0) {
+  // if (columns.length === 0) {
+  //   return (
+  //     <div className={cn("dt-table-view", className)}>
+  //       <div className="dt-empty">
+  //         <div className="flex flex-col items-center">
+  //           <AlertCircle className="dt-empty-icon text-orange-300" />
+  //           <div className="dt-empty-text">No columns selected</div>
+  //           <div className="dt-empty-subtext">
+  //             Use the column toggle or query builder to select columns to
+  //             display
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+  const noHeaderPrompt = () => {
     return (
-      <div className={cn("dt-table-view", className)}>
-        <div className="dt-empty">
-          <div className="flex flex-col items-center">
-            <AlertCircle className="dt-empty-icon text-orange-300" />
-            <div className="dt-empty-text">No columns selected</div>
-            <div className="dt-empty-subtext">
-              Use the column toggle or query builder to select columns to
-              display
+      <tbody className="dt-tbody">
+        <tr>
+          <td>
+            <div className={cn("dt-table-view", className)}>
+              <div className="dt-empty">
+                <div className="flex flex-col items-center">
+                  <AlertCircle className="dt-empty-icon text-orange-300" />
+                  <div className="dt-empty-text">No columns selected</div>
+                  <div className="dt-empty-subtext">
+                    Use the column toggle or query builder to select columns to
+                    display
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </td>
+        </tr>
+      </tbody>
     );
-  }
+  };
 
   const HeaderComponent = CustomTableHeader || TableHeader;
   const RowComponent = CustomTableRow || TableRow;
@@ -88,24 +111,30 @@ export const TableView: React.FC<TableViewProps> = ({
             />
 
             {/* Filter Row */}
-            <TableFilter
-              metadata={metadata}
-              queryState={queryState}
-              onQueryStateChange={onQueryStateChange}
-            />
+            {columns.length > 0 ? (
+              <TableFilter
+                metadata={metadata}
+                queryState={queryState}
+                onQueryStateChange={onQueryStateChange}
+              />
+            ) : null}
           </thead>
 
           {/* Table Body */}
-          <tbody className="dt-tbody">
-            {data.map((row, index) => (
-              <RowComponent
-                key={row.id || index}
-                row={row}
-                columns={columns}
-                rowIndex={index}
-              />
-            ))}
-          </tbody>
+          {columns.length > 0 ? (
+            <tbody className="dt-tbody">
+              {data.map((row, index) => (
+                <RowComponent
+                  key={row.id || index}
+                  row={row}
+                  columns={columns}
+                  rowIndex={index}
+                />
+              ))}
+            </tbody>
+          ) : (
+            noHeaderPrompt()
+          )}
         </table>
       </div>
     </div>
