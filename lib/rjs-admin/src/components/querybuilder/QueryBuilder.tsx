@@ -500,8 +500,9 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
                   <DropdownMenu.Label className="qb-dropdown-label">
                     Composite Operators
                   </DropdownMenu.Label>
-                  {Object.entries(metadata.composites).map(
-                    ([key, composite]) => (
+                  {Object.entries(metadata.composites)
+                    .filter(([key]) => key !== filter.operator)
+                    .map(([key, composite]) => (
                       <DropdownMenu.Item
                         key={key}
                         onSelect={() => addFilter("composite", key, filter.id)}
@@ -509,8 +510,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
                       >
                         {composite.label}
                       </DropdownMenu.Item>
-                    )
-                  )}
+                    ))}
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
               <Button
@@ -539,7 +539,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
 
     // Field filter
     const fieldKey = filter.field!;
-    const field = metadata.fields[fieldKey] as QueryFieldMetadata;
+    const field = metadata.fields.find((f) => f.name === fieldKey);
 
     // Ensure we have a valid operator
     if (!filter.operator) {
@@ -549,7 +549,13 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
 
     const filterMetadata = metadata.filters[filter.operator.replace("!", ".")];
 
-    if (!field || !filterMetadata) return null;
+    if (!field || !filterMetadata) {
+      return (
+        <div className="qb-filter-error">
+          Field metadata [{fieldKey}] not found
+        </div>
+      );
+    }
 
     const availableOperators = Object.entries(metadata.filters)
       .filter(([key]) => key.startsWith(`${fieldKey}.`))
@@ -665,17 +671,16 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
               <DropdownMenu.Label className="qb-dropdown-label">
                 Field Filters
               </DropdownMenu.Label>
-              {Object.entries(metadata.fields).map(([key, field]) => {
-                const fieldMetadata = field as QueryFieldMetadata;
+              {metadata.fields.map((field) => {
                 return (
                   <DropdownMenu.Item
-                    key={key}
+                    key={field.name}
                     onSelect={() =>
-                      addFilter("field", `${key}.${fieldMetadata.noop}`)
+                      addFilter("field", `${field.name}.${field.noop}`)
                     }
                     className="qb-dropdown-item"
                   >
-                    {fieldMetadata.label}
+                    {field.label}
                   </DropdownMenu.Item>
                 );
               })}
@@ -737,9 +742,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   }
 
   const getDefaultFields = () => {
-    return Object.keys(metadata.fields).filter(
-      (key) => !(metadata.fields[key] as QueryFieldMetadata).hidden
-    );
+    return metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
   };
 
   const handleSearchChange = (search: string) => {
