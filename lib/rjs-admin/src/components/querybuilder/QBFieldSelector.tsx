@@ -29,6 +29,10 @@ export const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
   const handleDragStart = (index: number) => (e: React.DragEvent) => {
     dragFrom.current = index;
     e.dataTransfer.effectAllowed = "move";
+    if (listRef.current) {
+      const listHeight = listRef.current.offsetHeight;
+      listRef.current.style.height = `${listHeight}px`;
+    }
   };
 
   const handleDragOver = (index: number) => (e: React.DragEvent) => {
@@ -44,6 +48,9 @@ export const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
     const fromIndex = dragFrom.current;
     dragFrom.current = null;
     setHoverIndex(-1);
+    if (listRef.current) {
+      listRef.current.style.height = "auto";
+    }
 
     if (fromIndex === null || fromIndex === hoverIndex) return;
     const newOrder = [...select];
@@ -62,6 +69,12 @@ export const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
     setHoverIndex(-1);
   };
 
+  const listRef = React.useRef<HTMLDivElement>(null);
+
+  let unSelectedFields = metadata.fields.filter(
+    (f) => !select.includes(f.name)
+  );
+  let showSeparator = unSelectedFields.length > 0 && select.length > 0;
   return (
     <div className="qb-field-selector qb-panel">
       <div className="qb-header">
@@ -71,6 +84,7 @@ export const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
         className="qb-list qb-field-cards"
         onDrop={handleDrop()}
         onDragOver={(e) => e.preventDefault()}
+        ref={listRef}
       >
         {/* Selected fields with placeholder */}
         {select.map((fieldName, idx) => {
@@ -136,37 +150,45 @@ export const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
           <div className="qb-field-card border-2 border-dashed border-gray-300 h-12 w-48" />
         )}
         {/* Unselected fields */}
-        {metadata.fields
-          .filter((f) => !select.includes(f.name))
-          .map((field) => {
-            const isSelected = false;
-            return (
-              <div
-                key={field.name}
-                className={cn(
-                  "qb-field-card",
-                  isSelected && "qb-field-card--selected"
-                )}
-                onClick={() => handleFieldToggle(field.name, !isSelected)}
+        {showSeparator && (
+          <div className="ml-4 mr-4 border-r-2 border-gray-300"></div>
+        )}
+        {unSelectedFields.map((field) => {
+          const isSelected = false;
+          return (
+            <div
+              key={field.name}
+              className={cn(
+                "qb-field-card",
+                isSelected && "qb-field-card--selected"
+              )}
+              onClick={() => handleFieldToggle(field.name, !isSelected)}
+            >
+              <Checkbox.Root
+                id={`field-${field.name}`}
+                checked={isSelected}
+                onCheckedChange={(checked) =>
+                  handleFieldToggle(field.name, checked === true)
+                }
+                className="qb-checkbox"
               >
-                <Checkbox.Root
-                  id={`field-${field.name}`}
-                  checked={isSelected}
-                  onCheckedChange={(checked) =>
-                    handleFieldToggle(field.name, checked === true)
-                  }
-                  className="qb-checkbox"
-                >
-                  <Checkbox.Indicator className="qb-checkbox-indicator">
-                    ✓
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <div className="qb-field-card-content">
-                  <span className="qb-field-name">{field.label}</span>
-                </div>
+                <Checkbox.Indicator className="qb-checkbox-indicator">
+                  ✓
+                </Checkbox.Indicator>
+              </Checkbox.Root>
+              <div className="qb-field-card-content">
+                <span className="qb-field-name text-muted-foreground">
+                  {field.label}
+                </span>
+                {field.desc && (
+                  <span className="qb-field-desc text-xs text-muted-foreground">
+                    {field.desc}
+                  </span>
+                )}
               </div>
-            );
-          })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

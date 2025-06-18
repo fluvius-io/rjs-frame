@@ -12,7 +12,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  ResourceDataTable,
+  DataTable,
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule } from "rjs-frame";
@@ -152,14 +152,10 @@ export default function UserManagementPage() {
             </Card>
           </div>
 
-          <ResourceDataTable
+          <DataTable
             dataApi="idm:user"
-            title="Users"
-            subtitle="Manage user accounts and permissions"
-            showSearch={true}
-            showFilters={true}
             actions={
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm">
                   Export
                 </Button>
@@ -170,14 +166,10 @@ export default function UserManagementPage() {
               </div>
             }
           />
-          <ResourceDataTable
+          <DataTable
             dataApi="idm:organization"
-            title="Organizations"
-            subtitle="Manage organizations"
-            showSearch={true}
-            showFilters={true}
             actions={
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm">
                   Export
                 </Button>

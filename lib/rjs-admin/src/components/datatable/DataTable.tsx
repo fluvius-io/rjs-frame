@@ -64,6 +64,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   className,
   debug = false,
   debounceDelay = 0,
+  actions,
 }) => {
   // Internal state for data and metadata
   const [data, setData] = React.useState<DataRow[]>(propData || []);
@@ -93,6 +94,16 @@ export const DataTable: React.FC<DataTableProps> = ({
       total: 0,
       ...propPagination,
     }));
+
+  const setPagination = (newPagination: PaginationState) => {
+    if (
+      newPagination.page !== internalPagination.page ||
+      newPagination.pageSize !== internalPagination.pageSize ||
+      newPagination.total !== internalPagination.total
+    ) {
+      setInternalPagination(newPagination);
+    }
+  };
 
   const handleQueryStateChange = (newState: QueryState) => {
     setInternalQueryState(newState);
@@ -158,14 +169,13 @@ export const DataTable: React.FC<DataTableProps> = ({
         }
 
         // Update pagination total if not controlled
-        if (!propPagination) {
+        if (response.meta) {
           const meta = response.meta;
-          setInternalPagination((prev) => ({
-            ...prev,
-            total: meta?.total_items || 0,
-            page: meta?.page_no || 1,
-            pageSize: meta?.limit || 25,
-          }));
+          setPagination({
+            total: meta?.total_items || internalPagination.total,
+            page: meta?.page_no || internalPagination.page,
+            pageSize: meta?.limit || internalPagination.pageSize,
+          });
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -237,7 +247,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     <DataTableProvider value={contextValue}>
       <div className={cn("dt-container", className)}>
         {/* Table Control */}
-        <TableControl />
+        <TableControl actions={actions} />
 
         {/* Table View */}
         <TableView

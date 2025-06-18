@@ -4,7 +4,10 @@ import { cn } from "../../lib/utils";
 import { TableControlProps } from "../../types/datatable";
 import { useDataTable } from "./DataTableContext";
 
-export const TableControl: React.FC<TableControlProps> = ({ className }) => {
+export const TableControl: React.FC<TableControlProps> = ({
+  className,
+  actions,
+}) => {
   const {
     metadata,
     queryState,
@@ -38,6 +41,9 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
             <p className="text-sm text-gray-500 mt-1">{metadata.desc}</p>
           )}
         </div>
+        {actions && (
+          <div className="dt-control-actions justify-end">{actions}</div>
+        )}
       </div>
       <div className="dt-control-body">
         <div className="dt-control-actions">

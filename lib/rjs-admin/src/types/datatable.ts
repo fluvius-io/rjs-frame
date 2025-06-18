@@ -78,11 +78,15 @@ export interface DataTableProps {
 
   // Styling
   className?: string;
+
+  // Actions
+  actions?: React.ReactNode;
 }
 
 // Props for sub-components
 export interface TableControlProps {
   className?: string;
+  actions?: React.ReactNode;
 }
 
 export interface TableViewProps {
