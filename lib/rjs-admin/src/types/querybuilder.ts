@@ -32,11 +32,6 @@ export interface QueryFieldMetadata {
   noop: string; // default query operation
   hidden: boolean;
   sortable: boolean;
-  /**
-   * Relative ordering for the column; lower numbers appear earlier. Negative
-   * values allowed. Defaults to 0 if omitted.
-   */
-  order?: number;
 }
 
 // Filter metadata structure

@@ -229,7 +229,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     className="flex items-center space-x-2 py-1"
                   >
                     <Checkbox.Root
-                      id={`column-${field.key}`}
+                      id={`column-${metadata.name}-${field.key}`}
                       checked={field.visible}
                       onCheckedChange={(checked: boolean) =>
                         handleColumnToggle(field.key, checked)
@@ -251,7 +251,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                       </Checkbox.Indicator>
                     </Checkbox.Root>
                     <label
-                      htmlFor={`column-${field.key}`}
+                      htmlFor={`column-${metadata.name}-${field.key}`}
                       className="text-sm text-gray-700 capitalize"
                     >
                       {field.label}
@@ -266,7 +266,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   className="flex items-center space-x-2 py-1"
                 >
                   <Checkbox.Root
-                    id="header-filters"
+                    id={`header-filters-${metadata.name}`}
                     checked={showHeaderFilters}
                     onCheckedChange={onShowHeaderFiltersChange}
                     className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
@@ -286,7 +286,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     </Checkbox.Indicator>
                   </Checkbox.Root>
                   <label
-                    htmlFor="header-filters"
+                    htmlFor={`header-filters-${metadata.name}`}
                     className="text-sm text-gray-700 cursor-pointer flex-1  capitalize"
                   >
                     Show Header Filters

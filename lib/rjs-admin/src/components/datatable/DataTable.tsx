@@ -53,8 +53,8 @@ function useDebouncedCallback<T extends (...args: any[]) => void>(
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
-  data: propData,
   metadata: propMetadata,
+  showHeaderFilters: propShowHeaderFilters = false,
   dataApi,
   queryState: propQueryState,
   pagination: propPagination,
@@ -67,14 +67,16 @@ export const DataTable: React.FC<DataTableProps> = ({
   actions,
 }) => {
   // Internal state for data and metadata
-  const [data, setData] = React.useState<DataRow[]>(propData || []);
+  const [data, setData] = React.useState<DataRow[]>([]);
   const [metadata, setMetadata] = React.useState(propMetadata);
   const [loading, setLoading] = React.useState<LoadingState>({
     data: false,
     metadata: false,
   });
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [showHeaderFilters, setShowHeaderFilters] = React.useState(true);
+  const [showHeaderFilters, setShowHeaderFilters] = React.useState(
+    propShowHeaderFilters
+  );
 
   // Internal query state if not controlled
   const [internalQueryState, setInternalQueryState] =
@@ -149,7 +151,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   // Fetch data (non-debounced)
   const fetchData = React.useCallback(
     async (pagination?: PaginationState) => {
-      if (!dataApi || propData) return;
+      if (!dataApi) return;
 
       setLoading((prev) => ({ ...prev, data: true }));
       pagination = pagination || internalPagination;
@@ -203,13 +205,6 @@ export const DataTable: React.FC<DataTableProps> = ({
       debouncedFetchData();
     }
   }, [debouncedFetchData, metadata]);
-
-  // Update internal data when prop data changes
-  React.useEffect(() => {
-    if (propData) {
-      setData(propData);
-    }
-  }, [propData]);
 
   // Show loading if metadata is not available
   if (!metadata) {

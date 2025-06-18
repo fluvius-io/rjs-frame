@@ -118,6 +118,7 @@ export function UserAvatar({
             <LogOut className="user-avatar__dropdown-item-icon" />
             <span>Log out</span>
           </DropdownMenu.Item>
+          <DropdownMenu.Arrow className="dropdown-arrow" />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

@@ -44,8 +44,8 @@ export interface ColumnConfig {
 // Props for DataTable component
 export interface DataTableProps {
   // Data and metadata
-  data?: DataRow[];
   metadata?: QueryMetadata;
+  showHeaderFilters?: boolean;
 
   // API configuration
   dataApi?: string; // endpoint for data fetching

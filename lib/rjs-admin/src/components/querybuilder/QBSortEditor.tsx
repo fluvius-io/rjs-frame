@@ -148,6 +148,14 @@ export const QBSortEditor: React.FC<QBSortEditorProps> = ({
                   </Button>
                 )}
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeSortField(index)}
+                title="Remove"
+              >
+                ✕
+              </Button>
             </div>
           );
         })}
