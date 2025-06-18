@@ -114,7 +114,7 @@ export interface TableRowProps {
   selected?: boolean;
   onSelect?: (id: string, selected: boolean) => void;
   className?: string;
-  rowActions?: React.ComponentType<TableRowActionProps>[];
+  rowActions?: TableRowActionProps[];
 }
 
 export interface TableRowActionProps {

@@ -334,7 +334,7 @@ export const Modal: StoryObj<typeof QueryBuilderModal> = {
           open={open}
           onOpenChange={setOpen}
           queryState={queryState}
-          onQueryStateChange={setQueryState}
+          onModalSubmit={setQueryState}
         />
       </div>
     );

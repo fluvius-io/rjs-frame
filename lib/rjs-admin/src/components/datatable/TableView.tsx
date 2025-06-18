@@ -70,7 +70,7 @@ export const TableView: React.FC<TableViewProps> = ({
   } = useDataTable();
 
   if (!metadata) {
-    return noData("No metadata found", className, 1);
+    return noData("No metadata found", className, false);
   }
 
   const idField = metadata.idfield;
