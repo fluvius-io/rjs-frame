@@ -1,6 +1,6 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, Settings, UserCircle } from "lucide-react";
+import { ChevronDown, LogOut, Settings, UserCircle } from "lucide-react";
 import { ReactNode } from "react";
 
 export interface UserAvatarProps {
@@ -52,10 +52,6 @@ export function UserAvatar({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button className={`user-avatar__trigger ${className}`}>
-          <div className="user-avatar__user-info">
-            <span className="user-avatar__user-name">{name}</span>
-            <span className="user-avatar__user-email">{email}</span>
-          </div>
           <Avatar.Root className="user-avatar__image-container">
             <Avatar.Image
               src={avatarUrl}
@@ -66,6 +62,11 @@ export function UserAvatar({
               {fallbackInitials}
             </Avatar.Fallback>
           </Avatar.Root>
+          <div className="user-avatar__user-info">
+            <span className="user-avatar__user-name">{name}</span>
+            <span className="user-avatar__user-email">{email}</span>
+          </div>
+          <ChevronDown className="user-avatar__dropdown-icon" />
         </button>
       </DropdownMenu.Trigger>
 
