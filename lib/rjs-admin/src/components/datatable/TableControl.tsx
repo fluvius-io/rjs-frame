@@ -24,13 +24,13 @@ export const TableControl: React.FC<TableControlProps> = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onQueryStateChange({
       ...queryState,
-      search: e.target.value,
+      text: e.target.value,
     });
   };
   // Count active filters
   const activeFiltersCount = queryState.query?.length || 0;
   const activeSortCount = queryState.sort?.length || 0;
-  const hasActiveSearch = Boolean(queryState.search?.trim());
+  const hasActiveSearch = Boolean(queryState.text?.trim());
 
   return (
     <div className={cn("dt-control", className)}>
@@ -50,7 +50,7 @@ export const TableControl: React.FC<TableControlProps> = ({
           <input
             type="text"
             placeholder="Search..."
-            value={queryState.search || ""}
+            value={queryState.text || ""}
             onChange={handleSearchChange}
             className="dt-search-box"
           />
@@ -89,7 +89,7 @@ export const TableControl: React.FC<TableControlProps> = ({
             )}
             {hasActiveSearch && (
               <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                Search: "{queryState.search}"
+                Search: "{queryState.text}"
               </span>
             )}
           </div>

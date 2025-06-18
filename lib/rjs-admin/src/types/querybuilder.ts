@@ -75,7 +75,7 @@ export interface QueryState {
   query?: FilterState[];
   sort?: SortItem[];
   select?: string[];
-  search?: string;
+  text?: string;
   selectedItems?: string[];
 }
 

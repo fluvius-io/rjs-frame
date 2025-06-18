@@ -84,7 +84,7 @@ export const DataTable: React.FC<DataTableProps> = ({
       query: [],
       sort: [],
       select: [],
-      search: "",
+      text: "",
       ...propQueryState,
     }));
 
@@ -137,7 +137,7 @@ export const DataTable: React.FC<DataTableProps> = ({
           query: [],
           sort: parseSort(metadata.default_order || []),
           select: getDefaultSelect(metadata),
-          search: "",
+          text: "",
         };
         setInternalQueryState(initialState);
       }

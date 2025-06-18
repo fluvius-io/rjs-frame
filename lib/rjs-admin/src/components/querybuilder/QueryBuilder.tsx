@@ -133,7 +133,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   };
 
   const handleSearchChange = (search: string) => {
-    onQueryStateChange?.({ ...queryState, search });
+    onQueryStateChange?.({ ...queryState, text: search });
   };
 
   const handleSelectChange = (select: string[]) => {
@@ -152,7 +152,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   const currentQuery = queryState.query || [];
   const currentSort = queryState.sort;
   const currentSelect = queryState.select || getDefaultFields();
-  const currentSearch = queryState.search || "";
+  const currentSearch = queryState.text || "";
 
   return (
     <div className={cn("query-builder", className)}>

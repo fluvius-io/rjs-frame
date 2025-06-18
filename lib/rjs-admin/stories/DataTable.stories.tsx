@@ -407,7 +407,7 @@ const DataTableWrapper = (props: Partial<DataTableProps>) => {
     query: [],
     sort: [{ field: "name", direction: "asc" }],
     select: ["name", "email", "role", "status", "createdAt"],
-    search: "",
+    text: "",
   });
 
   const [pagination, setPagination] = useState({
@@ -476,7 +476,7 @@ export const WithInitialQuery: Story = {
       query: [],
       sort: [{ field: "name__family", direction: "asc" }],
       select: ["name__given", "name__family", "email", "status"],
-      search: "",
+      text: "",
     },
   },
 };

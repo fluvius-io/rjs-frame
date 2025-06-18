@@ -150,7 +150,7 @@ export const Default: Story = {
       query: [],
       sort: [],
       select: ["name__given", "name__family"],
-      search: "",
+      text: "",
     });
 
     return (
@@ -174,7 +174,7 @@ export const WithDebug: Story = {
       query: [],
       sort: [],
       select: ["name__given", "name__family"],
-      search: "",
+      text: "",
     });
 
     return (
@@ -213,7 +213,7 @@ export const WithInitialData: Story = {
       ],
       sort: [{ field: "name__given", direction: "asc" }],
       select: ["name__given", "name__family"],
-      search: "wizard",
+      text: "wizard",
     });
 
     return (
@@ -259,7 +259,7 @@ export const WithCompositeFilters: Story = {
       ],
       sort: [{ field: "name__given", direction: "asc" }],
       select: ["name__given", "name__family"],
-      search: "magic",
+      text: "magic",
     });
 
     return (
@@ -283,7 +283,7 @@ export const WithCustomInput: Story = {
       query: [],
       sort: [],
       select: ["name__given", "name__family"],
-      search: "",
+      text: "",
     });
 
     return (
@@ -318,7 +318,7 @@ export const Modal: StoryObj<typeof QueryBuilderModal> = {
       query: [],
       sort: [],
       select: ["name__given", "name__family"],
-      search: "",
+      text: "",
     });
 
     return (
@@ -355,7 +355,7 @@ export const WithOrganizationMetadata: Story = {
       query: [],
       sort: [],
       select: [],
-      search: "",
+      text: "",
     };
     const [queryState, setQueryState] =
       React.useState<QueryState>(initialState);
