@@ -11,12 +11,16 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   selectAllState = false,
   onSelectAll,
   onClearAll,
-  showHeaderFilters = true,
-  onShowHeaderFiltersChange,
   idField,
   className,
 }) => {
-  const { metadata, queryState, onQueryStateChange } = useDataTable();
+  const {
+    metadata,
+    queryState,
+    onQueryStateChange,
+    showHeaderFilters,
+    onShowHeaderFiltersChange,
+  } = useDataTable();
 
   if (!metadata) {
     return null;
@@ -153,7 +157,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   onClearAll?.();
                 }
               }}
-              className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+              className="flex bg-white items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
             >
               <Checkbox.Indicator>
                 <svg
@@ -264,9 +268,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   <Checkbox.Root
                     id="header-filters"
                     checked={showHeaderFilters}
-                    onCheckedChange={(checked) =>
-                      onShowHeaderFiltersChange?.(checked === true)
-                    }
+                    onCheckedChange={onShowHeaderFiltersChange}
                     className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                   >
                     <Checkbox.Indicator>

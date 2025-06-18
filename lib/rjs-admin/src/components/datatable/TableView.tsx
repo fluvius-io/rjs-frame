@@ -59,8 +59,15 @@ export const TableView: React.FC<TableViewProps> = ({
   className,
   allowSelection = true,
 }) => {
-  const { data, metadata, queryState, loading, onQueryStateChange } =
-    useDataTable();
+  const {
+    data,
+    metadata,
+    queryState,
+    loading,
+    onQueryStateChange,
+    showHeaderFilters,
+    onShowHeaderFiltersChange,
+  } = useDataTable();
 
   if (!metadata) {
     return noData("No metadata found", className, 1);
@@ -72,7 +79,6 @@ export const TableView: React.FC<TableViewProps> = ({
   const selectedItems: string[] = queryState.selectedItems || [];
 
   // Local state to show/hide header filters
-  const [showHeaderFilters, setShowHeaderFilters] = React.useState(true);
 
   // Normalize fields array
   const fieldArray = React.useMemo<QueryFieldMetadata[]>(() => {
@@ -203,8 +209,6 @@ export const TableView: React.FC<TableViewProps> = ({
               selectAllState={selectAllState}
               onSelectAll={selectAll}
               onClearAll={clearAll}
-              showHeaderFilters={showHeaderFilters}
-              onShowHeaderFiltersChange={setShowHeaderFilters}
               idField={idField}
             />
 

@@ -97,8 +97,6 @@ export interface TableHeaderProps {
   selectAllState?: boolean | "indeterminate";
   onSelectAll?: () => void;
   onClearAll?: () => void;
-  showHeaderFilters?: boolean;
-  onShowHeaderFiltersChange?: (show: boolean) => void;
   idField?: string;
   className?: string;
 }

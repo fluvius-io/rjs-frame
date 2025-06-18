@@ -73,6 +73,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     metadata: false,
   });
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [showHeaderFilters, setShowHeaderFilters] = React.useState(true);
 
   // Internal query state if not controlled
   const [internalQueryState, setInternalQueryState] =
@@ -228,6 +229,8 @@ export const DataTable: React.FC<DataTableProps> = ({
     onQueryStateChange: handleQueryStateChange,
     onRefresh: () => debouncedFetchData(),
     openQueryBuilder: setModalOpen,
+    onShowHeaderFiltersChange: setShowHeaderFilters,
+    showHeaderFilters,
   };
 
   return (

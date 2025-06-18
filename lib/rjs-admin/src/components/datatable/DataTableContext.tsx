@@ -18,6 +18,8 @@ export interface DataTableContextValue {
   onQueryStateChange: (state: QueryState) => void;
   onRefresh: () => void;
   openQueryBuilder: (open: boolean) => void;
+  onShowHeaderFiltersChange: (show: boolean) => void;
+  showHeaderFilters: boolean;
 }
 
 export const DataTableContext =

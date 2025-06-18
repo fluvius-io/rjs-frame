@@ -9,8 +9,13 @@ export const TableFilter: React.FC<TableFilterProps> = ({
   allowSelection = false,
   className,
 }) => {
-  const { metadata, queryState, onQueryStateChange, openQueryBuilder } =
-    useDataTable();
+  const {
+    metadata,
+    queryState,
+    onQueryStateChange,
+    openQueryBuilder,
+    onShowHeaderFiltersChange,
+  } = useDataTable();
 
   if (!metadata) {
     return null;
@@ -213,13 +218,21 @@ export const TableFilter: React.FC<TableFilterProps> = ({
 
       {/* Column manager column */}
       <td className="dt-filter-cell w-10">
-        {hasActiveFilters && (
+        {(hasActiveFilters && (
           <button
             onClick={clearAllFilters}
             className="p-1 hover:bg-gray-200 rounded"
             title="Clear all filters"
           >
-            <Trash2 className="h-4 w-4 text-gray-400" />
+            <Trash2 className="h-4 w-4 text-red-500" />
+          </button>
+        )) || (
+          <button
+            onClick={() => onShowHeaderFiltersChange(false)}
+            className="p-1 hover:bg-gray-200 rounded"
+            title="Hide Filters"
+          >
+            <X className="h-4 w-4 text-gray-500" />
           </button>
         )}
       </td>

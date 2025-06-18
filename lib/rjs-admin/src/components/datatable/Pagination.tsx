@@ -1,5 +1,6 @@
 import * as Select from "@radix-ui/react-select";
 import {
+  CheckCircle2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -211,14 +212,6 @@ export const Pagination: React.FC<PaginationProps> = ({
         </div>
       </div>
 
-      {/* Loading Indicator (optional) */}
-      {loading && (
-        <div className="dt-pagination-loading ml-4">
-          <Loader2 className="dt-pagination-loading-spinner" />
-          Loading...
-        </div>
-      )}
-
       {/* Right side: Info */}
       <div className="dt-pagination-info flex items-center gap-4 flex-wrap ml-auto">
         {selectedCount > 0 && (
@@ -240,6 +233,8 @@ export const Pagination: React.FC<PaginationProps> = ({
           Showing {startItem.toLocaleString()} - {endItem.toLocaleString()} /{" "}
           {total.toLocaleString()} entries
         </span>
+        {loading && <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />}
+        {!loading && <CheckCircle2 className="h-4 w-4 text-green-500" />}
       </div>
     </div>
   );
