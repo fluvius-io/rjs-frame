@@ -4,7 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Trash,
+  Trash2,
 } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
@@ -231,7 +231,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 className="text-gray-400 hover:text-gray-600 focus:outline-none"
                 title="Clear selection"
               >
-                <Trash className="h-3 w-3" />
+                <Trash2 className="h-3 w-3" />
               </button>
             )}
           </span>

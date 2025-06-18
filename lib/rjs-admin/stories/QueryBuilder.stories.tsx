@@ -134,7 +134,7 @@ const meta: Meta<typeof QueryBuilder> = {
     queryState: {
       control: false,
     },
-    onModalSubmit: {
+    onQueryStateChange: {
       action: "queryStateChanged",
     },
   },
@@ -157,7 +157,7 @@ export const Default: Story = {
       <QueryBuilder
         {...args}
         queryState={queryState}
-        onModalSubmit={setQueryState}
+        onQueryStateChange={setQueryState}
       />
     );
   },
@@ -181,7 +181,7 @@ export const WithDebug: Story = {
       <QueryBuilder
         {...args}
         queryState={queryState}
-        onModalSubmit={setQueryState}
+        onQueryStateChange={setQueryState}
       />
     );
   },
@@ -220,7 +220,7 @@ export const WithInitialData: Story = {
       <QueryBuilder
         {...args}
         queryState={queryState}
-        onModalSubmit={setQueryState}
+        onQueryStateChange={setQueryState}
       />
     );
   },
@@ -266,7 +266,7 @@ export const WithCompositeFilters: Story = {
       <QueryBuilder
         {...args}
         queryState={queryState}
-        onModalSubmit={setQueryState}
+        onQueryStateChange={setQueryState}
       />
     );
   },
@@ -290,7 +290,7 @@ export const WithCustomInput: Story = {
       <QueryBuilder
         {...args}
         queryState={queryState}
-        onModalSubmit={setQueryState}
+        onQueryStateChange={setQueryState}
       />
     );
   },
@@ -334,7 +334,7 @@ export const Modal: StoryObj<typeof QueryBuilderModal> = {
           open={open}
           onOpenChange={setOpen}
           queryState={queryState}
-          onModalSubmit={setQueryState}
+          onQueryStateChange={setQueryState}
         />
       </div>
     );
@@ -392,7 +392,7 @@ export const WithOrganizationMetadata: Story = {
         {...args}
         metadata={metadata}
         queryState={queryState}
-        onModalSubmit={setQueryState}
+        onQueryStateChange={setQueryState}
       />
     );
   },

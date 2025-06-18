@@ -1,56 +1,29 @@
-import { Filter, Loader2, RefreshCw, Search } from "lucide-react";
+import { Filter, RefreshCw } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { TableControlProps } from "../../types/datatable";
+import { useDataTable } from "./DataTableContext";
 
-export const TableControl: React.FC<TableControlProps> = ({
-  metadata,
-  queryState,
-  onQueryStateChange,
-  onRefresh,
-  openQueryBuilder: openModal,
-  loading,
-  debug = false,
-  className,
-}) => {
-  const [searchValue, setSearchValue] = React.useState(queryState.search || "");
+export const TableControl: React.FC<TableControlProps> = ({ className }) => {
+  const {
+    metadata,
+    queryState,
+    onQueryStateChange,
+    onRefresh,
+    openQueryBuilder,
+    loading,
+  } = useDataTable();
 
-  // Debounce search input
-  const searchTimeoutRef = React.useRef<
-    ReturnType<typeof setTimeout> | undefined
-  >(undefined);
-
-  React.useEffect(() => {
-    setSearchValue(queryState.search || "");
-  }, [queryState.search]);
+  if (!metadata) {
+    return null;
+  }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValue(value);
-
-    // Clear existing timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    // Set new timeout
-    searchTimeoutRef.current = setTimeout(() => {
-      onQueryStateChange({
-        ...queryState,
-        search: value,
-      });
-    }, 300);
+    onQueryStateChange({
+      ...queryState,
+      search: e.target.value,
+    });
   };
-
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
-
   // Count active filters
   const activeFiltersCount = queryState.query?.length || 0;
   const activeSortCount = queryState.sort?.length || 0;
@@ -64,6 +37,36 @@ export const TableControl: React.FC<TableControlProps> = ({
           {metadata.desc && (
             <p className="text-sm text-gray-500 mt-1">{metadata.desc}</p>
           )}
+        </div>
+      </div>
+      <div className="dt-control-body">
+        <div className="dt-control-actions">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={queryState.search || ""}
+            onChange={handleSearchChange}
+            className="dt-search-box"
+          />
+          <button
+            className="dt-query-builder-trigger"
+            onClick={() => openQueryBuilder(true)}
+          >
+            <Filter className="h-4 w-4" />
+            <span>Filters</span>
+          </button>
+          <button
+            className="dt-query-builder-trigger"
+            onClick={onRefresh}
+            disabled={loading.data || loading.metadata}
+          >
+            <RefreshCw
+              className={cn("h-4 w-4", {
+                "animate-spin": loading.data || loading.metadata,
+              })}
+            />
+            <span>Refresh</span>
+          </button>
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -84,58 +87,6 @@ export const TableControl: React.FC<TableControlProps> = ({
               </span>
             )}
           </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4">
-        {/* Search Input */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchValue}
-            onChange={handleSearchChange}
-            placeholder={`Search ${metadata.name}...`}
-            className="dt-search-box pl-10"
-          />
-          {hasActiveSearch && (
-            <button
-              onClick={() => {
-                setSearchValue("");
-                onQueryStateChange({
-                  ...queryState,
-                  search: "",
-                });
-              }}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded"
-              title="Clear search"
-            >
-              <Search className="h-3 w-3 text-gray-400" />
-            </button>
-          )}
-        </div>
-
-        <div className="dt-control-actions">
-          <button
-            onClick={() => openModal(true)}
-            className="dt-query-builder-trigger"
-            title="Open Query Builder"
-          >
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
-          </button>
-          <button
-            onClick={onRefresh}
-            className="dt-query-builder-trigger"
-            title="Refresh Data"
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            <span>Refresh</span>
-          </button>
         </div>
       </div>
     </div>

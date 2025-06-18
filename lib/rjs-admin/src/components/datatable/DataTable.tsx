@@ -10,6 +10,7 @@ import {
 } from "../../types/datatable";
 import { QueryMetadata, QueryState, SortItem } from "../../types/querybuilder";
 import { QueryBuilderModal } from "../querybuilder/QueryBuilderModal";
+import { DataTableProvider } from "./DataTableContext";
 import { Pagination } from "./Pagination";
 import { TableControl } from "./TableControl";
 import { TableView } from "./TableView";
@@ -116,7 +117,7 @@ export const DataTable: React.FC<DataTableProps> = ({
 
       setMetadata(metadata);
 
-      // // Initialize query state with default values if not controlled
+      // Initialize query state with default values if not controlled
       if (!propQueryState && metadata) {
         const initialState: QueryState = {
           query: [],
@@ -213,66 +214,74 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   const PaginationComponent = CustomPagination || Pagination;
 
+  const contextValue = {
+    data,
+    metadata,
+    loading,
+    queryState: internalQueryState,
+    setQueryState: setInternalQueryState,
+    pagination: internalPagination,
+    setPagination: setInternalPagination,
+    fetchData: debouncedFetchData,
+    fetchMetadata: debouncedFetchMetadata,
+    debug,
+    onQueryStateChange: handleQueryStateChange,
+    onRefresh: () => debouncedFetchData(),
+    openQueryBuilder: setModalOpen,
+  };
+
   return (
-    <div className={cn("dt-container", className)}>
-      {/* Table Control */}
-      <TableControl
-        metadata={metadata}
-        queryState={internalQueryState}
-        onQueryStateChange={handleQueryStateChange}
-        onRefresh={() => debouncedFetchData()}
-        openQueryBuilder={setModalOpen}
-        loading={loading.data || loading.metadata}
-        debug={debug}
-      />
+    <DataTableProvider value={contextValue}>
+      <div className={cn("dt-container", className)}>
+        {/* Table Control */}
+        <TableControl />
 
-      {/* Table View */}
-      <TableView
-        data={data}
-        metadata={metadata}
-        queryState={internalQueryState}
-        onQueryStateChange={handleQueryStateChange}
-        customTableHeader={customTableHeader}
-        customTableRow={customTableRow}
-      />
+        {/* Table View */}
+        <TableView
+          customTableHeader={customTableHeader}
+          customTableRow={customTableRow}
+        />
 
-      {/* Pagination */}
-      <PaginationComponent
-        pagination={internalPagination}
-        onChange={handlePaginationChange}
-        loading={loading.data}
-        selectedCount={internalQueryState.selectedItems?.length || 0}
-        onClearSelection={() =>
-          setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }))
-        }
-      />
-      {/* Query Builder Modal */}
-      <QueryBuilderModal
-        metadata={metadata}
-        queryState={internalQueryState}
-        onModalSubmit={handleQueryStateChange}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        showDebug={debug}
-      />
-      {debug && (
-        <div className="dt-debug border-t">
-          <h3 className="text-sm bg-yellow-300 font-medium p-3">
-            DataTable State
-          </h3>
-          <pre className="bg-gray-100 border-t p-3 text-xs overflow-auto max-h-64">
-            {JSON.stringify(
-              {
-                queryState: internalQueryState,
-                pagination: internalPagination,
-              },
-              null,
-              2
-            )}
-          </pre>
-        </div>
-      )}
-    </div>
+        {/* Pagination */}
+        <PaginationComponent
+          pagination={internalPagination}
+          onChange={handlePaginationChange}
+          loading={loading.data}
+          selectedCount={internalQueryState.selectedItems?.length || 0}
+          onClearSelection={() =>
+            setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }))
+          }
+        />
+
+        {/* Query Builder Modal */}
+        <QueryBuilderModal
+          metadata={metadata}
+          queryState={internalQueryState}
+          onModalSubmit={handleQueryStateChange}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          showDebug={debug}
+        />
+
+        {debug && (
+          <div className="dt-debug border-t">
+            <h3 className="text-sm bg-yellow-300 font-medium p-3">
+              DataTable State
+            </h3>
+            <pre className="bg-gray-100 border-t p-3 text-xs overflow-auto max-h-64">
+              {JSON.stringify(
+                {
+                  queryState: internalQueryState,
+                  pagination: internalPagination,
+                },
+                null,
+                2
+              )}
+            </pre>
+          </div>
+        )}
+      </div>
+    </DataTableProvider>
   );
 };
 

@@ -16,12 +16,12 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
   className,
   showDebug,
 }) => {
+  const [internalQueryState, setInternalQueryState] =
+    React.useState(queryState);
+
   const handleApply = () => {
     onModalSubmit?.({ ...internalQueryState });
   };
-
-  const [internalQueryState, setInternalQueryState] =
-    React.useState(queryState);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -41,7 +41,7 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
             <QueryBuilder
               metadata={metadata}
               queryState={internalQueryState}
-              onModalSubmit={setInternalQueryState}
+              onQueryStateChange={setInternalQueryState}
               customInput={customInput}
               showDebug={showDebug}
             />

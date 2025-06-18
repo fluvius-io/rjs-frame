@@ -98,16 +98,18 @@ export interface FilterInputProps {
 export interface QueryBuilderProps {
   metadata: QueryMetadata;
   queryState?: QueryState;
-  onModalSubmit?: (state: QueryState) => void;
+  onQueryStateChange?: (state: QueryState) => void;
   customInput?: Record<string, FilterInputConfig>;
   className?: string;
   showDebug?: boolean;
 }
 
 // Props for QueryBuilderModal component
-export interface QueryBuilderModalProps extends QueryBuilderProps {
+export interface QueryBuilderModalProps
+  extends Omit<QueryBuilderProps, "onQueryStateChange"> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onModalSubmit?: (state: QueryState) => void;
   title?: string;
 }
 

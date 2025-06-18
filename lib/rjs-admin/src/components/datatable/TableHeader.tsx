@@ -1,42 +1,46 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
-import {
-  ChevronDown,
-  ChevronUp,
-  ChevronsUpDown,
-  EyeOff,
-  Menu,
-} from "lucide-react";
+import { ChevronsUpDown, EyeOff, Menu } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableHeaderProps } from "../../types/datatable";
-import { QueryFieldMetadata } from "../../types/querybuilder";
+import { QueryFieldMetadata, SortItem } from "../../types/querybuilder";
+import { useDataTable } from "./DataTableContext";
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
-  metadata,
-  queryState,
-  onQueryStateChange,
   allowSelection = false,
   selectAllState = false,
-  onSelectAll = () => {},
-  onClearAll = () => {},
+  onSelectAll,
+  onClearAll,
   showHeaderFilters = true,
   onShowHeaderFiltersChange,
   idField,
   className,
 }) => {
-  // Build a map for quick field access
-  const fieldMap: Record<string, QueryFieldMetadata> = React.useMemo(
-    () => Object.fromEntries(metadata.fields.map((f) => [f.name, f])),
-    [metadata.fields]
+  const { metadata, queryState, onQueryStateChange } = useDataTable();
+
+  if (!metadata) {
+    return null;
+  }
+
+  // Normalize fields array
+  const fieldArray = React.useMemo<QueryFieldMetadata[]>(() => {
+    return metadata.fields as QueryFieldMetadata[];
+  }, [metadata.fields]);
+
+  // Create map for quick access to field metadata by name
+  const fieldMap = React.useMemo(
+    () => Object.fromEntries(fieldArray.map((f) => [f.name, f])),
+    [fieldArray]
   );
 
+  // Generate column configurations from metadata and queryState
   const getColumns = (): ColumnConfig[] => {
     const selectedFields =
       queryState.select ||
-      metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
+      fieldArray.filter((f) => !f.hidden).map((f) => f.name);
 
-    let fields = selectedFields.map((fieldKey: string) => {
-      const field = fieldMap[fieldKey];
+    return selectedFields.map<ColumnConfig>((fieldKey) => {
+      const field = fieldMap[fieldKey] as QueryFieldMetadata;
       return {
         key: fieldKey,
         label: field.label,
@@ -44,51 +48,37 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         hidden: false,
       };
     });
-
-    return fields;
   };
 
   const columns = getColumns();
 
-  // Get sort information for a field
+  // Get sort info for a column
   const getSortInfo = (fieldKey: string) => {
-    const sort = queryState.sort || [];
-    const sortIndex = sort.findIndex((sortItem) => sortItem.field === fieldKey);
-
-    if (sortIndex === -1) return { direction: null, order: -1 };
-
-    const sortItem = sort[sortIndex];
-    return { direction: sortItem.direction, order: sortIndex };
+    const sortItem = queryState.sort?.find((s) => s.field === fieldKey);
+    return {
+      direction: sortItem?.direction || null,
+      index: sortItem ? queryState.sort?.indexOf(sortItem) : -1,
+    };
   };
 
-  // Handle column sort
-  const handleSort = (fieldKey: string, multiple: boolean = false) => {
-    const field = fieldMap[fieldKey];
-    if (!field.sortable) return;
-
+  // Handle sort click
+  const handleSort = (fieldKey: string) => {
     const currentSort = queryState.sort || [];
-    const { direction } = getSortInfo(fieldKey);
+    const currentIndex = currentSort.findIndex((s) => s.field === fieldKey);
+    const currentDirection = currentSort[currentIndex]?.direction;
 
-    let newSort = [...currentSort];
-
-    if (!direction) {
-      // Not currently sorted, add ascending
-      if (multiple) {
-        newSort.push({ field: fieldKey, direction: "asc" });
-      } else {
-        newSort = [{ field: fieldKey, direction: "asc" }];
-      }
-    } else if (direction === "asc") {
-      // Currently ascending, change to descending
-      const sortIndex = newSort.findIndex(
-        (sortItem) => sortItem.field === fieldKey
+    let newSort: SortItem[];
+    if (currentIndex === -1) {
+      // Add new sort
+      newSort = [{ field: fieldKey, direction: "asc" }];
+    } else if (currentDirection === "asc") {
+      // Change to desc
+      newSort = currentSort.map((s, i) =>
+        i === currentIndex ? { ...s, direction: "desc" } : s
       );
-      if (sortIndex !== -1) {
-        newSort[sortIndex] = { field: fieldKey, direction: "desc" };
-      }
     } else {
-      // Currently descending, remove from sort
-      newSort = newSort.filter((sortItem) => sortItem.field !== fieldKey);
+      // Remove sort
+      newSort = currentSort.filter((_, i) => i !== currentIndex);
     }
 
     onQueryStateChange({
@@ -99,15 +89,15 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
   // Handle column visibility toggle
   const handleColumnToggle = (fieldKey: string, visible: boolean) => {
-    const currentSelect =
-      queryState.select ||
-      metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
-
+    const currentSelect = queryState.select || [];
     let newSelect: string[];
+
     if (visible) {
+      // Add column
       newSelect = [...currentSelect, fieldKey];
     } else {
-      newSelect = currentSelect.filter((key: string) => key !== fieldKey);
+      // Remove column
+      newSelect = currentSelect.filter((f) => f !== fieldKey);
     }
 
     onQueryStateChange({
@@ -118,53 +108,72 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
   // Render sort indicator
   const renderSortIndicator = (fieldKey: string) => {
-    const { direction, order } = getSortInfo(fieldKey);
-
-    if (!direction) {
+    const { direction, index } = getSortInfo(fieldKey);
+    const field = fieldMap[fieldKey];
+    if (!field.sortable) return null;
+    if (!direction || index === undefined)
       return <ChevronsUpDown className="h-4 w-4 dt-sort-indicator" />;
-    }
 
-    const Icon = direction === "asc" ? ChevronUp : ChevronDown;
+    const multiSort = queryState.sort?.length && queryState.sort?.length > 1;
+
     return (
-      <div className="flex items-center">
-        <Icon className="h-4 w-4 dt-sort-indicator active" />
-        {order >= 0 && queryState.sort && queryState.sort.length > 1 && (
-          <span className="text-xs ml-1 text-gray-500">{order + 1}</span>
-        )}
-      </div>
+      <span
+        className={cn("dt-sort-indicator", {
+          active: direction,
+        })}
+        title={`Sort ${index + 1}`}
+      >
+        {direction === "asc" ? "↑" : "↓"}
+        {multiSort && <span className="text-xs"> {index + 1}</span>}
+      </span>
     );
   };
 
-  // Get all available fields for column toggle
-  const allFields = metadata.fields.map((field) => ({
-    key: field.name,
-    label: field.label,
-    visible: columns.some((col) => col.key === field.name),
-    hidden: field.hidden,
-  }));
+  // Get all available fields for column manager
+  const allFields = React.useMemo(() => {
+    return fieldArray.map((field) => ({
+      key: field.name,
+      label: field.label,
+      visible: queryState.select?.includes(field.name) ?? !field.hidden,
+    }));
+  }, [fieldArray, queryState.select]);
 
   return (
-    <tr className={cn("dt-header-row", className)}>
-      {allowSelection && idField && (
+    <tr>
+      {/* Selection column */}
+      {allowSelection && (
         <th className="dt-th w-10">
-          <Checkbox.Root
-            checked={selectAllState}
-            onCheckedChange={(checked) => {
-              if (checked === true || checked === "indeterminate") {
-                // Selecting all when indeterminate too
-                onSelectAll();
-              } else {
-                onClearAll();
-              }
-            }}
-            className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-          >
-            <Checkbox.Indicator className="text-white text-xs">
-              ✓
-            </Checkbox.Indicator>
-          </Checkbox.Root>
+          <div className="flex justify-center">
+            <Checkbox.Root
+              checked={selectAllState === true}
+              onCheckedChange={(checked: boolean) => {
+                if (checked) {
+                  onSelectAll?.();
+                } else {
+                  onClearAll?.();
+                }
+              }}
+              className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+            >
+              <Checkbox.Indicator>
+                <svg
+                  className="w-3 h-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+          </div>
         </th>
       )}
+
+      {/* Data columns */}
       {columns.map((column) => {
         const field = fieldMap[column.key];
         const { direction } = getSortInfo(column.key);
@@ -218,8 +227,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     <Checkbox.Root
                       id={`column-${field.key}`}
                       checked={field.visible}
-                      onCheckedChange={(checked) =>
-                        handleColumnToggle(field.key, checked === true)
+                      onCheckedChange={(checked: boolean) =>
+                        handleColumnToggle(field.key, checked)
                       }
                       className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                     >
@@ -239,7 +248,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     </Checkbox.Root>
                     <label
                       htmlFor={`column-${field.key}`}
-                      className="text-sm text-gray-700 cursor-pointer flex-1  capitalize"
+                      className="text-sm text-gray-700 capitalize"
                     >
                       {field.label}
                     </label>

@@ -82,21 +82,10 @@ export interface DataTableProps {
 
 // Props for sub-components
 export interface TableControlProps {
-  metadata: QueryMetadata;
-  queryState: QueryState;
-  onQueryStateChange: (state: QueryState) => void;
-  onRefresh: () => void;
-  openQueryBuilder: (open: boolean) => void;
-  loading: boolean;
-  debug?: boolean;
   className?: string;
 }
 
 export interface TableViewProps {
-  data: DataRow[];
-  metadata: QueryMetadata;
-  queryState: QueryState;
-  onQueryStateChange: (state: QueryState) => void;
   customTableHeader?: React.ComponentType<TableHeaderProps>;
   customTableRow?: React.ComponentType<TableRowProps>;
   className?: string;
@@ -104,32 +93,17 @@ export interface TableViewProps {
 }
 
 export interface TableHeaderProps {
-  metadata: QueryMetadata;
-  queryState: QueryState;
-  onQueryStateChange: (state: QueryState) => void;
   allowSelection?: boolean;
-  /**
-   * Tri-state value for the header checkbox. Should be `false`, `true`, or
-   * "indeterminate" (per Radix Checkbox API). Determined by the parent
-   * component, typically based on whether the current page's IDs are all / some
-   * / none in the global `selectedItems` list.
-   */
   selectAllState?: boolean | "indeterminate";
   onSelectAll?: () => void;
   onClearAll?: () => void;
+  showHeaderFilters?: boolean;
+  onShowHeaderFiltersChange?: (show: boolean) => void;
   idField?: string;
   className?: string;
-  /** Whether header filters (TableFilter row) are visible */
-  showHeaderFilters?: boolean;
-  /** Callback when the header filter visibility checkbox is toggled */
-  onShowHeaderFiltersChange?: (visible: boolean) => void;
 }
 
 export interface TableFilterProps {
-  metadata: QueryMetadata;
-  queryState: QueryState;
-  onQueryStateChange: (state: QueryState) => void;
-  /** If the selection checkbox column is shown, add a padding cell */
   allowSelection?: boolean;
   className?: string;
 }
@@ -155,15 +129,7 @@ export interface PaginationProps {
   pagination: PaginationState;
   onChange: (pagination: PaginationState) => void;
   loading?: boolean;
-  /**
-   * Number of currently selected entries (row-selection feature).
-   * When provided and greater than zero, the pagination bar will show
-   * "| N entries selected".
-   */
   selectedCount?: number;
-  /**
-   * Callback to clear all selected entries when the user clicks the clear (×) button.
-   */
   onClearSelection?: () => void;
   className?: string;
 }

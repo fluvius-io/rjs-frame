@@ -1,16 +1,21 @@
-import { Filter, X } from "lucide-react";
+import { Filter, Trash2, X } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableFilterProps } from "../../types/datatable";
 import { QueryFieldMetadata, QueryValue } from "../../types/querybuilder";
+import { useDataTable } from "./DataTableContext";
 
 export const TableFilter: React.FC<TableFilterProps> = ({
-  metadata,
-  queryState,
-  onQueryStateChange,
   allowSelection = false,
   className,
 }) => {
+  const { metadata, queryState, onQueryStateChange, openQueryBuilder } =
+    useDataTable();
+
+  if (!metadata) {
+    return null;
+  }
+
   const fieldMap: Record<string, QueryFieldMetadata> = React.useMemo(
     () => Object.fromEntries(metadata.fields.map((f) => [f.name, f])),
     [metadata.fields]
@@ -171,53 +176,53 @@ export const TableFilter: React.FC<TableFilterProps> = ({
     }
   };
 
-  const clearAllFiltersButton = () => {
-    return (
-      <div className="flex justify-center">
+  return (
+    <tr className={cn("dt-filter-row", className)}>
+      {/* Selection column */}
+      {allowSelection && (
+        <td className="dt-filter-cell">
+          <button
+            className="p-1 hover:bg-gray-200 rounded"
+            title="Select all"
+            onClick={() => {
+              openQueryBuilder(true);
+            }}
+          >
+            <Filter className="h-4 w-4 text-gray-400" />
+          </button>
+        </td>
+      )}
+
+      {/* Filter inputs */}
+      {columns.map((column) => (
+        <td key={column.key} className="dt-filter-cell">
+          <div className="relative">
+            {renderFilterInput(column)}
+            {getFieldFilterValue(column.key) && (
+              <button
+                onClick={() => clearFieldFilter(column.key)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded"
+                title="Clear filter"
+              >
+                <X className="h-3 w-3 text-gray-400" />
+              </button>
+            )}
+          </div>
+        </td>
+      ))}
+
+      {/* Column manager column */}
+      <td className="dt-filter-cell w-10">
         {hasActiveFilters && (
           <button
             onClick={clearAllFilters}
-            className="px-1 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
+            className="p-1 hover:bg-gray-200 rounded"
             title="Clear all filters"
           >
-            <X className="h-3 w-3" />
+            <Trash2 className="h-4 w-4 text-gray-400" />
           </button>
         )}
-      </div>
-    );
-  };
-
-  return (
-    <tr className={cn("dt-filter-row", className)}>
-      {allowSelection && (
-        <td className="dt-filter-cell">
-          <Filter className="h-4 w-4 text-gray-400" />
-        </td>
-      )}
-      {columns.map((column) => {
-        const currentValue = getFieldFilterValue(column.key);
-        const hasValue = currentValue && currentValue !== "";
-
-        return (
-          <td key={column.key} className="dt-filter-cell">
-            <div className="relative">
-              {renderFilterInput(column)}
-              {hasValue && (
-                <button
-                  onClick={() => clearFieldFilter(column.key)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded"
-                  title={`Clear ${column.label} filter`}
-                >
-                  <X className="h-3 w-3 text-gray-400" />
-                </button>
-              )}
-            </div>
-          </td>
-        );
-      })}
-
-      {/* Clear all filters button */}
-      <td className="dt-filter-cell">{clearAllFiltersButton()} </td>
+      </td>
     </tr>
   );
 };
