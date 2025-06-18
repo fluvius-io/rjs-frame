@@ -57,6 +57,7 @@ export {
   ApiError,
   APIManager,
   ConfigurationError,
+  MockAPI,
   RTCConnectionFactory,
   SSEConnection,
   WebSocketConnection,

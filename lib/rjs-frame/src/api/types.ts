@@ -152,3 +152,44 @@ export type ApiParams = {
 };
 
 export type ApiPayload = Record<string, any> | FormData | string;
+export type SubscriptionRegister<T = any> = (
+  handler: SubscriptionHandler<T>
+) => UnsubscribeFunction;
+export type Publisher<T = any> = (message: T) => void;
+
+export interface ApiCollectionInterface {
+  getName(): string;
+  send<T = any>(
+    commandName: string,
+    data?: ApiPayload,
+    params?: ApiParams
+  ): Promise<ApiResponse<T>>;
+  query<T = any>(
+    queryName: string,
+    params?: ApiParams
+  ): Promise<ApiResponse<T>>;
+  queryItem<T = any>(
+    queryName: string,
+    itemId: string,
+    params?: ApiParams
+  ): Promise<ApiResponse<T>>;
+  queryMeta<T = any>(
+    queryName: string,
+    params?: ApiParams
+  ): Promise<ApiResponse<T>>;
+  request<T = any>(
+    requestName: string,
+    data?: ApiPayload,
+    params?: ApiParams
+  ): Promise<ApiResponse<T>>;
+  subscribe<T = any>(
+    socketName: string,
+    channel?: string,
+    params?: ApiParams
+  ): SubscriptionRegister<T>;
+  publish<T = any>(
+    socketName: string,
+    channel?: string,
+    params?: ApiParams
+  ): Publisher<T>;
+}

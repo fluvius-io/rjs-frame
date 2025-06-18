@@ -55,7 +55,7 @@ function useDebouncedCallback<T extends (...args: any[]) => void>(
 export const DataTable: React.FC<DataTableProps> = ({
   metadata: propMetadata,
   showHeaderFilters: propShowHeaderFilters = false,
-  dataApi,
+  dataSource,
   queryState: propQueryState,
   pagination: propPagination,
   customTableHeader,
@@ -122,11 +122,11 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   // Fetch metadata
   const fetchMetadata = React.useCallback(async () => {
-    if (!dataApi || propMetadata) return;
+    if (!dataSource || propMetadata) return;
 
     setLoading((prev) => ({ ...prev, metadata: true }));
     try {
-      const response = await APIManager.queryMeta(dataApi);
+      const response = await APIManager.queryMeta(dataSource);
       const metadata = response.data;
 
       setMetadata(metadata);
@@ -146,12 +146,12 @@ export const DataTable: React.FC<DataTableProps> = ({
     } finally {
       setLoading((prev) => ({ ...prev, metadata: false }));
     }
-  }, [dataApi, propMetadata, propQueryState]);
+  }, [dataSource, propMetadata, propQueryState]);
 
   // Fetch data (non-debounced)
   const fetchData = React.useCallback(
     async (pagination?: PaginationState) => {
-      if (!dataApi) return;
+      if (!dataSource) return;
 
       setLoading((prev) => ({ ...prev, data: true }));
       pagination = pagination || internalPagination;
@@ -162,7 +162,7 @@ export const DataTable: React.FC<DataTableProps> = ({
           limit: pagination.pageSize,
         };
 
-        const response = await APIManager.query(dataApi, {
+        const response = await APIManager.query(dataSource, {
           search: queryParams,
         });
 
@@ -185,7 +185,7 @@ export const DataTable: React.FC<DataTableProps> = ({
         setLoading((prev) => ({ ...prev, data: false }));
       }
     },
-    [dataApi, internalQueryState]
+    [dataSource, internalQueryState]
   );
 
   // Create debounced versions of metadata and data fetchers

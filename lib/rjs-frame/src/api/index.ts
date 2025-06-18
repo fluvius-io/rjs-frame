@@ -6,6 +6,7 @@
 // Main API classes
 export { APICollection } from "./APICollection";
 export { APIManager } from "./APIManager";
+export { MockAPI } from "./APIMockCollection";
 
 // Types and interfaces
 export type {

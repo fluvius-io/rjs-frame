@@ -4,9 +4,11 @@ import "../src/lib/api";
 
 import { DataTable } from "../src/components/datatable/DataTable";
 
+import { MockAPI } from "rjs-frame";
 import {
   DataRow,
   DataTableProps,
+  DataTableSource,
   PaginationState,
 } from "../src/types/datatable";
 import { QueryMetadata, QueryState } from "../src/types/querybuilder";
@@ -424,7 +426,9 @@ const DataTableWrapper = (props: Partial<DataTableProps>) => {
 
   return (
     <DataTable
-      data={sampleUsers}
+      dataSource={
+        MockAPI.registerQuery("dt-sample-users", sampleUsers) as DataTableSource
+      }
       queryState={queryState}
       onQueryStateChange={handleQueryStateChange}
       pagination={pagination}
@@ -437,15 +441,21 @@ const DataTableWrapper = (props: Partial<DataTableProps>) => {
 
 export const Default: Story = {
   args: {
-    data: EXAMPLE_DATA,
+    dataSource: MockAPI.registerQuery(
+      "dt-example-data",
+      EXAMPLE_DATA
+    ) as DataTableSource,
     metadata: EXAMPLE_METADATA,
   },
 };
 
 export const Empty: Story = {
   args: {
-    data: [],
-    metadata: EXAMPLE_METADATA,
+    dataSource: MockAPI.registerQuery(
+      "dt-empty-data",
+      [],
+      EXAMPLE_METADATA
+    ) as DataTableSource,
   },
 };
 
@@ -457,8 +467,11 @@ export const Loading: Story = {
 
 export const WithInitialQuery: Story = {
   args: {
-    data: EXAMPLE_DATA,
-    metadata: EXAMPLE_METADATA,
+    dataSource: MockAPI.registerQuery(
+      "dt-example-data",
+      EXAMPLE_DATA,
+      EXAMPLE_METADATA
+    ) as DataTableSource,
     queryState: {
       query: [],
       sort: [{ field: "name__family", direction: "asc" }],
@@ -470,14 +483,17 @@ export const WithInitialQuery: Story = {
 
 export const LargeDataset: Story = {
   args: {
-    data: Array.from({ length: 50 }, (_, i) => ({
-      ...EXAMPLE_DATA[i % EXAMPLE_DATA.length],
-      id: `550e8400-e29b-41d4-a716-${String(i).padStart(12, "0")}`,
-      name__given: `${EXAMPLE_DATA[i % EXAMPLE_DATA.length].name__given} ${
-        i + 1
-      }`,
-    })),
-    metadata: EXAMPLE_METADATA,
+    dataSource: MockAPI.registerQuery(
+      "dt-large-data",
+      Array.from({ length: 50 }, (_, i) => ({
+        ...EXAMPLE_DATA[i % EXAMPLE_DATA.length],
+        id: `550e8400-e29b-41d4-a716-${String(i).padStart(12, "0")}`,
+        name__given: `${EXAMPLE_DATA[i % EXAMPLE_DATA.length].name__given} ${
+          i + 1
+        }`,
+      })),
+      EXAMPLE_METADATA
+    ),
   },
 };
 
@@ -485,7 +501,7 @@ export const LargeDataset: Story = {
 
 export const WithOrganizationApi: Story = {
   args: {
-    dataApi: "idm:organization",
+    dataSource: "idm:organization",
     // Let DataTable handle internal fetching of metadata + data via APIManager
     debug: true,
   },

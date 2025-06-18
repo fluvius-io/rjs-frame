@@ -4,16 +4,21 @@
  */
 
 import { APICollection } from "./APICollection";
-import { ApiCollectionConfig } from "./types";
+import { ApiCollectionConfig, ApiCollectionInterface } from "./types";
 
 export class APIManager {
-  private static collectionRegistry: Map<string, APICollection> = new Map();
+  private static collectionRegistry: Map<string, ApiCollectionInterface> = new Map();
 
   /**
    * Register an APICollection instance by name
    */
-  static register(collectionConfig: ApiCollectionConfig) {
+  static registerConfig(collectionConfig: ApiCollectionConfig) {
     const collection = new APICollection(collectionConfig);
+    this.registerCollection(collection);
+    return collection;
+  }
+
+  static registerCollection(collection: ApiCollectionInterface) {
     const collectionName = collection.getName();
     if (this.collectionRegistry.has(collectionName)) {
       console.warn(
@@ -22,14 +27,12 @@ export class APIManager {
       return this.collectionRegistry.get(collectionName);
     }
     this.collectionRegistry.set(collectionName, collection);
-
-    return collection;
   }
 
   /**
    * Get a collection by name
    */
-  static getCollection(name: string): APICollection {
+  static getCollection(name: string): ApiCollectionInterface {
     const collection = this.collectionRegistry.get(name);
     if (!collection)
       throw new Error(`API collection '${name}' is not registered`);
@@ -40,7 +43,7 @@ export class APIManager {
    * Parse a full API name in the form 'collection:name' or just 'name'
    */
   private static parseApiName(apiName: string): {
-    collection: APICollection;
+    collection: ApiCollectionInterface;
     name: string;
   } {
     const [collectionName, apiShortName] = apiName.split(/:(.+)/);

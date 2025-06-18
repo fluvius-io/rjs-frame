@@ -3,6 +3,7 @@
  * Type definitions for the data table component
  */
 
+import { ApiResponse } from "../../../rjs-frame/src/api/types";
 import { QueryMetadata, QueryState } from "./querybuilder";
 
 // Data row type - flexible record structure
@@ -11,11 +12,13 @@ export interface DataRow {
 }
 
 // API response structure for data fetching
-export interface DataResponse {
+export interface DataResponse extends ApiResponse {
   data: DataRow[];
-  total: number;
-  page: number;
-  pageSize: number;
+  meta: {
+    total_items: number;
+    page_no: number;
+    limit: number;
+  };
 }
 
 // Pagination state
@@ -40,7 +43,7 @@ export interface ColumnConfig {
   width?: number;
   minWidth?: number;
 }
-
+export type DataTableSource = string; // endpoint for data fetching or function
 // Props for DataTable component
 export interface DataTableProps {
   // Data and metadata
@@ -48,7 +51,7 @@ export interface DataTableProps {
   showHeaderFilters?: boolean;
 
   // API configuration
-  dataApi?: string; // endpoint for data fetching
+  dataSource?: DataTableSource; // endpoint for data fetching
 
   // State management
   queryState?: QueryState;

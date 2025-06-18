@@ -6,6 +6,7 @@
 import { RTCConnectionFactory } from "./rtc/RTCConnectionFactory";
 import {
   ApiCollectionConfig,
+  ApiCollectionInterface,
   ApiError,
   ApiParams,
   ApiPayload,
@@ -14,17 +15,19 @@ import {
   ConfigurationError,
   DataProcessor,
   HeaderProcessor,
+  Publisher,
   QueryConfig,
   RequestConfig,
   ResponseProcessor,
   RTCConnection,
   SocketConfig,
   SubscriptionHandler,
+  SubscriptionRegister,
   UnsubscribeFunction,
 } from "./types";
 import { resolveUrl } from "./utils";
 
-export class APICollection {
+export class APICollection implements ApiCollectionInterface {
   private config: ApiCollectionConfig;
   private rtcConnections = new Map<string, RTCConnection>();
   private queryCache = new Map<string, ApiResponse<any>>();
@@ -141,7 +144,7 @@ export class APICollection {
   ): Promise<ApiResponse<T>> {
     const queryConfig = this.getQueryConfig(queryName);
     const pathParams = { _id: itemId, ...(params?.path || {}) };
-    const itemPath = this.resolveItemPath(queryConfig);
+    const itemPath = this.resolveQueryItemPath(queryConfig);
     const url =
       (this.config.baseUrl || "") +
       resolveUrl(itemPath, queryConfig.uri, {
@@ -185,45 +188,11 @@ export class APICollection {
     }
   }
 
-  /**
-   * Get metadata for a query
-   * @param queryName Name of the query from configuration
-   * @param params Parameters for URI generation
-   */
-  async getQueryMetadata<T = any>(
-    queryName: string,
-    params?: ApiParams
-  ): Promise<ApiResponse<T>> {
-    const queryConfig = this.getQueryConfig(queryName);
-
-    if (!queryConfig.meta) {
-      throw new ConfigurationError(
-        `Query '${queryName}' has no metadata configuration`
-      );
-    }
-
-    const url =
-      (this.config.baseUrl || "") +
-      resolveUrl(queryConfig.meta, queryConfig.uri, params);
-    const headers = this.resolveHeaders(queryConfig.headers, params);
-
-    try {
-      const response = await fetch(url, { method: "GET", headers });
-      return await this.createResponse<T>(response, queryConfig.response);
-    } catch (error) {
-      throw new ApiError(
-        `Query metadata '${queryName}' failed: ${error}`,
-        undefined,
-        error
-      );
-    }
-  }
-
-  resolveMetaPath(queryConfig: QueryConfig): string {
+  resolveQueryMetaPath(queryConfig: QueryConfig): string {
     return queryConfig.meta || "/_meta/" + queryConfig.path;
   }
 
-  resolveItemPath(queryConfig: QueryConfig): string {
+  resolveQueryItemPath(queryConfig: QueryConfig): string {
     return queryConfig.item || queryConfig.path + "/{_id}";
   }
 
@@ -243,7 +212,7 @@ export class APICollection {
     // If not cached, fetch the metadata
     const queryConfig = this.getQueryConfig(queryName);
 
-    const metaPath = this.resolveMetaPath(queryConfig);
+    const metaPath = this.resolveQueryMetaPath(queryConfig);
     const uri =
       (this.config.baseUrl || "") +
       resolveUrl(metaPath, queryConfig.uri, params);
@@ -293,7 +262,11 @@ export class APICollection {
    * @param channel Channel to subscribe to
    * @param params Parameters for connection
    */
-  subscribe<T = any>(socketName: string, channel?: string, params?: ApiParams) {
+  subscribe<T = any>(
+    socketName: string,
+    channel?: string,
+    params?: ApiParams
+  ): SubscriptionRegister<T> {
     return (handler: SubscriptionHandler): UnsubscribeFunction => {
       const connection = this.getRTCConnection(socketName, params);
       const channelName = channel || "default";
@@ -315,7 +288,11 @@ export class APICollection {
    * @param channel Channel to publish to
    * @param params Parameters for connection
    */
-  publish<T = any>(socketName: string, channel?: string, params?: ApiParams) {
+  publish<T = any>(
+    socketName: string,
+    channel?: string,
+    params?: ApiParams
+  ): Publisher<T> {
     return (message: T): void => {
       const connection = this.getRTCConnection(socketName, params);
       const channelName = channel || "default";
@@ -324,7 +301,7 @@ export class APICollection {
         throw new ApiError(`Socket '${socketName}' is not connected`);
       }
 
-      connection.publish(channelName, message);
+      return connection.publish(channelName, message);
     };
   }
 

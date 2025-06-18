@@ -32,7 +32,7 @@ const idmCollectionConfig: ApiCollectionConfig = {
 };
 
 // Create and register the IdmCollection
-APIManager.register(idmCollectionConfig);
+APIManager.registerConfig(idmCollectionConfig);
 
 // Get the API base URL from environment or default to / for proxy
 
