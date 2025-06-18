@@ -1,18 +1,18 @@
-import { Filter, Loader2, Search } from "lucide-react";
+import { Filter, Loader2, RefreshCw, Search } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { TableControlProps } from "../../types/datatable";
-import { QueryBuilderModal } from "../querybuilder/QueryBuilderModal";
 
 export const TableControl: React.FC<TableControlProps> = ({
   metadata,
   queryState,
   onQueryStateChange,
+  onRefresh,
+  openQueryBuilder: openModal,
   loading,
   debug = false,
   className,
 }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState(queryState.search || "");
 
   // Debounce search input
@@ -117,31 +117,27 @@ export const TableControl: React.FC<TableControlProps> = ({
 
         <div className="dt-control-actions">
           <button
-            onClick={() => setModalOpen(true)}
+            onClick={() => openModal(true)}
             className="dt-query-builder-trigger"
             title="Open Query Builder"
           >
             <Filter className="h-4 w-4" />
             <span>Filters</span>
           </button>
-          {loading && (
-            <div className="flex items-center text-sm text-gray-500 px-4">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
-            </div>
-          )}
+          <button
+            onClick={onRefresh}
+            className="dt-query-builder-trigger"
+            title="Refresh Data"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
-
-      {/* Query Builder Modal */}
-      <QueryBuilderModal
-        metadata={metadata}
-        queryState={queryState}
-        onQueryStateChange={onQueryStateChange}
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        showDebug={debug}
-      />
     </div>
   );
 };

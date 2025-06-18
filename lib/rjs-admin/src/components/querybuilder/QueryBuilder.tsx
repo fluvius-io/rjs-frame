@@ -822,7 +822,7 @@ const QBFilterEditor: React.FC<QBFilterEditorProps> = ({
 export const QueryBuilder: React.FC<QueryBuilderProps> = ({
   metadata,
   queryState = {},
-  onQueryStateChange,
+  onModalSubmit: onQueryStateChange,
   customInput = {},
   className,
   showDebug = false,

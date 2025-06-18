@@ -9,6 +9,7 @@ import {
   PaginationState,
 } from "../../types/datatable";
 import { QueryMetadata, QueryState, SortItem } from "../../types/querybuilder";
+import { QueryBuilderModal } from "../querybuilder/QueryBuilderModal";
 import { Pagination } from "./Pagination";
 import { TableControl } from "./TableControl";
 import { TableView } from "./TableView";
@@ -70,6 +71,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     data: false,
     metadata: false,
   });
+  const [modalOpen, setModalOpen] = React.useState(false);
 
   // Internal query state if not controlled
   const [internalQueryState, setInternalQueryState] =
@@ -218,7 +220,9 @@ export const DataTable: React.FC<DataTableProps> = ({
         metadata={metadata}
         queryState={internalQueryState}
         onQueryStateChange={handleQueryStateChange}
-        loading={loading.metadata}
+        onRefresh={() => debouncedFetchData()}
+        openQueryBuilder={setModalOpen}
+        loading={loading.data || loading.metadata}
         debug={debug}
       />
 
@@ -242,7 +246,15 @@ export const DataTable: React.FC<DataTableProps> = ({
           setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }))
         }
       />
-
+      {/* Query Builder Modal */}
+      <QueryBuilderModal
+        metadata={metadata}
+        queryState={internalQueryState}
+        onModalSubmit={handleQueryStateChange}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        showDebug={debug}
+      />
       {debug && (
         <div className="dt-debug border-t">
           <h3 className="text-sm bg-yellow-300 font-medium p-3">

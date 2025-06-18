@@ -4,14 +4,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  X,
+  Trash,
 } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { PaginationProps } from "../../types/datatable";
 import { Button } from "../common/Button";
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 100];
 
 export const Pagination: React.FC<PaginationProps> = ({
   pagination,
@@ -231,7 +231,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 className="text-gray-400 hover:text-gray-600 focus:outline-none"
                 title="Clear selection"
               >
-                <X className="h-3 w-3" />
+                <Trash className="h-3 w-3" />
               </button>
             )}
           </span>

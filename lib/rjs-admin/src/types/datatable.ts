@@ -85,6 +85,8 @@ export interface TableControlProps {
   metadata: QueryMetadata;
   queryState: QueryState;
   onQueryStateChange: (state: QueryState) => void;
+  onRefresh: () => void;
+  openQueryBuilder: (open: boolean) => void;
   loading: boolean;
   debug?: boolean;
   className?: string;

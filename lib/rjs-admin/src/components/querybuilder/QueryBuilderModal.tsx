@@ -11,11 +11,18 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
   title = "Query Builder",
   metadata,
   queryState,
-  onQueryStateChange,
+  onModalSubmit,
   customInput,
   className,
   showDebug,
 }) => {
+  const handleApply = () => {
+    onModalSubmit?.({ ...internalQueryState });
+  };
+
+  const [internalQueryState, setInternalQueryState] =
+    React.useState(queryState);
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -33,8 +40,8 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
           <div className="qb-modal-body">
             <QueryBuilder
               metadata={metadata}
-              queryState={queryState}
-              onQueryStateChange={onQueryStateChange}
+              queryState={internalQueryState}
+              onModalSubmit={setInternalQueryState}
               customInput={customInput}
               showDebug={showDebug}
             />
@@ -45,7 +52,9 @@ export const QueryBuilderModal: React.FC<QueryBuilderModalProps> = ({
               <Button variant="outline">Cancel</Button>
             </Dialog.Close>
             <Dialog.Close asChild>
-              <Button variant="default">Apply</Button>
+              <Button onClick={handleApply} variant="default">
+                Apply
+              </Button>
             </Dialog.Close>
           </div>
         </Dialog.Content>

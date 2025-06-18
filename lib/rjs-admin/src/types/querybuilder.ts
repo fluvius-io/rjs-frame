@@ -98,7 +98,7 @@ export interface FilterInputProps {
 export interface QueryBuilderProps {
   metadata: QueryMetadata;
   queryState?: QueryState;
-  onQueryStateChange?: (state: QueryState) => void;
+  onModalSubmit?: (state: QueryState) => void;
   customInput?: Record<string, FilterInputConfig>;
   className?: string;
   showDebug?: boolean;
