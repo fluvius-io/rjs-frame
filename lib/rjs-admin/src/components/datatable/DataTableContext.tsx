@@ -27,6 +27,7 @@ export interface DataTableContextValue {
   openQueryBuilder: (open: boolean) => void;
   onShowHeaderFiltersChange: (show: boolean) => void;
   showHeaderFilters: boolean;
+  showHeaderTitle: boolean;
   TableFilterComponent: React.ComponentType<TableFilterProps>;
   TableHeaderComponent: React.ComponentType<TableHeaderProps>;
   TableRowComponent: React.ComponentType<TableRowProps>;

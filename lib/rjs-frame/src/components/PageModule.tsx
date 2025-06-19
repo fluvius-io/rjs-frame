@@ -1,6 +1,5 @@
 import React from "react";
 import { Routes } from "react-router-dom";
-import { cn } from "rjs-admin";
 import { generate } from "short-uuid";
 import {
   PageLayoutContext,
@@ -10,6 +9,7 @@ import {
 import { pageStore, updatePageState } from "../store/pageStore";
 import "../styles/index.css";
 import type { PageState } from "../types/PageState";
+import { cn } from "../utils";
 import { shouldRender, type MatchParams } from "../utils/matchParams";
 
 export interface PageModuleState {

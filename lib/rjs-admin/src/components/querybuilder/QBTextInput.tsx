@@ -1,4 +1,3 @@
-import * as Label from "@radix-ui/react-label";
 import * as React from "react";
 
 export interface QBTextInputProps {
@@ -14,18 +13,13 @@ export const QBTextInput: React.FC<QBTextInputProps> = ({
 }) => {
   return (
     <div className="qb-text-input qb-panel">
-      <div className="qb-header">
-        <Label.Root className="qb-label">Search</Label.Root>
-      </div>
-      <div className="qb-list">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="qb-input"
-        />
-      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="qb-input"
+      />
     </div>
   );
 };

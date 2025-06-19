@@ -6,6 +6,7 @@ import React, { createContext, useContext } from "react";
 export interface PageLayoutContextType {
   layoutId: string;
   pageModules: { [slotName: string]: React.ReactNode[] };
+  slotClasses: Record<string, string>;
   xRay: boolean;
   addPageModule: (slotName: string, content: React.ReactNode) => void;
   removePageModule: (slotName: string, content: React.ReactNode) => void;

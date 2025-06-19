@@ -15,6 +15,7 @@ export const TableControl: React.FC<TableControlProps> = ({
     onRefresh,
     openQueryBuilder,
     loading,
+    showHeaderTitle,
   } = useDataTable();
 
   if (!metadata) {
@@ -53,20 +54,30 @@ export const TableControl: React.FC<TableControlProps> = ({
       </div>
     );
   };
-
+  const camelCaseToWords = (s: string) => {
+    const result = s.replace(/([A-Z])/g, " $1");
+    return result.charAt(0).toUpperCase() + result.slice(1);
+  };
   return (
     <div className={cn("dt-control", className)}>
-      <div className="dt-control-header">
-        <div>
-          <h2 className="dt-control-title">{metadata.title}</h2>
-          {metadata.desc && (
-            <p className="text-sm text-gray-500 mt-1">{metadata.desc}</p>
-          )}
+      {showHeaderTitle && (
+        <div className="dt-control-header">
+          <div>
+            <h2 className="dt-control-title">{metadata.title}</h2>
+            {metadata.desc && (
+              <p className="text-sm text-gray-500 mt-1">{metadata.desc}</p>
+            )}
+          </div>
+          {renderStatuses()}
         </div>
-        {renderStatuses()}
-      </div>
+      )}
       <div className="dt-control-body">
         <div className="dt-control-actions">
+          {!showHeaderTitle && (
+            <h2 className="text-lg font-semibold text-gray-900 px-2 capitalize">
+              {camelCaseToWords(metadata.title)}
+            </h2>
+          )}
           <input
             type="text"
             placeholder="Search..."

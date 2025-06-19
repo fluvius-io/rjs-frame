@@ -9,7 +9,7 @@
 
 /* Table Control Section */
 .dt-control {
-  @apply flex flex-col gap-4 p-4 border-b border-gray-200;
+  @apply flex flex-col gap-4 p-2 border-b border-gray-200;
 }
 
 .dt-control-header {
@@ -21,7 +21,7 @@
 }
 
 .dt-control-actions {
-  @apply flex items-center gap-2 w-1/2;
+  @apply flex items-center gap-2 w-3/4;
 }
 
 .dt-control-body {
@@ -38,7 +38,7 @@
 
 /* Table View Section */
 .dt-table-view {
-  @apply flex-1 overflow-hidden;
+  @apply flex-1 bg-gray-200;
 }
 
 .dt-table {

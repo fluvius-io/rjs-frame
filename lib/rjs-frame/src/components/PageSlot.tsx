@@ -6,6 +6,7 @@ import {
 } from "../contexts/LayoutContexts";
 import { pageStore } from "../store/pageStore";
 import "../styles/index.css";
+import { cn } from "../utils";
 import { shouldRender, type MatchParams } from "../utils/matchParams";
 
 type PageSlotWrapper = (
@@ -23,11 +24,11 @@ export interface PageSlotProps {
 }
 
 export const PageSlot = (props: PageSlotProps) => {
-  const context = useContext(PageLayoutContext);
+  const pageContext = useContext(PageLayoutContext);
   const { name: slotName, tag = "section", className } = props;
   const { pageParams = {} } = pageStore.get();
 
-  if (!context) {
+  if (!pageContext) {
     return (
       <div className="page-slot page-slot--error">
         ERROR: PageSlot [{slotName}] must be rendered within a PageLayout
@@ -40,13 +41,17 @@ export const PageSlot = (props: PageSlotProps) => {
   }
 
   const renderContent = () => {
-    const slotContent = context.pageModules[slotName] || props.children;
+    const slotContent = pageContext.pageModules[slotName] || props.children;
     let wrapperContent = slotContent;
     if (props.wrapper) {
       wrapperContent = props.wrapper(slotContent, props);
     }
 
-    const slotClass = `page-slot ${className}`;
+    const slotClass = cn(
+      "page-slot",
+      pageContext.slotClasses[slotName],
+      className
+    );
 
     return React.createElement(
       tag,

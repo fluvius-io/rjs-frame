@@ -20,6 +20,7 @@ export interface PageLayoutProps {
   children?: React.ReactNode;
   xRay?: boolean;
   title?: string;
+  slotClasses?: Record<string, string>;
 }
 
 interface PageLayoutState {
@@ -253,10 +254,11 @@ export abstract class PageLayout<
     const xRayEnabled = getXRayEnabled();
     const { breadcrumbs } = this.state.pageState;
 
-    const contextValue: PageLayoutContextType = {
+    const pageContext: PageLayoutContextType = {
       layoutId: this.layoutId,
       pageModules: this.modules,
       xRay: xRayEnabled,
+      slotClasses: this.props.slotClasses || {},
       addPageModule: (slotName: string, content: React.ReactNode) => {
         // TODO: Implement dynamic module addition if needed
         console.warn("[PageLayout] addPageModule not yet implemented");
@@ -270,7 +272,7 @@ export abstract class PageLayout<
     const className = xRayEnabled ? "page-layout x-ray" : "page-layout";
 
     return (
-      <PageLayoutContext.Provider value={contextValue}>
+      <PageLayoutContext.Provider value={pageContext}>
         <div id={this.layoutId} className={className}>
           {this.renderContent()}
         </div>

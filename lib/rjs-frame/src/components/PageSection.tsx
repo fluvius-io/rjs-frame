@@ -105,7 +105,7 @@ export const PageSection = (props: PageSectionProps) => {
 
   const sectionProps = {
     className: `page-section ${className || ""}`,
-    "data-section-params": JSON.stringify(props.matchParams) || "",
+    "data-section-params": `${name}:${JSON.stringify(props.matchParams) || ""}`,
     style: sectionStyle,
   };
 

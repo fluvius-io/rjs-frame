@@ -58,6 +58,7 @@ function useDebouncedCallback<T extends (...args: any[]) => void>(
 export const DataTable: React.FC<DataTableProps> = ({
   metadata: propMetadata,
   showHeaderFilters: propShowHeaderFilters = false,
+  showHeaderTitle: propShowHeaderTitle = true,
   dataSource,
   queryState: propQueryState,
   pagination: propPagination,
@@ -240,6 +241,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     TableHeaderComponent: TableHeader,
     TableRowComponent: TableRow,
     showHeaderFilters,
+    showHeaderTitle: propShowHeaderTitle,
   };
 
   return (
@@ -263,14 +265,16 @@ export const DataTable: React.FC<DataTableProps> = ({
         />
 
         {/* Query Builder Modal */}
-        <QueryBuilderModal
-          metadata={metadata}
-          queryState={internalQueryState}
-          onModalSubmit={handleQueryStateChange}
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-          showDebug={debug}
-        />
+        {modalOpen && (
+          <QueryBuilderModal
+            metadata={metadata}
+            queryState={internalQueryState}
+            onModalSubmit={handleQueryStateChange}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+            showDebug={debug}
+          />
+        )}
 
         {debug && (
           <div className="dt-debug border-t">

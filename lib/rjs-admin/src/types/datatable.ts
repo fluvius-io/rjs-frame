@@ -49,7 +49,7 @@ export interface DataTableProps {
   // Data and metadata
   metadata?: QueryMetadata;
   showHeaderFilters?: boolean;
-
+  showHeaderTitle?: boolean;
   // API configuration
   dataSource?: DataTableSource; // endpoint for data fetching
 

@@ -5,7 +5,7 @@ import { Header } from "../components";
 
 export default function BotManager() {
   return (
-    <ThreeColumnLayout sidebarWidth="lg">
+    <ThreeColumnLayout sidebarWidth="lg" slotClasses={{ main: "no-padding" }}>
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">
@@ -54,10 +54,11 @@ export default function BotManager() {
         </div>
       </PageModule>
 
-      <PageModule slotName="main">
+      <PageModule slotName="main" className="h-full">
         <DataTable
           dataSource="idm:organization"
-          className="no-border"
+          className="no-border h-full"
+          showHeaderTitle={false}
           actions={
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm">
