@@ -1,12 +1,9 @@
-import { AlertCircle, Loader2, Table } from "lucide-react";
+import { AlertCircle, Loader2, Table, Trash2 } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableViewProps } from "../../types/datatable";
 import { QueryFieldMetadata } from "../../types/querybuilder";
 import { useDataTable } from "./DataTableContext";
-import { TableFilter } from "./TableFilter";
-import { TableHeader } from "./TableHeader";
-import { TableRow } from "./TableRow";
 
 const noData = (message: string, className: string = "", loading: boolean) => (
   <div className={cn("dt-table-view", className)}>
@@ -54,8 +51,6 @@ const noHeaderPrompt = (className: string = "") => {
 };
 
 export const TableView: React.FC<TableViewProps> = ({
-  customTableHeader: CustomTableHeader,
-  customTableRow: CustomTableRow,
   className,
   allowSelection = true,
 }) => {
@@ -67,6 +62,9 @@ export const TableView: React.FC<TableViewProps> = ({
     onQueryStateChange,
     showHeaderFilters,
     onShowHeaderFiltersChange,
+    TableHeaderComponent,
+    TableFilterComponent,
+    TableRowComponent,
   } = useDataTable();
 
   if (!metadata) {
@@ -105,7 +103,7 @@ export const TableView: React.FC<TableViewProps> = ({
    * Select all rows currently visible (current page) in addition to any that
    * may already be selected from other pages.
    */
-  const selectAll = () => {
+  const selectAllPage = () => {
     const pageIds = data.map((row) => String(row[idField as string]));
     const newSelected = Array.from(
       new Set([...(queryState.selectedItems || []), ...pageIds])
@@ -118,12 +116,16 @@ export const TableView: React.FC<TableViewProps> = ({
    * Clear selection for rows currently visible (current page) while preserving
    * selections that belong to other pages.
    */
-  const clearAll = () => {
+  const clearAllPage = () => {
     const pageIds = data.map((row) => String(row[idField as string]));
     const prevSelected = queryState.selectedItems || [];
     const newSelected = prevSelected.filter((id) => !pageIds.includes(id));
 
     onQueryStateChange({ ...queryState, selectedItems: newSelected });
+  };
+
+  const clearAll = () => {
+    onQueryStateChange({ ...queryState, selectedItems: [] });
   };
 
   // Generate column configurations from metadata and queryState
@@ -158,8 +160,10 @@ export const TableView: React.FC<TableViewProps> = ({
 
   // Render empty state
 
-  const HeaderComponent = CustomTableHeader || TableHeader;
-  const RowComponent = CustomTableRow || TableRow;
+  const HeaderComponent = TableHeaderComponent;
+  const RowComponent = TableRowComponent;
+  const FilterComponent = TableFilterComponent;
+
   const renderBody = () => {
     if (columns.length === 0) {
       return noHeaderPrompt(className);
@@ -197,28 +201,51 @@ export const TableView: React.FC<TableViewProps> = ({
     );
   };
 
+  const renderSelectionHeader = () => {
+    if (!selectionEnabled || selectedItems.length === 0) return null;
+    return (
+      <tr>
+        <td
+          colSpan={columns.length + 3}
+          style={{
+            backgroundColor: "var(--rjs-warning-border)",
+            color: "var(--rjs-warning-foreground)",
+          }}
+        >
+          <span className="flex items-center border-b-1 text-sm gap-1 p-3">
+            {selectedItems.length.toLocaleString()} entries selected
+            <button type="button" onClick={clearAll} title="Clear selection">
+              <Trash2 className="h-3 w-3 text-red-500" />
+            </button>
+          </span>
+        </td>
+      </tr>
+    );
+  };
+
+  const renderFilterHeader = () => {
+    if (!showHeaderFilters || columns.length === 0) return null;
+    return <FilterComponent allowSelection={selectionEnabled} />;
+  };
+
   return (
     <div className={cn("dt-table-view", className)}>
       <div className="overflow-x-auto">
         <table className="dt-table">
-          {/* Table Header with Filter */}
           <thead className="dt-thead">
-            {/* Header Row */}
             <HeaderComponent
               allowSelection={selectionEnabled}
               selectAllState={selectAllState}
-              onSelectAll={selectAll}
-              onClearAll={clearAll}
+              onSelectAll={selectAllPage}
+              onClearAll={clearAllPage}
               idField={idField}
             />
 
-            {/* Filter Row */}
-            {showHeaderFilters && columns.length > 0 ? (
-              <TableFilter allowSelection={selectionEnabled} />
-            ) : null}
+            {renderFilterHeader()}
+
+            {renderSelectionHeader()}
           </thead>
 
-          {/* Table Body */}
           {renderBody()}
         </table>
       </div>

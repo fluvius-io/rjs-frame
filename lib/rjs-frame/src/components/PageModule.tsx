@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes } from "react-router-dom";
+import { cn } from "rjs-admin";
 import { generate } from "short-uuid";
 import {
   PageLayoutContext,
@@ -21,6 +22,7 @@ export interface PageModuleProps {
   slotName?: string;
   data?: Record<string, any>;
   matchParams?: MatchParams;
+  className?: string;
 }
 
 // Re-export types for convenience
@@ -186,7 +188,11 @@ export class PageModule<
             );
           }
 
-          return this.renderContent();
+          return (
+            <div className={cn("page-module", this.props.className)}>
+              {this.renderContent()}
+            </div>
+          );
         }}
       </PageSlotContext.Consumer>
     );

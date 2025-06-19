@@ -1,25 +1,11 @@
-import {
-  Bell,
-  Filter,
-  Package2,
-  Search,
-  ShoppingCart,
-  TrendingUp,
-} from "lucide-react";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  ThreeColumnLayout,
-} from "rjs-admin";
+import { Package2, Plus, Search, ShoppingCart, TrendingUp } from "lucide-react";
+import { Button, DataTable, ThreeColumnLayout } from "rjs-admin";
 import { PageModule } from "rjs-frame";
 import { Header } from "../components";
 
 export default function BotManager() {
   return (
-    <ThreeColumnLayout>
+    <ThreeColumnLayout sidebarWidth="lg">
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">
@@ -69,164 +55,20 @@ export default function BotManager() {
       </PageModule>
 
       <PageModule slotName="main">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">Bot Manager</h2>
-              <p className="text-muted-foreground">
-                Monitor and manage your bots.
-              </p>
+        <DataTable
+          dataSource="idm:organization"
+          actions={
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm">
+                Export
+              </Button>
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Add User
+              </Button>
             </div>
-            <Button>
-              <Package2 className="mr-2 h-4 w-4" />
-              Add Investment
-            </Button>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Value
-                </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">$45,231</div>
-                <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Active Investments
-                </CardTitle>
-                <Package2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">2,847</div>
-                <p className="text-xs text-muted-foreground">
-                  +180 new investments this month
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Performance Alerts
-                </CardTitle>
-                <Bell className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">23</div>
-                <p className="text-xs text-muted-foreground">
-                  Requires immediate attention
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Asset Classes
-                </CardTitle>
-                <Filter className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">
-                  Active asset classes
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Investments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Apple Inc. (AAPL)</p>
-                      <p className="text-xs text-muted-foreground">
-                        Stocks • Shares: 100
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium">$15,000</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">S&P 500 ETF</p>
-                      <p className="text-xs text-muted-foreground">
-                        ETFs • Shares: 50
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium">$25,000</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">US Treasury Bond</p>
-                      <p className="text-xs text-muted-foreground">
-                        Bonds • 10-Year
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium">$10,000</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Alerts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Tesla Inc. (TSLA)</p>
-                      <p className="text-xs text-muted-foreground">
-                        Stocks • High Volatility
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium text-orange-600">
-                      -5.2%
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Bitcoin (BTC)</p>
-                      <p className="text-xs text-muted-foreground">
-                        Crypto • High Risk
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium text-orange-600">
-                      -8.1%
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">GameStop Corp.</p>
-                      <p className="text-xs text-muted-foreground">
-                        Stocks • Meme Stock
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium text-red-600">
-                      -15.3%
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+          }
+        />
       </PageModule>
 
       <PageModule slotName="rightPanel">

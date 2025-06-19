@@ -13,6 +13,9 @@ import { QueryBuilderModal } from "../querybuilder/QueryBuilderModal";
 import { DataTableProvider } from "./DataTableContext";
 import { Pagination } from "./Pagination";
 import { TableControl } from "./TableControl";
+import { TableFilter } from "./TableFilter";
+import { TableHeader } from "./TableHeader";
+import { TableRow } from "./TableRow";
 import { TableView } from "./TableView";
 
 // Debounce hook helper
@@ -58,9 +61,6 @@ export const DataTable: React.FC<DataTableProps> = ({
   dataSource,
   queryState: propQueryState,
   pagination: propPagination,
-  customTableHeader,
-  customTableRow,
-  customPagination: CustomPagination,
   className,
   debug = false,
   debounceDelay = 0,
@@ -218,7 +218,8 @@ export const DataTable: React.FC<DataTableProps> = ({
     );
   }
 
-  const PaginationComponent = CustomPagination || Pagination;
+  const PaginationComponent = Pagination;
+  const TableControlComponent = TableControl;
 
   const contextValue = {
     data,
@@ -235,6 +236,9 @@ export const DataTable: React.FC<DataTableProps> = ({
     onRefresh: () => debouncedFetchData(),
     openQueryBuilder: setModalOpen,
     onShowHeaderFiltersChange: setShowHeaderFilters,
+    TableFilterComponent: TableFilter,
+    TableHeaderComponent: TableHeader,
+    TableRowComponent: TableRow,
     showHeaderFilters,
   };
 
@@ -242,13 +246,10 @@ export const DataTable: React.FC<DataTableProps> = ({
     <DataTableProvider value={contextValue}>
       <div className={cn("dt-container", className)}>
         {/* Table Control */}
-        <TableControl actions={actions} />
+        <TableControlComponent actions={actions} />
 
         {/* Table View */}
-        <TableView
-          customTableHeader={customTableHeader}
-          customTableRow={customTableRow}
-        />
+        <TableView />
 
         {/* Pagination */}
         <PaginationComponent

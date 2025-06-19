@@ -61,11 +61,6 @@ export interface DataTableProps {
   pagination?: PaginationState;
   onPaginationChange?: (pagination: PaginationState) => void;
 
-  // Customization
-  customTableHeader?: React.ComponentType<TableHeaderProps>;
-  customTableRow?: React.ComponentType<TableRowProps>;
-  customPagination?: React.ComponentType<PaginationProps>;
-
   // Debug
   debug?: boolean;
 
@@ -93,8 +88,6 @@ export interface TableControlProps {
 }
 
 export interface TableViewProps {
-  customTableHeader?: React.ComponentType<TableHeaderProps>;
-  customTableRow?: React.ComponentType<TableRowProps>;
   className?: string;
   allowSelection?: boolean;
 }

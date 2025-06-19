@@ -1,5 +1,12 @@
 import React from "react";
-import { DataRow, LoadingState, PaginationState } from "../../types/datatable";
+import {
+  DataRow,
+  LoadingState,
+  PaginationState,
+  TableFilterProps,
+  TableHeaderProps,
+  TableRowProps,
+} from "../../types/datatable";
 import { QueryMetadata, QueryState } from "../../types/querybuilder";
 
 export interface DataTableContextValue {
@@ -20,6 +27,9 @@ export interface DataTableContextValue {
   openQueryBuilder: (open: boolean) => void;
   onShowHeaderFiltersChange: (show: boolean) => void;
   showHeaderFilters: boolean;
+  TableFilterComponent: React.ComponentType<TableFilterProps>;
+  TableHeaderComponent: React.ComponentType<TableHeaderProps>;
+  TableRowComponent: React.ComponentType<TableRowProps>;
 }
 
 export const DataTableContext =

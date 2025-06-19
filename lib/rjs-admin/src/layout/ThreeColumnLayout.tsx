@@ -17,8 +17,8 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
 
     const widthClasses = {
       sm: "w-64",
-      md: "w-72",
-      lg: "w-80",
+      md: "w-80",
+      lg: "w-120",
     };
 
     return (
@@ -32,28 +32,21 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
             tag="aside"
             matchParams={{ sidebar: true }}
             resizable={true}
-            className={cn(
-              "h-[calc(100vh-4rem)] border-r bg-muted/10",
-              widthClasses[sidebarWidth]
-            )}
+            className={cn("bg-muted/10", widthClasses[sidebarWidth])}
           >
-            <div className="p-4">
-              <PageSlot name="sidebar" />
-            </div>
+            <PageSlot className="p-4" name="sidebar" />
           </PageSection>
 
-          <PageSection tag="main" className="flex-1 overflow-hidden">
-            <div className="h-full p-6">
-              <PageSlot name="main" />
-            </div>
+          <PageSection
+            tag="main"
+            className="flex-1 border-l border-r overflow-hidden"
+          >
+            <PageSlot className="h-full" name="main" />
           </PageSection>
 
           <PageSection
             tag="aside"
-            className={cn(
-              "sticky top-16 h-[calc(100vh-4rem)] border-l bg-muted/10",
-              widthClasses[rightPanelWidth]
-            )}
+            className={cn("bg-muted/10", widthClasses[rightPanelWidth])}
           >
             <div className="p-4">
               <PageSlot name="rightPanel" />
