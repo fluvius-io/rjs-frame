@@ -8,7 +8,7 @@ export interface ThreeColumnLayoutProps extends PageLayoutProps {
   rightPanelWidth?: "sm" | "md" | "lg";
 }
 
-export class ThreeColumnLayout extends PageLayout {
+export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
   renderContent() {
     const {
       className,

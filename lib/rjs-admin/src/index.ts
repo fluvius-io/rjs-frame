@@ -3,8 +3,8 @@ import "./styles/globals.css";
 
 // Layouts
 export { SingleColumnLayout } from "./layout/SingleColumnLayout";
-export { ThreeColumnLayout } from "./layout/ThreeColumnLayout_Refactor";
-export type { ThreeColumnLayoutProps } from "./layout/ThreeColumnLayout_Refactor";
+export { ThreeColumnLayout } from "./layout/ThreeColumnLayout";
+export type { ThreeColumnLayoutProps } from "./layout/ThreeColumnLayout";
 export { TwoColumnLayout } from "./layout/TwoColumnLayout";
 
 // Common Components
