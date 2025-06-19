@@ -8,60 +8,61 @@ import { pageStore } from "../store/pageStore";
 import "../styles/index.css";
 import { shouldRender, type MatchParams } from "../utils/matchParams";
 
-export interface PageSlotProps {
-  name?: string;
-  renderEmpty?: boolean;
-  allowToggle?: boolean;
-  matchParams?: MatchParams;
-  defaultParamValue?: string;
-  className?: string;
-  children?: React.ReactNode;
-}
+type PageSlotWrapper = (
+  children: React.ReactNode[],
+  props: PageSlotProps
+) => React.ReactNode[];
 
-// Default template component - defined outside to prevent recreation on every render
-const DefaultSlotTemplate: React.ComponentType<{
-  content: React.ReactNode[];
-}> = ({ content }) => <>{content}</>;
+export interface PageSlotProps {
+  name: string;
+  matchParams?: MatchParams;
+  className?: string;
+  tag?: "div" | "section" | "header" | "footer" | "main" | "aside";
+  children?: React.ReactNode;
+  wrapper?: PageSlotWrapper;
+}
 
 export const PageSlot = (props: PageSlotProps) => {
   const context = useContext(PageLayoutContext);
-  const { name: slotName = "main", renderEmpty = false } = props;
-  const pageParams = pageStore.get().pageParams || {};
+  const { name: slotName, tag = "section", className } = props;
+  const { pageParams = {} } = pageStore.get();
 
   if (!context) {
     return (
       <div className="page-slot page-slot--error">
-        ERROR: PageSlot must be rendered within a PageLayout
+        ERROR: PageSlot [{slotName}] must be rendered within a PageLayout
       </div>
     );
   }
 
-  // Check if slot should be rendered based on matchParams
   if (!shouldRender(props.matchParams, pageParams, `PageSlot[${slotName}]`)) {
     return null;
   }
 
-  let slotContent = context.pageModules[slotName];
-  let hasSlotContent = !!slotContent && slotContent.length > 0;
-  let renderingContent = hasSlotContent
-    ? slotContent
-    : props.children
-    ? [props.children]
-    : [];
+  const renderContent = () => {
+    const slotContent = context.pageModules[slotName] || props.children;
+    let wrapperContent = slotContent;
+    if (props.wrapper) {
+      wrapperContent = props.wrapper(slotContent, props);
+    }
 
-  if (!renderEmpty && (!renderingContent || renderingContent.length === 0)) {
-    return null;
-  }
+    const slotClass = `page-slot ${className}`;
 
-  let slotContext: PageSlotContextType = { name: slotName };
+    return React.createElement(
+      tag,
+      {
+        className: slotClass,
+        "data-slot-name": slotName,
+      },
+      wrapperContent
+    );
+  };
 
-  const pageSlotClassName = `page-slot ${props.className || ""}`;
+  const slotContext: PageSlotContextType = { name: slotName };
 
   return (
     <PageSlotContext.Provider value={slotContext}>
-      <div className={pageSlotClassName} data-slot-name={slotName}>
-        {renderingContent}
-      </div>
+      {renderContent()}
     </PageSlotContext.Provider>
   );
 };

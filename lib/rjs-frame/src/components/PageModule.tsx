@@ -26,10 +26,10 @@ export interface PageModuleProps {
 // Re-export types for convenience
 export type { MatchParams, MatchParamValue } from "../utils/matchParams";
 
-export class PageModule extends React.Component<
-  PageModuleProps,
-  PageModuleState
-> {
+export class PageModule<
+  P extends PageModuleProps = PageModuleProps,
+  S extends PageModuleState = PageModuleState
+> extends React.Component<P, S> {
   private moduleId: string;
   private unsubscribe: (() => void) | null = null;
   private mounted: boolean = false;
@@ -39,14 +39,18 @@ export class PageModule extends React.Component<
   static contextType = PageLayoutContext;
   declare readonly context: React.ContextType<typeof PageLayoutContext>;
 
-  constructor(props: PageModuleProps) {
+  constructor(props: P) {
     super(props);
     this.moduleId = generate();
     this.moduleName = this.constructor.name;
     this.state = {
       pageState: pageStore.get(),
       initialized: false,
-    };
+    } as unknown as S;
+  }
+
+  generateModuleId(props: P) {
+    return generate();
   }
 
   componentDidMount() {

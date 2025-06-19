@@ -16,6 +16,7 @@ import { PageModule } from "./PageModule";
 type ModuleValue = React.ReactNode | React.ReactNode[];
 
 export interface PageLayoutProps {
+  className?: string;
   children?: React.ReactNode;
   xRay?: boolean;
   title?: string;

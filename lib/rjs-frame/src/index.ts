@@ -12,6 +12,7 @@ export { PageLayout } from "./components/PageLayout";
 export { PageLayoutOptions } from "./components/PageLayoutOptions";
 export { PageModule, RoutingModule } from "./components/PageModule";
 export { PageParamsManager } from "./components/PageParamsManager";
+export { PageSection } from "./components/PageSection";
 export { PageSlot } from "./components/PageSlot";
 export {
   Navigate,

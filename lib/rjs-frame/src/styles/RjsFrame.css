@@ -2,21 +2,24 @@
 :root {
   /* X-Ray mode opacity */
   --xray-opacity-default: 0.5;
-  --xray-opacity-hover: 1.0;
-  
+  --xray-opacity-hover: 1;
+
   /* X-Ray mode colors */
   --xray-module-color: rgba(0, 128, 0, 1);
   --xray-layout-color: rgba(255, 0, 0, 1);
   --xray-slot-color: rgba(0, 0, 255, 1);
+  --xray-section-color: rgb(0, 205, 205);
+  --xray-section-info-bg: rgb(0, 205, 205);
+  --xray-section-info-text: rgba(0, 0, 0, 1);
   --xray-slot-info-bg: rgba(255, 253, 130, 1);
   --xray-slot-info-text: rgba(0, 0, 0, 1);
-  
+
   /* Error state colors */
   --rjs-error-border: #d32f2f;
   --rjs-error-bg: #fff5f5;
   --rjs-error-text: #d32f2f;
   --rjs-error-border-light: #ffebee;
-  
+
   /* Neutral colors */
   --rjs-gray-100: #f8f9fa;
   --rjs-gray-200: #e9ecef;
@@ -32,7 +35,7 @@
   --rjs-gray-lightest: #e3f2fd;
   --rjs-white: #ffffff;
   --rjs-black: rgba(0, 0, 0, 1);
-  
+
   /* Primary/accent colors */
   --rjs-primary: #007bff;
   --rjs-success: #28a745;
@@ -40,7 +43,7 @@
   --rjs-warning-border: #ffeaa7;
   --rjs-warning-text: #856404;
   --rjs-danger: #dc3545;
-  
+
   /* Overlay colors */
   --rjs-overlay-bg: rgba(0, 0, 0, 0.8);
   --rjs-shadow-light: rgba(0, 0, 0, 0.1);
@@ -53,7 +56,7 @@
     background-color: var(--rjs-error-bg);
     color: var(--rjs-error-text);
     padding: 1rem;
-    margin: 5px; 
+    margin: 5px;
   }
 }
 
@@ -61,7 +64,7 @@
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -78,29 +81,36 @@
     opacity: var(--xray-opacity-hover);
   }
 
+  & .page-section {
+    outline: 1px solid var(--xray-section-color);
+    &::before {
+      content: attr(data-section-params);
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: var(--xray-section-info-bg);
+      color: var(--xray-section-info-text);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: monospace;
+      border-radius: 0 0 0 4px;
+      pointer-events: none;
+      z-index: 9000;
+      max-width: 50%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: var(--xray-opacity-default);
+    }
+  }
+
   & .page-slot {
     position: relative;
 
+    outline: 1px dashed var(--xray-slot-color);
+
     &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border: 1px solid var(--xray-slot-color);
-      pointer-events: none;
-      z-index: 9999;
-      opacity: var(--xray-opacity-default);
-    }
-
-    &:hover::before {
-      border-color: var(--xray-slot-color);
-      opacity: var(--xray-opacity-hover);
-    }
-
-    &::after {
-      content: attr(data-slot-name) ': ' attr(data-slot-visibility);
+      content: attr(data-slot-name);
       position: absolute;
       top: 0;
       right: 0;
@@ -121,22 +131,9 @@
   }
 
   & .page-module {
-    position: relative;
+    outline: 1px solid var(--xray-module-color);
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border: 1px solid var(--xray-module-color);
-      pointer-events: none;
-      z-index: 9998;
-      opacity: var(--xray-opacity-default);
-    }
-
-    &:hover::before {
+    &:hover {
       opacity: var(--xray-opacity-hover);
     }
   }
@@ -176,7 +173,7 @@
   background-color: var(--rjs-gray-100);
   border-bottom: 2px solid var(--rjs-gray-300);
   padding: 1rem;
-  
+
   .x-ray & {
     border-color: var(--rjs-primary);
   }
@@ -186,7 +183,7 @@
   background-color: var(--rjs-gray-200);
   border-right: 1px solid var(--rjs-gray-300);
   min-height: 200px;
-  
+
   .x-ray & {
     background-color: var(--rjs-gray-lightest);
   }
@@ -196,7 +193,7 @@
   flex: 1;
   padding: 1rem;
   background-color: var(--rjs-white);
-  
+
   .x-ray & {
     background-color: #f9f9f9;
   }
@@ -207,8 +204,8 @@
   border-top: 1px solid var(--rjs-gray-300);
   padding: 0.5rem 1rem;
   text-align: center;
-  
+
   .x-ray & {
     border-color: var(--rjs-success);
   }
-} 
+}
