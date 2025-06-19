@@ -26,10 +26,10 @@ interface PageLayoutState {
   pageState: TypedPageState;
 }
 
-export abstract class PageLayout extends React.Component<
-  PageLayoutProps,
-  PageLayoutState
-> {
+export abstract class PageLayout<
+  T extends PageLayoutProps = PageLayoutProps,
+  S extends PageLayoutState = PageLayoutState
+> extends React.Component<T, S> {
   private layoutId: string;
   private static activeInstance: PageLayout | null = null;
   private static instanceCount: number = 0;
@@ -94,13 +94,13 @@ export abstract class PageLayout extends React.Component<
     return this.gatherModulesFromChildren();
   }
 
-  constructor(props: PageLayoutProps) {
+  constructor(props: T) {
     super(props);
     this.layoutId = this.constructor.name;
     this.state = {
       showOptions: false,
       pageState: pageStore.get(),
-    };
+    } as S;
   }
 
   componentDidMount() {

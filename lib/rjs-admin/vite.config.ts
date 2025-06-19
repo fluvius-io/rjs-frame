@@ -23,6 +23,9 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: false,
+    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
+    cssCodeSplit: true, // Enable CSS code splitting
+    cssMinify: true, // Enable CSS minification
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "RjsAdmin",
@@ -67,6 +70,7 @@ export default defineConfig({
           "tailwind-merge": "tailwindMerge",
           "lucide-react": "lucideReact",
         },
+        inlineDynamicImports: false,
       },
     },
   },

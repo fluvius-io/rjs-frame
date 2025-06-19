@@ -176,7 +176,8 @@ export class PageModule extends React.Component<
           if (!slotContext) {
             return (
               <div className="page-module page-module--error">
-                ERROR: PageModule must be rendered within a PageSlot
+                ERROR: PageModule [{this.moduleName}] must be rendered within a
+                PageSlot
               </div>
             );
           }

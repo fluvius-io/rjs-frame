@@ -1,5 +1,3 @@
-@import "@radix-ui/themes/styles.css";
-
 /* Import component styles first */
 @import "./components/UserAvatar.css";
 @import "./components/UserDialog.css";

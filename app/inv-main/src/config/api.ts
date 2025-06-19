@@ -34,6 +34,6 @@ const idmCollectionConfig: ApiCollectionConfig = {
 };
 
 // Register the IdmCollection
-APIManager.register(idmCollectionConfig);
+APIManager.registerConfig(idmCollectionConfig);
 
 export { APIManager };

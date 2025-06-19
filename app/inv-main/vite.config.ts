@@ -19,6 +19,24 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1000, // 1MB, adjust as needed
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react")) return "rvd";
+            if (id.includes("@radix-ui")) return "rdu";
+            if (id.includes("lucide-react")) return "icx";
+            if (id.includes("tailwindcss")) return "tld";
+            return "other";
+          }
+          if (id.includes("/src/components/")) return "com";
+          if (id.includes("/src/pages/")) return "pages";
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
