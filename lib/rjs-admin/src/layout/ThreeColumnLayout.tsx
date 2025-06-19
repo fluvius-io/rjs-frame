@@ -31,8 +31,9 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
           <PageSection
             tag="aside"
             matchParams={{ sidebar: true }}
+            resizable={true}
             className={cn(
-              "sticky top-16 h-[calc(100vh-4rem)] border-r bg-muted/10",
+              "h-[calc(100vh-4rem)] border-r bg-muted/10",
               widthClasses[sidebarWidth]
             )}
           >

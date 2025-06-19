@@ -1,0 +1,54 @@
+/* PageSection Resize Handle Styles */
+
+.page-section-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-section-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  z-index: 10;
+  right: -2px;
+}
+
+/* Resize indicator line */
+
+.page-section-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 0px;
+  box-sizing: border-box;
+  height: 100%;
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: transparent;
+  transition: border-color 0.5s ease;
+}
+
+.page-section-resize-handle:hover::after,
+.page-section-resize-handle:active::after {
+  border-color: rgba(16, 179, 255, 0.771);
+}
+
+.page-section-wrapper.resizing .page-section-resize-handle::after {
+  border-width: 1px;
+  border-color: rgba(16, 179, 255, 1);
+}
+
+/* Resizing state */
+.page-section-wrapper.resizing {
+  user-select: none;
+}
+
+/* Ensure the section maintains its size during resize */
+.page-section[style*="width"] {
+  flex-shrink: 0;
+  overflow: hidden;
+}
