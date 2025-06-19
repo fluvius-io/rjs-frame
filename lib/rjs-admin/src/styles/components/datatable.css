@@ -3,6 +3,10 @@
   @apply w-full flex flex-col  bg-white rounded-lg border border-gray-200 shadow-sm;
 }
 
+.dt-container.no-border {
+  @apply border-none rounded-none shadow-none bg-transparent;
+}
+
 /* Table Control Section */
 .dt-control {
   @apply flex flex-col gap-4 p-4 border-b border-gray-200;

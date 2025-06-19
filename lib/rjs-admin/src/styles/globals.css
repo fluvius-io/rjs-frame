@@ -3,7 +3,7 @@
 @import "./components/UserDialog.css";
 @import "./components/UserTabs.css";
 @import "./components/querybuilder.css";
-@import "./components/datatable/DataTable.css";
+@import "./components/datatable.css";
 
 @tailwind base;
 @tailwind components;

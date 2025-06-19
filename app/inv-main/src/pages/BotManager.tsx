@@ -57,6 +57,7 @@ export default function BotManager() {
       <PageModule slotName="main">
         <DataTable
           dataSource="idm:organization"
+          className="no-border"
           actions={
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm">

@@ -31,6 +31,28 @@ export const TableControl: React.FC<TableControlProps> = ({
   const activeFiltersCount = queryState.query?.length || 0;
   const activeSortCount = queryState.sort?.length || 0;
   const hasActiveSearch = Boolean(queryState.text?.trim());
+  const renderStatuses = () => {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-600">
+        {activeFiltersCount > 0 && (
+          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+            {activeFiltersCount} Filter
+            {activeFiltersCount !== 1 ? "s" : ""}
+          </span>
+        )}
+        {activeSortCount > 0 && (
+          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+            {activeSortCount} Sort{activeSortCount !== 1 ? "s" : ""}
+          </span>
+        )}
+        {hasActiveSearch && (
+          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+            Search: "{queryState.text}"
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={cn("dt-control", className)}>
@@ -41,9 +63,7 @@ export const TableControl: React.FC<TableControlProps> = ({
             <p className="text-sm text-gray-500 mt-1">{metadata.desc}</p>
           )}
         </div>
-        {actions && (
-          <div className="dt-control-actions justify-end">{actions}</div>
-        )}
+        {renderStatuses()}
       </div>
       <div className="dt-control-body">
         <div className="dt-control-actions">
@@ -75,24 +95,9 @@ export const TableControl: React.FC<TableControlProps> = ({
           </button>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            {activeFiltersCount > 0 && (
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
-                {activeFiltersCount} Filter
-                {activeFiltersCount !== 1 ? "s" : ""}
-              </span>
-            )}
-            {activeSortCount > 0 && (
-              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                {activeSortCount} Sort{activeSortCount !== 1 ? "s" : ""}
-              </span>
-            )}
-            {hasActiveSearch && (
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                Search: "{queryState.text}"
-              </span>
-            )}
-          </div>
+          {actions && (
+            <div className="dt-control-actions justify-end">{actions}</div>
+          )}
         </div>
       </div>
     </div>

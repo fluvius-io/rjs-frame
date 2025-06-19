@@ -1,4 +1,4 @@
-@import "rjs-admin/dist/style.css";
+@import "rjs-admin/dist/index.css";
 
 @tailwind base;
 @tailwind components;
