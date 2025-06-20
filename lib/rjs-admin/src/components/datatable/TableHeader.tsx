@@ -145,7 +145,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   return (
     <tr>
       {/* Selection column */}
-      {allowSelection && (
+      {allowSelection && columns.length > 0 && (
         <th className="dt-th w-10">
           <div className="flex justify-center">
             <Checkbox.Root

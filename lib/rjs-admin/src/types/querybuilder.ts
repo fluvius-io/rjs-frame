@@ -76,8 +76,8 @@ export interface QueryState {
   sort?: SortItem[];
   select?: string[];
   text?: string;
-  selectedItems?: string[];
 }
+
 
 // Props for FilterInput component
 export interface FilterInputProps {

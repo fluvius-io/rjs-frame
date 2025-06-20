@@ -11,6 +11,12 @@ export interface DataRow {
   [key: string]: any;
 }
 
+export interface DataTableQueryState extends QueryState {
+  selectedItems?: string[];
+  activeItem?: string;
+  activeColumn?: string;
+}
+
 // API response structure for data fetching
 export interface DataResponse extends ApiResponse {
   data: DataRow[];
@@ -54,7 +60,7 @@ export interface DataTableProps {
   dataSource?: DataTableSource; // endpoint for data fetching
 
   // State management
-  queryState?: QueryState;
+  queryState?: DataTableQueryState;
   onQueryStateChange?: (state: QueryState) => void;
 
   // Pagination
@@ -112,7 +118,9 @@ export interface TableRowProps {
   rowIndex: number;
   idValue?: string;
   selected?: boolean;
+  isActive?: boolean;
   onSelect?: (id: string, selected: boolean) => void;
+  onActivate?: (id: string) => void;
   className?: string;
   rowActions?: TableRowActionProps[];
 }
@@ -135,8 +143,8 @@ export interface PaginationProps {
 // Modal props for QueryBuilder integration
 export interface QueryBuilderModalProps {
   metadata: QueryMetadata;
-  queryState: QueryState;
-  onQueryStateChange: (state: QueryState) => void;
+  queryState: DataTableQueryState;
+  onQueryStateChange: (state: DataTableQueryState) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

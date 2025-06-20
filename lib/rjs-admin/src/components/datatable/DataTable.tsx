@@ -1,10 +1,11 @@
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import React from "react";
 import { APIManager } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import {
   DataRow,
   DataTableProps,
+  DataTableQueryState,
   LoadingState,
   PaginationState,
 } from "../../types/datatable";
@@ -59,6 +60,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   metadata: propMetadata,
   showHeaderFilters: propShowHeaderFilters = false,
   showHeaderTitle: propShowHeaderTitle = true,
+  allowSelection: propAllowSelection = true,
   dataSource,
   queryState: propQueryState,
   pagination: propPagination,
@@ -81,7 +83,7 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   // Internal query state if not controlled
   const [internalQueryState, setInternalQueryState] =
-    React.useState<QueryState>(() => ({
+    React.useState<DataTableQueryState>(() => ({
       query: [],
       sort: [],
       select: [],
@@ -224,6 +226,7 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   const contextValue = {
     data,
+    debug,
     metadata,
     loading,
     queryState: internalQueryState,
@@ -232,7 +235,6 @@ export const DataTable: React.FC<DataTableProps> = ({
     setPagination: setInternalPagination,
     fetchData: debouncedFetchData,
     fetchMetadata: debouncedFetchMetadata,
-    debug,
     onQueryStateChange: handleQueryStateChange,
     onRefresh: () => debouncedFetchData(),
     openQueryBuilder: setModalOpen,
@@ -243,17 +245,42 @@ export const DataTable: React.FC<DataTableProps> = ({
     showHeaderFilters,
     showHeaderTitle: propShowHeaderTitle,
   };
+  const clearSelection = () => {
+    setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }));
+  };
+
+  const renderSelectionBanner = () => {
+    const selectedItems = internalQueryState.selectedItems || [];
+    if (!propAllowSelection || selectedItems.length === 0) return null;
+    return (
+      <div
+        className="dt-selection-header border-t-1"
+        style={{
+          backgroundColor: "var(--rjs-warning-border)",
+          color: "var(--rjs-warning-foreground)",
+        }}
+      >
+        <span className="flex items-center border-b-1 text-sm gap-1 p-3">
+          {selectedItems.length.toLocaleString()} entries selected
+          <button
+            type="button"
+            onClick={clearSelection}
+            title="Clear selection"
+          >
+            <Trash2 className="h-3 w-3 text-red-500" />
+          </button>
+        </span>
+      </div>
+    );
+  };
 
   return (
     <DataTableProvider value={contextValue}>
       <div className={cn("dt-container", className)}>
-        {/* Table Control */}
         <TableControlComponent actions={actions} />
 
-        {/* Table View */}
         <TableView />
-
-        {/* Pagination */}
+        {renderSelectionBanner()}
         <PaginationComponent
           pagination={internalPagination}
           onChange={handlePaginationChange}

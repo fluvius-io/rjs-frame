@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SortAscIcon, SortDescIcon } from "lucide-react";
 import * as React from "react";
 import {
   QueryFieldMetadata,
@@ -121,10 +121,14 @@ export const QBSortEditor: React.FC<QBSortEditorProps> = ({
                 {sortItem.direction === "desc" ? "Descending" : "Ascending"}
               </Button>
 
-              <span className="qb-sort-priority">{index + 1}.</span>
-              <span className="qb-sort-field">
-                {field?.label || sortItem.field} (
-                {sortItem.direction.toUpperCase()})
+              <span className="qb-sort-field flex gap-4">
+                <span className="qb-sort-priority">{index + 1}.</span>
+                {sortItem.direction === "asc" ? (
+                  <SortAscIcon className="w-4 h-4" />
+                ) : (
+                  <SortDescIcon className="w-4 h-4" />
+                )}
+                {field?.label || sortItem.field}
               </span>
               <div className="qb-sort-controls">
                 {index > 0 && (

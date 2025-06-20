@@ -3,6 +3,10 @@
   @apply w-full flex flex-col  bg-white rounded-lg border border-gray-200 shadow-sm;
 }
 
+.dt-container button[role="checkbox"][data-state="unchecked"] {
+  @apply bg-white;
+}
+
 .dt-container.no-border {
   @apply border-none rounded-none shadow-none bg-transparent;
 }
@@ -47,11 +51,11 @@
 
 /* Table Header */
 .dt-thead {
-  @apply bg-gray-50;
+  @apply bg-slate-100;
 }
 
 .dt-th {
-  @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200;
+  @apply px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200;
 }
 
 .dt-th-sortable {
@@ -76,7 +80,7 @@
 
 /* Table Filter Row */
 .dt-filter-row {
-  @apply bg-gray-50;
+  @apply bg-cyan-50;
 }
 
 .dt-filter-cell {
@@ -96,13 +100,17 @@
   @apply hover:bg-gray-50 transition-colors;
 }
 
+.dt-tr.dt-active {
+  @apply bg-blue-100;
+}
+
 .dt-td {
   @apply px-4 py-3 text-sm text-gray-900 whitespace-nowrap;
 }
 
 /* Loading State */
 .dt-loading {
-  @apply flex items-center justify-center py-8;
+  @apply flex items-center justify-center py-8 bg-white h-full;
 }
 
 .dt-loading-spinner {

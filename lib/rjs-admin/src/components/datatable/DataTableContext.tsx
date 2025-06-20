@@ -1,28 +1,31 @@
 import React from "react";
 import {
   DataRow,
+  DataTableQueryState,
   LoadingState,
   PaginationState,
   TableFilterProps,
   TableHeaderProps,
   TableRowProps,
 } from "../../types/datatable";
-import { QueryMetadata, QueryState } from "../../types/querybuilder";
+import { QueryMetadata } from "../../types/querybuilder";
 
 export interface DataTableContextValue {
   data: DataRow[];
   metadata: QueryMetadata | null;
   loading: LoadingState;
-  queryState: QueryState;
+  queryState: DataTableQueryState;
   setQueryState: (
-    state: QueryState | ((prev: QueryState) => QueryState)
+    state:
+      | DataTableQueryState
+      | ((prev: DataTableQueryState) => DataTableQueryState)
   ) => void;
   pagination: PaginationState;
   setPagination: (state: PaginationState) => void;
   fetchData: () => Promise<void>;
   fetchMetadata: () => Promise<void>;
   debug?: boolean;
-  onQueryStateChange: (state: QueryState) => void;
+  onQueryStateChange: (state: DataTableQueryState) => void;
   onRefresh: () => void;
   openQueryBuilder: (open: boolean) => void;
   onShowHeaderFiltersChange: (show: boolean) => void;

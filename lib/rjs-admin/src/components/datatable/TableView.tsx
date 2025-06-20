@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, Table, Trash2 } from "lucide-react";
+import { AlertCircle, Loader2, Table } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableViewProps } from "../../types/datatable";
@@ -6,7 +6,7 @@ import { QueryFieldMetadata } from "../../types/querybuilder";
 import { useDataTable } from "./DataTableContext";
 
 const noData = (message: string, className: string = "", loading: boolean) => (
-  <div className={cn("dt-table-view", className)}>
+  <div className={cn("dt-table-view", "bg-white", "h-full w-full", className)}>
     <div className="dt-empty">
       <div className="flex flex-col items-center">
         {loading ? (
@@ -29,18 +29,16 @@ const noData = (message: string, className: string = "", loading: boolean) => (
 // Render no header prompt
 const noHeaderPrompt = (className: string = "") => {
   return (
-    <tbody className="dt-tbody">
+    <tbody className="dt-tbody bg-white h-full">
       <tr>
-        <td>
-          <div className={cn("dt-table-view", className)}>
-            <div className="dt-empty">
-              <div className="flex flex-col items-center">
-                <AlertCircle className="dt-empty-icon text-orange-300" />
-                <div className="dt-empty-text">No columns selected</div>
-                <div className="dt-empty-subtext">
-                  Use the column toggle or query builder to select columns to
-                  display
-                </div>
+        <td colSpan={100} className="h-full">
+          <div className="dt-empty">
+            <div className="flex flex-col items-center">
+              <AlertCircle className="dt-empty-icon text-orange-300" />
+              <div className="dt-empty-text">No columns selected</div>
+              <div className="dt-empty-subtext">
+                Use the column toggle or query builder to select columns to
+                display
               </div>
             </div>
           </div>
@@ -97,6 +95,10 @@ export const TableView: React.FC<TableViewProps> = ({
       newSelected = selectedItems.filter((v) => v !== id);
     }
     onQueryStateChange({ ...queryState, selectedItems: newSelected });
+  };
+
+  const activateRow = (id: string) => {
+    onQueryStateChange({ ...queryState, activeItem: id });
   };
 
   /**
@@ -173,7 +175,7 @@ export const TableView: React.FC<TableViewProps> = ({
       return (
         <tbody className="dt-tbody">
           <tr>
-            <td colSpan={columns.length + 1}>
+            <td className="h-full" colSpan={columns.length + 3}>
               {noData("No data found", className, loading.data)}
             </td>
           </tr>
@@ -183,43 +185,27 @@ export const TableView: React.FC<TableViewProps> = ({
 
     return (
       <tbody className="dt-tbody">
-        {data.map((row, index) => (
-          <RowComponent
-            key={index}
-            row={row}
-            columns={columns}
-            rowIndex={index}
-            selected={
-              selectionEnabled &&
-              selectedItems.includes(String(row[idField as string]))
-            }
-            idValue={idField ? String(row[idField]) : undefined}
-            onSelect={selectionEnabled ? toggleRow : undefined}
-          />
-        ))}
+        {data.map((row, index) => {
+          const idValue = idField ? String(row[idField]) : undefined;
+          const isActive = queryState.activeItem === idValue;
+          return (
+            <RowComponent
+              key={index}
+              row={row}
+              columns={columns}
+              rowIndex={index}
+              selected={
+                selectionEnabled &&
+                selectedItems.includes(String(row[idField as string]))
+              }
+              idValue={idValue}
+              onSelect={selectionEnabled ? toggleRow : undefined}
+              onActivate={activateRow}
+              isActive={isActive}
+            />
+          );
+        })}
       </tbody>
-    );
-  };
-
-  const renderSelectionHeader = () => {
-    if (!selectionEnabled || selectedItems.length === 0) return null;
-    return (
-      <tr>
-        <td
-          colSpan={columns.length + 3}
-          style={{
-            backgroundColor: "var(--rjs-warning-border)",
-            color: "var(--rjs-warning-foreground)",
-          }}
-        >
-          <span className="flex items-center border-b-1 text-sm gap-1 p-3">
-            {selectedItems.length.toLocaleString()} entries selected
-            <button type="button" onClick={clearAll} title="Clear selection">
-              <Trash2 className="h-3 w-3 text-red-500" />
-            </button>
-          </span>
-        </td>
-      </tr>
     );
   };
 
@@ -229,26 +215,22 @@ export const TableView: React.FC<TableViewProps> = ({
   };
 
   return (
-    <div className={cn("dt-table-view", className)}>
-      <div className="overflow-x-auto">
-        <table className="dt-table">
-          <thead className="dt-thead">
-            <HeaderComponent
-              allowSelection={selectionEnabled}
-              selectAllState={selectAllState}
-              onSelectAll={selectAllPage}
-              onClearAll={clearAllPage}
-              idField={idField}
-            />
+    <div className={cn("dt-table-view", "overflow-x-auto", className)}>
+      <table className="dt-table">
+        <thead className="dt-thead">
+          <HeaderComponent
+            allowSelection={selectionEnabled}
+            selectAllState={selectAllState}
+            onSelectAll={selectAllPage}
+            onClearAll={clearAllPage}
+            idField={idField}
+          />
 
-            {renderFilterHeader()}
+          {renderFilterHeader()}
+        </thead>
 
-            {renderSelectionHeader()}
-          </thead>
-
-          {renderBody()}
-        </table>
-      </div>
+        {renderBody()}
+      </table>
     </div>
   );
 };

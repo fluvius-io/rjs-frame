@@ -8,9 +8,11 @@ export const TableRow: React.FC<TableRowProps> = ({
   columns,
   rowIndex,
   className,
+  onActivate,
   onSelect,
   selected,
   idValue,
+  isActive,
   rowActions = [],
 }) => {
   // Format cell value for display
@@ -67,16 +69,31 @@ export const TableRow: React.FC<TableRowProps> = ({
     return text.substring(0, maxLength) + "...";
   };
 
+  const handleSelect = (checked: boolean) => {
+    onSelect?.(idValue as string, checked);
+  };
+
+  const handleActivate = () => {
+    onActivate?.(idValue as string);
+  };
+
   return (
-    <tr className={cn("dt-tr", className)}>
+    <tr
+      className={cn(
+        "dt-tr",
+        "cursor-pointer",
+        className,
+        isActive ? "dt-active" : ""
+      )}
+      onClick={handleActivate}
+    >
       {/* Selection Checkbox */}
       {onSelect && (
         <td className="dt-td w-10">
           <Checkbox.Root
             checked={selected}
-            onCheckedChange={(checked) =>
-              onSelect(idValue as string, checked === true)
-            }
+            onCheckedChange={handleSelect}
+            onClick={(e) => e.stopPropagation()}
             className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           >
             <Checkbox.Indicator className="text-white text-xs">
