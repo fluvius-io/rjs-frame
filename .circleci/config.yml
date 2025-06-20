@@ -1,0 +1,104 @@
+version: 2.1
+
+# Workflow configuration
+orbs:
+  slack: circleci/slack@4.13.3
+
+executors:
+  default-executor:
+    resource_class: bdu8fojwbzc5w1gxjuq7up/circle-02-dn1op-app
+    machine: true
+    environment:
+      PATH                  : /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/python-env/bin
+      TSRC_PARALLEL_JOBS    : 50
+      WEBSITE_MANIFEST      : git@gh_abx:abx-ltd/reactjs.rfx-frontend.git
+      WEBSITE_PATH          : /private/abx/project/signalflows/fe/reactjs.rfx-frontend
+      APP_WORKSPACE_PATH    : /private/abx/project/signalflows/fe
+
+# Define CI CD workflow
+workflows:
+  build-workflow:
+    jobs:
+      - build:
+          context: Slack Integration
+          filters:
+            branches:
+              only: main
+      - deploy_production:
+          context: Slack Integration
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
+      - notify_slack:
+          requires:
+            - deploy_production
+          context: Slack Integration
+          filters:
+            branches:
+              only: main
+
+jobs:
+  build:
+    executor: default-executor
+    steps:
+      - run:
+          name: Init workspace for website
+          command: |
+            if [ ! -d $WEBSITE_PATH ]; then
+              cd $APP_WORKSPACE_PATH && git clone $WEBSITE_MANIFEST
+            else
+              echo "Directory already exists"
+            fi
+
+      - run:
+          name: Install package
+          command: |
+            cd $WEBSITE_PATH
+            git checkout -- . && git checkout $CIRCLE_BRANCH && git pull origin $CIRCLE_BRANCH
+            npm install
+
+      - run:
+          name: Build libs
+          command: |
+            cd $WEBSITE_PATH
+            npm run build:libs
+
+      - run:
+          name: Build apps
+          command: |
+            cd $WEBSITE_PATH/app/inv-main
+            TARGET_ENV=production just build
+
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  deploy_production:
+    executor: default-executor
+    steps:
+      - run:
+          name: Deploy
+          command: |
+            cd $WEBSITE_PATH/app/inv-main
+            TARGET_ENV=production just deploy-www
+
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+  notify_slack:
+    executor: default-executor
+    steps:
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
