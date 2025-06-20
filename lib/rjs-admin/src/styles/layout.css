@@ -1,0 +1,19 @@
+.rjs-panel-header {
+  @apply flex items-center justify-between max-h-14 p-4 border-b-2;
+}
+
+.rjs-panel-title {
+  @apply text-lg font-semibold text-gray-900 capitalize text-nowrap text-ellipsis overflow-hidden;
+}
+
+.rjs-panel {
+  @apply flex flex-col gap-4;
+}
+
+.rjs-layout-section {
+  @apply flex flex-col gap-2;
+}
+
+.rjs-panel-section {
+  @apply flex flex-col gap-4 px-4;
+}

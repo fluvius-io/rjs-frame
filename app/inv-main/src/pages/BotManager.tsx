@@ -1,57 +1,27 @@
-import { Package2, Plus, Search, ShoppingCart, TrendingUp } from "lucide-react";
-import { Button, DataTable, ThreeColumnLayout } from "rjs-admin";
+import { Package2, Plus, Search, TrendingUp } from "lucide-react";
+import {
+  Button,
+  DataTable,
+  QueryBuilderPanel,
+  ThreeColumnLayout,
+} from "rjs-admin";
 import { PageModule } from "rjs-frame";
 import { Header } from "../components";
 
 export default function BotManager() {
   return (
-    <ThreeColumnLayout sidebarWidth="lg" slotClasses={{ main: "no-padding" }}>
+    <ThreeColumnLayout
+      sidebarWidth="lg"
+      slotClasses={{ main: "no-padding", sidebar: "no-padding" }}
+    >
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Bot Types</h2>
-          <nav className="space-y-2">
-            <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              All Bots
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Stocks
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              Bonds
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              ETFs
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Package2 className="mr-2 h-4 w-4" />
-              Crypto
-            </Button>
-          </nav>
-
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold mb-2">Quick Stats</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Total Investments</span>
-                <span className="font-medium">2,847</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Low Performance</span>
-                <span className="font-medium text-orange-600">23</span>
-              </div>
-              <div className="flex justify-between">
-                <span>High Risk</span>
-                <span className="font-medium text-red-600">5</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <QueryBuilderPanel
+          fields={["id", "name", "dba_name"]}
+          metaSource="idm:organization"
+          className="no-border h-full"
+        />
       </PageModule>
 
       <PageModule slotName="main" className="h-full">
@@ -73,7 +43,7 @@ export default function BotManager() {
         />
       </PageModule>
 
-      <PageModule slotName="rightPanel">
+      <PageModule className="p-4" slotName="rightPanel">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Quick Actions</h3>
           <div className="space-y-2">
@@ -121,7 +91,7 @@ export default function BotManager() {
         </div>
       </PageModule>
 
-      <PageModule slotName="footer">
+      <PageModule className="p-4" slotName="footer">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
           <p>Last updated: 2 minutes ago</p>

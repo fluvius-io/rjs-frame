@@ -1,10 +1,13 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { ChevronDown } from "lucide-react";
+import { AlertCircle, ChevronDown } from "lucide-react";
 import * as React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { APIManager } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import {
   FilterInputConfig,
+  FilterState,
   QueryMetadata,
   QueryValue,
 } from "../../types/querybuilder";
@@ -12,22 +15,22 @@ import { FilterInput } from "./FilterInput";
 
 export interface QueryBuilderPanelProps {
   /**
-   * List of query operators to render as inputs
-   * e.g., ["name.eq", "age.gt", "email.ilike"]
+   * List of field names to render as filter inputs
+   * e.g., ["name", "email", "age"]
    */
-  operators: string[];
+  fields: string[];
   /**
-   * Query metadata containing field and filter definitions
+   * Query metadata source (e.g., "idm:organization")
    */
-  metadata: QueryMetadata;
+  metaSource: string;
   /**
-   * Current filter values
+   * Current filter states for each field
    */
-  values?: Record<string, QueryValue>;
+  filterStates?: Record<string, FilterState>;
   /**
-   * Callback when filter values change
+   * Callback when filter states change
    */
-  onValuesChange?: (values: Record<string, QueryValue>) => void;
+  onFilterStatesChange?: (filterStates: Record<string, FilterState>) => void;
   /**
    * Custom input configurations for specific operators
    */
@@ -43,16 +46,70 @@ export interface QueryBuilderPanelProps {
 }
 
 export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
-  operators,
-  metadata,
-  values = {},
-  onValuesChange,
+  fields,
+  metaSource,
+  filterStates: initialFilterStates = {},
+  onFilterStatesChange,
   customInput = {},
   className,
   title = "Filters",
 }) => {
+  const [metadata, setMetadata] = useState<QueryMetadata | null>(null);
+  const [filterStates, setFilterStates] =
+    useState<Record<string, FilterState>>(initialFilterStates);
+
+  // Build fieldMap for fast field metadata lookup
+  const fieldMap = useMemo(() => {
+    if (!metadata?.fields) return new Map();
+
+    return new Map(metadata.fields.map((field) => [field.name, field]));
+  }, [metadata?.fields]);
+
+  const fetchMetadata = useCallback(async () => {
+    try {
+      const response = await APIManager.queryMeta(metaSource);
+      setMetadata(response.data as QueryMetadata);
+    } catch (error) {
+      console.error("Failed to fetch metadata:", error);
+    }
+  }, [metaSource]);
+
+  useEffect(() => {
+    fetchMetadata();
+  }, [fetchMetadata]);
+
+  // Initialize filter states when metadata is loaded
+  useEffect(() => {
+    if (!metadata?.fields || !metadata?.filters) return;
+
+    const newFilterStates: Record<string, FilterState> = {};
+
+    fields.forEach((fieldName) => {
+      const field = fieldMap.get(fieldName);
+      if (!field) return;
+
+      // Check if there's already a filter state for this field
+      const existingFilterState = filterStates[fieldName];
+
+      if (existingFilterState) {
+        newFilterStates[fieldName] = existingFilterState;
+      } else {
+        // Create new filter state with default operator
+        newFilterStates[fieldName] = {
+          id: `filter-${fieldName}`,
+          type: "field",
+          field: fieldName,
+          operator: `${fieldName}.${field.noop}`,
+          value: undefined,
+        };
+      }
+    });
+
+    setFilterStates(newFilterStates);
+  }, [metadata, fieldMap, fields]);
+
   // Early return if metadata is not available
-  if (!metadata || !metadata.filters) {
+  if (!metadata || !metadata.filters || !metadata.fields) {
     return (
       <div className={cn("qb-panel qb-panel--loading", className)}>
         <div className="qb-loading">
@@ -62,144 +119,212 @@ export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
     );
   }
 
-  const handleValueChange = (operator: string, value: QueryValue) => {
-    const newValues = { ...values };
+  const getDefaultOperatorForField = (fieldName: string): string => {
+    const field = fieldMap.get(fieldName);
+    if (!field) return `${fieldName}.eq`;
 
-    if (value === undefined || value === null || value === "") {
-      delete newValues[operator];
-    } else {
-      newValues[operator] = value;
-    }
-
-    onValuesChange?.(newValues);
+    return `${fieldName}.${field.noop}`;
   };
 
-  const handleOperatorChange = (oldOperator: string, newOperator: string) => {
-    const newValues = { ...values };
-    const oldValue = newValues[oldOperator];
-
-    // Remove old operator value
-    delete newValues[oldOperator];
-
-    // Add new operator with the same value if it exists
-    if (oldValue !== undefined && oldValue !== null && oldValue !== "") {
-      newValues[newOperator] = oldValue;
-    }
-
-    onValuesChange?.(newValues);
-  };
-
-  const getAvailableOperatorsForField = (fieldName: string): string[] => {
+  const getAvailableOperators = (fieldName: string): string[] => {
     return Object.keys(metadata.filters).filter((operator) => {
       const filter = metadata.filters[operator];
-      return filter.field === fieldName;
+      return filter && filter.field === fieldName;
     });
   };
 
-  const getFieldNameFromOperator = (operator: string): string => {
-    const filter = metadata.filters[operator];
-    return filter?.field || operator.split(".")[0];
+  const handleValueChange = (fieldName: string, value: QueryValue) => {
+    const currentFilterState = filterStates[fieldName];
+    if (!currentFilterState) return;
+
+    const newFilterState: FilterState = {
+      ...currentFilterState,
+      value:
+        value === undefined || value === null || value === ""
+          ? undefined
+          : value,
+    };
+
+    const newFilterStates = {
+      ...filterStates,
+      [fieldName]: newFilterState,
+    };
+
+    setFilterStates(newFilterStates);
+    onFilterStatesChange?.(newFilterStates);
   };
 
-  const renderOperatorInput = (operator: string) => {
-    // Get filter metadata for this operator
-    const filterMetadata = metadata.filters[operator];
+  const handleOperatorChange = (fieldName: string, newOperator: string) => {
+    const currentFilterState = filterStates[fieldName];
+    if (!currentFilterState) return;
 
-    if (!filterMetadata) {
-      console.warn(`Filter metadata not found for operator: ${operator}`);
+    const newFilterState: FilterState = {
+      ...currentFilterState,
+      operator: newOperator,
+    };
+
+    const newFilterStates = {
+      ...filterStates,
+      [fieldName]: newFilterState,
+    };
+
+    setFilterStates(newFilterStates);
+    onFilterStatesChange?.(newFilterStates);
+  };
+
+  const handleNegationToggle = (fieldName: string) => {
+    const currentFilterState = filterStates[fieldName];
+    if (!currentFilterState) return;
+
+    let newOperator: string;
+    if (currentFilterState.operator?.includes("!")) {
+      // Remove negation
+      newOperator = currentFilterState.operator.replace("!", ".");
+    } else {
+      // Add negation
+      newOperator =
+        currentFilterState.operator?.replace(".", "!") ||
+        getDefaultOperatorForField(fieldName);
+    }
+
+    const newFilterState: FilterState = {
+      ...currentFilterState,
+      operator: newOperator,
+    };
+
+    const newFilterStates = {
+      ...filterStates,
+      [fieldName]: newFilterState,
+    };
+
+    setFilterStates(newFilterStates);
+    onFilterStatesChange?.(newFilterStates);
+  };
+
+  const getFilterMetadata = (operator: string) => {
+    return metadata.filters[operator.replace("!", ".")];
+  };
+
+  const renderFieldInput = (fieldName: string) => {
+    const field = fieldMap.get(fieldName);
+    if (!field) {
+      console.warn(`Field not found in metadata: ${fieldName}`);
       return null;
     }
 
-    const currentValue = values[operator];
-    const fieldName = filterMetadata.field;
-    const availableOperators = getAvailableOperatorsForField(fieldName);
+    const filterState = filterStates[fieldName];
+    if (!filterState) return null;
+
+    const currentOperator =
+      filterState.operator || getDefaultOperatorForField(fieldName);
+    const filterMetadata = getFilterMetadata(currentOperator);
+
+    if (!filterMetadata) {
+      console.warn(
+        `Filter metadata not found for operator: ${currentOperator}`
+      );
+      return null;
+    }
+
+    const currentValue = filterState.value;
+    const availableOperators = getAvailableOperators(fieldName);
+    const isNegated = currentOperator.includes("!");
 
     return (
-      <div key={operator} className="qb-panel-item">
+      <div key={fieldName} className="qb-panel-item">
         <div className="qb-panel-header">
-          <Label.Root className="qb-label">{filterMetadata.label}</Label.Root>
+          <Label.Root className="qb-label text-ellipsis text-nowrap">
+            {field.label}
+          </Label.Root>
 
-          {availableOperators.length > 1 && (
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <button className="qb-operator-dropdown-trigger">
-                  <span className="qb-operator-current">
-                    {operator.includes("!") ? "Not " : ""}
-                    {operator.split(".")[1] || operator.split("!")[1]}
-                  </span>
-                  <ChevronDown className="w-3 h-3 ml-1" />
-                </button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content className="qb-dropdown-content">
-                <DropdownMenu.Label className="qb-dropdown-label">
-                  Operators for {fieldName}
-                </DropdownMenu.Label>
-                {availableOperators.map((availableOperator) => {
-                  const availableFilter = metadata.filters[availableOperator];
-                  const isNegated = availableOperator.includes("!");
-                  const operatorName = isNegated
-                    ? availableOperator.split("!")[1]
-                    : availableOperator.split(".")[1];
+          <div className="qb-panel-controls">
+            {availableOperators.length > 1 && (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <button className="qb-operator-dropdown-trigger">
+                    <span className="qb-operator-current">
+                      {isNegated ? "Not " : ""}
+                      {filterMetadata.label}
+                    </span>
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content className="qb-dropdown-content">
+                  {availableOperators.map((operator) => {
+                    const operatorFilter = metadata.filters[operator];
+                    const operatorIsNegated = operator.includes("!");
 
-                  return (
-                    <DropdownMenu.Item
-                      key={availableOperator}
-                      onSelect={() =>
-                        handleOperatorChange(operator, availableOperator)
-                      }
-                      className={cn(
-                        "qb-dropdown-item",
-                        availableOperator === operator &&
-                          "qb-dropdown-item--selected"
-                      )}
-                    >
-                      {isNegated && "Not "}
-                      {availableFilter?.label || operatorName}
-                    </DropdownMenu.Item>
-                  );
-                })}
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          )}
+                    if (!operatorFilter) return null;
+
+                    return (
+                      <DropdownMenu.Item
+                        key={operator}
+                        onSelect={() =>
+                          handleOperatorChange(fieldName, operator)
+                        }
+                        className={cn(
+                          "qb-dropdown-item",
+                          operator === currentOperator &&
+                            "qb-dropdown-item--selected"
+                        )}
+                      >
+                        {operatorIsNegated && "Not "}
+                        {operatorFilter?.label || operator}
+                      </DropdownMenu.Item>
+                    );
+                  })}
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            )}
+
+            <button
+              onClick={() => handleNegationToggle(fieldName)}
+              className={cn(
+                "qb-negation-button",
+                isNegated && "qb-negation-button--active"
+              )}
+              title={isNegated ? "Remove negation" : "Add negation"}
+            >
+              <AlertCircle className="w-3 h-3" />
+            </button>
+          </div>
         </div>
 
         <FilterInput
-          operator={operator}
+          operator={currentOperator}
           metadata={filterMetadata}
-          value={currentValue}
-          onChange={(value) => handleValueChange(operator, value)}
-          customConfig={customInput[operator]}
+          value={currentValue || ""}
+          onChange={(value) => handleValueChange(fieldName, value)}
+          customConfig={customInput[currentOperator]}
           className="qb-filter-input--panel"
         />
       </div>
     );
   };
 
-  const validOperators = operators.filter(
-    (operator) => metadata.filters[operator]
-  );
+  const validFields = fields.filter((fieldName) => fieldMap.has(fieldName));
 
-  if (validOperators.length === 0) {
+  if (validFields.length === 0) {
     return (
-      <div className={cn("qb-panel", className)}>
-        <div className="qb-header">
-          <Label.Root className="qb-label">{title}</Label.Root>
+      <div className={cn("rjs-panel", className)}>
+        <div className="rjs-panel-header">
+          <Label.Root className="rjs-panel-title">{title}</Label.Root>
         </div>
-        <div className="qb-panel-empty">
-          <span>No valid operators provided</span>
+        <div className="rjs-panel-section p-4">
+          <span>No valid fields provided</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={cn("qb-panel", className)}>
-      <div className="qb-header">
-        <Label.Root className="qb-label">{title}</Label.Root>
+    <div className={cn("rjs-panel", className)}>
+      <div className="rjs-panel-header">
+        <h2 className="rjs-panel-title">{title}</h2>
       </div>
 
-      <div className="qb-panel-content">
-        {validOperators.map(renderOperatorInput)}
+      <div className="rjs-panel-section">
+        {validFields.map(renderFieldInput)}
       </div>
     </div>
   );

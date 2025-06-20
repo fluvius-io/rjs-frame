@@ -4,6 +4,7 @@
 @import "./components/UserTabs.css";
 @import "./components/querybuilder.css";
 @import "./components/datatable.css";
+@import "./layout.css";
 
 @tailwind base;
 @tailwind components;

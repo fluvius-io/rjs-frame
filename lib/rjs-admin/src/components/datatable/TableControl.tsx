@@ -74,7 +74,7 @@ export const TableControl: React.FC<TableControlProps> = ({
       <div className="dt-control-body">
         <div className="dt-control-actions">
           {!showHeaderTitle && (
-            <h2 className="text-lg font-semibold text-gray-900 px-2 capitalize">
+            <h2 className="dt-control-title">
               {camelCaseToWords(metadata.title)}
             </h2>
           )}

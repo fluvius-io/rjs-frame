@@ -337,3 +337,5 @@ const parseSort = (sort: string[]): SortItem[] => {
 const getDefaultSelect = (metadata: QueryMetadata) => {
   return metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
 };
+
+DataTable.displayName = "DataTable";

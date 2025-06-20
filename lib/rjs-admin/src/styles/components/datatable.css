@@ -25,7 +25,7 @@
 }
 
 .dt-control-title {
-  @apply text-lg font-semibold text-gray-900;
+  @apply text-lg font-semibold text-gray-900 capitalize text-nowrap text-ellipsis overflow-hidden;
 }
 
 .dt-control-actions {
@@ -41,7 +41,7 @@
 }
 
 .dt-search-box {
-  @apply w-full max-w-md px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+  @apply w-1/2 max-w-md px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
 }
 
 /* Table View Section */

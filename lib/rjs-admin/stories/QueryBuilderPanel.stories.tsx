@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import { QueryBuilderPanel } from "../src/components/querybuilder";
-import { QueryMetadata, QueryValue } from "../src/types/querybuilder";
+import { FilterState, QueryMetadata } from "../src/types/querybuilder";
 
 // Import the CSS file
 import "../src/styles/components/querybuilder.css";
@@ -186,14 +186,14 @@ const meta: Meta<typeof QueryBuilderPanel> = {
     layout: "padded",
   },
   argTypes: {
-    metadata: {
+    metaSource: {
       control: false,
     },
-    values: {
+    filterStates: {
       control: false,
     },
-    onValuesChange: {
-      action: "valuesChanged",
+    onFilterStatesChange: {
+      action: "filterStatesChanged",
     },
   },
 };
@@ -204,14 +204,16 @@ type Story = StoryObj<typeof QueryBuilderPanel>;
 // Basic QueryBuilderPanel story
 export const Default: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({});
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({});
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
         <div
           style={{
@@ -221,33 +223,47 @@ export const Default: Story = {
             borderRadius: "4px",
           }}
         >
-          <strong>Current Values:</strong>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <strong>Current Filter States:</strong>
+          <pre>{JSON.stringify(filterStates, null, 2)}</pre>
         </div>
       </div>
     );
   },
   args: {
-    operators: ["name__given.eq", "email.ilike", "status.eq"],
-    metadata: SAMPLE_METADATA,
+    fields: ["name__given", "email", "status"],
+    metaSource: "mock:user",
     title: "User Search",
   },
 };
 
-// QueryBuilderPanel with initial values
-export const WithInitialValues: Story = {
+// QueryBuilderPanel with initial filter states
+export const WithInitialFilterStates: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({
-      "name__given.eq": "John",
-      "status.eq": "active",
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({
+      name__given: {
+        id: "filter-name__given",
+        type: "field",
+        field: "name__given",
+        operator: "name__given.eq",
+        value: "John",
+      },
+      status: {
+        id: "filter-status",
+        type: "field",
+        field: "status",
+        operator: "status.eq",
+        value: "active",
+      },
     });
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
         <div
           style={{
@@ -257,30 +273,32 @@ export const WithInitialValues: Story = {
             borderRadius: "4px",
           }}
         >
-          <strong>Current Values:</strong>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <strong>Current Filter States:</strong>
+          <pre>{JSON.stringify(filterStates, null, 2)}</pre>
         </div>
       </div>
     );
   },
   args: {
-    operators: ["name__given.eq", "email.ilike", "status.eq"],
-    metadata: SAMPLE_METADATA,
+    fields: ["name__given", "email", "status"],
+    metaSource: "mock:user",
     title: "User Search (Pre-filled)",
   },
 };
 
-// QueryBuilderPanel with all operator types
-export const AllOperators: Story = {
+// QueryBuilderPanel with all fields
+export const AllFields: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({});
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({});
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
         <div
           style={{
@@ -290,41 +308,40 @@ export const AllOperators: Story = {
             borderRadius: "4px",
           }}
         >
-          <strong>Current Values:</strong>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <strong>Current Filter States:</strong>
+          <pre>{JSON.stringify(filterStates, null, 2)}</pre>
         </div>
       </div>
     );
   },
   args: {
-    operators: [
-      "id.eq",
-      "name__given.eq",
-      "name__given.ilike",
-      "name__family.eq",
-      "email.ilike",
-      "age.gt",
-      "age.lt",
-      "status.eq",
-      "created_at.gte",
-      "created_at.lte",
+    fields: [
+      "id",
+      "name__given",
+      "name__family",
+      "email",
+      "age",
+      "status",
+      "created_at",
     ],
-    metadata: SAMPLE_METADATA,
-    title: "All Filters",
+    metaSource: "mock:user",
+    title: "All Fields",
   },
 };
 
 // QueryBuilderPanel with custom input configurations
 export const WithCustomInput: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({});
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({});
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
         <div
           style={{
@@ -334,15 +351,15 @@ export const WithCustomInput: Story = {
             borderRadius: "4px",
           }}
         >
-          <strong>Current Values:</strong>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <strong>Current Filter States:</strong>
+          <pre>{JSON.stringify(filterStates, null, 2)}</pre>
         </div>
       </div>
     );
   },
   args: {
-    operators: ["name__given.ilike", "email.ilike", "age.gt"],
-    metadata: SAMPLE_METADATA,
+    fields: ["name__given", "email", "age"],
+    metaSource: "mock:user",
     title: "Custom Inputs",
     customInput: {
       "name__given.ilike": {
@@ -363,17 +380,19 @@ export const WithCustomInput: Story = {
   },
 };
 
-// QueryBuilderPanel with invalid operators
-export const WithInvalidOperators: Story = {
+// QueryBuilderPanel with invalid fields
+export const WithInvalidFields: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({});
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({});
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
         <div
           style={{
@@ -383,57 +402,56 @@ export const WithInvalidOperators: Story = {
             borderRadius: "4px",
           }}
         >
-          <strong>Current Values:</strong>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <strong>Current Filter States:</strong>
+          <pre>{JSON.stringify(filterStates, null, 2)}</pre>
         </div>
       </div>
     );
   },
   args: {
-    operators: [
-      "name__given.eq",
-      "invalid.operator",
-      "status.eq",
-      "another.invalid",
-    ],
-    metadata: SAMPLE_METADATA,
-    title: "Mixed Valid/Invalid Operators",
+    fields: ["name__given", "invalid_field", "status", "another_invalid"],
+    metaSource: "mock:user",
+    title: "Mixed Valid/Invalid Fields",
   },
 };
 
-// QueryBuilderPanel with no valid operators
-export const NoValidOperators: Story = {
+// QueryBuilderPanel with no valid fields
+export const NoValidFields: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({});
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({});
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
       </div>
     );
   },
   args: {
-    operators: ["invalid.operator", "another.invalid", "not.found"],
-    metadata: SAMPLE_METADATA,
-    title: "No Valid Operators",
+    fields: ["invalid_field", "another_invalid", "not_found"],
+    metaSource: "mock:user",
+    title: "No Valid Fields",
   },
 };
 
 // QueryBuilderPanel with different input types
 export const DifferentInputTypes: Story = {
   render: (args) => {
-    const [values, setValues] = useState<Record<string, QueryValue>>({});
+    const [filterStates, setFilterStates] = useState<
+      Record<string, FilterState>
+    >({});
 
     return (
       <div style={{ maxWidth: "400px" }}>
         <QueryBuilderPanel
           {...args}
-          values={values}
-          onValuesChange={setValues}
+          filterStates={filterStates}
+          onFilterStatesChange={setFilterStates}
         />
         <div
           style={{
@@ -443,15 +461,15 @@ export const DifferentInputTypes: Story = {
             borderRadius: "4px",
           }}
         >
-          <strong>Current Values:</strong>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <strong>Current Filter States:</strong>
+          <pre>{JSON.stringify(filterStates, null, 2)}</pre>
         </div>
       </div>
     );
   },
   args: {
-    operators: ["name__given.eq", "age.gt", "status.eq", "created_at.gte"],
-    metadata: SAMPLE_METADATA,
+    fields: ["name__given", "age", "status", "created_at"],
+    metaSource: "mock:user",
     title: "Different Input Types",
   },
 };

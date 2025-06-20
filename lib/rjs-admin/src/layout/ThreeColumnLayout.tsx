@@ -34,14 +34,14 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
             resizable="right"
             className={cn("bg-muted/10", widthClasses[sidebarWidth])}
           >
-            <PageSlot className="p-4" name="sidebar" />
+            <PageSlot name="sidebar" />
           </PageSection>
 
           <PageSection
             tag="main"
             className="flex-1 border-l border-r overflow-hidden"
           >
-            <PageSlot className="h-full p-6" name="main" />
+            <PageSlot className="h-full" name="main" />
           </PageSection>
 
           <PageSection
@@ -49,12 +49,12 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
             resizable="left"
             className={cn("bg-muted/10", widthClasses[rightPanelWidth])}
           >
-            <PageSlot className="p-4" name="rightPanel" />
+            <PageSlot name="rightPanel" />
           </PageSection>
         </div>
 
         <footer className="border-t bg-muted/50">
-          <PageSlot name="footer" className="container mx-auto p-4" />
+          <PageSlot name="footer" className="container mx-auto" />
         </footer>
       </div>
     );
