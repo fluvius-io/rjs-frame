@@ -29,6 +29,9 @@ const idmCollectionConfig: ApiCollectionConfig = {
     if (data && data.meta) {
       response.meta = data.meta;
     }
+    if (data && data.pagination) {
+      response.pagination = data.pagination;
+    }
     return response;
   },
 };

@@ -10,11 +10,10 @@ export interface PageSectionProps {
   tag?: "div" | "section" | "header" | "footer" | "main" | "aside";
   children?: React.ReactNode;
   // Resize props
-  resizable?: boolean;
+  resizable?: "left" | "right" | false;
   minWidth?: number;
   maxWidth?: number;
   defaultWidth?: number;
-  resizeDirection?: "left" | "right";
   onResize?: (width: number) => void;
 }
 
@@ -35,7 +34,6 @@ export const PageSection = (props: PageSectionProps) => {
     minWidth = 200,
     maxWidth = 800,
     defaultWidth = 300,
-    resizeDirection = "right",
     onResize,
     children,
   } = props;
@@ -68,7 +66,7 @@ export const PageSection = (props: PageSectionProps) => {
 
     const deltaX = e.clientX - startXRef.current;
     const newWidth =
-      resizeDirection === "right"
+      resizable === "right"
         ? startWidthRef.current + deltaX
         : startWidthRef.current - deltaX;
 
@@ -114,10 +112,10 @@ export const PageSection = (props: PageSectionProps) => {
   }
 
   return (
-    <div ref={sectionRef} className={`page-section-wrapper`}>
+    <div ref={sectionRef} className="page-section-resizable">
       {React.createElement(tag, sectionProps, children)}
       <div
-        className={`page-section-resize-handle page-section-resize-handle--${resizeDirection}`}
+        className={`page-section-resize-handle page-section-resize-handle--${resizable}`}
         onMouseDown={handleMouseDown}
       />
     </div>

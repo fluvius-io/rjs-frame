@@ -53,6 +53,7 @@ export {
   FilterInput,
   QueryBuilder,
   QueryBuilderModal,
+  QueryBuilderPanel,
 } from "./components/querybuilder";
 
 // Query Builder Types

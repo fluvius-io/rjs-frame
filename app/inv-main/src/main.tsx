@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Navigate, RjsApp, Route } from "rjs-frame";
-import "rjs-frame/dist/style.css";
 import "./config/api"; // Initialize API manager
-import "./index.css";
 import BotManager from "./pages/BotManager";
 import DashboardPage from "./pages/DashboardPage";
 import DataPage from "./pages/DataPage";
@@ -12,6 +10,7 @@ import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import SignalsPage from "./pages/SignalsPage";
 import UserManagementPage from "./pages/UserManagementPage";
+import "./styles/index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

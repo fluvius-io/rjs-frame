@@ -1,6 +1,6 @@
 /* PageSection Resize Handle Styles */
 
-.page-section-wrapper {
+.page-section-resizable {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -13,11 +13,17 @@
   width: 5px;
   cursor: col-resize;
   z-index: 10;
+}
+
+.page-section-resize-handle--right {
   right: -2px;
 }
 
-/* Resize indicator line */
+.page-section-resize-handle--left {
+  left: -2px;
+}
 
+/* Resize indicator line */
 .page-section-resize-handle::after {
   content: "";
   position: absolute;
@@ -37,13 +43,13 @@
   border-color: rgba(16, 179, 255, 0.771);
 }
 
-.page-section-wrapper.resizing .page-section-resize-handle::after {
+.page-section-resizable.resizing .page-section-resize-handle::after {
   border-width: 1px;
   border-color: rgba(16, 179, 255, 1);
 }
 
 /* Resizing state */
-.page-section-wrapper.resizing {
+.page-section-resizable.resizing {
   user-select: none;
 }
 

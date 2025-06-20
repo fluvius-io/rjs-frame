@@ -1,0 +1,52 @@
+/* CSS Custom Properties for rjs-frame */
+:root {
+    /* X-Ray mode opacity */
+    --xray-opacity-default: 0.5;
+    --xray-opacity-hover: 1;
+  
+    /* X-Ray mode colors */
+    --xray-module-color: rgba(0, 128, 0, 1);
+    --xray-layout-color: rgba(255, 0, 0, 1);
+    --xray-slot-color: rgba(0, 0, 255, 1);
+    --xray-section-color: rgb(0, 205, 205);
+    --xray-section-info-bg: rgb(0, 205, 205);
+    --xray-section-info-text: rgba(0, 0, 0, 1);
+    --xray-slot-info-bg: rgba(255, 253, 130, 1);
+    --xray-slot-info-text: rgba(0, 0, 0, 1);
+  
+    /* Error state colors */
+    --rjs-error-border: #d32f2f;
+    --rjs-error-bg: #fff5f5;
+    --rjs-error-text: #d32f2f;
+    --rjs-error-border-light: #ffebee;
+  
+    /* Neutral colors */
+    --rjs-gray-100: #f8f9fa;
+    --rjs-gray-200: #e9ecef;
+    --rjs-gray-300: #dee2e6;
+    --rjs-gray-400: #adb5bd;
+    --rjs-gray-500: #666;
+    --rjs-gray-600: #555;
+    --rjs-gray-700: #333;
+    --rjs-gray-800: #e0e0e0;
+    --rjs-gray-900: #999;
+    --rjs-gray-light: #eee;
+    --rjs-gray-lighter: #fafafa;
+    --rjs-gray-lightest: #e3f2fd;
+    --rjs-white: #ffffff;
+    --rjs-black: rgba(0, 0, 0, 1);
+  
+    /* Primary/accent colors */
+    --rjs-primary: #007bff;
+    --rjs-success: #28a745;
+    --rjs-warning-bg: #fff3cd;
+    --rjs-warning-border: #ffeaa7;
+    --rjs-warning-text: #856404;
+    --rjs-danger: #dc3545;
+  
+    /* Overlay colors */
+    --rjs-overlay-bg: rgba(0, 0, 0, 0.8);
+    --rjs-shadow-light: rgba(0, 0, 0, 0.1);
+    --rjs-shadow-medium: rgba(0, 0, 0, 0.3);
+  }
+  

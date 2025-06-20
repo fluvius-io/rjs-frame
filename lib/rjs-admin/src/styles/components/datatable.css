@@ -1,3 +1,7 @@
+:root {
+  --rjs-checkbox-border: #e2e8f0;
+}
+
 /* DataTable Main Container */
 .dt-container {
   @apply w-full flex flex-col  bg-white rounded-lg border border-gray-200 shadow-sm;

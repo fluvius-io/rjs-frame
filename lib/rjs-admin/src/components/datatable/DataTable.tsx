@@ -1,7 +1,7 @@
 import { Loader2, Trash2 } from "lucide-react";
 import React from "react";
 import { APIManager } from "rjs-frame";
-import { cn } from "../../lib/utils";
+import { cn, queryStateToApiParams } from "../../lib/utils";
 import {
   DataRow,
   DataTableProps,
@@ -95,7 +95,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   const [internalPagination, setInternalPagination] =
     React.useState<PaginationState>(() => ({
       page: 1,
-      pageSize: 25,
+      limit: 25,
       total: 0,
       ...propPagination,
     }));
@@ -103,7 +103,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   const setPagination = (newPagination: PaginationState) => {
     if (
       newPagination.page !== internalPagination.page ||
-      newPagination.pageSize !== internalPagination.pageSize ||
+      newPagination.limit !== internalPagination.limit ||
       newPagination.total !== internalPagination.total
     ) {
       setInternalPagination(newPagination);
@@ -112,12 +112,13 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   const handleQueryStateChange = (newState: QueryState) => {
     setInternalQueryState(newState);
+    debouncedFetchData();
   };
 
   const handlePaginationChange = (newPagination: PaginationState) => {
     if (
       newPagination.page !== internalPagination.page ||
-      newPagination.pageSize !== internalPagination.pageSize
+      newPagination.limit !== internalPagination.limit
     ) {
       debouncedFetchData(newPagination);
     }
@@ -156,36 +157,33 @@ export const DataTable: React.FC<DataTableProps> = ({
     async (pagination?: PaginationState) => {
       if (!dataSource) return;
 
-      setLoading((prev) => ({ ...prev, data: true }));
+      // setLoading((prev) => ({ ...prev, data: true }));
       pagination = pagination || internalPagination;
       try {
         // Build query parameters from current state
-        const queryParams = {
-          page: pagination.page,
-          limit: pagination.pageSize,
+        const apiParams = queryStateToApiParams(internalQueryState);
+        const urlParams = {
+          search: {
+            page: pagination.page,
+            limit: pagination.limit,
+            ...apiParams,
+          },
         };
 
-        const response = await APIManager.query(dataSource, {
-          search: queryParams,
-        });
+        const response = await APIManager.query(dataSource, urlParams);
 
         if (response.data) {
           setData(response.data);
         }
 
         // Update pagination total if not controlled
-        if (response.meta) {
-          const meta = response.meta;
-          setPagination({
-            total: meta?.total_items || internalPagination.total,
-            page: meta?.page_no || internalPagination.page,
-            pageSize: meta?.limit || internalPagination.pageSize,
-          });
+        if (response.pagination) {
+          setPagination(response.pagination);
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
-        setLoading((prev) => ({ ...prev, data: false }));
+        // setLoading((prev) => ({ ...prev, data: false }));
       }
     },
     [dataSource, internalQueryState]

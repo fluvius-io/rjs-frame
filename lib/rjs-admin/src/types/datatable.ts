@@ -15,22 +15,26 @@ export interface DataTableQueryState extends QueryState {
   selectedItems?: string[];
   activeItem?: string;
   activeColumn?: string;
+  resourceScope?: Record<string, string>;
+  pathQuery?: Record<string, string>;
 }
 
 // API response structure for data fetching
 export interface DataResponse extends ApiResponse {
   data: DataRow[];
-  meta: {
-    total_items: number;
-    page_no: number;
+  meta?: {};
+  pagination?: {
+    total: number;
+    page: number;
     limit: number;
+    pages: number;
   };
 }
 
 // Pagination state
 export interface PaginationState {
   page: number;
-  pageSize: number;
+  limit: number;
   total: number;
 }
 

@@ -31,7 +31,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
           <PageSection
             tag="aside"
             matchParams={{ sidebar: true }}
-            resizable={true}
+            resizable="right"
             className={cn("bg-muted/10", widthClasses[sidebarWidth])}
           >
             <PageSlot className="p-4" name="sidebar" />
@@ -46,6 +46,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
 
           <PageSection
             tag="aside"
+            resizable="left"
             className={cn("bg-muted/10", widthClasses[rightPanelWidth])}
           >
             <PageSlot className="p-4" name="rightPanel" />

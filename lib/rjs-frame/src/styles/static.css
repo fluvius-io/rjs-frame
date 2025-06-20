@@ -1,4 +1,7 @@
-/* Loading Screen Styles - Inline for immediate display */
+/* 
+ * Static styles for the loading screen. Must be embedded in the HTML file.
+ */
+
 .loading-screen {
   display: flex;
   position: fixed;

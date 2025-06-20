@@ -78,7 +78,6 @@ export interface QueryState {
   text?: string;
 }
 
-
 // Props for FilterInput component
 export interface FilterInputProps {
   operator: string;

@@ -102,6 +102,12 @@ export interface ApiCollectionConfig {
 export interface ApiResponse<T = any> {
   data: T;
   meta?: Record<string, any>;
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
   status: number;
   statusText: string;
   headers: Headers;
@@ -149,6 +155,7 @@ export type ApiParams = {
   search?: Record<string, string>; // url search parameters
   headers?: Record<string, string>; // headers to be added to the request
   path?: Record<string, string>; // path parameters to be used by the uri generator
+  scope?: Record<string, string>; // scope to be used by the api manager
 };
 
 export type ApiPayload = Record<string, any> | FormData | string;

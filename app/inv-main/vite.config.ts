@@ -1,9 +1,30 @@
 import react from "@vitejs/plugin-react";
+import fs from "fs";
 import { resolve } from "path";
 import { defineConfig } from "vite";
+import { createHtmlPlugin } from "vite-plugin-html";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          APP_NAME: "Invest Mate",
+        },
+        tags: [
+          {
+            injectTo: "head",
+            tag: "style",
+            children: fs.readFileSync(
+              "../../lib/rjs-frame/src/styles/static.css",
+              "utf-8"
+            ),
+          },
+        ],
+      },
+    }),
+  ],
   server: {
     port: 5174,
     watch: {

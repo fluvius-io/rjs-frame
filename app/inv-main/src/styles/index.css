@@ -1,3 +1,4 @@
+@import "rjs-frame/dist/style.css";
 @import "rjs-admin/dist/index.css";
 
 @tailwind base;

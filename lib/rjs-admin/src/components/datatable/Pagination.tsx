@@ -22,7 +22,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   onClearSelection,
   className,
 }) => {
-  const { page, pageSize, total } = pagination;
+  const { page, limit: pageSize, total } = pagination;
   const totalPages = Math.ceil(total / pageSize);
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, total);
@@ -36,7 +36,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const handlePageSizeChange = (newPageSize: number) => {
     if (newPageSize !== pageSize) {
       // Reset to first page when changing page size
-      onChange({ ...pagination, pageSize: newPageSize, page: 1 });
+      onChange({ ...pagination, limit: newPageSize, page: 1 });
     }
   };
 
