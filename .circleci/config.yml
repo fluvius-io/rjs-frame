@@ -6,7 +6,7 @@ orbs:
 
 executors:
   default-executor:
-    resource_class: bdu8fojwbzc5w1gxjuq7up/circle-02-dn1op-app
+    resource_class: abx-ltd/circle-01-dn1op-app
     machine: true
     environment:
       PATH                  : /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/python-env/bin
