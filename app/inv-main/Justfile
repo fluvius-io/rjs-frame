@@ -1,0 +1,39 @@
+set dotenv-required := true
+set dotenv-filename := x"env/${TARGET_ENV:-develop}/env"
+
+TARGET_ENV := env("TARGET_ENV", "develop")
+BUILD_DIR := env("BUILD_DIR", "dist")
+DEPLOY_TARGET := env("DEPLOY_TARGET", "env/{{TARGET_ENV}}")
+
+# Print this messages
+@help: print-vars
+    just --list
+
+@print-vars:
+    echo "Environment Variables:"
+    echo "  - BUILD_DIR    : {{BUILD_DIR}}"
+    echo "  - DEPLOY_TARGET: {{DEPLOY_TARGET}}"
+    echo "  - TARGET_ENV   : {{TARGET_ENV}}"
+    echo ""
+
+@install:
+    npm install
+
+@run:
+    npm run dev
+
+@build:
+    @npm run build
+
+@preview:
+    @npm run preview
+
+@deploy-www:
+    cd "{{BUILD_DIR}}" && \
+    rsync --rsync-path="sudo rsync" \
+        -avz \
+        --delete \
+        --exclude=*.map \
+        --exclude=.DS_Store \
+        --exclude=__MACOSX \
+        ./ {{DEPLOY_TARGET}}/
