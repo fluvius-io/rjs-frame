@@ -1,0 +1,2 @@
+DEPLOY_TARGET=worker-01.dn1op-app:/var/www/html/app.invest-mate.net
+VITE_API_URL=http://localhost:8000
