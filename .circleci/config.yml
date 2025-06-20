@@ -66,6 +66,11 @@ jobs:
             npm run build:libs
 
       - run:
+          name: Install apps
+          command: |
+            cd $WEBSITE_PATH/app/inv-main
+            just install
+      - run:
           name: Build apps
           command: |
             cd $WEBSITE_PATH/app/inv-main
