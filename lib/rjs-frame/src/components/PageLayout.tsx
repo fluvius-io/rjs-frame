@@ -4,12 +4,13 @@ import {
   type PageLayoutContextType,
 } from "../contexts/LayoutContexts";
 import {
-  getXRayEnabled,
-  pageStore,
+  getGlobalStateValue,
+  getAppState,
   setPageName,
-  setXRayEnabled,
-} from "../store/pageStore";
-import type { TypedPageState } from "../types/PageState";
+  subscribeToAppState,
+  updateGlobalState,
+} from "../store/appStateStore";
+import { AppState } from "../types/AppState";
 import { PageLayoutOptions } from "./PageLayoutOptions";
 import { PageModule } from "./PageModule";
 
@@ -24,8 +25,8 @@ export interface PageLayoutProps {
 }
 
 interface PageLayoutState {
-  showOptions: boolean;
-  pageState: TypedPageState;
+  showPageConfigurationModal: boolean;
+  appState: AppState;
 }
 
 export abstract class PageLayout<
@@ -35,7 +36,7 @@ export abstract class PageLayout<
   private layoutId: string;
   private static activeInstance: PageLayout | null = null;
   private static instanceCount: number = 0;
-  private unsubscribePageStore?: () => void;
+  private unsubscribeAppState?: () => void;
 
   private gatherModulesFromChildren(): Record<string, React.ReactNode[]> {
     const pageModules: Record<string, React.ReactNode[]> = {};
@@ -100,8 +101,8 @@ export abstract class PageLayout<
     super(props);
     this.layoutId = this.constructor.name;
     this.state = {
-      showOptions: false,
-      pageState: pageStore.get(),
+      showPageConfigurationModal: false,
+      appState: getAppState(),
     } as S;
   }
 
@@ -124,15 +125,13 @@ export abstract class PageLayout<
     PageLayout.activeInstance = this;
 
     // Subscribe to page store changes
-    this.unsubscribePageStore = pageStore.subscribe(
-      (pageState: TypedPageState) => {
-        this.setState({ pageState });
-      }
-    );
+    this.unsubscribeAppState = subscribeToAppState((appState: AppState) => {
+      this.setState({ appState });
+    });
 
     // Initialize xRay from props if provided (for backward compatibility)
     if (this.props.xRay !== undefined) {
-      setXRayEnabled(this.props.xRay);
+      updateGlobalState({ xRay: this.props.xRay });
     }
 
     // Set initial breadcrumbs from title prop
@@ -143,14 +142,13 @@ export abstract class PageLayout<
     // Validate children on mount
     try {
       this.gatherModulesFromChildren();
+      // Setup event listeners only for the active instance
+      this.setupEventListeners();
+      this.onMount();
     } catch (error) {
       console.error("[PageLayout] Validation failed:", error);
       throw error;
     }
-
-    // Setup event listeners only for the active instance
-    this.setupEventListeners();
-    this.onMount();
   }
 
   componentDidUpdate(prevProps: PageLayoutProps) {
@@ -165,8 +163,8 @@ export abstract class PageLayout<
     PageLayout.instanceCount--;
 
     // Unsubscribe from page store
-    if (this.unsubscribePageStore) {
-      this.unsubscribePageStore();
+    if (this.unsubscribeAppState) {
+      this.unsubscribeAppState();
     }
 
     // Clean up only if this is the active instance
@@ -189,8 +187,8 @@ export abstract class PageLayout<
   private forceCleanup() {
     // Force cleanup of event listeners and state for inactive instances
     this.cleanupEventListeners();
-    if (this.state.showOptions) {
-      this.setState({ showOptions: false });
+    if (this.state.showPageConfigurationModal) {
+      this.setState({ showPageConfigurationModal: false });
     }
   }
 
@@ -203,14 +201,16 @@ export abstract class PageLayout<
     // Option+O (Mac) / Alt+O (Windows) to toggle options dialog
     if (event.altKey && event.code === "KeyO") {
       event.preventDefault();
-      this.setState({ showOptions: !this.state.showOptions });
+      this.setState({
+        showPageConfigurationModal: !this.state.showPageConfigurationModal,
+      });
       return;
     }
 
     // Escape to close options dialog
-    if (event.key === "Escape" && this.state.showOptions) {
+    if (event.key === "Escape" && this.state.showPageConfigurationModal) {
       event.preventDefault();
-      this.setState({ showOptions: false });
+      this.setState({ showPageConfigurationModal: false });
       return;
     }
 
@@ -223,13 +223,14 @@ export abstract class PageLayout<
   };
 
   private toggleXRay = () => {
-    setXRayEnabled(!getXRayEnabled());
+    const currentXRay = getGlobalStateValue("xRay", false);
+    updateGlobalState({ xRay: !currentXRay });
     // Force re-render to pick up the global state change
     this.forceUpdate();
   };
 
-  private closeOptions = () => {
-    this.setState({ showOptions: false });
+  private closePageConfigurationModal = () => {
+    this.setState({ showPageConfigurationModal: false });
   };
 
   // Static method to get current active instance info (useful for debugging)
@@ -251,15 +252,14 @@ export abstract class PageLayout<
   abstract renderContent(): React.ReactNode;
 
   render() {
-    const xRayEnabled = getXRayEnabled();
-    const { breadcrumbs } = this.state.pageState;
+    const xRayEnabled = getGlobalStateValue("xRay", false);
 
     const pageContext: PageLayoutContextType = {
       layoutId: this.layoutId,
       pageModules: this.modules,
-      pageParams: this.state.pageState.pageParams,
-      linkParams: this.state.pageState.linkParams,
-      xRay: xRayEnabled,
+      pageParams: this.state.appState.pageParams,
+      linkParams: this.state.appState.linkParams,
+      hashParams: this.state.appState.hashParams,
       slotClasses: this.props.slotClasses || {},
       addPageModule: (slotName: string, content: React.ReactNode) => {
         // TODO: Implement dynamic module addition if needed
@@ -280,14 +280,15 @@ export abstract class PageLayout<
         </div>
         <PageLayoutOptions
           isVisible={
-            this.state.showOptions && PageLayout.activeInstance === this
+            this.state.showPageConfigurationModal &&
+            PageLayout.activeInstance === this
           }
           layoutId={this.layoutId}
           modules={this.modules}
           xRayEnabled={xRayEnabled}
           isActiveInstance={PageLayout.activeInstance === this}
           totalInstances={PageLayout.instanceCount}
-          onClose={this.closeOptions}
+          onClose={this.closePageConfigurationModal}
           onToggleXRay={this.toggleXRay}
         />
       </PageLayoutContext.Provider>

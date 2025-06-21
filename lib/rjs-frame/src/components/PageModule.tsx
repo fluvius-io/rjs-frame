@@ -6,14 +6,14 @@ import {
   PageSlotContext,
   type PageSlotContextType,
 } from "../contexts/LayoutContexts";
-import { pageStore } from "../store/pageStore";
+import { getAppState, matchPageParams } from "../store/appStateStore";
 import "../styles/index.css";
-import type { PageState } from "../types/PageState";
+import type { AppState } from "../types/AppState";
 import { cn } from "../utils";
-import { shouldRender, type MatchParams } from "../utils/matchParams";
+import { type ParamSpec } from "../utils/matchParams";
 
 export interface PageModuleState {
-  pageState: PageState;
+  appState: AppState;
   initialized: boolean;
 }
 
@@ -21,12 +21,9 @@ export interface PageModuleProps {
   children?: React.ReactNode;
   slotName?: string;
   data?: Record<string, any>;
-  matchParams?: MatchParams;
+  condition?: ParamSpec;
   className?: string;
 }
-
-// Re-export types for convenience
-export type { MatchParams, MatchParamValue } from "../utils/matchParams";
 
 export class PageModule<
   P extends PageModuleProps = PageModuleProps,
@@ -46,7 +43,7 @@ export class PageModule<
     this.moduleId = generate();
     this.moduleName = this.constructor.name;
     this.state = {
-      pageState: pageStore.get(),
+      appState: getAppState(),
       initialized: false,
     } as unknown as S;
   }
@@ -73,13 +70,13 @@ export class PageModule<
   }
 
   // Getter for accessing current page state
-  protected get pageState(): PageState {
-    return this.state.pageState;
+  protected get appState(): AppState {
+    return this.state.appState;
   }
 
   // Getter for accessing module-specific private state
   protected get moduleState(): any {
-    return this.state.pageState.moduleState[this.moduleId] || {};
+    return this.state.appState.moduleState[this.moduleId] || {};
   }
 
   // Getter for accessing slot context
@@ -87,19 +84,12 @@ export class PageModule<
     return this.slotContextRef.current;
   }
 
-  // Method to check if this module should render based on matchParams
-  protected shouldRenderModule(): boolean {
-    const { matchParams } = this.props;
-    const { pageParams } = this.state.pageState;
-
-    return shouldRender(
-      matchParams,
-      pageParams,
-      `PageModule[${this.moduleName}]`
-    );
-  }
-
   render() {
+    if (
+      !matchPageParams(this.props.condition, `PageModule[${this.moduleName}]`)
+    ) {
+      return null;
+    }
     if (!this.context) {
       return (
         <div className="page-module page-module--error">
@@ -111,12 +101,6 @@ export class PageModule<
 
     if (!this.state.initialized) {
       return <div className="page-module page-module--loading">Loading...</div>;
-    }
-
-    // Check if module should render based on matchParams
-    if (!this.shouldRenderModule()) {
-      // Module doesn't match current page parameters, don't render
-      return null;
     }
 
     return (

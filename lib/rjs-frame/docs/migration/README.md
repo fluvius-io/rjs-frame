@@ -15,13 +15,13 @@ Guides for upgrading between rjs-frame versions.
 
 ### v2.x → v3.x
 - **PageLayout Props**: `pageName` prop renamed to `title`
-- **Breadcrumb Storage**: Moved from local component state to global pageState
+- **Breadcrumb Storage**: Moved from local component state to global appState
 - **State Management**: Enhanced store functions for cross-component communication
 
 ### v1.x → v2.x
 - **URL Management**: Centralized URL update functions
 - **Function Naming**: Consistent naming patterns for utilities
-- **PageState Interface**: Restructured for better organization
+- **AppState Interface**: Restructured for better organization
 
 ## Migration Support
 

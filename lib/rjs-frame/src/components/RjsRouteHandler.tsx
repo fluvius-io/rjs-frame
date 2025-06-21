@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { initPageState } from "../store/pageStore";
+import { initAppState } from "../store/appStateStore";
 
 export function RjsRouteHandler() {
   const location = useLocation();
@@ -22,7 +22,7 @@ export function RjsRouteHandler() {
     lastLocationRef.current = currentLocationKey;
 
     // Initialize page state from current URL whenever route changes
-    const state = initPageState(window.location);
+    const state = initAppState(window.location);
     console.log("[RouteChangeHandler] URL updated:", window.location, state);
 
     processingRef.current = false;

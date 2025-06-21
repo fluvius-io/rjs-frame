@@ -20,7 +20,7 @@
 
 ### Global State Storage
 
-Breadcrumbs are now stored in the global `pageState` instead of local component state.
+Breadcrumbs are now stored in the global `appState` instead of local component state.
 
 **Benefits:**
 - ✅ Persist across component remounts
@@ -75,19 +75,19 @@ const { breadcrumbs, pushPage, popPage, setBreadcrumbs } = usePageLayout();
 You can now subscribe directly to breadcrumb changes:
 
 ```typescript
-import { pageStore } from 'rjs-frame';
+import { appStateStore } from 'rjs-frame';
 
-const unsubscribe = pageStore.subscribe((state) => {
+const unsubscribe = appStateStore.subscribe((state) => {
   console.log('Breadcrumbs changed:', state.breadcrumbs);
 });
 ```
 
-## PageState Structure
+## AppState Structure
 
-The `PageState` interface now includes breadcrumbs:
+The `AppState` interface now includes breadcrumbs:
 
 ```typescript
-interface PageState {
+interface AppState {
   name: string;
   time: string;
   breadcrumbs: string[];  // <-- New: Global breadcrumb storage

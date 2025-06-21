@@ -79,9 +79,9 @@ console.log(result);
 ### Building URLs
 
 ```typescript
-import { buildUrlFromPageState } from 'rjs-frame';
+import { buildUrlFromAppState } from 'rjs-frame';
 
-const pageState = {
+const appState = {
   name: 'admin',
   breadcrumbs: ['admin'],
   pageParams: {
@@ -100,7 +100,7 @@ const pageState = {
   other: {}
 };
 
-const url = buildUrlFromPageState(pageState);
+const url = buildUrlFromAppState(appState);
 console.log(url); // '/admin/-/filter:pending/sort:date/page:2/debug'
 ```
 
@@ -139,7 +139,7 @@ console.log(parsed.pageParams);
 ### Boolean False Handling
 ```typescript
 // Boolean false values are omitted from URLs
-const pageStateWithFalse = {
+const appStateWithFalse = {
   name: 'admin',
   breadcrumbs: ['admin'],
   pageParams: {
@@ -156,7 +156,7 @@ const pageStateWithFalse = {
   other: {}
 };
 
-const url = buildUrlFromPageState(pageStateWithFalse);
+const url = buildUrlFromAppState(appStateWithFalse);
 console.log(url); // '/admin/-/filter:active/debug'
 ```
 
@@ -245,10 +245,10 @@ updatePageParamsPartial({
 ### Update Browser URL Using Central Method
 
 ```typescript
-import { updateBrowserLocation, pageStore } from 'rjs-frame';
+import { updateBrowserLocation, appStateStore } from 'rjs-frame';
 
 // Get current page state and update it
-const currentState = pageStore.get();
+const currentState = appStateStore.get();
 const updatedState = {
   ...currentState,
   pageParams: { 
@@ -258,7 +258,7 @@ const updatedState = {
 };
 
 updateBrowserLocation(updatedState);
-// ✅ Updates URL using central method with pageState
+// ✅ Updates URL using central method with appState
 // ✅ Handles both path and fragment updates intelligently
 // ✅ Provides proper history management
 ```
@@ -296,10 +296,10 @@ addSlotParam('filter', newFilter);
 ### Custom URL Building
 
 ```typescript
-import { buildUrlFromPageState, URL_FRAGMENT_SEPARATOR } from 'rjs-frame';
+import { buildUrlFromAppState, URL_FRAGMENT_SEPARATOR } from 'rjs-frame';
 
 // Build complex URLs
-const complexPageState = {
+const complexAppState = {
   name: 'search',
   breadcrumbs: ['search'],
   pageParams: {
@@ -316,7 +316,7 @@ const complexPageState = {
   other: {}
 };
 
-const complexUrl = buildUrlFromPageState(complexPageState);
+const complexUrl = buildUrlFromAppState(complexAppState);
 // Result: /search/-/query:react hooks/filters:language=javascript&difficulty=intermediate/page:1
 ```
 
@@ -334,7 +334,7 @@ console.log(hasNewFormat); // true
 ### Fragment Name Validation
 
 ```typescript
-import { isValidFragmentName, FRAGMENT_NAME_PATTERN, buildUrlFromPageState } from 'rjs-frame';
+import { isValidFragmentName, FRAGMENT_NAME_PATTERN, buildUrlFromAppState } from 'rjs-frame';
 
 // Validate fragment names before using them
 console.log(isValidFragmentName('filter'));       // true
@@ -351,7 +351,7 @@ const params = {
   'invalid-param': 'value2'  // This will be skipped with warning
 };
 
-const pageStateWithMixed = {
+const appStateWithMixed = {
   name: 'admin',
   breadcrumbs: ['admin'],
   pageParams: params,
@@ -364,7 +364,7 @@ const pageStateWithMixed = {
   other: {}
 };
 
-const url = buildUrlFromPageState(pageStateWithMixed);
+const url = buildUrlFromAppState(appStateWithMixed);
 // Console warning: [RJS-Frame] Invalid fragment name "invalid-param"...
 // Result: '/admin/-/valid_param:value1'
 ```
@@ -374,7 +374,7 @@ const url = buildUrlFromPageState(pageStateWithMixed);
 ### Empty Fragments
 
 ```typescript
-const emptyPageState = {
+const emptyAppState = {
   name: 'admin',
   breadcrumbs: ['admin'],
   pageParams: {},
@@ -387,13 +387,13 @@ const emptyPageState = {
   other: {}
 };
 
-buildUrlFromPageState(emptyPageState); // '/admin'
+buildUrlFromAppState(emptyAppState); // '/admin'
 ```
 
 ### Empty Page Name
 
 ```typescript
-const noNamePageState = {
+const noNameAppState = {
   name: '',
   breadcrumbs: [],
   pageParams: { filter: 'active' },
@@ -406,7 +406,7 @@ const noNamePageState = {
   other: {}
 };
 
-buildUrlFromPageState(noNamePageState); // '/'
+buildUrlFromAppState(noNameAppState); // '/'
 ```
 
 ### Complex Fragment Values
@@ -428,7 +428,7 @@ const complexFragmentState = {
   other: {}
 };
 
-buildUrlFromPageState(complexFragmentState);
+buildUrlFromAppState(complexFragmentState);
 // '/search/-/query:user name with spaces/filters:status=active&type=premium'
 ```
 
@@ -437,14 +437,14 @@ buildUrlFromPageState(complexFragmentState);
 All functions include full TypeScript support:
 
 ```typescript
-import type { PageParams, PageState } from 'rjs-frame';
+import type { PageParams, AppState } from 'rjs-frame';
 
 const params: PageParams = {
   filter: 'active',
   sort: 'name'
 };
 
-const pageState: PageState = {
+const appState: AppState = {
   name: 'admin',
   breadcrumbs: ['admin'],
   pageParams: params,
@@ -457,7 +457,7 @@ const pageState: PageState = {
   other: {}
 };
 
-const url = buildUrlFromPageState(pageState); // Fully typed
+const url = buildUrlFromAppState(appState); // Fully typed
 ```
 
 ## Constants
@@ -489,7 +489,7 @@ window.location.pathname = `/admin/filter:${filter}`;
 ❌ **Direct state manipulation:**
 ```typescript
 // Don't do this - bypasses safety checks
-pageStore.set({ ...state, name: 'newPage' });
+appStateStore.set({ ...state, name: 'newPage' });
 ```
 
 ### Correct Approaches
@@ -510,7 +510,7 @@ setPageName('newPage');
 When testing URL functionality:
 
 ```typescript
-import { parseUrlPath, buildUrlFromPageState } from 'rjs-frame';
+import { parseUrlPath, buildUrlFromAppState } from 'rjs-frame';
 
 // Test URL parsing
 const testUrl = '/admin/-/filter:active/sort:name';
@@ -518,7 +518,7 @@ const parsed = parseUrlPath(testUrl);
 expect(parsed.pagePath).toBe('admin');
 
 // Test URL building
-const testPageState = {
+const testAppState = {
   name: 'admin',
   breadcrumbs: ['admin'],
   pageParams: { filter: 'active' },
@@ -531,7 +531,7 @@ const testPageState = {
   other: {}
 };
 
-const builtUrl = buildUrlFromPageState(testPageState);
+const builtUrl = buildUrlFromAppState(testAppState);
 expect(builtUrl).toBe('/admin/-/filter:active');
 ```
 

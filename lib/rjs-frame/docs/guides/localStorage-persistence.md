@@ -4,7 +4,7 @@ This guide explains how rjs-frame automatically persists certain state data to l
 
 ## Overview
 
-rjs-frame automatically persists two key parts of the PageState to localStorage:
+rjs-frame automatically persists two key parts of the AppState to localStorage:
 
 - **GlobalState**: Application-wide settings and preferences
 - **ModuleState**: Module-specific data and configurations
@@ -24,9 +24,9 @@ This ensures that user preferences, debug settings, and module configurations su
 ### When Data is Saved
 
 State is automatically saved to localStorage whenever:
-- `globalState` changes in the PageState
-- `moduleState` changes in the PageState
-- The state update is processed through `updatePageState()`
+- `globalState` changes in the AppState
+- `moduleState` changes in the AppState
+- The state update is processed through `updateAppState()`
 
 ### Default State Structure
 
@@ -194,7 +194,7 @@ class CustomModule extends PageModule {
     super.componentDidMount();
     
     // Module state is automatically created with component info
-    // You can access it via this.state.pageState.moduleState[this.moduleId]
+    // You can access it via this.state.appState.moduleState[this.moduleId]
   }
   
   saveCustomData() {
@@ -368,10 +368,10 @@ localStorage.removeItem('rjs-frame:moduleState');
 ### Debug State Changes
 
 ```typescript
-import { pageStore } from 'rjs-frame';
+import { appStateStore } from 'rjs-frame';
 
 // Subscribe to all state changes
-const unsubscribe = pageStore.subscribe((state) => {
+const unsubscribe = appStateStore.subscribe((state) => {
   console.log('Global State:', state.globalState);
   console.log('Module State:', state.moduleState);
 });

@@ -247,32 +247,35 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     }
 
     const tabItems = this.extractTabItems();
-    const hasCustomTabs = tabItems.length > 0;
+    const hasCustomTabs = tabItems.length >= 0;
 
     return (
       <ItemViewContext.Provider value={contextValue}>
-        <div className={`item-view ${className}`}>
+        <div className={`item-view ${className} rjs-panel`}>
           <Tabs.Root
             value={activeTab}
             onValueChange={this.handleTabChange}
             className="iv__tabs"
           >
-            <Tabs.List className="iv__tabs-list">
-              <Tabs.Trigger value="details" className="iv__tab-trigger">
-                Details
-              </Tabs.Trigger>
-              {tabItems.map((tabItem) => (
-                <Tabs.Trigger
-                  key={tabItem.name}
-                  value={tabItem.name}
-                  className="iv__tab-trigger"
-                >
-                  {tabItem.label}
+            {hasCustomTabs && (
+              <Tabs.List className="iv__tabs-list rjs-panel-header">
+                <h2 className="rjs-panel-header-title">Details</h2>
+                <Tabs.Trigger value="details" className="iv__tab-trigger">
+                  Details
                 </Tabs.Trigger>
-              ))}
-            </Tabs.List>
+                {tabItems.map((tabItem) => (
+                  <Tabs.Trigger
+                    key={tabItem.name}
+                    value={tabItem.name}
+                    className="iv__tab-trigger"
+                  >
+                    {tabItem.label}
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+            )}
 
-            <Tabs.Content value="details" className="iv__tab-content">
+            <Tabs.Content value="details" className="iv__tab-content px-4">
               {this.renderItemDetails()}
             </Tabs.Content>
 
@@ -280,7 +283,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
               <Tabs.Content
                 key={tabItem.name}
                 value={tabItem.name}
-                className="iv__tab-content"
+                className="iv__tab-content px-4"
               >
                 {tabItem.children}
               </Tabs.Content>

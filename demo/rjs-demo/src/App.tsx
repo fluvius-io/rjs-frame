@@ -10,11 +10,11 @@ const RouteChangeHandler: React.FC<{ children: React.ReactNode }> = ({ children 
 
   React.useEffect(() => {
     // Parse the full URL including search parameters using browser location
-    const pageState = initializeFromBrowserLocation(window.location);
+    const appState = initializeFromBrowserLocation(window.location);
     
     // Only log in debug mode
     if (appConfig.features.debugMode) {
-      console.log('[RouteChangeHandler] Page state updated:', pageState);
+      console.log('[RouteChangeHandler] Page state updated:', appState);
     }
   }, [location.pathname, location.search]);
 

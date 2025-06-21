@@ -334,14 +334,14 @@ export const mockAuthContext: AuthContext = {
 
 ## Integration with Page State
 
-For applications using the legacy PageState, you can access the typed auth context:
+For applications using the legacy AppState, you can access the typed auth context:
 
 ```tsx
 import { useAppConfig } from "rjs-frame";
 
 function MyPageModule() {
   const { authContext } = useAppConfig(); // Typed AuthContext
-  // Use authContext instead of pageState.auth for type safety
+  // Use authContext instead of appState.auth for type safety
 }
 ```
 

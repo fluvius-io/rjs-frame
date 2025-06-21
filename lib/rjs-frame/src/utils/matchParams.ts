@@ -3,7 +3,7 @@
  */
 
 // Combined match configuration interface
-export interface MatchConfig {
+export interface ParamMatcherConfig {
   /** Check if the key does not exist at all */
   $absent?: true;
   /** Check if the key exists (regardless of value) */
@@ -11,16 +11,16 @@ export interface MatchConfig {
 }
 
 // Type for matchParams prop values
-export type MatchParamValue = boolean | string | RegExp | MatchConfig;
+export type ParamMatcher = boolean | string | RegExp | ParamMatcherConfig;
 
-export type MatchParams =
-  | Record<string, MatchParamValue>
+export type ParamSpec =
+  | Record<string, ParamMatcher>
   | ((pageParams: Record<string, any>) => boolean);
 
 /**
  * Check if a value is a match config object
  */
-function isMatchConfig(value: any): value is MatchConfig {
+function isParamMatcherConfig(value: any): value is ParamMatcherConfig {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -30,25 +30,20 @@ function isMatchConfig(value: any): value is MatchConfig {
 
 /**
  * Check if a component should render based on matchParams
- * @param matchParams - The matching parameters configuration
- * @param pageParams - The current page parameters
+ * @param paramSpec - The matching parameters configuration
+ * @param paramValues - The current page parameters
  * @param componentName - Name of the component for error logging (optional)
  * @returns true if component should render, false otherwise
  */
-export function shouldRender(
-  matchParams: MatchParams | undefined,
-  pageParams: Record<string, any>,
+export function matchParams(
+  paramSpec: ParamSpec,
+  paramValues: Record<string, any>,
   componentName: string = "Component"
 ): boolean {
-  // If no matchParams specified, always render (null/empty means always rendered)
-  if (!matchParams) {
-    return true;
-  }
-
   // If matchParams is a function, call it with the entire pageParams record
-  if (typeof matchParams === "function") {
+  if (typeof paramSpec === "function") {
     try {
-      return matchParams(pageParams);
+      return paramSpec(paramValues);
     } catch (error) {
       console.error(`[${componentName}] Error in matchParams function:`, error);
       return false;
@@ -56,19 +51,19 @@ export function shouldRender(
   }
 
   // If matchParams is a record, check each match condition
-  if (typeof matchParams === "object" && matchParams !== null) {
+  if (typeof paramSpec === "object" && paramSpec !== null) {
     // Handle empty object case
-    if (Object.keys(matchParams).length === 0) {
+    if (Object.keys(paramSpec).length === 0) {
       return true;
     }
 
     // Check each match condition
-    for (const [key, matcher] of Object.entries(matchParams)) {
-      const paramValue = pageParams[key];
-      const paramExists = key in pageParams;
+    for (const [key, matcher] of Object.entries(paramSpec)) {
+      const paramValue = paramValues[key];
+      const paramExists = key in paramValues;
 
       // Handle match configuration objects
-      if (isMatchConfig(matcher)) {
+      if (isParamMatcherConfig(matcher)) {
         // Check absence first (highest priority)
         if (matcher.$absent === true) {
           if (paramExists) {
@@ -121,7 +116,7 @@ export function shouldRender(
   // Unknown matchParams type
   console.warn(
     `[${componentName}] Unknown matchParams type:`,
-    typeof matchParams
+    typeof paramSpec
   );
   return false;
 }

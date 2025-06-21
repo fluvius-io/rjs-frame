@@ -101,10 +101,7 @@ const ConfigProvider: React.FC<{
   const [authContext, setAuthContext] = useState<AuthContext | null>(null);
   let timestamp = 0;
 
-  const setLoadingStatus = (
-    loadingStatus: boolean,
-    availableAuthContext?: AuthContext | null
-  ) => {
+  const setLoadingStatus = (loadingStatus: boolean) => {
     if (loadingStatus == true) {
       timestamp = new Date().getTime();
     }
@@ -113,11 +110,9 @@ const ConfigProvider: React.FC<{
       return;
     }
 
-    availableAuthContext = availableAuthContext || authContext;
-
     setIsLoading(loadingStatus);
     if (!loadingStatus) {
-      if (error || (authRequired && !availableAuthContext)) {
+      if (error || (authRequired && !authContext)) {
         return;
       }
 
@@ -152,83 +147,83 @@ const ConfigProvider: React.FC<{
       document.body.classList.add("app-done");
     }
 
-    // Optional cleanup
     return;
   }, [isTransitioning, isLoading]);
 
-  useEffect(() => {
-    const initializeConfig = async () => {
-      try {
-        setLoadingStatus(true);
-        setError(null);
+  const validateAuthContext = (authContext: AuthContext) => {
+    if (
+      authContext &&
+      typeof authContext === "object" &&
+      "realm" in authContext &&
+      "user" in authContext &&
+      "profile" in authContext &&
+      "organization" in authContext
+    ) {
+      return authContext as AuthContext;
+    }
+    throw new Error(
+      "Auth context response does not match expected structure: " +
+        JSON.stringify(authContext)
+    );
+  };
+  const initializeConfig = async () => {
+    try {
+      setLoadingStatus(true);
+      setError(null);
 
-        // Load config and auth context in parallel
-        const promises: Promise<any>[] = [];
+      // Load config and auth context in parallel
+      const promises: Promise<any>[] = [];
 
-        // Add config loading promise
-        const configPromise = ConfigManager.create(defaultConfig, configUrl, {
-          timeout: 10000,
-          retries: 2,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        promises.push(configPromise);
+      // Add config loading promise
+      const configPromise = ConfigManager.create(defaultConfig, configUrl, {
+        timeout: 10000,
+        retries: 2,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      promises.push(configPromise);
 
-        // Add auth context loading promise if authContextUrl is provided
-        let authPromise: Promise<AuthContext | null> = Promise.resolve(null);
-        if (authContextUrl) {
-          authPromise = fetch(authContextUrl)
-            .then(async (response) => {
-              if (!response.ok) {
-                throw new Error(
-                  `HTTP ${response.status}: ${response.statusText}`
-                );
-              }
-              const authData = await response.json();
+      // Add auth context loading promise if authContextUrl is provided
+      let authPromise: Promise<AuthContext | null> = Promise.resolve(null);
+      if (authContextUrl) {
+        authPromise = fetch(authContextUrl)
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`
+              );
+            }
+            const authData = await response.json();
 
-              // Validate that the response matches our AuthContext type
-              if (
-                authData &&
-                typeof authData === "object" &&
-                "realm" in authData &&
-                "user" in authData &&
-                "profile" in authData &&
-                "organization" in authData
-              ) {
-                return authData as AuthContext;
-              } else {
-                throw new Error(
-                  "Auth context response does not match expected structure: " +
-                    JSON.stringify(authData)
-                );
-                return null;
-              }
-            })
-            .catch((authError) => {
-              console.error("Failed to fetch auth context:", authError);
-              return null;
-            });
-        }
-        promises.push(authPromise);
-
-        // Wait for both promises to complete
-        const [configManager, authContextResult] = await Promise.all(promises);
-
-        setConfig(configManager);
-        setAuthContext(authContextResult);
-        setLoadingStatus(false, authContextResult);
-      } catch (configError) {
-        console.error("Failed to initialize configuration:", configError);
-        setError(
-          configError instanceof Error
-            ? configError
-            : new Error("Configuration initialization failed")
-        );
-        setLoadingStatus(false);
+            // Validate that the response matches our AuthContext type
+            return validateAuthContext(authData);
+          })
+          .catch((authError) => {
+            console.error("Failed to fetch auth context:", authError);
+            return null;
+          });
       }
-    };
+      promises.push(authPromise);
 
+      // Wait for both promises to complete
+      const [appConfig, authContext] = await Promise.all(promises);
+
+      setConfig(appConfig);
+      setAuthContext(authContext);
+    } catch (configError) {
+      console.error("Failed to initialize configuration:", configError);
+      setError(
+        configError instanceof Error
+          ? configError
+          : new Error("Configuration initialization failed")
+      );
+    } finally {
+      setLoadingStatus(false);
+    }
+  };
+
+  useEffect(() => {
     initializeConfig();
   }, [configUrl, authContextUrl]);
 
@@ -280,8 +275,8 @@ const ConfigProvider: React.FC<{
 
   return (
     <ConfigContext.Provider value={contextValue}>
-      {renderOverlay()}
       {renderContent()}
+      {renderOverlay()}
     </ConfigContext.Provider>
   );
 };

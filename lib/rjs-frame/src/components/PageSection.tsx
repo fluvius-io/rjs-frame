@@ -1,11 +1,11 @@
 import React from "react";
-import { pageStore } from "../store/pageStore";
+import { matchPageParams } from "../store/appStateStore";
 import "../styles/index.css";
-import { shouldRender, type MatchParams } from "../utils/matchParams";
+import { type ParamSpec } from "../utils/matchParams";
 
 export interface PageSectionProps {
   name?: string;
-  matchParams?: MatchParams;
+  condition?: ParamSpec;
   className?: string;
   tag?: "div" | "section" | "header" | "footer" | "main" | "aside";
   children?: React.ReactNode;
@@ -21,9 +21,8 @@ let sectionCount = 0;
 
 export const PageSection = (props: PageSectionProps) => {
   const name = props.name || `section-${sectionCount++}`;
-  const { pageParams = {} } = pageStore.get();
 
-  if (!shouldRender(props.matchParams, pageParams, `Section[${name}]`)) {
+  if (!matchPageParams(props.condition, `Section[${name}]`)) {
     return null;
   }
 
@@ -103,7 +102,7 @@ export const PageSection = (props: PageSectionProps) => {
 
   const sectionProps = {
     className: `page-section ${className || ""}`,
-    "data-section-params": `${name}:${JSON.stringify(props.matchParams) || ""}`,
+    "data-section-params": `${name}:${JSON.stringify(props.condition) || ""}`,
     style: sectionStyle,
   };
 

@@ -27,26 +27,21 @@ export {
 
 // Store
 export {
-  getBreadcrumbs,
-  getGlobalState,
-  getXRayEnabled,
-  initPageState as initializeFromBrowserLocation,
-  pageStore,
+  getGlobalStateValue as getGlobalState,
+  getAppState,
+  initAppState as initializeFromBrowserLocation,
+  matchPageParams,
   popBreadcrumb,
   pushBreadcrumb,
-  removePageParam,
-  setBreadcrumbs,
-  setGlobalState,
+  setAuthContext,
   setPageName,
-  setPageParam,
-  setXRayEnabled,
+  subscribeToAppState,
   updateGlobalState,
+  updateHashParams,
   updateLinkParams,
   updateModuleState,
   updatePageParams,
-  updatePageParamsPartial,
-  updatePageState,
-} from "./store/pageStore";
+} from "./store/appStateStore";
 
 // Configuration Management
 export { ConfigManager } from "./config/ConfigManager";
@@ -91,9 +86,8 @@ export type {
   LinkParams,
   ModuleState,
   PageParams,
-  PageState,
-  TypedPageState,
-} from "./types/PageState";
+  AppState,
+} from "./types/AppState";
 
 export type {
   AuthContext,
@@ -107,29 +101,19 @@ export type {
 
 // Utils
 export {
-  buildPath as buildPathFromPageState,
-  buildUrlFragments,
-  FRAGMENT_NAME_PATTERN,
   isValidFragmentName,
   parseBrowserLocation,
-  parseSearchParams,
-  parseUrl,
-  parseUrlFragments,
   updateBrowserLocation,
-  buildBrowserTitle as updateBrowserTitle,
-  URL_FRAGMENT_SEPARATOR,
+  updateBrowserTitle,
 } from "./utils/urlUtils";
-
-export { shouldRender } from "./utils/matchParams";
-
-export type { MatchParams, MatchParamValue } from "./utils/matchParams";
 
 // Contexts
 export {
   PageLayoutContext,
   PageSlotContext,
-  usePageLayout,
+  usePageContext,
 } from "./contexts/LayoutContexts";
+
 export type {
   PageLayoutContextType,
   PageSlotContextType,

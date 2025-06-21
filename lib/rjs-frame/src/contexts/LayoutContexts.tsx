@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { LinkParams, PageParams } from "../types/PageState";
+import { HashParams, LinkParams, PageParams } from "../types/AppState";
 
 /**
  * Global Layout Context - provides access to registered page modules and breadcrumbs
@@ -9,8 +9,8 @@ export interface PageLayoutContextType {
   pageModules: { [slotName: string]: React.ReactNode[] };
   pageParams: PageParams;
   linkParams: LinkParams;
+  hashParams: HashParams;
   slotClasses: Record<string, string>;
-  xRay: boolean;
   addPageModule: (slotName: string, content: React.ReactNode) => void;
   removePageModule: (slotName: string, content: React.ReactNode) => void;
 }
@@ -28,7 +28,7 @@ export const PageSlotContext = createContext<PageSlotContextType | null>(null);
 /**
  * Hook to access PageLayout context including breadcrumb functionality
  */
-export const usePageLayout = () => {
+export const usePageContext = () => {
   const context = useContext(PageLayoutContext);
   if (!context) {
     throw new Error("usePageLayout must be used within a PageLayout component");

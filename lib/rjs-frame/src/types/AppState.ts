@@ -13,37 +13,26 @@ export type LinkParams = Record<string, string>;
 export type HashParams = Record<string, string>;
 
 export type GlobalState = {
+  _id: string;
+  xRay: boolean;
   [key: string]: any;
 };
 
 export type ModuleState = {
   [key: string]: {
-    component: string;
     [key: string]: any;
   };
 };
 
-export interface PageState {
+export interface AppState {
   pageName: string;
   initTime: string;
   breadcrumbs: string[];
-  pageParams: PageParams;
-  linkParams: LinkParams;
-  hashParams: HashParams;
-  globalState: GlobalState;
-  moduleState: ModuleState;
-}
-
-// Extended PageState with typed auth context for modern applications
-export interface TypedPageState {
-  pageName: string;
-  initTime: string;
-  breadcrumbs: string[];
+  pagePath: string;
   pageParams: PageParams;
   linkParams: LinkParams;
   hashParams: HashParams;
   globalState: GlobalState;
   moduleState: ModuleState;
   auth: AuthContext | null;
-  other: Record<string, any>;
 }

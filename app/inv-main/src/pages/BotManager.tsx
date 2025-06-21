@@ -6,20 +6,16 @@ import {
   QueryBuilderPanel,
   ThreeColumnLayout,
 } from "rjs-admin";
-import { PageModule, setPageParam, usePageLayout } from "rjs-frame";
+import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
 import { Header } from "../components";
 
 const BotItemView = () => {
-  const pageContext = usePageLayout();
-  if (
-    !pageContext ||
-    !pageContext.pageParams ||
-    !pageContext.pageParams["org"]
-  ) {
+  const pageContext = usePageContext();
+  if (!pageContext.pageParams.org) {
     return <div>No organization selected</div>;
   }
 
-  const itemId = pageContext.pageParams["org"] as string;
+  const itemId = pageContext.pageParams.org as string;
 
   return (
     <ItemView
@@ -52,7 +48,7 @@ export default function BotManager() {
           className="no-border h-full"
           showHeaderTitle={false}
           onActivate={(id) => {
-            setPageParam("org", id as string);
+            updatePageParams({ org: id as string });
           }}
           actions={
             <div className="flex gap-2 justify-end">
@@ -68,7 +64,7 @@ export default function BotManager() {
         />
       </PageModule>
 
-      <PageModule className="p-4" slotName="rightPanel">
+      <PageModule slotName="rightPanel">
         <BotItemView />
       </PageModule>
 

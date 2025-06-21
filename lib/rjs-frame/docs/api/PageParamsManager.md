@@ -38,7 +38,7 @@ The PageParams manager component has been moved from application-specific module
 - URL format: `/page/-/string_param:value/boolean_flag`
 
 ### **URL Management**
-- Central URL management using `updateBrowserLocation()` with pageState
+- Central URL management using `updateBrowserLocation()` with appState
 - Automatic synchronization with page store
 - Support for `/-/` separator format
 - Backward compatibility with legacy format
@@ -83,7 +83,7 @@ export function ArgumentsManager({ onArgumentsChange }: ArgumentsManagerProps)
 
 ### **Dependencies**
 - Uses existing rjs-frame utilities (`isValidFragmentName`, `FRAGMENT_NAME_PATTERN`)
-- Integrates with `pageStore` for state management
+- Integrates with `appStateStore` for state management
 - No external dependencies required
 
 ## Benefits

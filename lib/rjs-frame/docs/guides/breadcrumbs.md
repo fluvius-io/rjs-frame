@@ -7,7 +7,7 @@ RJS-Frame's `PageLayout` component includes built-in breadcrumb functionality th
 The breadcrumb system in `PageLayout` offers:
 
 - **Initial breadcrumb from props**: Set via `title` prop
-- **Global state storage**: Breadcrumbs stored in pageState, not local component state
+- **Global state storage**: Breadcrumbs stored in appState, not local component state
 - **Dynamic navigation**: Add/remove breadcrumb entries programmatically  
 - **Automatic page name updates**: Global page name stays in sync with breadcrumbs
 - **Context integration**: Child components can access breadcrumb methods
@@ -77,10 +77,10 @@ const currentPath = this.getBreadcrumbs();
 
 ## Global State Integration
 
-Breadcrumbs are now stored in the global `pageState`:
+Breadcrumbs are now stored in the global `appState`:
 
 ```typescript
-interface PageState {
+interface AppState {
   name: string;
   time: string;
   breadcrumbs: string[];  // <-- Breadcrumbs stored here
@@ -123,7 +123,7 @@ const NavigationComponent: React.FC = () => {
 ### Direct Store Access
 
 ```typescript
-import { pageStore, pushBreadcrumb, popBreadcrumb } from 'rjs-frame';
+import { appStateStore, pushBreadcrumb, popBreadcrumb } from 'rjs-frame';
 
 // Access breadcrumbs directly from store
 const handleNavigation = (page: string) => {
@@ -131,7 +131,7 @@ const handleNavigation = (page: string) => {
 };
 
 // Subscribe to breadcrumb changes
-const unsubscribe = pageStore.subscribe((state) => {
+const unsubscribe = appStateStore.subscribe((state) => {
   console.log('Breadcrumbs changed:', state.breadcrumbs);
 });
 ```
@@ -154,7 +154,7 @@ This ensures the global page state always reflects the current navigation contex
 ### Initialization
 
 1. `PageLayout` constructor receives `title` prop
-2. Component subscribes to pageStore for breadcrumb updates
+2. Component subscribes to appStateStore for breadcrumb updates
 3. `componentDidMount` sets initial breadcrumbs from `title` prop if provided
 4. Store automatically updates page name
 
@@ -166,7 +166,7 @@ This ensures the global page state always reflects the current navigation contex
 
 ### Cleanup
 
-1. Component unsubscribes from pageStore on unmount
+1. Component unsubscribes from appStateStore on unmount
 2. Breadcrumb state persists in global store
 
 ## API Reference
@@ -234,7 +234,7 @@ The new global state approach provides:
 
 The updated breadcrumb system provides:
 
-- ✅ **Global state storage**: Breadcrumbs stored in pageState for persistence
+- ✅ **Global state storage**: Breadcrumbs stored in appState for persistence
 - ✅ **Automatic page name management**: No manual `setPageName()` calls needed
 - ✅ **Flexible access**: Both component methods and direct store functions
 - ✅ **Cross-component consistency**: All components see the same breadcrumb state

@@ -3,7 +3,7 @@
  * 
  * This example demonstrates how to use the breadcrumb functionality
  * in PageLayout components to manage navigation context and automatically
- * update the global page name. Breadcrumbs are now stored in global pageState.
+ * update the global page name. Breadcrumbs are now stored in global appState.
  */
 
 // ===== BASIC USAGE =====
@@ -26,7 +26,7 @@ console.log('   - setBreadcrumbs(array): Set entire breadcrumb path');
 console.log('   - getBreadcrumbs(): Get current breadcrumbs');
 console.log('');
 console.log('4. Global state storage:');
-console.log('   - Breadcrumbs stored in pageState.breadcrumbs');
+console.log('   - Breadcrumbs stored in appState.breadcrumbs');
 console.log('   - Persist across component remounts');
 console.log('   - Shared across entire application');
 console.log('');
@@ -44,7 +44,7 @@ console.log('   Format: breadcrumbs joined with " > " separator');
 class MyLayout extends PageLayout {
   constructor(props) {
     super(props);
-    // breadcrumbs initialized from props.title and stored in global pageState
+    // breadcrumbs initialized from props.title and stored in global appState
   }
 
   handleNavigation = (page) => {
@@ -71,7 +71,7 @@ class MyLayout extends PageLayout {
 
 // Direct store access
 /*
-import { setBreadcrumbs, pushBreadcrumb, popBreadcrumb, getBreadcrumbs, pageStore } from 'rjs-frame';
+import { setBreadcrumbs, pushBreadcrumb, popBreadcrumb, getBreadcrumbs, appStateStore } from 'rjs-frame';
 
 // Set entire breadcrumb path
 setBreadcrumbs(['App', 'Users', 'John Doe', 'Edit']);
@@ -86,7 +86,7 @@ popBreadcrumb();
 const breadcrumbs = getBreadcrumbs();
 
 // Subscribe to changes
-const unsubscribe = pageStore.subscribe((state) => {
+const unsubscribe = appStateStore.subscribe((state) => {
   console.log('Breadcrumbs:', state.breadcrumbs);
 });
 */
@@ -121,21 +121,21 @@ console.log('Pattern 3: Hook access');
 console.log('  Use usePageLayout() for functional component integration');
 console.log('');
 console.log('Pattern 4: Store subscription');
-console.log('  Subscribe to pageStore for real-time breadcrumb updates');
+console.log('  Subscribe to appStateStore for real-time breadcrumb updates');
 
 // ===== GLOBAL STATE BENEFITS =====
 
 console.log('');
 console.log('=== Global State Benefits ===');
 console.log('');
-console.log('Benefits of storing breadcrumbs in pageState:');
+console.log('Benefits of storing breadcrumbs in appState:');
 console.log('  - Persistence: Survive component remounts');
 console.log('  - Consistency: Single source of truth');
 console.log('  - Reactivity: All components update automatically');
 console.log('  - Accessibility: Direct store access for complex scenarios');
 console.log('');
-console.log('pageState structure:');
-console.log('  interface PageState {');
+console.log('appState structure:');
+console.log('  interface AppState {');
 console.log('    name: string;');
 console.log('    time: string;');
 console.log('    breadcrumbs: string[];  // <-- Stored here');

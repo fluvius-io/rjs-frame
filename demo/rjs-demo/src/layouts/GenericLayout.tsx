@@ -11,7 +11,7 @@ export class GenericLayout<T extends PageLayoutProps> extends PageLayout<T> {
           </div>
         </PageSlot>
         <div className="content">
-          <PageSlot name="sidebar" matchParams={{ sidebar: false }}>
+          <PageSlot name="sidebar" condition={{ sidebar: false }}>
             <div style={{ padding: "1rem", border: "1px solid #eee" }}>
               Sidebar is Empty
             </div>
@@ -24,7 +24,7 @@ export class GenericLayout<T extends PageLayoutProps> extends PageLayout<T> {
         </div>
         <PageSlot
           name="footer"
-          matchParams={(params) => params.showFooter !== false}
+          condition={(params) => params.showFooter !== false}
         >
           <div style={{ padding: "1rem", border: "1px solid #eee" }}>
             Footer is Empty

@@ -166,10 +166,10 @@ function RouteHandler() {
 
 ### State Management
 ```typescript
-import { pageStore, updatePageParams } from 'rjs-frame';
+import { appStateStore, updatePageParams } from 'rjs-frame';
 
 // Subscribe to state changes
-const unsubscribe = pageStore.subscribe((state) => {
+const unsubscribe = appStateStore.subscribe((state) => {
   console.log('Page state updated:', state);
 });
 

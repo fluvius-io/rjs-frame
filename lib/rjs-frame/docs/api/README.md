@@ -12,7 +12,7 @@ Complete API documentation for rjs-frame components, hooks, and utilities.
 
 ## Store & State Management
 
-- [Page Store](./pageStore.md) - Central state management
+- [Page Store](./appStateStore.md) - Central state management
 - [State Types](./types.md) - TypeScript interfaces and types
 
 ## URL Management

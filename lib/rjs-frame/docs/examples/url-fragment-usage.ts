@@ -8,7 +8,7 @@
 
 import {
   parseUrl,
-  buildPathFromPageState,
+  buildPathFromAppState,
   updateBrowserLocation,
   addPageParam,
   removePageParam,
@@ -16,7 +16,7 @@ import {
   URL_FRAGMENT_SEPARATOR,
   isValidFragmentName,
   FRAGMENT_NAME_PATTERN,
-  pageStore
+  appStateStore
 } from '../src/index';
 
 // ===== BASIC URL STRUCTURE =====
@@ -74,7 +74,7 @@ console.log({
 console.log('\n=== Building URLs ===');
 
 // Build URL with mixed fragment types
-const examplePageState = {
+const exampleAppState = {
   pageName: 'admin',
   breadcrumbs: ['admin'],
   pageParams: {
@@ -93,13 +93,13 @@ const examplePageState = {
 };
 
 console.log('Building URL for page "admin" with mixed fragments:');
-console.log('Params:', examplePageState.pageParams);
-console.log('Use updateBrowserLocation(pageState) to update browser URL');
-// updateBrowserLocation(examplePageState) would update URL to: '/admin/-/filter:pending/sort:date/view:list/debug'
+console.log('Params:', exampleAppState.pageParams);
+console.log('Use updateBrowserLocation(appState) to update browser URL');
+// updateBrowserLocation(exampleAppState) would update URL to: '/admin/-/filter:pending/sort:date/view:list/debug'
 
 // Build URL with only boolean flags
-const flagsPageState = {
-  ...examplePageState,
+const flagsAppState = {
+  ...exampleAppState,
   pageName: 'settings',
   breadcrumbs: ['settings'],
   pageParams: {
@@ -110,42 +110,42 @@ const flagsPageState = {
 };
 
 console.log('\nBuilding URL with boolean flags:');
-console.log('Params:', flagsPageState.pageParams);
-console.log('Use updateBrowserLocation(pageState) to update browser URL');
-// updateBrowserLocation(flagsPageState) would update URL to: '/settings/-/advanced/expert'
+console.log('Params:', flagsAppState.pageParams);
+console.log('Use updateBrowserLocation(appState) to update browser URL');
+// updateBrowserLocation(flagsAppState) would update URL to: '/settings/-/advanced/expert'
 
 // ===== BOOLEAN FLAG EXAMPLES =====
 
 console.log('\n=== Boolean Flag Examples ===');
 
 // Example 1: Debug mode
-const debugPageState = {
-  ...examplePageState,
+const debugAppState = {
+  ...exampleAppState,
   pageName: 'app',
   breadcrumbs: ['app'],
   pageParams: { debug: true }
 };
-console.log('Debug mode pageState for updateBrowserLocation()');
-console.log('updateBrowserLocation(debugPageState) would create: /app/-/debug');
+console.log('Debug mode appState for updateBrowserLocation()');
+console.log('updateBrowserLocation(debugAppState) would create: /app/-/debug');
 
 const debugParsed = parseUrl('/app/-/debug');
 console.log('Parsed debug:', debugParsed.pageParams); // { debug: true }
 
 // Example 2: Mixed with string values
-const mixedDebugPageState = {
-  ...examplePageState,
+const mixedDebugAppState = {
+  ...exampleAppState,
   pageParams: {
     filter: 'active',
     debug: true,
     page: '1'
   }
 };
-console.log('Mixed with debug - use updateBrowserLocation(mixedDebugPageState)');
+console.log('Mixed with debug - use updateBrowserLocation(mixedDebugAppState)');
 console.log('Would create: /admin/-/filter:active/page:1/debug');
 
 // Example 3: Multiple flags
-const multipleFlagsPageState = {
-  ...examplePageState,
+const multipleFlagsAppState = {
+  ...exampleAppState,
   pageName: 'editor',
   breadcrumbs: ['editor'],
   pageParams: {
@@ -155,7 +155,7 @@ const multipleFlagsPageState = {
     beta: false  // omitted
   }
 };
-console.log('Multiple flags - use updateBrowserLocation(multipleFlagsPageState)');
+console.log('Multiple flags - use updateBrowserLocation(multipleFlagsAppState)');
 console.log('Would create: /editor/-/readonly/debug/advanced');
 
 // ===== EDGE CASES =====
@@ -163,28 +163,28 @@ console.log('Would create: /editor/-/readonly/debug/advanced');
 console.log('\n=== Edge Cases Handled ===');
 
 // Empty fragments
-const emptyFragmentsPageState = {
-  ...examplePageState,
+const emptyFragmentsAppState = {
+  ...exampleAppState,
   pageName: 'admin',
   breadcrumbs: ['admin'],
   pageParams: {}
 };
-console.log('Empty fragments - use updateBrowserLocation(emptyFragmentsPageState)');
+console.log('Empty fragments - use updateBrowserLocation(emptyFragmentsAppState)');
 console.log('Would create: /admin');
 
 // Empty page name
-const noPagePageState = {
-  ...examplePageState,
+const noPageAppState = {
+  ...exampleAppState,
   pageName: '',
   breadcrumbs: [],
   pageParams: { filter: 'active' }
 };
-console.log('Empty page name - use updateBrowserLocation(noPagePageState)');
+console.log('Empty page name - use updateBrowserLocation(noPageAppState)');
 console.log('Would create: / (root)');
 
 // Complex fragment values
-const complexPageState = {
-  ...examplePageState,
+const complexAppState = {
+  ...exampleAppState,
   pageName: 'search',
   breadcrumbs: ['search'],
   pageParams: {
@@ -193,7 +193,7 @@ const complexPageState = {
     page: '1'
   }
 };
-console.log('Complex values - use updateBrowserLocation(complexPageState)');
+console.log('Complex values - use updateBrowserLocation(complexAppState)');
 console.log('Would create: /search/-/query:user name/filters:status=active&type=user/page:1');
 
 // ===== SUMMARY =====
@@ -237,15 +237,15 @@ const mixedValidInvalidParams = {
   'user@domain': 'test'       // Will be skipped with warning
 };
 
-const invalidNamesPageState = {
-  ...examplePageState,
+const invalidNamesAppState = {
+  ...exampleAppState,
   pageName: 'test',
   breadcrumbs: ['test'],
   pageParams: mixedValidInvalidParams
 };
 
 console.log('Mixed valid/invalid params:', mixedValidInvalidParams);
-console.log('Use updateBrowserLocation(invalidNamesPageState) - invalid names will be skipped with warnings');
+console.log('Use updateBrowserLocation(invalidNamesAppState) - invalid names will be skipped with warnings');
 console.log('Would create: /test/-/valid_param:value1/debug');
 // Console warnings for: 'invalid-param', 'filter.type', 'user@domain'
 

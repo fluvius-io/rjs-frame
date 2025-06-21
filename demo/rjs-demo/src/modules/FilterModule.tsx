@@ -1,7 +1,7 @@
 import { PageModule } from 'rjs-frame';
 import { useState, useEffect } from 'react';
-import { pageStore, updateLinkParams } from 'rjs-frame';
-import type { PageState } from 'rjs-frame';
+import { appStateStore, updateLinkParams } from 'rjs-frame';
+import type { AppState } from 'rjs-frame';
 
 export class FilterModule extends PageModule {
   renderContent() {
@@ -10,18 +10,18 @@ export class FilterModule extends PageModule {
 }
 
 function FilterContent() {
-  const [pageState, setPageState] = useState<PageState>(pageStore.get());
+  const [appState, setAppState] = useState<AppState>(appStateStore.get());
   
   // Subscribe to page store changes
   useEffect(() => {
-    const unsubscribe = pageStore.subscribe((newState: PageState) => {
-      setPageState(newState);
+    const unsubscribe = appStateStore.subscribe((newState: AppState) => {
+      setAppState(newState);
     });
     
     return unsubscribe;
   }, []);
   
-  const { linkParams = {} } = pageState;
+  const { linkParams = {} } = appState;
   const category = linkParams.category || 'all';
   const currentPage = linkParams.page || '1';
 

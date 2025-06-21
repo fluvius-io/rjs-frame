@@ -30,7 +30,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
         <div className="content-layout flex flex-1 min-h-[calc(100vh-124px)]">
           <PageSection
             tag="aside"
-            matchParams={{ sidebar: true }}
+            condition={{ sidebar: true }}
             resizable="right"
             className={cn("bg-muted/10", widthClasses[sidebarWidth])}
           >

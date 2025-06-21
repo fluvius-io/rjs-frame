@@ -89,10 +89,8 @@
 
 .iv__tabs-list {
   display: flex;
-  border-bottom: 1px solid var(--border, #e5e7eb);
   background: var(--background, #ffffff);
   margin-bottom: 0;
-  padding: 0;
   list-style: none;
 }
 

@@ -4,10 +4,10 @@ import {
   PageSlotContext,
   type PageSlotContextType,
 } from "../contexts/LayoutContexts";
-import { pageStore } from "../store/pageStore";
+import { matchPageParams } from "../store/appStateStore";
 import "../styles/index.css";
 import { cn } from "../utils";
-import { shouldRender, type MatchParams } from "../utils/matchParams";
+import { type ParamSpec } from "../utils/matchParams";
 
 type PageSlotWrapper = (
   children: React.ReactNode[],
@@ -16,7 +16,7 @@ type PageSlotWrapper = (
 
 export interface PageSlotProps {
   name: string;
-  matchParams?: MatchParams;
+  condition?: ParamSpec;
   className?: string;
   tag?: "div" | "section" | "header" | "footer" | "main" | "aside";
   children?: React.ReactNode;
@@ -26,7 +26,6 @@ export interface PageSlotProps {
 export const PageSlot = (props: PageSlotProps) => {
   const pageContext = useContext(PageLayoutContext);
   const { name: slotName, tag = "section", className } = props;
-  const { pageParams = {} } = pageStore.get();
 
   if (!pageContext) {
     return (
@@ -36,7 +35,7 @@ export const PageSlot = (props: PageSlotProps) => {
     );
   }
 
-  if (!shouldRender(props.matchParams, pageParams, `PageSlot[${slotName}]`)) {
+  if (!matchPageParams(props.condition, `PageSlot[${slotName}]`)) {
     return null;
   }
 
