@@ -74,9 +74,14 @@ export const TableControl: React.FC<TableControlProps> = ({
       <div className="dt-control-body">
         <div className="dt-control-actions">
           {!showHeaderTitle && (
-            <h2 className="dt-control-title">
-              {camelCaseToWords(metadata.title)}
-            </h2>
+            <div className="flex flex-col gap-0 -mt-1 w-full">
+              <h2 className="dt-control-title">
+                {camelCaseToWords(metadata.title)}
+              </h2>
+              <div className="text-xs font-normal text-gray-500">
+                {metadata.desc}
+              </div>
+            </div>
           )}
           <input
             type="text"

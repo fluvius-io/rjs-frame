@@ -17,7 +17,7 @@
 
 /* Table Control Section */
 .dt-control {
-  @apply flex flex-col gap-4 p-2 border-b-2 border-gray-200 h-14;
+  @apply flex flex-col gap-4 p-2 px-4 border-b-2 border-gray-200 h-14;
 }
 
 .dt-control-header {
