@@ -106,11 +106,9 @@ export const TableControl: React.FC<TableControlProps> = ({
             <span>Refresh</span>
           </button>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          {actions && (
-            <div className="dt-control-actions justify-end">{actions}</div>
-          )}
-        </div>
+        {actions && (
+          <div className="dt-control-actions justify-end">{actions}</div>
+        )}
       </div>
     </div>
   );
