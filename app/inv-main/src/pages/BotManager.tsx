@@ -12,7 +12,11 @@ import { Header } from "../components";
 const BotItemView = () => {
   const pageContext = usePageContext();
   if (!pageContext.pageParams.org) {
-    return <div>No organization selected</div>;
+    return (
+      <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
+        No organization selected
+      </div>
+    );
   }
 
   const itemId = pageContext.pageParams.org as string;

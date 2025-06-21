@@ -1,8 +1,9 @@
 import * as Tabs from "@radix-ui/react-tabs";
-import { BotIcon } from "lucide-react";
+import { BotIcon, Loader2Icon } from "lucide-react";
 import React, { Component, createContext, useContext } from "react";
 import type { ApiParams, ApiResponse } from "rjs-frame";
 import { APIManager } from "rjs-frame";
+import { cn } from "../../lib/utils";
 import "../../styles/components/itemview.css";
 
 // Context for ItemView sub-components
@@ -170,16 +171,18 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     return tabItems;
   };
 
-  renderLoading = (): React.ReactNode => {
+  renderLoading = (loading: boolean): React.ReactNode => {
     const { loadingComponent } = this.props;
 
-    if (loadingComponent) {
-      return loadingComponent;
+    if (!loading || !loadingComponent) {
+      return null;
     }
 
     return (
-      <div className="iv__loading">
-        <div className="iv__spinner">Loading item...</div>
+      <div
+        className={cn("iv__loading-overlay", "iv__loading-overlay--visible")}
+      >
+        {loadingComponent}
       </div>
     );
   };
@@ -221,15 +224,20 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
   };
 
   renderItemHeader = (): React.ReactNode => {
-    const { item } = this.state;
+    const { item, loading } = this.state;
+    const { loadingComponent } = this.props;
     return (
       <div className="flex items-center gap-2 w-full">
-        <BotIcon
-          className="h-8 w-8"
-          onClick={() => {
-            this.refreshItem();
-          }}
-        />
+        {loading && !loadingComponent ? (
+          <Loader2Icon className="h-8 w-8 animate-spin" />
+        ) : (
+          <BotIcon
+            className="h-8 w-8"
+            onClick={() => {
+              this.refreshItem();
+            }}
+          />
+        )}
         <div className="flex flex-col gap-0 w-full">
           <h2 className="rjs-panel-header-title text-nowrap text-ellipsis overflow-hidden">
             {item.name || "[No name]"}
@@ -255,10 +263,6 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
       refreshItem: this.refreshItem,
     };
 
-    if (loading) {
-      return this.renderLoading();
-    }
-
     if (error) {
       return this.renderError(error);
     }
@@ -276,7 +280,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
 
     return (
       <ItemViewContext.Provider value={contextValue}>
-        <div className={`item-view ${className} rjs-panel`}>
+        <div className={`item-view ${className} rjs-panel relative`}>
           <Tabs.Root
             value={activeTab}
             onValueChange={this.handleTabChange}
@@ -314,6 +318,9 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
               </Tabs.Content>
             ))}
           </Tabs.Root>
+
+          {/* Loading overlay */}
+          {this.renderLoading(loading)}
         </div>
       </ItemViewContext.Provider>
     );
