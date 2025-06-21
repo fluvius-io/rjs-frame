@@ -1,6 +1,4 @@
-import { Plus } from "lucide-react";
 import {
-  Button,
   DataTable,
   ItemView,
   QueryBuilderPanel,
@@ -61,17 +59,6 @@ export default function BotManager() {
           onActivate={(id) => {
             updatePageParams({ org: id as string });
           }}
-          actions={
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm">
-                Export
-              </Button>
-              <Button size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Add User
-              </Button>
-            </div>
-          }
         />
       </PageModule>
 
