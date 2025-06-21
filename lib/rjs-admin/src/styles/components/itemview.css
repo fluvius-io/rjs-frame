@@ -95,7 +95,9 @@
 }
 
 .iv__tab-trigger {
-  background: transparent;
+  margin-top: calc(0.5rem + 2px);
+  border-radius: 5px 5px 0 0;
+  @apply bg-border;
   border: none;
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
@@ -108,8 +110,8 @@
 }
 
 .iv__tab-trigger:hover {
-  color: var(--text, #374151);
-  background: var(--muted, #f9fafb);
+  @apply bg-border text-primary;
+  border-bottom-color: var(--primary, #3b82f6);
 }
 
 .iv__tab-trigger[data-state="active"] {
@@ -124,7 +126,7 @@
 
 /* Tab Content */
 .iv__tab-content {
-  padding: 1.5rem 0;
+  @apply p-4;
   outline: none;
 }
 

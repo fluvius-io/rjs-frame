@@ -41,6 +41,7 @@ export const PageSection = (props: PageSectionProps) => {
 
   const [width, setWidth] = React.useState(defaultWidth);
   const sectionRef = React.useRef<HTMLDivElement>(null);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   const startXRef = React.useRef<number>(0);
   const startWidthRef = React.useRef<number>(0);
 
@@ -50,7 +51,7 @@ export const PageSection = (props: PageSectionProps) => {
     e.preventDefault();
 
     isResizing = true;
-    sectionRef.current?.classList.add("resizing");
+    wrapperRef.current?.classList.add("resizing");
     startXRef.current = e.clientX;
     startWidthRef.current = width;
 
@@ -76,7 +77,7 @@ export const PageSection = (props: PageSectionProps) => {
 
   const handleMouseUp = () => {
     isResizing = false;
-    sectionRef.current?.classList.remove("resizing");
+    wrapperRef.current?.classList.remove("resizing");
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
     document.body.style.cursor = "";
@@ -101,6 +102,7 @@ export const PageSection = (props: PageSectionProps) => {
     : {};
 
   const sectionProps = {
+    ref: sectionRef,
     className: `page-section ${className || ""}`,
     "data-section-params": `${name}:${JSON.stringify(props.condition) || ""}`,
     style: sectionStyle,
@@ -111,7 +113,7 @@ export const PageSection = (props: PageSectionProps) => {
   }
 
   return (
-    <div ref={sectionRef} className="page-section-resizable">
+    <div ref={wrapperRef} className="page-section-resizable">
       {React.createElement(tag, sectionProps, children)}
       <div
         className={`page-section-resize-handle page-section-resize-handle--${resizable}`}

@@ -22,7 +22,14 @@ const BotItemView = () => {
       itemId={itemId}
       resourceName="idm:organization"
       className="no-border h-full"
-    />
+    >
+      <ItemView.TabItem name="hello" label="Transactions">
+        Hello world from bots ...
+      </ItemView.TabItem>
+      <ItemView.TabItem name="blocks" label="Blocks">
+        A lot of blocks here ...
+      </ItemView.TabItem>
+    </ItemView>
   );
 };
 

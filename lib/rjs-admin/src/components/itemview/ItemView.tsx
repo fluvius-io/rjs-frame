@@ -1,4 +1,5 @@
 import * as Tabs from "@radix-ui/react-tabs";
+import { BotIcon } from "lucide-react";
 import React, { Component, createContext, useContext } from "react";
 import type { ApiParams, ApiResponse } from "rjs-frame";
 import { APIManager } from "rjs-frame";
@@ -57,13 +58,15 @@ interface ItemViewState {
 }
 
 export class ItemView extends Component<ItemViewProps, ItemViewState> {
+  static TabItem = TabItem;
+
   constructor(props: ItemViewProps) {
     super(props);
     this.state = {
       item: null,
       loading: false,
       error: null,
-      activeTab: props.defaultTab || "details",
+      activeTab: props.defaultTab || "default",
     };
   }
 
@@ -200,7 +203,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     );
   };
 
-  renderItemDetails = (): React.ReactNode => {
+  renderItemDefault = (): React.ReactNode => {
     const { item } = this.state;
 
     if (!item) {
@@ -212,6 +215,28 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
         <h3 className="iv__title">Item {item.id || item._id || "Details"}</h3>
         <div className="iv__content">
           <pre className="iv__data">{JSON.stringify(item, null, 2)}</pre>
+        </div>
+      </div>
+    );
+  };
+
+  renderItemHeader = (): React.ReactNode => {
+    const { item } = this.state;
+    return (
+      <div className="flex items-center gap-2 w-full">
+        <BotIcon
+          className="h-8 w-8"
+          onClick={() => {
+            this.refreshItem();
+          }}
+        />
+        <div className="flex flex-col gap-0 w-full">
+          <h2 className="rjs-panel-header-title text-nowrap text-ellipsis overflow-hidden">
+            {item.name || "[No name]"}
+          </h2>
+          <p className="text-xs text-muted-foreground max-w-32 text-nowrap text-ellipsis overflow-hidden">
+            {item.id || "No description"}
+          </p>
         </div>
       </div>
     );
@@ -259,8 +284,8 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
           >
             {hasCustomTabs && (
               <Tabs.List className="iv__tabs-list rjs-panel-header">
-                <h2 className="rjs-panel-header-title">Details</h2>
-                <Tabs.Trigger value="details" className="iv__tab-trigger">
+                {this.renderItemHeader()}
+                <Tabs.Trigger value="default" className="iv__tab-trigger">
                   Details
                 </Tabs.Trigger>
                 {tabItems.map((tabItem) => (
@@ -275,8 +300,8 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
               </Tabs.List>
             )}
 
-            <Tabs.Content value="details" className="iv__tab-content px-4">
-              {this.renderItemDetails()}
+            <Tabs.Content value="default" className="iv__tab-content px-4">
+              {this.renderItemDefault()}
             </Tabs.Content>
 
             {tabItems.map((tabItem) => (

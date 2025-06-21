@@ -47,6 +47,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
           <PageSection
             tag="aside"
             resizable="left"
+            defaultWidth={540}
             className={cn("bg-muted/10", widthClasses[rightPanelWidth])}
           >
             <PageSlot name="rightPanel" />
