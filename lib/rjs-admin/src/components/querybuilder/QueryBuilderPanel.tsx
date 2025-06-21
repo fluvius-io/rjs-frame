@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { AlertCircle, ChevronDown, Trash2 } from "lucide-react";
+import { AlertCircle, ChevronDown, FilterX, TextSearch } from "lucide-react";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { APIManager } from "rjs-frame";
@@ -347,7 +347,10 @@ export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
   return (
     <div className={cn("rjs-panel", className)}>
       <div className="rjs-panel-header">
-        <h2 className="rjs-panel-title">{title}</h2>
+        <div className="flex gap-2 w-full items-center">
+          <TextSearch className="w-5 h-5 cursor-pointer" />
+          <h2 className="rjs-panel-title">{title}</h2>
+        </div>
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -356,7 +359,7 @@ export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
             className="rjs-panel-clear-button"
             title="Clear all filters"
           >
-            <Trash2 className="w-4 h-4 mr-1" />
+            <FilterX className="w-4 h-4 mr-1 text-red-500" />
           </Button>
         )}
       </div>

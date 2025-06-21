@@ -1,5 +1,6 @@
-import { Filter, RefreshCw } from "lucide-react";
-import React from "react";
+import { Filter, RefreshCw, SidebarClose, SidebarOpen } from "lucide-react";
+import React, { useState } from "react";
+import { updatePageParams, usePageContext } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import { TableControlProps } from "../../types/datatable";
 import { useDataTable } from "./DataTableContext";
@@ -17,6 +18,10 @@ export const TableControl: React.FC<TableControlProps> = ({
     loading,
     showHeaderTitle,
   } = useDataTable();
+  const pageContext = usePageContext();
+  const [showSidebar, setShowSidebar] = useState(
+    pageContext.pageParams.sidebar
+  );
 
   if (!metadata) {
     return null;
@@ -58,6 +63,13 @@ export const TableControl: React.FC<TableControlProps> = ({
     const result = s.replace(/([A-Z])/g, " $1");
     return result.charAt(0).toUpperCase() + result.slice(1);
   };
+  const toggleSidebar = () => {
+    const newShowSidebar = !showSidebar;
+    setShowSidebar(newShowSidebar);
+    updatePageParams({
+      sidebar: newShowSidebar,
+    });
+  };
   return (
     <div className={cn("dt-control", className)}>
       {showHeaderTitle && (
@@ -74,12 +86,25 @@ export const TableControl: React.FC<TableControlProps> = ({
       <div className="dt-control-body">
         <div className="dt-control-actions">
           {!showHeaderTitle && (
-            <div className="flex flex-col gap-0 -mt-1 w-full">
-              <h2 className="dt-control-title">
-                {camelCaseToWords(metadata.title)}
-              </h2>
-              <div className="text-xs font-normal text-gray-500">
-                {metadata.desc}
+            <div className="flex gap-2 w-full items-center">
+              {showSidebar ? (
+                <SidebarClose
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={toggleSidebar}
+                />
+              ) : (
+                <SidebarOpen
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={toggleSidebar}
+                />
+              )}
+              <div className="flex flex-col gap-0 -mt-1">
+                <h2 className="dt-control-title">
+                  {camelCaseToWords(metadata.title)}
+                </h2>
+                <div className="text-xs font-normal text-gray-500">
+                  {metadata.desc}
+                </div>
               </div>
             </div>
           )}

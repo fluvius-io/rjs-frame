@@ -201,7 +201,7 @@ export class Header extends PageModule {
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-  protected renderContent(): React.ReactNode {
+  protected renderContent() {
     const className = (this.props as any).className;
 
     return (

@@ -23,7 +23,10 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
 
     return (
       <div className={cn("min-h-screen bg-background", className)}>
-        <header className="w-full border-b bg-background/95">
+        <header
+          className="w-full border-b bg-background/95"
+          style={{ filter: "invert(1.0)" }}
+        >
           <PageSlot name="header" className="mx-auto px-4 py-4" />
         </header>
 
@@ -34,23 +37,23 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
             resizable="right"
             className={cn("bg-muted/10", widthClasses[sidebarWidth])}
           >
-            <PageSlot name="sidebar" />
+            <PageSlot name="sidebar" className="p-4" />
           </PageSection>
 
           <PageSection
             tag="main"
             className="flex-1 border-l border-r overflow-hidden"
           >
-            <PageSlot className="h-full" name="main" />
+            <PageSlot className="h-full p-4" name="main" />
           </PageSection>
 
           <PageSection
             tag="aside"
             resizable="left"
-            defaultWidth={540}
+            defaultWidth={640}
             className={cn("bg-muted/10", widthClasses[rightPanelWidth])}
           >
-            <PageSlot name="rightPanel" />
+            <PageSlot name="rightPanel" className="p-4" />
           </PageSection>
         </div>
 

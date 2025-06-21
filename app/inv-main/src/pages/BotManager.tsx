@@ -39,7 +39,11 @@ export default function BotManager() {
   return (
     <ThreeColumnLayout
       sidebarWidth="lg"
-      slotClasses={{ main: "no-padding", sidebar: "no-padding" }}
+      slotClasses={{
+        main: "no-padding",
+        sidebar: "no-padding",
+        rightPanel: "no-padding",
+      }}
     >
       <Header slotName="header" />
 

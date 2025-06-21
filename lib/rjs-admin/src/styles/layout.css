@@ -1,5 +1,10 @@
+:root {
+  --rjs-header-background: hsl(214 32% 97% / 1);
+}
+
 .rjs-panel-header {
   @apply flex items-center justify-between h-14 p-4 border-b-2 gap-2;
+  background: var(--rjs-header-background);
 }
 
 .rjs-panel-title {

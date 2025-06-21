@@ -124,7 +124,6 @@
 
 .iv__tabs-list {
   display: flex;
-  background: var(--background, #ffffff);
   margin-bottom: 0;
   list-style: none;
 }
