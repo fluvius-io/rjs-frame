@@ -4,11 +4,11 @@ import {
   type PageLayoutContextType,
 } from "../contexts/LayoutContexts";
 import {
-  getGlobalStateValue,
+  getAppSettingsValue,
   getAppState,
   setPageName,
   subscribeToAppState,
-  updateGlobalState,
+  updateAppSettings,
 } from "../store/appStateStore";
 import { AppState } from "../types/AppState";
 import { PageLayoutOptions } from "./PageLayoutOptions";
@@ -131,7 +131,7 @@ export abstract class PageLayout<
 
     // Initialize xRay from props if provided (for backward compatibility)
     if (this.props.xRay !== undefined) {
-      updateGlobalState({ xRay: this.props.xRay });
+      updateAppSettings({ xRay: this.props.xRay });
     }
 
     // Set initial breadcrumbs from title prop
@@ -223,8 +223,8 @@ export abstract class PageLayout<
   };
 
   private toggleXRay = () => {
-    const currentXRay = getGlobalStateValue("xRay", false);
-    updateGlobalState({ xRay: !currentXRay });
+    const currentXRay = getAppSettingsValue("xRay", false);
+    updateAppSettings({ xRay: !currentXRay });
     // Force re-render to pick up the global state change
     this.forceUpdate();
   };
@@ -252,7 +252,7 @@ export abstract class PageLayout<
   abstract renderContent(): React.ReactNode;
 
   render() {
-    const xRayEnabled = getGlobalStateValue("xRay", false);
+    const xRayEnabled = getAppSettingsValue("xRay", false);
 
     const pageContext: PageLayoutContextType = {
       layoutId: this.layoutId,

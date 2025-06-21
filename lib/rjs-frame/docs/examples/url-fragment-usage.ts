@@ -86,7 +86,7 @@ const exampleAppState = {
   },
   linkParams: {},
   initTime: new Date().toISOString(),
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}

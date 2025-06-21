@@ -93,7 +93,7 @@ interface AppState {
   breadcrumbs: string[];  // <-- New: Global breadcrumb storage
   pageParams: PageParams;
   linkParams: LinkParams;
-  globalState: GlobalState;
+  appSettings: AppSettings;
   moduleState: ModuleState;
   auth: AuthState;
   other: Record<string, any>;

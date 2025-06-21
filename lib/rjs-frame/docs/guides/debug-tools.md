@@ -323,7 +323,7 @@ console.log('Active Instance:', PageLayout.getActiveInstanceInfo());
 ```typescript
 // Debug X-Ray state
 console.log('X-Ray Enabled:', getXRayEnabled());
-console.log('localStorage:', localStorage.getItem('rjs-frame:globalState'));
+console.log('localStorage:', localStorage.getItem('rjs-frame:appSettings'));
 ```
 
 ### Performance Considerations

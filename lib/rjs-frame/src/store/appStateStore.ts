@@ -1,7 +1,7 @@
 import { atom } from "nanostores";
 import { AuthContext } from "../types/AuthContext";
 import type {
-  GlobalState,
+  AppSettings,
   HashParams,
   LinkParams,
   ModuleState,
@@ -12,7 +12,7 @@ import { ParamSpec, matchParams } from "../utils/matchParams";
 import { parseBrowserLocation, updateBrowserLocation } from "../utils/urlUtils";
 
 // LocalStorage keys
-const GLOBAL_STATE_KEY = "rjs-frame:globalState";
+const APP_SETTINGS_KEY = "rjs-frame:appSettings";
 const MODULE_STATE_KEY = "rjs-frame:moduleState";
 
 // Helper functions for localStorage
@@ -45,7 +45,7 @@ const initialState: AppState = {
   pageParams: {},
   linkParams: {},
   hashParams: {},
-  globalState: loadFromLocalStorage(GLOBAL_STATE_KEY, {
+  appSettings: loadFromLocalStorage(APP_SETTINGS_KEY, {
     _id: crypto.randomUUID(),
     xRay: false,
   }),
@@ -63,9 +63,9 @@ const updateAppState = (updates: Partial<AppState>) => {
 
   appStateStore.set(updatedState);
 
-  // Persist globalState and moduleState to localStorage when they change
-  if ("globalState" in updates) {
-    saveToLocalStorage(GLOBAL_STATE_KEY, updates.globalState);
+  // Persist appSettings and moduleState to localStorage when they change
+  if ("appSettings" in updates) {
+    saveToLocalStorage(APP_SETTINGS_KEY, updates.appSettings);
   }
 
   if ("moduleState" in updates) {
@@ -83,11 +83,11 @@ const updateAppState = (updates: Partial<AppState>) => {
   return updatedState;
 };
 
-// Helper functions for managing globalState
-export const updateGlobalState = (stateUpdates: Partial<GlobalState>) => {
-  const currentState = appStateStore.get().globalState;
+// Helper functions for managing appSettings
+export const updateAppSettings = (stateUpdates: Partial<AppSettings>) => {
+  const currentState = appStateStore.get().appSettings;
   updateAppState({
-    globalState: {
+    appSettings: {
       ...currentState,
       ...stateUpdates,
       _id: crypto.randomUUID(),
@@ -95,12 +95,12 @@ export const updateGlobalState = (stateUpdates: Partial<GlobalState>) => {
   });
 };
 
-export const getGlobalStateValue = <T = any>(
+export const getAppSettingsValue = <T = any>(
   key: string,
   defaultValue?: T
 ): T => {
   const state = appStateStore.get();
-  return state.globalState[key] ?? defaultValue;
+  return state.appSettings[key] ?? defaultValue;
 };
 
 // Helper functions for managing moduleState

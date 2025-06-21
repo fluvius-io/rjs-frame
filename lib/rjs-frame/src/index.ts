@@ -27,7 +27,7 @@ export {
 
 // Store
 export {
-  getGlobalStateValue as getGlobalState,
+  getAppSettingsValue as getAppSettings,
   getAppState,
   initAppState as initializeFromBrowserLocation,
   matchPageParams,
@@ -36,7 +36,7 @@ export {
   setAuthContext,
   setPageName,
   subscribeToAppState,
-  updateGlobalState,
+  updateAppSettings,
   updateHashParams,
   updateLinkParams,
   updateModuleState,
@@ -81,8 +81,7 @@ export type {
 
 // Types
 export type {
-  AuthState,
-  GlobalState,
+  AppSettings,
   LinkParams,
   ModuleState,
   PageParams,

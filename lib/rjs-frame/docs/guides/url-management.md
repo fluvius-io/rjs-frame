@@ -94,7 +94,7 @@ const appState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -150,7 +150,7 @@ const appStateWithFalse = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -310,7 +310,7 @@ const complexAppState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -358,7 +358,7 @@ const appStateWithMixed = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -381,7 +381,7 @@ const emptyAppState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -400,7 +400,7 @@ const noNameAppState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -422,7 +422,7 @@ const complexFragmentState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -451,7 +451,7 @@ const appState: AppState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}
@@ -525,7 +525,7 @@ const testAppState = {
   linkParams: {},
   time: new Date().toISOString(),
   path: '',
-  globalState: {},
+  appSettings: {},
   moduleState: {},
   auth: {},
   other: {}

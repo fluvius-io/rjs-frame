@@ -6,7 +6,7 @@ This guide explains how rjs-frame automatically persists certain state data to l
 
 rjs-frame automatically persists two key parts of the AppState to localStorage:
 
-- **GlobalState**: Application-wide settings and preferences
+- **AppSettings**: Application-wide settings and preferences
 - **ModuleState**: Module-specific data and configurations
 
 This ensures that user preferences, debug settings, and module configurations survive page reloads and browser sessions.
@@ -17,21 +17,21 @@ This ensures that user preferences, debug settings, and module configurations su
 
 ```typescript
 // localStorage keys used by rjs-frame
-'rjs-frame:globalState'  // Contains global application state
+'rjs-frame:appSettings'  // Contains global application state
 'rjs-frame:moduleState'  // Contains module-specific state
 ```
 
 ### When Data is Saved
 
 State is automatically saved to localStorage whenever:
-- `globalState` changes in the AppState
+- `appSettings` changes in the AppState
 - `moduleState` changes in the AppState
 - The state update is processed through `updateAppState()`
 
 ### Default State Structure
 
 ```typescript
-// Default globalState
+// Default appSettings
 {
   _id: '',
   xRay: false
@@ -43,7 +43,7 @@ State is automatically saved to localStorage whenever:
 
 ## XRay Debug Mode
 
-The XRay flag is now stored in globalState and persists across browser sessions.
+The XRay flag is now stored in appSettings and persists across browser sessions.
 
 ### Using XRay Mode
 
@@ -83,27 +83,27 @@ When XRay mode is enabled:
 - **Module Slots**: Blue borders with status indicators
 - **Page Modules**: Green borders with hover effects
 
-## GlobalState API
+## AppSettings API
 
 ### Basic Operations
 
 ```typescript
 import { 
-  getGlobalState, 
-  setGlobalState, 
-  updateGlobalState 
+  getAppSettings,
+  setAppSettings,
+  updateAppSettings
 } from 'rjs-frame';
 
 // Read global state
-const theme = getGlobalState('theme', 'light'); // with default value
-const userPrefs = getGlobalState('userPreferences'); // without default
+const theme = getAppSettings('theme', 'light'); // with default value
+const userPrefs = getAppSettings('userPreferences'); // without default
 
 // Set single value
-setGlobalState('theme', 'dark');
-setGlobalState('language', 'en-US');
+setAppSettings('theme', 'dark');
+setAppSettings('language', 'en-US');
 
 // Update multiple values at once
-updateGlobalState({
+updateAppSettings({
   theme: 'dark',
   language: 'es',
   userPreferences: {
@@ -117,12 +117,12 @@ updateGlobalState({
 
 ```typescript
 // Type-safe global state access
-const theme = getGlobalState<'light' | 'dark'>('theme', 'light');
-const userSettings = getGlobalState<UserSettings>('userSettings', {});
+const theme = getAppSettings<'light' | 'dark'>('theme', 'light');
+const userSettings = getAppSettings<UserSettings>('userSettings', {});
 
 // Setting typed values
-setGlobalState<string>('currentUser', 'john.doe');
-setGlobalState<UserPreferences>('preferences', {
+setAppSettings<string>('currentUser', 'john.doe');
+setAppSettings<UserPreferences>('preferences', {
   darkMode: true,
   language: 'en'
 });
@@ -132,18 +132,18 @@ setGlobalState<UserPreferences>('preferences', {
 
 ```typescript
 // User preferences
-setGlobalState('sidebarCollapsed', true);
-setGlobalState('defaultPageSize', 20);
-setGlobalState('userTimezone', 'America/New_York');
+setAppSettings('sidebarCollapsed', true);
+setAppSettings('defaultPageSize', 20);
+setAppSettings('userTimezone', 'America/New_York');
 
 // Application settings
-setGlobalState('debugMode', true);
-setGlobalState('apiEnvironment', 'staging');
-setGlobalState('featureFlags', { newDashboard: true });
+setAppSettings('debugMode', true);
+setAppSettings('apiEnvironment', 'staging');
+setAppSettings('featureFlags', { newDashboard: true });
 
 // Reading with fallbacks
-const pageSize = getGlobalState('defaultPageSize', 10);
-const isDebug = getGlobalState('debugMode', false);
+const pageSize = getAppSettings('defaultPageSize', 10);
+const isDebug = getAppSettings('debugMode', false);
 ```
 
 ## ModuleState API
@@ -218,7 +218,7 @@ All localStorage operations are safely handled in SSR environments:
 
 ```typescript
 // Automatically returns defaults if window is undefined
-const theme = getGlobalState('theme', 'light'); // Works in SSR
+const theme = getAppSettings('theme', 'light'); // Works in SSR
 ```
 
 ### Error Recovery
@@ -231,7 +231,7 @@ If localStorage is unavailable or corrupted:
 ```typescript
 // Example error handling
 try {
-  setGlobalState('key', 'value');
+  setAppSettings('key', 'value');
 } catch (error) {
   console.warn('Failed to save to localStorage:', error);
   // App continues with in-memory state
@@ -244,20 +244,20 @@ try {
 
 ```typescript
 // Good
-setGlobalState('userPreferences', preferences);
-setGlobalState('debugMode', true);
+setAppSettings('userPreferences', preferences);
+setAppSettings('debugMode', true);
 
 // Avoid
-setGlobalState('x', value);
-setGlobalState('temp', data);
+setAppSettings('x', value);
+setAppSettings('temp', data);
 ```
 
 ### 2. Provide Default Values
 
 ```typescript
 // Always provide sensible defaults
-const theme = getGlobalState('theme', 'light');
-const pageSize = getGlobalState('pageSize', 10);
+const theme = getAppSettings('theme', 'light');
+const pageSize = getAppSettings('pageSize', 10);
 ```
 
 ### 3. Type Your Data
@@ -269,7 +269,7 @@ interface UserPreferences {
   notifications: boolean;
 }
 
-const prefs = getGlobalState<UserPreferences>('userPreferences', {
+const prefs = getAppSettings<UserPreferences>('userPreferences', {
   theme: 'light',
   language: 'en',
   notifications: true
@@ -280,16 +280,16 @@ const prefs = getGlobalState<UserPreferences>('userPreferences', {
 
 ```typescript
 // Efficient - single localStorage write
-updateGlobalState({
+updateAppSettings({
   theme: 'dark',
   language: 'es',
   sidebarCollapsed: true
 });
 
 // Less efficient - multiple localStorage writes
-setGlobalState('theme', 'dark');
-setGlobalState('language', 'es');
-setGlobalState('sidebarCollapsed', true);
+setAppSettings('theme', 'dark');
+setAppSettings('language', 'es');
+setAppSettings('sidebarCollapsed', true);
 ```
 
 ## Migration Guide
@@ -330,14 +330,14 @@ const loadUserPrefs = () => {
 };
 
 // After: rjs-frame global state
-import { setGlobalState, getGlobalState } from 'rjs-frame';
+import { setAppSettings, getAppSettings } from 'rjs-frame';
 
 const saveUserPrefs = (prefs) => {
-  setGlobalState('userPreferences', prefs);
+  setAppSettings('userPreferences', prefs);
 };
 
 const loadUserPrefs = () => {
-  return getGlobalState('userPreferences', {});
+  return getAppSettings('userPreferences', {});
 };
 ```
 
@@ -351,17 +351,17 @@ You can view the persisted state in browser DevTools:
 2. Go to Application/Storage tab
 3. Select Local Storage
 4. Look for keys:
-   - `rjs-frame:globalState`
+   - `rjs-frame:appSettings`
    - `rjs-frame:moduleState`
 
 ### Clear Stored State
 
 ```typescript
 // Clear specific global state
-setGlobalState('key', undefined);
+setAppSettings('key', undefined);
 
 // Or manually clear localStorage
-localStorage.removeItem('rjs-frame:globalState');
+localStorage.removeItem('rjs-frame:appSettings');
 localStorage.removeItem('rjs-frame:moduleState');
 ```
 
@@ -372,7 +372,7 @@ import { appStateStore } from 'rjs-frame';
 
 // Subscribe to all state changes
 const unsubscribe = appStateStore.subscribe((state) => {
-  console.log('Global State:', state.globalState);
+  console.log('Global State:', state.appSettings);
   console.log('Module State:', state.moduleState);
 });
 
@@ -385,17 +385,17 @@ unsubscribe();
 ### Complete Theme System
 
 ```typescript
-import { getGlobalState, setGlobalState } from 'rjs-frame';
+import { getAppSettings, setAppSettings } from 'rjs-frame';
 
 type Theme = 'light' | 'dark' | 'auto';
 
 export class ThemeManager {
   static getTheme(): Theme {
-    return getGlobalState<Theme>('theme', 'light');
+    return getAppSettings<Theme>('theme', 'light');
   }
   
   static setTheme(theme: Theme) {
-    setGlobalState('theme', theme);
+    setAppSettings('theme', theme);
     document.body.className = `theme-${theme}`;
   }
   
@@ -413,7 +413,7 @@ ThemeManager.setTheme('dark'); // Persisted automatically
 ### User Preferences System
 
 ```typescript
-import { getGlobalState, setGlobalState, updateGlobalState } from 'rjs-frame';
+import { getAppSettings, setAppSettings, updateAppSettings } from 'rjs-frame';
 
 interface UserPreferences {
   language: string;
@@ -439,18 +439,18 @@ export class UserPreferencesManager {
   };
   
   static getPreferences(): UserPreferences {
-    return getGlobalState<UserPreferences>('userPreferences', this.defaultPrefs);
+    return getAppSettings<UserPreferences>('userPreferences', this.defaultPrefs);
   }
   
   static updatePreferences(updates: Partial<UserPreferences>) {
     const current = this.getPreferences();
     const updated = { ...current, ...updates };
-    setGlobalState('userPreferences', updated);
+    setAppSettings('userPreferences', updated);
   }
   
   static updateNotificationSettings(notifications: Partial<UserPreferences['notifications']>) {
     const current = this.getPreferences();
-    updateGlobalState({
+    updateAppSettings({
       userPreferences: {
         ...current,
         notifications: {
