@@ -58,6 +58,7 @@ export const TableView: React.FC<TableViewProps> = ({
     queryState,
     loading,
     onQueryStateChange,
+    onActivate,
     showHeaderFilters,
     onShowHeaderFiltersChange,
     TableHeaderComponent,
@@ -94,11 +95,7 @@ export const TableView: React.FC<TableViewProps> = ({
     } else {
       newSelected = selectedItems.filter((v) => v !== id);
     }
-    onQueryStateChange({ ...queryState, selectedItems: newSelected });
-  };
-
-  const activateRow = (id: string) => {
-    onQueryStateChange({ ...queryState, activeItem: id });
+    onQueryStateChange({ selectedItems: newSelected });
   };
 
   /**
@@ -111,7 +108,7 @@ export const TableView: React.FC<TableViewProps> = ({
       new Set([...(queryState.selectedItems || []), ...pageIds])
     );
 
-    onQueryStateChange({ ...queryState, selectedItems: newSelected });
+    onQueryStateChange({ selectedItems: newSelected });
   };
 
   /**
@@ -123,11 +120,11 @@ export const TableView: React.FC<TableViewProps> = ({
     const prevSelected = queryState.selectedItems || [];
     const newSelected = prevSelected.filter((id) => !pageIds.includes(id));
 
-    onQueryStateChange({ ...queryState, selectedItems: newSelected });
+    onQueryStateChange({ selectedItems: newSelected });
   };
 
   const clearAll = () => {
-    onQueryStateChange({ ...queryState, selectedItems: [] });
+    onQueryStateChange({ selectedItems: [] });
   };
 
   // Generate column configurations from metadata and queryState
@@ -176,7 +173,7 @@ export const TableView: React.FC<TableViewProps> = ({
         <tbody className="dt-tbody">
           <tr>
             <td className="h-full" colSpan={columns.length + 3}>
-              {noData("No data found", className, loading.data)}
+              {noData("No data found", className, loading.data !== false)}
             </td>
           </tr>
         </tbody>
@@ -200,7 +197,7 @@ export const TableView: React.FC<TableViewProps> = ({
               }
               idValue={idValue}
               onSelect={selectionEnabled ? toggleRow : undefined}
-              onActivate={activateRow}
+              onActivate={onActivate}
               isActive={isActive}
             />
           );

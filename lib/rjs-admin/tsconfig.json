@@ -30,7 +30,8 @@
   "include": [
     "src",
     "examples/AuthUserAvatarExample.tsx",
-    "examples/DataGridExample.tsx"
+    "examples/DataGridExample.tsx",
+    "examples/ItemView.example.tsx"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

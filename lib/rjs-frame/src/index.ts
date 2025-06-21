@@ -27,11 +27,10 @@ export {
 
 // Store
 export {
-  addPageParam,
   getBreadcrumbs,
   getGlobalState,
   getXRayEnabled,
-  initializeFromBrowserLocation,
+  initPageState as initializeFromBrowserLocation,
   pageStore,
   popBreadcrumb,
   pushBreadcrumb,
@@ -39,6 +38,7 @@ export {
   setBreadcrumbs,
   setGlobalState,
   setPageName,
+  setPageParam,
   setXRayEnabled,
   updateGlobalState,
   updateLinkParams,
@@ -107,7 +107,7 @@ export type {
 
 // Utils
 export {
-  buildPathFromPageState,
+  buildPath as buildPathFromPageState,
   buildUrlFragments,
   FRAGMENT_NAME_PATTERN,
   isValidFragmentName,
@@ -116,7 +116,7 @@ export {
   parseUrl,
   parseUrlFragments,
   updateBrowserLocation,
-  updateBrowserTitle,
+  buildBrowserTitle as updateBrowserTitle,
   URL_FRAGMENT_SEPARATOR,
 } from "./utils/urlUtils";
 

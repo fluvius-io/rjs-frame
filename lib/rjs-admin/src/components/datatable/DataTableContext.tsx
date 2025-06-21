@@ -15,17 +15,12 @@ export interface DataTableContextValue {
   metadata: QueryMetadata | null;
   loading: LoadingState;
   queryState: DataTableQueryState;
-  setQueryState: (
-    state:
-      | DataTableQueryState
-      | ((prev: DataTableQueryState) => DataTableQueryState)
-  ) => void;
   pagination: PaginationState;
-  setPagination: (state: PaginationState) => void;
   fetchData: () => Promise<void>;
   fetchMetadata: () => Promise<void>;
   debug?: boolean;
-  onQueryStateChange: (state: DataTableQueryState) => void;
+  onQueryStateChange: (state: Partial<DataTableQueryState>) => void;
+  onActivate: (id: string, row: DataRow) => void;
   onRefresh: () => void;
   openQueryBuilder: (open: boolean) => void;
   onShowHeaderFiltersChange: (show: boolean) => void;

@@ -120,12 +120,12 @@ export const QueryBuilderExample: React.FC = () => {
     query: [],
     sort: [],
     select: ["name__given", "name__family"],
-    search: "",
+    text: "",
   });
 
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleQueryStateChange = (newState: QueryState) => {
+  const handleQueryStateChange = (newState: DataTableQueryState) => {
     setQueryState(newState);
     console.log("Query state changed:", newState);
   };

@@ -257,6 +257,8 @@ export abstract class PageLayout<
     const pageContext: PageLayoutContextType = {
       layoutId: this.layoutId,
       pageModules: this.modules,
+      pageParams: this.state.pageState.pageParams,
+      linkParams: this.state.pageState.linkParams,
       xRay: xRayEnabled,
       slotClasses: this.props.slotClasses || {},
       addPageModule: (slotName: string, content: React.ReactNode) => {

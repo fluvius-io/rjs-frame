@@ -10,6 +10,8 @@ export type PageParams = Record<string, string | boolean>;
 
 export type LinkParams = Record<string, string>;
 
+export type HashParams = Record<string, string>;
+
 export type GlobalState = {
   [key: string]: any;
 };
@@ -27,6 +29,7 @@ export interface PageState {
   breadcrumbs: string[];
   pageParams: PageParams;
   linkParams: LinkParams;
+  hashParams: HashParams;
   globalState: GlobalState;
   moduleState: ModuleState;
 }
@@ -38,6 +41,7 @@ export interface TypedPageState {
   breadcrumbs: string[];
   pageParams: PageParams;
   linkParams: LinkParams;
+  hashParams: HashParams;
   globalState: GlobalState;
   moduleState: ModuleState;
   auth: AuthContext | null;

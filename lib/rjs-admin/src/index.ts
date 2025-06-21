@@ -37,6 +37,13 @@ export { Input } from "./components/form/Input";
 export { EntityFormat } from "./components/entity";
 export type { EntityFormatProps } from "./components/entity";
 
+// Item View Components
+export { ItemView, useItemView } from "./components/itemview";
+export type {
+  ItemViewContextValue,
+  ItemViewProps,
+} from "./components/itemview";
+
 // Data Table Components
 export {
   DataTable,

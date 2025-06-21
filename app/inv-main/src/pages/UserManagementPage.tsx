@@ -153,7 +153,7 @@ export default function UserManagementPage() {
           </div>
 
           <DataTable
-            dataSource="idm:user"
+            resourceName="idm:user"
             actions={
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm">
@@ -167,7 +167,7 @@ export default function UserManagementPage() {
             }
           />
           <DataTable
-            dataSource="idm:organization"
+            resourceName="idm:organization"
             actions={
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm">

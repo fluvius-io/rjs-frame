@@ -1,4 +1,4 @@
-import { Loader2, Trash2 } from "lucide-react";
+import { AlertCircle, Loader2, Trash2 } from "lucide-react";
 import React from "react";
 import { APIManager } from "rjs-frame";
 import { cn, queryStateToApiParams } from "../../lib/utils";
@@ -61,20 +61,21 @@ export const DataTable: React.FC<DataTableProps> = ({
   showHeaderFilters: propShowHeaderFilters = false,
   showHeaderTitle: propShowHeaderTitle = true,
   allowSelection: propAllowSelection = true,
-  dataSource,
+  resourceName,
   queryState: propQueryState,
   pagination: propPagination,
   className,
   debug = false,
   debounceDelay = 0,
   actions,
+  onActivate,
 }) => {
   // Internal state for data and metadata
   const [data, setData] = React.useState<DataRow[]>([]);
   const [metadata, setMetadata] = React.useState(propMetadata);
   const [loading, setLoading] = React.useState<LoadingState>({
-    data: false,
-    metadata: false,
+    data: "initializing",
+    meta: "initializing",
   });
   const [modalOpen, setModalOpen] = React.useState(false);
   const [showHeaderFilters, setShowHeaderFilters] = React.useState(
@@ -110,9 +111,8 @@ export const DataTable: React.FC<DataTableProps> = ({
     }
   };
 
-  const handleQueryStateChange = (newState: QueryState) => {
-    setInternalQueryState(newState);
-    debouncedFetchData();
+  const handleQueryStateChange = (newState: Partial<DataTableQueryState>) => {
+    setInternalQueryState((prev) => ({ ...prev, ...newState }));
   };
 
   const handlePaginationChange = (newPagination: PaginationState) => {
@@ -126,11 +126,13 @@ export const DataTable: React.FC<DataTableProps> = ({
 
   // Fetch metadata
   const fetchMetadata = React.useCallback(async () => {
-    if (!dataSource || propMetadata) return;
+    if (!resourceName || propMetadata) return;
 
-    setLoading((prev) => ({ ...prev, metadata: true }));
+    if (loading.meta === false) {
+      setLoading((prev) => ({ ...prev, meta: true }));
+    }
     try {
-      const response = await APIManager.queryMeta(dataSource);
+      const response = await APIManager.queryMeta(resourceName);
       const metadata = response.data;
 
       setMetadata(metadata);
@@ -148,16 +150,18 @@ export const DataTable: React.FC<DataTableProps> = ({
     } catch (error) {
       console.error("Failed to fetch metadata:", error);
     } finally {
-      setLoading((prev) => ({ ...prev, metadata: false }));
+      setLoading((prev) => ({ ...prev, meta: false }));
     }
-  }, [dataSource, propMetadata, propQueryState]);
+  }, [resourceName, propMetadata, propQueryState]);
 
   // Fetch data (non-debounced)
   const fetchData = React.useCallback(
     async (pagination?: PaginationState) => {
-      if (!dataSource) return;
+      if (!resourceName) return;
 
-      // setLoading((prev) => ({ ...prev, data: true }));
+      if (loading.data === false) {
+        setLoading((prev) => ({ ...prev, data: true }));
+      }
       pagination = pagination || internalPagination;
       try {
         // Build query parameters from current state
@@ -170,7 +174,7 @@ export const DataTable: React.FC<DataTableProps> = ({
           },
         };
 
-        const response = await APIManager.query(dataSource, urlParams);
+        const response = await APIManager.query(resourceName, urlParams);
 
         if (response.data) {
           setData(response.data);
@@ -183,10 +187,10 @@ export const DataTable: React.FC<DataTableProps> = ({
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
-        // setLoading((prev) => ({ ...prev, data: false }));
+        setLoading((prev) => ({ ...prev, data: false }));
       }
     },
-    [dataSource, internalQueryState]
+    [resourceName, internalQueryState]
   );
 
   // Create debounced versions of metadata and data fetchers
@@ -195,6 +199,11 @@ export const DataTable: React.FC<DataTableProps> = ({
     debounceDelay
   );
   const debouncedFetchData = useDebouncedCallback(fetchData, debounceDelay);
+
+  const handleActivate = (id: string, row: DataRow) => {
+    handleQueryStateChange({ activeItem: id });
+    onActivate?.(id, row);
+  };
 
   // Initial fetch
   React.useEffect(() => {
@@ -207,13 +216,30 @@ export const DataTable: React.FC<DataTableProps> = ({
     }
   }, [debouncedFetchData, metadata]);
 
-  // Show loading if metadata is not available
-  if (!metadata) {
+  const clearSelection = () => {
+    handleQueryStateChange({ selectedItems: [] });
+  };
+
+  if (loading.meta === "initializing" || loading.data === "initializing") {
     return (
       <div className={cn("dt-container", className)}>
         <div className="dt-loading">
           <Loader2 className="dt-loading-spinner" />
           <span className="dt-loading-text">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!metadata) {
+    return (
+      <div className="dt-empty">
+        <div className="flex flex-col items-center">
+          <AlertCircle className="dt-empty-icon text-orange-300" />
+          <div className="dt-empty-text">No metadata available</div>
+          <div className="dt-empty-subtext">
+            The resource name is not valid or the metadata is not available.
+          </div>
         </div>
       </div>
     );
@@ -228,23 +254,19 @@ export const DataTable: React.FC<DataTableProps> = ({
     metadata,
     loading,
     queryState: internalQueryState,
-    setQueryState: setInternalQueryState,
     pagination: internalPagination,
-    setPagination: setInternalPagination,
     fetchData: debouncedFetchData,
     fetchMetadata: debouncedFetchMetadata,
     onQueryStateChange: handleQueryStateChange,
     onRefresh: () => debouncedFetchData(),
     openQueryBuilder: setModalOpen,
     onShowHeaderFiltersChange: setShowHeaderFilters,
+    onActivate: handleActivate,
     TableFilterComponent: TableFilter,
     TableHeaderComponent: TableHeader,
     TableRowComponent: TableRow,
     showHeaderFilters,
     showHeaderTitle: propShowHeaderTitle,
-  };
-  const clearSelection = () => {
-    setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }));
   };
 
   const renderSelectionBanner = () => {

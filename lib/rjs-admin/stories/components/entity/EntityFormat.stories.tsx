@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import React from "react";
 import { EntityFormat } from "../../../src/components/entity/EntityFormat";
+import "../../../src/lib/api";
 
 const meta: Meta<typeof EntityFormat> = {
   title: "Entity/EntityFormat",

@@ -412,11 +412,11 @@ const DataTableWrapper = (props: Partial<DataTableProps>) => {
 
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 10,
+    limit: 10,
     total: sampleUsers.length,
   });
 
-  const handleQueryStateChange = (newState: QueryState) => {
+  const handleQueryStateChange = (newState: Partial<QueryState>) => {
     setQueryState(newState);
   };
 
@@ -426,7 +426,7 @@ const DataTableWrapper = (props: Partial<DataTableProps>) => {
 
   return (
     <DataTable
-      dataSource={
+      resourceName={
         MockAPI.registerQuery("dt-sample-users", sampleUsers) as DataTableSource
       }
       queryState={queryState}
@@ -441,7 +441,7 @@ const DataTableWrapper = (props: Partial<DataTableProps>) => {
 
 export const Default: Story = {
   args: {
-    dataSource: MockAPI.registerQuery(
+    resourceName: MockAPI.registerQuery(
       "dt-example-data",
       EXAMPLE_DATA
     ) as DataTableSource,
@@ -451,7 +451,7 @@ export const Default: Story = {
 
 export const Empty: Story = {
   args: {
-    dataSource: MockAPI.registerQuery(
+    resourceName: MockAPI.registerQuery(
       "dt-empty-data",
       [],
       EXAMPLE_METADATA
@@ -467,7 +467,7 @@ export const Loading: Story = {
 
 export const WithInitialQuery: Story = {
   args: {
-    dataSource: MockAPI.registerQuery(
+    resourceName: MockAPI.registerQuery(
       "dt-example-data",
       EXAMPLE_DATA,
       EXAMPLE_METADATA
@@ -483,7 +483,7 @@ export const WithInitialQuery: Story = {
 
 export const LargeDataset: Story = {
   args: {
-    dataSource: MockAPI.registerQuery(
+    resourceName: MockAPI.registerQuery(
       "dt-large-data",
       Array.from({ length: 50 }, (_, i) => ({
         ...EXAMPLE_DATA[i % EXAMPLE_DATA.length],
@@ -501,7 +501,7 @@ export const LargeDataset: Story = {
 
 export const WithOrganizationApi: Story = {
   args: {
-    dataSource: "idm:organization",
+    resourceName: "idm:organization",
     // Let DataTable handle internal fetching of metadata + data via APIManager
     debug: true,
   },

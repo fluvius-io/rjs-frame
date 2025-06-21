@@ -70,11 +70,11 @@ export const TableRow: React.FC<TableRowProps> = ({
   };
 
   const handleSelect = (checked: boolean) => {
-    onSelect?.(idValue as string, checked);
+    onSelect?.(idValue as string, checked, row);
   };
 
   const handleActivate = () => {
-    onActivate?.(idValue as string);
+    onActivate?.(idValue as string, row);
   };
 
   return (

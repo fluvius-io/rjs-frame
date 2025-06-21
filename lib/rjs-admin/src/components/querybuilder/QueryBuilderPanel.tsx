@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { AlertCircle, ChevronDown } from "lucide-react";
+import { AlertCircle, ChevronDown, Trash2 } from "lucide-react";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { APIManager } from "rjs-frame";
@@ -11,6 +11,7 @@ import {
   QueryMetadata,
   QueryValue,
 } from "../../types/querybuilder";
+import { Button } from "../common/Button";
 import { FilterInput } from "./FilterInput";
 
 export interface QueryBuilderPanelProps {
@@ -48,7 +49,7 @@ export interface QueryBuilderPanelProps {
 export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
   fields,
   metaSource,
-  filterStates: initialFilterStates = {},
+  filterStates: propFilterStates = {},
   onFilterStatesChange,
   customInput = {},
   className,
@@ -56,7 +57,7 @@ export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
 }) => {
   const [metadata, setMetadata] = useState<QueryMetadata | null>(null);
   const [filterStates, setFilterStates] =
-    useState<Record<string, FilterState>>(initialFilterStates);
+    useState<Record<string, FilterState>>(propFilterStates);
 
   // Build fieldMap for fast field metadata lookup
   const fieldMap = useMemo(() => {
@@ -201,6 +202,32 @@ export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
     onFilterStatesChange?.(newFilterStates);
   };
 
+  const handleClearAll = () => {
+    // Reset all filter states to default values
+    const clearedFilterStates: Record<string, FilterState> = {};
+
+    fields.forEach((fieldName) => {
+      const field = fieldMap.get(fieldName);
+      if (!field) return;
+
+      clearedFilterStates[fieldName] = {
+        id: `filter-${fieldName}`,
+        type: "field",
+        field: fieldName,
+        operator: `${fieldName}.${field.noop}`,
+        value: undefined,
+      };
+    });
+
+    setFilterStates(clearedFilterStates);
+    onFilterStatesChange?.(clearedFilterStates);
+  };
+
+  // Check if any filters have values
+  const hasActiveFilters = Object.values(filterStates).some(
+    (filterState) => filterState.value !== undefined && filterState.value !== ""
+  );
+
   const getFilterMetadata = (operator: string) => {
     return metadata.filters[operator.replace("!", ".")];
   };
@@ -321,6 +348,17 @@ export const QueryBuilderPanel: React.FC<QueryBuilderPanelProps> = ({
     <div className={cn("rjs-panel", className)}>
       <div className="rjs-panel-header">
         <h2 className="rjs-panel-title">{title}</h2>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearAll}
+            className="rjs-panel-clear-button"
+            title="Clear all filters"
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+          </Button>
+        )}
       </div>
 
       <div className="rjs-panel-section">

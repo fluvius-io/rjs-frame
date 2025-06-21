@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from "react";
+import { LinkParams, PageParams } from "../types/PageState";
 
 /**
  * Global Layout Context - provides access to registered page modules and breadcrumbs
@@ -6,6 +7,8 @@ import React, { createContext, useContext } from "react";
 export interface PageLayoutContextType {
   layoutId: string;
   pageModules: { [slotName: string]: React.ReactNode[] };
+  pageParams: PageParams;
+  linkParams: LinkParams;
   slotClasses: Record<string, string>;
   xRay: boolean;
   addPageModule: (slotName: string, content: React.ReactNode) => void;

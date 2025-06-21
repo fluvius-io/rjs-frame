@@ -95,11 +95,12 @@ export const TableControl: React.FC<TableControlProps> = ({
           <button
             className="dt-query-builder-trigger"
             onClick={onRefresh}
-            disabled={loading.data || loading.metadata}
+            disabled={loading.data !== false || loading.meta !== false}
           >
             <RefreshCw
               className={cn("h-4 w-4", {
-                "animate-spin": loading.data || loading.metadata,
+                "animate-spin":
+                  loading.data !== false || loading.meta !== false,
               })}
             />
             <span>Refresh</span>

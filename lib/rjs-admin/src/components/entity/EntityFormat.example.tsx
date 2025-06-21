@@ -3,14 +3,39 @@ import { EntityFormat } from "./EntityFormat";
 
 /**
  * EntityFormat Usage Examples
- * Demonstrates different ways to use the EntityFormat component
+ * Demonstrates different ways to use the EntityFormat component with the updated APIManager
  */
 
-// Basic usage example
+// Basic usage example with new API name format
 export const BasicEntityExample: React.FC = () => (
   <div>
     <h2>Basic Entity Format</h2>
-    <EntityFormat _id="user123" apiName="users" />
+    <EntityFormat _id="user123" apiName="idm:user" />
+  </div>
+);
+
+// Example with collection:queryName format
+export const CollectionEntityExample: React.FC = () => (
+  <div>
+    <h2>Collection-based Entity</h2>
+    <EntityFormat _id="org456" apiName="idm:organization" />
+  </div>
+);
+
+// Example with additional parameters
+export const EntityWithParamsExample: React.FC = () => (
+  <div>
+    <h2>Entity with Parameters</h2>
+    <EntityFormat
+      _id="user123"
+      apiName="idm:user"
+      params={{
+        cache: false,
+        headers: {
+          "X-Custom-Header": "value",
+        },
+      }}
+    />
   </div>
 );
 
@@ -20,7 +45,7 @@ export const CustomEntityExample: React.FC = () => (
     <h2>Custom Rendered Entity</h2>
     <EntityFormat
       _id="product456"
-      apiName="products"
+      apiName="shop:product"
       renderEntity={(product) => (
         <div
           style={{
@@ -52,7 +77,7 @@ export const CustomStatesExample: React.FC = () => (
     <h2>Custom Loading & Error States</h2>
     <EntityFormat
       _id="profile123"
-      apiName="profiles"
+      apiName="idm:profile"
       loadingComponent={
         <div
           style={{
@@ -90,7 +115,7 @@ export const CardEntityExample: React.FC = () => (
     <h2>Card Style Entity</h2>
     <EntityFormat
       _id="employee456"
-      apiName="employees"
+      apiName="hr:employee"
       className="custom-card"
       renderEntity={(employee) => (
         <div
@@ -142,6 +167,28 @@ export const CardEntityExample: React.FC = () => (
   </div>
 );
 
+// Example showing different API name formats
+export const ApiNameFormatsExample: React.FC = () => (
+  <div>
+    <h2>Different API Name Formats</h2>
+
+    <div style={{ marginBottom: "20px" }}>
+      <h3>Collection:QueryName format</h3>
+      <EntityFormat _id="user123" apiName="idm:user" />
+    </div>
+
+    <div style={{ marginBottom: "20px" }}>
+      <h3>Simple query name (uses default collection)</h3>
+      <EntityFormat _id="user456" apiName="user" />
+    </div>
+
+    <div style={{ marginBottom: "20px" }}>
+      <h3>Different collection</h3>
+      <EntityFormat _id="org789" apiName="shop:organization" />
+    </div>
+  </div>
+);
+
 // All examples combined
 export const EntityFormatExamples: React.FC = () => (
   <div
@@ -153,9 +200,20 @@ export const EntityFormatExamples: React.FC = () => (
     }}
   >
     <h1>EntityFormat Component Examples</h1>
+    <p style={{ color: "#666", marginBottom: "20px" }}>
+      Updated for the new APIManager with collection routing support
+    </p>
 
     <div style={{ marginBottom: "40px" }}>
       <BasicEntityExample />
+    </div>
+
+    <div style={{ marginBottom: "40px" }}>
+      <CollectionEntityExample />
+    </div>
+
+    <div style={{ marginBottom: "40px" }}>
+      <EntityWithParamsExample />
     </div>
 
     <div style={{ marginBottom: "40px" }}>
@@ -168,6 +226,10 @@ export const EntityFormatExamples: React.FC = () => (
 
     <div style={{ marginBottom: "40px" }}>
       <CardEntityExample />
+    </div>
+
+    <div style={{ marginBottom: "40px" }}>
+      <ApiNameFormatsExample />
     </div>
   </div>
 );

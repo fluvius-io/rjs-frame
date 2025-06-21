@@ -40,8 +40,8 @@ export interface PaginationState {
 
 // Loading states
 export interface LoadingState {
-  data: boolean;
-  metadata: boolean;
+  data: boolean | "initializing";
+  meta: boolean | "initializing";
 }
 
 // Column configuration for table display
@@ -61,11 +61,12 @@ export interface DataTableProps {
   showHeaderFilters?: boolean;
   showHeaderTitle?: boolean;
   // API configuration
-  dataSource?: DataTableSource; // endpoint for data fetching
+  resourceName?: DataTableSource; // endpoint for data fetching
 
   // State management
   queryState?: DataTableQueryState;
-  onQueryStateChange?: (state: QueryState) => void;
+  onQueryStateChange?: (state: DataTableQueryState) => void;
+  onActivate?: (id: string, row: DataRow) => void;
 
   // Pagination
   pagination?: PaginationState;
@@ -123,8 +124,8 @@ export interface TableRowProps {
   idValue?: string;
   selected?: boolean;
   isActive?: boolean;
-  onSelect?: (id: string, selected: boolean) => void;
-  onActivate?: (id: string) => void;
+  onSelect?: (id: string, selected: boolean, row: DataRow) => void;
+  onActivate?: (id: string, row: DataRow) => void;
   className?: string;
   rowActions?: TableRowActionProps[];
 }

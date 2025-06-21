@@ -1,17 +1,18 @@
 import React, { Component } from "react";
-import type { ApiResponse } from "rjs-frame";
+import type { ApiParams, ApiResponse } from "rjs-frame";
 import { APIManager } from "rjs-frame";
 import "./EntityFormat.css";
 
 export interface EntityFormatProps {
   _id: string;
-  apiName: string; // API endpoint name
+  apiName: string; // API endpoint name (can be "collection:queryName" or just "queryName")
   className?: string;
   onError?: (error: Error) => void;
   onLoad?: (data: any) => void;
   renderEntity?: (entity: any) => React.ReactNode;
   loadingComponent?: React.ReactNode;
   errorComponent?: React.ReactNode;
+  params?: ApiParams; // Additional parameters for the API call
 }
 
 interface EntityFormatState {
@@ -38,17 +39,18 @@ export class EntityFormat extends Component<
   }
 
   componentDidUpdate(prevProps: EntityFormatProps) {
-    // Refetch if the _id or apiName changes
+    // Refetch if the _id, apiName, or params change
     if (
       prevProps._id !== this.props._id ||
-      prevProps.apiName !== this.props.apiName
+      prevProps.apiName !== this.props.apiName ||
+      JSON.stringify(prevProps.params) !== JSON.stringify(this.props.params)
     ) {
       this.fetchEntity();
     }
   }
 
   fetchEntity = async () => {
-    const { _id, apiName, onError, onLoad } = this.props;
+    const { _id, apiName, params, onError, onLoad } = this.props;
 
     if (!_id) {
       this.setState({
@@ -58,15 +60,28 @@ export class EntityFormat extends Component<
       return;
     }
 
+    if (!apiName) {
+      this.setState({
+        error: new Error("apiName prop is required"),
+        loading: false,
+      });
+      return;
+    }
+
     this.setState({ loading: true, error: null });
 
     try {
-      // Use APIManager.queryItem as in the original rjs-frame implementation
+      // Use APIManager.queryItem with the new API structure
+      // The apiName can be in format "collection:queryName" or just "queryName"
       const response: ApiResponse<any> = await APIManager.queryItem(
         apiName,
         _id,
-        { cache: true }
+        {
+          cache: true,
+          ...params,
+        }
       );
+
       this.setState({
         entity: response.data,
         loading: false,

@@ -1,9 +1,9 @@
 import { atom } from "nanostores";
 import type { PageParams, TypedPageState } from "../types/PageState";
 import {
+  buildBrowserTitle,
   parseBrowserLocation,
   updateBrowserLocation,
-  updateBrowserTitle,
 } from "../utils/urlUtils";
 
 // LocalStorage keys
@@ -47,6 +47,7 @@ const initialState: TypedPageState = {
   breadcrumbs: [],
   pageParams: {},
   linkParams: {},
+  hashParams: {},
   globalState: loadPersistedGlobalState(),
   moduleState: loadPersistedModuleState(),
   auth: null,
@@ -78,6 +79,7 @@ export const updatePageState = (
   }
 
   pageStore.set(newState);
+  updateBrowserLocation(newState);
 };
 
 // Helper functions for managing globalState
@@ -131,27 +133,18 @@ export const updateLinkParams = (newParams: Record<string, string>) => {
       ...newParams,
     },
   }));
-
-  // Pass updated state to URL update function
-  const updatedState = pageStore.get();
-  updateBrowserLocation(updatedState);
 };
 
 // Update pageParams while preserving page name
 export const updatePageParams = (newParams: PageParams) => {
-  const currentState = pageStore.get();
   updatePageState((state) => ({
     ...state,
     pageParams: newParams,
   }));
-
-  // Use the central updateBrowserLocation method
-  const updatedState = pageStore.get();
-  updateBrowserLocation(updatedState);
 };
 
 // Add or update a single page parameter while preserving page name and other params
-export const addPageParam = (key: string, value: string) => {
+export const setPageParam = (key: string, value: string | boolean) => {
   const currentState = pageStore.get();
   const updatedParams = {
     ...currentState.pageParams,
@@ -161,10 +154,6 @@ export const addPageParam = (key: string, value: string) => {
     ...state,
     pageParams: updatedParams,
   }));
-
-  // Pass updated state to URL function
-  const updatedState = pageStore.get();
-  updateBrowserLocation(updatedState);
 };
 
 // Remove a page parameter while preserving page name and other params
@@ -178,10 +167,6 @@ export const removePageParam = (key: string) => {
     ...state,
     pageParams: updatedParams,
   }));
-
-  // Pass updated state to URL function
-  const updatedState = pageStore.get();
-  updateBrowserLocation(updatedState);
 };
 
 // Update multiple page parameters while preserving page name
@@ -206,10 +191,6 @@ export const updatePageParamsPartial = (
     ...state,
     pageParams: updatedParams,
   }));
-
-  // Pass updated state to URL function
-  const updatedState = pageStore.get();
-  updateBrowserLocation(updatedState);
 };
 
 // Set page name only (logical page identifier, doesn't update URL)
@@ -218,7 +199,7 @@ export const setPageName = (pageName: string) => {
     ...state,
     pageName: pageName, // Set the logical page name
   }));
-  updateBrowserTitle(pageStore.get());
+  buildBrowserTitle(pageStore.get());
 };
 
 // Breadcrumb management functions
@@ -227,7 +208,7 @@ export const setBreadcrumbs = (breadcrumbs: string[]) => {
     ...state,
     breadcrumbs: [...breadcrumbs.filter(Boolean)],
   }));
-  updateBrowserTitle(pageStore.get());
+  buildBrowserTitle(pageStore.get());
 };
 
 export const pushBreadcrumb = (breadcrumb: string) => {
@@ -250,7 +231,7 @@ export const getBreadcrumbs = (): string[] => {
 };
 
 // Initialize page state from current URL (useful on app start)
-export const initializeFromBrowserLocation = (windowLocation: Location) => {
+export const initPageState = (windowLocation: Location) => {
   const { pagePath, pageParams, linkParams } =
     parseBrowserLocation(windowLocation);
 
@@ -267,6 +248,5 @@ export const initializeFromBrowserLocation = (windowLocation: Location) => {
   };
 
   updatePageState(() => newState);
-  updateBrowserTitle(newState);
   return newState;
 };
