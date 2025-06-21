@@ -1,287 +1,163 @@
 /* ItemView Component Styles */
 
-.item-view {
-  width: 100%;
-  max-width: 100%;
-  font-family: inherit;
+/* Main Container */
+.iv__container {
+  @apply relative w-full h-full flex flex-col;
 }
 
-/* Loading State */
-.iv__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  min-height: 200px;
+/* Header */
+.iv__header {
+  @apply flex items-center gap-2 w-full p-4 border-b border-border;
 }
 
-/* Loading Overlay */
-.iv__loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.35s ease-in-out;
+.iv__title {
+  @apply text-lg font-semibold text-foreground truncate;
 }
 
-.iv__loading-overlay--visible {
-  opacity: 1;
+.iv__subtitle {
+  @apply text-sm text-muted-foreground;
 }
 
-.iv__loading-overlay .iv__loading {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem 2rem;
-  min-height: auto;
-}
-
-.iv__loading-content {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.iv__loading-spinner {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-muted, #6b7280);
-  font-size: 0.875rem;
-}
-
-.iv__loading-spinner::before {
-  content: "";
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Error State */
-.iv__error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  min-height: 200px;
-  text-align: center;
-}
-
-.iv__error-message {
-  color: var(--destructive, #ef4444);
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
-.iv__retry {
-  background: var(--primary, #3b82f6);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.iv__retry:hover {
-  background: var(--primary-hover, #2563eb);
-}
-
-/* Empty State */
-.iv__empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  min-height: 200px;
-  color: var(--text-muted, #6b7280);
-  font-size: 0.875rem;
+/* Content */
+.iv__content {
+  @apply flex-1 overflow-hidden;
 }
 
 /* Tabs */
 .iv__tabs {
-  width: 100%;
+  @apply w-full h-full flex flex-col;
 }
 
 .iv__tabs-list {
-  display: flex;
-  background: var(--background, #ffffff);
-  margin-bottom: 0;
-  list-style: none;
+  @apply flex border-b border-border bg-background;
 }
 
-.iv__tab-trigger {
-  margin-top: calc(0.5rem + 2px);
-  border-radius: 5px 5px 0 0;
-  @apply bg-border;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-muted, #6b7280);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  position: relative;
+.iv__tabs-trigger {
+  @apply flex-1 px-3 py-2 text-sm font-medium text-muted-foreground border-b-2 border-transparent hover:text-foreground hover:border-border transition-colors data-[state=active]:text-foreground data-[state=active]:border-primary;
 }
 
-.iv__tab-trigger:hover {
-  @apply bg-border text-primary;
-  border-bottom-color: var(--primary, #3b82f6);
+.iv__tabs-content {
+  @apply flex-1 overflow-auto p-4 outline-none;
 }
 
-.iv__tab-trigger[data-state="active"] {
-  color: var(--primary, #3b82f6);
-  border-bottom-color: var(--primary, #3b82f6);
+.iv__tabs-content[data-state="active"] {
+  @apply animate-in fade-in-0 slide-in-from-bottom-1 duration-200;
 }
 
-.iv__tab-trigger:focus-visible {
-  outline: 2px solid var(--ring, #3b82f6);
-  outline-offset: 2px;
+/* Loading States */
+.iv__loading {
+  @apply flex items-center justify-center p-8 min-h-[200px];
 }
 
-/* Tab Content */
-.iv__tab-content {
-  @apply p-4;
-  outline: none;
+.iv__loading-overlay {
+  @apply absolute inset-0 bg-white/75 backdrop-blur-sm flex items-center justify-center z-10 opacity-0 transition-opacity duration-350 ease-in-out;
 }
 
-.iv__tab-content[data-state="active"] {
-  animation: fadeIn 0.2s ease-in-out;
+.iv__loading-overlay--visible {
+  @apply opacity-100;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.iv__loading-overlay .iv__loading {
+  @apply bg-white/90 rounded-lg shadow-lg p-6 min-h-0;
+}
+
+.iv__loading-content {
+  @apply flex items-center gap-2;
+}
+
+.iv__loading-spinner {
+  @apply flex items-center justify-center text-sm text-muted-foreground;
+}
+
+.iv__loading-spinner::before {
+  @apply content-[''] w-4 h-4 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin;
+}
+
+.iv__loading-text {
+  @apply text-sm text-muted-foreground;
+}
+
+/* Error State */
+.iv__error {
+  @apply flex flex-col items-center justify-center p-8 min-h-[200px] text-center;
+}
+
+.iv__error-message {
+  @apply text-destructive mb-4 text-sm;
+}
+
+.iv__retry {
+  @apply bg-primary text-primary-foreground border-none px-4 py-2 rounded-md text-sm cursor-pointer transition-colors hover:bg-primary/90;
+}
+
+/* Empty State */
+.iv__empty {
+  @apply flex items-center justify-center p-8 min-h-[200px] text-muted-foreground text-sm;
 }
 
 /* Details Tab */
 .iv__details {
-  width: 100%;
+  @apply w-full;
 }
 
-.iv__title {
-  margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text, #374151);
+.iv__details-title {
+  @apply text-xl font-semibold text-foreground mb-4;
 }
 
-.iv__content {
-  background: var(--muted, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 0.5rem;
-  overflow: hidden;
+.iv__details-content {
+  @apply bg-muted border border-border rounded-lg overflow-hidden;
 }
 
 .iv__data {
-  margin: 0;
-  padding: 1rem;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
-    "Liberation Mono", Menlo, monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--text, #374151);
-  background: var(--background, #ffffff);
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
+  @apply p-4;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .iv__tabs-list {
-    flex-direction: column;
-    border-bottom: none;
-    border-right: 1px solid var(--border, #e5e7eb);
+    @apply flex-col;
   }
 
-  .iv__tab-trigger {
-    border-bottom: none;
-    border-right: 2px solid transparent;
-    text-align: left;
+  .iv__tabs-trigger {
+    @apply border-b-0 border-r-2 border-transparent data-[state=active]:border-r-primary;
   }
 
-  .iv__tab-trigger[data-state="active"] {
-    border-right-color: var(--primary, #3b82f6);
-  }
-
-  .iv__tab-content {
-    padding: 1rem 0;
+  .iv__tabs-content {
+    @apply p-2;
   }
 
   .iv__data {
-    font-size: 0.75rem;
-    padding: 0.75rem;
+    @apply p-2;
   }
 }
 
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
-  .iv__tabs-list {
-    background: var(--background, #1f2937);
-    border-bottom-color: var(--border, #374151);
-  }
-
-  .iv__tab-trigger {
-    color: var(--text-muted, #9ca3af);
-  }
-
-  .iv__tab-trigger:hover {
-    color: var(--text, #f9fafb);
-    background: var(--muted, #374151);
-  }
-
-  .iv__tab-trigger[data-state="active"] {
-    color: var(--primary, #60a5fa);
-    border-bottom-color: var(--primary, #60a5fa);
-  }
-
-  .iv__content {
-    background: var(--muted, #374151);
-    border-color: var(--border, #4b5563);
-  }
-
-  .iv__data {
-    background: var(--background, #1f2937);
-    color: var(--text, #f9fafb);
-  }
-
-  .iv__title {
-    color: var(--text, #f9fafb);
-  }
-
-  /* Dark mode loading overlay */
   .iv__loading-overlay {
-    background: rgba(0, 0, 0, 0.8);
+    @apply bg-black/75;
   }
 
   .iv__loading-overlay .iv__loading {
-    background: rgba(31, 41, 55, 0.9);
+    @apply bg-gray-900/90;
+  }
+
+  .iv__tabs-list {
+    @apply bg-gray-900;
+  }
+
+  .iv__tabs-trigger {
+    @apply text-gray-400 hover:text-gray-200 data-[state=active]:text-blue-400 data-[state=active]:border-blue-400;
+  }
+
+  .iv__details-content {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .iv__data {
+    @apply bg-gray-800;
+  }
+
+  .iv__details-title {
+    @apply text-gray-100;
   }
 }
