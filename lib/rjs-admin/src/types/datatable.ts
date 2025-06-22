@@ -12,11 +12,14 @@ export interface DataRow {
 }
 
 export interface DataTableQueryState extends QueryState {
+  resourceScope?: Record<string, string>;
+  pathQuery?: Record<string, string>;
+}
+
+export interface DataTableSelectionState {
   selectedItems?: string[];
   activeItem?: string;
   activeColumn?: string;
-  resourceScope?: Record<string, string>;
-  pathQuery?: Record<string, string>;
 }
 
 // API response structure for data fetching
@@ -108,7 +111,6 @@ export interface TableHeaderProps {
   selectAllState?: boolean | "indeterminate";
   onSelectAll?: () => void;
   onClearAll?: () => void;
-  idField?: string;
   className?: string;
 }
 
@@ -140,8 +142,6 @@ export interface PaginationProps {
   pagination: PaginationState;
   onChange: (pagination: PaginationState) => void;
   loading?: boolean;
-  selectedCount?: number;
-  onClearSelection?: () => void;
   className?: string;
 }
 

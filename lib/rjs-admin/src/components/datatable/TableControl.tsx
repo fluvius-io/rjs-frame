@@ -1,4 +1,4 @@
-import { Filter, RefreshCw, SidebarClose, SidebarOpen } from "lucide-react";
+import { Filter, SidebarClose, SidebarOpen } from "lucide-react";
 import React, { useState } from "react";
 import { updatePageParams, usePageContext } from "rjs-frame";
 import { cn } from "../../lib/utils";
@@ -13,9 +13,7 @@ export const TableControl: React.FC<TableControlProps> = ({
     metadata,
     queryState,
     onQueryStateChange,
-    onRefresh,
     openQueryBuilder,
-    loading,
     showHeaderTitle,
   } = useDataTable();
   const pageContext = usePageContext();
@@ -121,19 +119,6 @@ export const TableControl: React.FC<TableControlProps> = ({
           >
             <Filter className="h-4 w-4" />
             <span>Filters</span>
-          </button>
-          <button
-            className="dt-query-builder-trigger"
-            onClick={onRefresh}
-            disabled={loading.data !== false || loading.meta !== false}
-          >
-            <RefreshCw
-              className={cn("h-4 w-4", {
-                "animate-spin":
-                  loading.data !== false || loading.meta !== false,
-              })}
-            />
-            <span>Refresh</span>
           </button>
         </div>
         {actions && (

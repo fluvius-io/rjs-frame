@@ -129,28 +129,18 @@
 }
 
 .iv__tab-trigger {
-  margin-top: calc(0.5rem + 2px);
-  border-radius: 5px 5px 0 0;
-  @apply bg-border;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-muted, #6b7280);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
+  @apply text-sm cursor-pointer transition-all bg-border border-b-2 border-transparent text-muted-foreground px-4 py-2 rounded-t-md;
+  margin-top: calc(1rem + 2px);
   position: relative;
 }
 
 .iv__tab-trigger:hover {
-  @apply bg-border text-primary;
-  border-bottom-color: var(--primary, #3b82f6);
+  @apply bg-border text-primary border-primary;
 }
 
 .iv__tab-trigger[data-state="active"] {
-  color: var(--primary, #3b82f6);
-  border-bottom-color: var(--primary, #3b82f6);
+  @apply border;
+  @apply bg-background text-primary border-slate-300 border-b-2;
 }
 
 .iv__tab-trigger:focus-visible {

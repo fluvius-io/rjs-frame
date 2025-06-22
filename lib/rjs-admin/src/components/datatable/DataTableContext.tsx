@@ -2,6 +2,7 @@ import React from "react";
 import {
   DataRow,
   DataTableQueryState,
+  DataTableSelectionState,
   LoadingState,
   PaginationState,
   TableFilterProps,
@@ -16,12 +17,13 @@ export interface DataTableContextValue {
   loading: LoadingState;
   queryState: DataTableQueryState;
   pagination: PaginationState;
+  selectionState: DataTableSelectionState;
   fetchData: () => Promise<void>;
   fetchMetadata: () => Promise<void>;
   debug?: boolean;
   onQueryStateChange: (state: Partial<DataTableQueryState>) => void;
+  onSelectionStateChange: (state: Partial<DataTableSelectionState>) => void;
   onActivate: (id: string, row: DataRow) => void;
-  onRefresh: () => void;
   openQueryBuilder: (open: boolean) => void;
   onShowHeaderFiltersChange: (show: boolean) => void;
   showHeaderFilters: boolean;

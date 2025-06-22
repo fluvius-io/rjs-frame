@@ -57,10 +57,11 @@ export const TableView: React.FC<TableViewProps> = ({
     metadata,
     queryState,
     loading,
+    selectionState,
     onQueryStateChange,
+    onSelectionStateChange,
     onActivate,
     showHeaderFilters,
-    onShowHeaderFiltersChange,
     TableHeaderComponent,
     TableFilterComponent,
     TableRowComponent,
@@ -73,7 +74,7 @@ export const TableView: React.FC<TableViewProps> = ({
   const idField = metadata.idfield;
   const selectionEnabled = !!(allowSelection && idField);
 
-  const selectedItems: string[] = queryState.selectedItems || [];
+  const selectedItems: string[] = selectionState.selectedItems || [];
 
   // Local state to show/hide header filters
 
@@ -95,7 +96,7 @@ export const TableView: React.FC<TableViewProps> = ({
     } else {
       newSelected = selectedItems.filter((v) => v !== id);
     }
-    onQueryStateChange({ selectedItems: newSelected });
+    onSelectionStateChange({ selectedItems: newSelected });
   };
 
   /**
@@ -105,10 +106,10 @@ export const TableView: React.FC<TableViewProps> = ({
   const selectAllPage = () => {
     const pageIds = data.map((row) => String(row[idField as string]));
     const newSelected = Array.from(
-      new Set([...(queryState.selectedItems || []), ...pageIds])
+      new Set([...(selectionState.selectedItems || []), ...pageIds])
     );
 
-    onQueryStateChange({ selectedItems: newSelected });
+    onSelectionStateChange({ selectedItems: newSelected });
   };
 
   /**
@@ -117,14 +118,14 @@ export const TableView: React.FC<TableViewProps> = ({
    */
   const clearAllPage = () => {
     const pageIds = data.map((row) => String(row[idField as string]));
-    const prevSelected = queryState.selectedItems || [];
+    const prevSelected = selectionState.selectedItems || [];
     const newSelected = prevSelected.filter((id) => !pageIds.includes(id));
 
-    onQueryStateChange({ selectedItems: newSelected });
+    onSelectionStateChange({ selectedItems: newSelected });
   };
 
   const clearAll = () => {
-    onQueryStateChange({ selectedItems: [] });
+    onSelectionStateChange({ selectedItems: [] });
   };
 
   // Generate column configurations from metadata and queryState
@@ -184,7 +185,7 @@ export const TableView: React.FC<TableViewProps> = ({
       <tbody className="dt-tbody">
         {data.map((row, index) => {
           const idValue = idField ? String(row[idField]) : undefined;
-          const isActive = queryState.activeItem === idValue;
+          const isActive = selectionState.activeItem === idValue;
           return (
             <RowComponent
               key={index}
@@ -220,7 +221,6 @@ export const TableView: React.FC<TableViewProps> = ({
             selectAllState={selectAllState}
             onSelectAll={selectAllPage}
             onClearAll={clearAllPage}
-            idField={idField}
           />
 
           {renderFilterHeader()}

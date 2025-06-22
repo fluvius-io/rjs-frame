@@ -6,6 +6,7 @@ import {
   DataRow,
   DataTableProps,
   DataTableQueryState,
+  DataTableSelectionState,
   LoadingState,
   PaginationState,
 } from "../../types/datatable";
@@ -83,49 +84,48 @@ export const DataTable: React.FC<DataTableProps> = ({
   );
 
   // Internal query state if not controlled
-  const [internalQueryState, setInternalQueryState] =
-    React.useState<DataTableQueryState>(() => ({
+  const [queryState, setQueryState] = React.useState<DataTableQueryState>(
+    () => ({
       query: [],
       sort: [],
       select: [],
       text: "",
       ...propQueryState,
+    })
+  );
+
+  const [selectionState, setSelectionState] =
+    React.useState<DataTableSelectionState>(() => ({
+      selectedItems: [],
+      activeItem: "",
+      activeColumn: "",
     }));
 
   // Internal pagination state if not controlled
-  const [internalPagination, setInternalPagination] =
-    React.useState<PaginationState>(() => ({
+  const [paginationState, setPaginationState] = React.useState<PaginationState>(
+    () => ({
       page: 1,
       limit: 25,
       total: 0,
       ...propPagination,
-    }));
+    })
+  );
 
-  const setPagination = (newPagination: PaginationState) => {
-    if (
-      newPagination.page !== internalPagination.page ||
-      newPagination.limit !== internalPagination.limit ||
-      newPagination.total !== internalPagination.total
-    ) {
-      setInternalPagination(newPagination);
-    }
-  };
-
-  const handleQueryStateChange = (newState: Partial<DataTableQueryState>) => {
-    setInternalQueryState((prev) => ({ ...prev, ...newState }));
+  const updateQueryState = (stateUpdates: Partial<DataTableQueryState>) => {
+    setQueryState((prev) => ({ ...prev, ...stateUpdates }));
   };
 
   const handlePaginationChange = (newPagination: PaginationState) => {
     if (
-      newPagination.page !== internalPagination.page ||
-      newPagination.limit !== internalPagination.limit
+      newPagination.page !== paginationState.page ||
+      newPagination.limit !== paginationState.limit
     ) {
       debouncedFetchData(newPagination);
     }
   };
 
   // Fetch metadata
-  const fetchMetadata = React.useCallback(async () => {
+  const fetchMetadata = async () => {
     if (!resourceName || propMetadata) return;
 
     if (loading.meta === false) {
@@ -145,53 +145,49 @@ export const DataTable: React.FC<DataTableProps> = ({
           select: getDefaultSelect(metadata),
           text: "",
         };
-        setInternalQueryState(initialState);
+        setQueryState(initialState);
       }
     } catch (error) {
       console.error("Failed to fetch metadata:", error);
     } finally {
       setLoading((prev) => ({ ...prev, meta: false }));
     }
-  }, [resourceName, propMetadata, propQueryState]);
+  };
 
   // Fetch data (non-debounced)
-  const fetchData = React.useCallback(
-    async (pagination?: PaginationState) => {
-      if (!resourceName) return;
+  const fetchData = async (pagination?: PaginationState) => {
+    if (!resourceName) return;
 
-      if (loading.data === false) {
-        setLoading((prev) => ({ ...prev, data: true }));
+    if (loading.data === false) {
+      setLoading((prev) => ({ ...prev, data: true }));
+    }
+    try {
+      // Build query parameters from current state
+      const apiParams = queryStateToApiParams(queryState);
+      const urlParams = {
+        search: {
+          page: pagination?.page || paginationState.page,
+          limit: pagination?.limit || paginationState.limit,
+          ...apiParams,
+        },
+      };
+
+      const response = await APIManager.query(resourceName, urlParams);
+
+      if (response.data) {
+        setData(response.data);
       }
-      pagination = pagination || internalPagination;
-      try {
-        // Build query parameters from current state
-        const apiParams = queryStateToApiParams(internalQueryState);
-        const urlParams = {
-          search: {
-            page: pagination.page,
-            limit: pagination.limit,
-            ...apiParams,
-          },
-        };
 
-        const response = await APIManager.query(resourceName, urlParams);
-
-        if (response.data) {
-          setData(response.data);
-        }
-
-        // Update pagination total if not controlled
-        if (response.pagination) {
-          setPagination(response.pagination);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading((prev) => ({ ...prev, data: false }));
+      // Update pagination total if not controlled
+      if (response.pagination) {
+        setPaginationState(response.pagination);
       }
-    },
-    [resourceName, internalQueryState]
-  );
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, data: false }));
+    }
+  };
 
   // Create debounced versions of metadata and data fetchers
   const debouncedFetchMetadata = useDebouncedCallback(
@@ -200,8 +196,12 @@ export const DataTable: React.FC<DataTableProps> = ({
   );
   const debouncedFetchData = useDebouncedCallback(fetchData, debounceDelay);
 
+  const updateSelectionState = (state: Partial<DataTableSelectionState>) => {
+    setSelectionState((prev) => ({ ...prev, ...state }));
+  };
+
   const handleActivate = (id: string, row: DataRow) => {
-    handleQueryStateChange({ activeItem: id });
+    updateSelectionState({ activeItem: id });
     onActivate?.(id, row);
   };
 
@@ -214,10 +214,10 @@ export const DataTable: React.FC<DataTableProps> = ({
     if (metadata) {
       debouncedFetchData();
     }
-  }, [debouncedFetchData, metadata]);
+  }, [debouncedFetchData, metadata, queryState]);
 
   const clearSelection = () => {
-    handleQueryStateChange({ selectedItems: [] });
+    updateSelectionState({ selectedItems: [] });
   };
 
   if (loading.meta === "initializing" || loading.data === "initializing") {
@@ -253,13 +253,14 @@ export const DataTable: React.FC<DataTableProps> = ({
     debug,
     metadata,
     loading,
-    queryState: internalQueryState,
-    pagination: internalPagination,
+    queryState: queryState,
+    pagination: paginationState,
+    selectionState: selectionState,
     fetchData: debouncedFetchData,
     fetchMetadata: debouncedFetchMetadata,
-    onQueryStateChange: handleQueryStateChange,
-    onRefresh: () => debouncedFetchData(),
+    onQueryStateChange: updateQueryState,
     openQueryBuilder: setModalOpen,
+    onSelectionStateChange: updateSelectionState,
     onShowHeaderFiltersChange: setShowHeaderFilters,
     onActivate: handleActivate,
     TableFilterComponent: TableFilter,
@@ -270,7 +271,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   };
 
   const renderSelectionBanner = () => {
-    const selectedItems = internalQueryState.selectedItems || [];
+    const selectedItems = selectionState.selectedItems || [];
     if (!propAllowSelection || selectedItems.length === 0) return null;
     return (
       <div
@@ -302,21 +303,17 @@ export const DataTable: React.FC<DataTableProps> = ({
         <TableView />
         {renderSelectionBanner()}
         <PaginationComponent
-          pagination={internalPagination}
+          pagination={paginationState}
           onChange={handlePaginationChange}
           loading={loading.data}
-          selectedCount={internalQueryState.selectedItems?.length || 0}
-          onClearSelection={() =>
-            setInternalQueryState((prev) => ({ ...prev, selectedItems: [] }))
-          }
         />
 
         {/* Query Builder Modal */}
         {modalOpen && (
           <QueryBuilderModal
             metadata={metadata}
-            queryState={internalQueryState}
-            onModalSubmit={handleQueryStateChange}
+            queryState={queryState}
+            onModalSubmit={updateQueryState}
             open={modalOpen}
             onOpenChange={setModalOpen}
             showDebug={debug}
@@ -331,8 +328,8 @@ export const DataTable: React.FC<DataTableProps> = ({
             <pre className="bg-gray-100 border-t p-3 text-xs overflow-auto max-h-64">
               {JSON.stringify(
                 {
-                  queryState: internalQueryState,
-                  pagination: internalPagination,
+                  queryState: queryState,
+                  pagination: paginationState,
                 },
                 null,
                 2

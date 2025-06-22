@@ -1,7 +1,7 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronsUpDown, EyeOff, Menu } from "lucide-react";
-import React from "react";
+import { ChevronsUpDown, EyeOff, Loader2, Menu, RefreshCw } from "lucide-react";
+import React, { useState } from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableHeaderProps } from "../../types/datatable";
 import { QueryFieldMetadata, SortItem } from "../../types/querybuilder";
@@ -12,16 +12,19 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   selectAllState = false,
   onSelectAll,
   onClearAll,
-  idField,
   className,
 }) => {
   const {
     metadata,
     queryState,
     onQueryStateChange,
-    showHeaderFilters,
     onShowHeaderFiltersChange,
+    showHeaderFilters,
+    fetchData,
+    loading,
   } = useDataTable();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (!metadata) {
     return null;
@@ -86,10 +89,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       newSort = currentSort.filter((_, i) => i !== currentIndex);
     }
 
-    onQueryStateChange({
-      ...queryState,
-      sort: newSort,
-    });
+    onQueryStateChange({ sort: newSort });
   };
 
   // Handle column visibility toggle
@@ -105,10 +105,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       newSelect = currentSelect.filter((f) => f !== fieldKey);
     }
 
-    onQueryStateChange({
-      ...queryState,
-      select: newSelect,
-    });
+    onQueryStateChange({ select: newSelect });
   };
 
   // Render sort indicator
@@ -215,10 +212,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       {/* Column manager column */}
       <th className="dt-th w-10">
         <div className="flex justify-center">
-          <DropdownMenu.Root>
+          <DropdownMenu.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenu.Trigger asChild>
               <button className="cursor-pointer p-1 hover:bg-gray-200 rounded">
-                <Menu className="h-4 w-4 text-gray-400" />
+                {loading.data !== false ? (
+                  <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                ) : (
+                  <Menu className="h-4 w-4 text-gray-400" />
+                )}
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content className="w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
@@ -233,6 +234,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     onSelect={(e) => {
                       e.preventDefault();
                       handleColumnToggle(field.key, !field.visible);
+                      // Keep menu open after selection
+                      setIsMenuOpen(true);
                     }}
                   >
                     <Checkbox.Root
@@ -254,10 +257,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                         </svg>
                       </Checkbox.Indicator>
                     </Checkbox.Root>
-                    <label
-                      htmlFor={`column-${metadata.name}-${field.key}`}
-                      className="text-sm text-gray-700 capitalize cursor-pointer flex-1"
-                    >
+                    <label className="text-sm text-gray-700 capitalize cursor-pointer flex-1">
                       {field.label}
                     </label>
                   </DropdownMenu.Item>
@@ -271,6 +271,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   onSelect={(e) => {
                     e.preventDefault();
                     onShowHeaderFiltersChange(!showHeaderFilters);
+                    // Keep menu open after selection
+                    setIsMenuOpen(true);
                   }}
                 >
                   <Checkbox.Root
@@ -292,14 +294,34 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                       </svg>
                     </Checkbox.Indicator>
                   </Checkbox.Root>
-                  <label
-                    htmlFor={`header-filters-${metadata.name}`}
-                    className="text-sm text-gray-700 cursor-pointer flex-1 capitalize"
-                  >
+                  <label className="text-sm text-gray-700 cursor-pointer flex-1 capitalize">
                     Show Header Filters
                   </label>
                 </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-200 my-2" />
+                <DropdownMenu.Label className="text-xs font-medium text-gray-500 mb-2">
+                  Refresh
+                </DropdownMenu.Label>
+                <DropdownMenu.Item
+                  className="flex items-center space-x-2 py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
+                  onSelect={async (e) => {
+                    e.preventDefault();
+                    await fetchData();
+                    // Keep menu open after selection
+                    setIsMenuOpen(true);
+                  }}
+                >
+                  {loading.data === true ? (
+                    <RefreshCw className="h-3 w-3 text-gray-400 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3 text-gray-400" />
+                  )}
+                  <label className="text-sm text-gray-700 cursor-pointer flex-1 capitalize">
+                    Refresh
+                  </label>
+                </DropdownMenu.Item>
               </div>
+              <DropdownMenu.Arrow className="DropdownMenuArrow" />
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </div>

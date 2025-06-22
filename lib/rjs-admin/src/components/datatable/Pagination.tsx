@@ -1,12 +1,5 @@
 import * as Select from "@radix-ui/react-select";
-import {
-  CheckCircle2,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Trash2,
-} from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { PaginationProps } from "../../types/datatable";
@@ -18,8 +11,6 @@ export const Pagination: React.FC<PaginationProps> = ({
   pagination,
   onChange,
   loading = false,
-  selectedCount = 0,
-  onClearSelection,
   className,
 }) => {
   const { page, limit: pageSize, total } = pagination;
@@ -214,27 +205,10 @@ export const Pagination: React.FC<PaginationProps> = ({
 
       {/* Right side: Info */}
       <div className="dt-pagination-info flex items-center gap-4 flex-wrap ml-auto">
-        {selectedCount > 0 && (
-          <span className="flex items-center gap-1 border-r-2 pr-4 border-gray-400">
-            {selectedCount.toLocaleString()} entries selected
-            {onClearSelection && (
-              <button
-                type="button"
-                onClick={onClearSelection}
-                className="text-gray-400 hover:text-gray-600 focus:outline-none"
-                title="Clear selection"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            )}
-          </span>
-        )}
         <span>
           Showing {startItem.toLocaleString()} - {endItem.toLocaleString()} /{" "}
           {total.toLocaleString()} entries
         </span>
-        {loading && <Loader2 className="h-4 w-4 text-blue-400 animate-spin" />}
-        {!loading && <CheckCircle2 className="h-4 w-4 text-green-500" />}
       </div>
     </div>
   );
