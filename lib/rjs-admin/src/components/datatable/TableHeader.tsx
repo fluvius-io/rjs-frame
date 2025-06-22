@@ -1,4 +1,5 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronsUpDown, EyeOff, Menu } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
@@ -214,26 +215,29 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       {/* Column manager column */}
       <th className="dt-th w-10">
         <div className="flex justify-center">
-          <details className="relative">
-            <summary className="cursor-pointer p-1 hover:bg-gray-200 rounded list-none">
-              <Menu className="h-4 w-4 text-gray-400" />
-            </summary>
-            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="cursor-pointer p-1 hover:bg-gray-200 rounded">
+                <Menu className="h-4 w-4 text-gray-400" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content className="w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
               <div className="p-2">
-                <div className="text-xs font-medium mb-2 text-gray-500">
+                <DropdownMenu.Label className="text-xs font-medium mb-2 text-gray-500">
                   Table Columns
-                </div>
+                </DropdownMenu.Label>
                 {allFields.map((field) => (
-                  <div
+                  <DropdownMenu.Item
                     key={field.key}
-                    className="flex items-center space-x-2 py-1"
+                    className="flex items-center space-x-2 py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      handleColumnToggle(field.key, !field.visible);
+                    }}
                   >
                     <Checkbox.Root
                       id={`column-${metadata.name}-${field.key}`}
                       checked={field.visible}
-                      onCheckedChange={(checked: boolean) =>
-                        handleColumnToggle(field.key, checked)
-                      }
                       className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                     >
                       <Checkbox.Indicator>
@@ -252,23 +256,26 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                     </Checkbox.Root>
                     <label
                       htmlFor={`column-${metadata.name}-${field.key}`}
-                      className="text-sm text-gray-700 capitalize"
+                      className="text-sm text-gray-700 capitalize cursor-pointer flex-1"
                     >
                       {field.label}
                     </label>
-                  </div>
+                  </DropdownMenu.Item>
                 ))}
-                <div className="text-xs font-medium text-gray-500 mt-2 mb-2">
+                <DropdownMenu.Separator className="h-px bg-gray-200 my-2" />
+                <DropdownMenu.Label className="text-xs font-medium text-gray-500 mb-2">
                   Header Filters
-                </div>
-                <div
-                  key="header-filters"
-                  className="flex items-center space-x-2 py-1"
+                </DropdownMenu.Label>
+                <DropdownMenu.Item
+                  className="flex items-center space-x-2 py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    onShowHeaderFiltersChange(!showHeaderFilters);
+                  }}
                 >
                   <Checkbox.Root
                     id={`header-filters-${metadata.name}`}
                     checked={showHeaderFilters}
-                    onCheckedChange={onShowHeaderFiltersChange}
                     className="flex items-center justify-center w-4 h-4 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                   >
                     <Checkbox.Indicator>
@@ -287,14 +294,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   </Checkbox.Root>
                   <label
                     htmlFor={`header-filters-${metadata.name}`}
-                    className="text-sm text-gray-700 cursor-pointer flex-1  capitalize"
+                    className="text-sm text-gray-700 cursor-pointer flex-1 capitalize"
                   >
                     Show Header Filters
                   </label>
-                </div>
+                </DropdownMenu.Item>
               </div>
-            </div>
-          </details>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </div>
       </th>
     </tr>
