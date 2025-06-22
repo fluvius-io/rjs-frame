@@ -290,8 +290,36 @@ export abstract class PageLayout<
           totalInstances={PageLayout.instanceCount}
           onClose={this.closePageConfigurationModal}
           onToggleXRay={this.toggleXRay}
+          onRemoveModule={this.handleRemoveModule}
         />
       </PageLayoutContext.Provider>
     );
   }
+
+  // Add method to handle module removal
+  private handleRemoveModule = (slotName: string, moduleIndex: number) => {
+    // For now, just log the removal request
+    // In a real implementation, this would need to be handled by the parent component
+    // since React components can't be dynamically removed from the render tree
+    console.warn(
+      `[PageLayout] Module removal requested: ${slotName}[${moduleIndex}]`,
+      "This feature requires parent component implementation"
+    );
+    
+    // You could implement this by:
+    // 1. Storing module state in a way that allows dynamic removal
+    // 2. Using a state management system that tracks which modules should be rendered
+    // 3. Implementing a module registry system
+    
+    // For demonstration purposes, we'll show an alert
+    const moduleName = this.modules[slotName]?.[moduleIndex];
+    const displayName = React.isValidElement(moduleName)
+      ? (moduleName.type as any)?.name || 
+        (moduleName.type as any)?.displayName || 
+        (moduleName.type as any)?.constructor?.name ||
+        `Module ${moduleIndex + 1}`
+      : `Module ${moduleIndex + 1}`;
+    
+    alert(`Remove ${displayName} from ${slotName} slot? (Feature not yet implemented)`);
+  };
 }

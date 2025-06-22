@@ -93,6 +93,7 @@ export interface DataTableProps {
 
   // Actions
   actions?: React.ReactNode;
+  batchActions?: React.ReactNode;
 }
 
 // Props for sub-components

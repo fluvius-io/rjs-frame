@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  getAppSettingsValue,
   getAppState,
   subscribeToAppState,
+  updateAppSettings,
   updatePageParams,
 } from "../store/appStateStore";
 import "../styles/components/PageParamsManager.css";
-import type { PageParams, AppState } from "../types/AppState";
+import type { AppState, PageParams } from "../types/AppState";
 import { isValidFragmentName } from "../utils/urlUtils";
 
 interface EditingParam {
@@ -33,6 +35,9 @@ export function PageParamsManager({
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
     []
   );
+  const [fontSize, setFontSize] = useState<number>(
+    getAppSettingsValue("fontSize", 16)
+  );
   const nextIdRef = useRef(1);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
@@ -49,6 +54,12 @@ export function PageParamsManager({
       }
     };
   }, []);
+
+  // Update root font size when fontSize changes
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.fontSize = `${fontSize}px`;
+  }, [fontSize]);
 
   const { pageParams = {} } = appState || {};
 
@@ -217,11 +228,74 @@ export function PageParamsManager({
     [editingParams, commitChanges]
   );
 
+  // Handle font size change
+  const handleFontSizeChange = useCallback((newSize: number) => {
+    setFontSize(newSize);
+    updateAppSettings({ fontSize: newSize });
+  }, []);
+
   const hasValidationErrors = validationErrors.length > 0;
   const validParamsCount = editingParams.filter((p) => p.isValid).length;
 
   return (
     <section className="pageparams-manager">
+      <h3>Root Font Size Control</h3>
+      {/* Font Size Control Section */}
+      <div className="pageparams-manager__font-size-section">
+        <div className="pageparams-manager__font-size-controls">
+          <label className="pageparams-manager__font-size-label">
+            Root Font Size: {fontSize}px
+          </label>
+          <div className="pageparams-manager__font-size-slider-container">
+            <input
+              type="range"
+              min="10"
+              max="20"
+              step="1"
+              value={fontSize}
+              onChange={(e) => handleFontSizeChange(Number(e.target.value))}
+              className="pageparams-manager__font-size-slider"
+            />
+            <div className="pageparams-manager__font-size-range">
+              <span>10px</span>
+              <span>20px</span>
+            </div>
+          </div>
+          <div className="pageparams-manager__font-size-presets">
+            <button
+              onClick={() => handleFontSizeChange(12)}
+              className={`pageparams-manager__font-size-preset ${
+                fontSize === 12
+                  ? "pageparams-manager__font-size-preset--active"
+                  : ""
+              }`}
+            >
+              Small (12px)
+            </button>
+            <button
+              onClick={() => handleFontSizeChange(16)}
+              className={`pageparams-manager__font-size-preset ${
+                fontSize === 16
+                  ? "pageparams-manager__font-size-preset--active"
+                  : ""
+              }`}
+            >
+              Medium (16px)
+            </button>
+            <button
+              onClick={() => handleFontSizeChange(18)}
+              className={`pageparams-manager__font-size-preset ${
+                fontSize === 18
+                  ? "pageparams-manager__font-size-preset--active"
+                  : ""
+              }`}
+            >
+              Large (18px)
+            </button>
+          </div>
+        </div>
+      </div>
+
       <h3>
         Page Params Manager{" "}
         {hasValidationErrors && (

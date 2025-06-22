@@ -1,6 +1,27 @@
-import React from 'react';
-import { PageParamsManager } from './PageParamsManager';
-import '../styles/components/PageLayoutOptions.css';
+import React from "react";
+import "../styles/components/PageLayoutOptions.css";
+import { PageParamsManager } from "./PageParamsManager";
+
+// Simple Trash2 icon component
+const Trash2Icon: React.FC<{ className?: string }> = ({ className = "" }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+);
 
 export interface PageLayoutOptionsProps {
   isVisible: boolean;
@@ -11,40 +32,45 @@ export interface PageLayoutOptionsProps {
   totalInstances: number;
   onClose: () => void;
   onToggleXRay: () => void;
+  onRemoveModule?: (slotName: string, moduleIndex: number) => void;
 }
 
 export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
   render() {
-    const { 
-      isVisible, 
-      layoutId, 
-      modules, 
-      xRayEnabled, 
-      isActiveInstance, 
+    const {
+      isVisible,
+      layoutId,
+      modules,
+      xRayEnabled,
+      isActiveInstance,
       totalInstances,
-      onClose, 
-      onToggleXRay 
+      onClose,
+      onToggleXRay,
+      onRemoveModule,
     } = this.props;
 
     if (!isVisible) return null;
 
     const moduleKeys = Object.keys(modules);
-    const moduleCount = moduleKeys.reduce((count, key) => count + modules[key].length, 0);
+    const moduleCount = moduleKeys.reduce(
+      (count, key) => count + modules[key].length,
+      0
+    );
 
     return (
       <div className="page-layout-options-overlay">
         <div className="page-layout-options-dialog">
           <div className="page-layout-options-header">
             <h2>PageLayout Options</h2>
-            <button 
-              className="page-layout-options-close" 
+            <button
+              className="page-layout-options-close"
               onClick={onClose}
               aria-label="Close"
             >
               ×
             </button>
           </div>
-          
+
           <div className="page-layout-options-content">
             <section className="page-layout-info">
               <h3>Layout Information</h3>
@@ -63,16 +89,59 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
                 </div>
                 <div className="info-item">
                   <label>Instance Status:</label>
-                  <span>{isActiveInstance ? 'Active' : 'Inactive'}</span>
+                  <span>{isActiveInstance ? "Active" : "Inactive"}</span>
                 </div>
               </div>
-              
+
               <div className="module-details">
-                <h4>Module Slots Details:</h4>
+                <h4 className="border-b">Module Slots Details</h4>
                 <ul>
-                  {moduleKeys.map(key => (
-                    <li key={key}>
-                      <strong>{key}:</strong> {modules[key].length} module(s)
+                  {moduleKeys.map((slotName) => (
+                    <li key={slotName} className="module-slot-item">
+                      <div className="module-slot-header">
+                        <strong>{slotName}</strong>
+                      </div>
+                      {modules[slotName].length > 0 && (
+                        <ul className="module-list">
+                          {modules[slotName].map((module, index) => {
+                            // Try to get module name from React element
+                            const moduleName = React.isValidElement(module)
+                              ? (module.type as any)?.displayName ||
+                                (module.type as any)?.name ||
+                                (module.type as any)?.constructor?.name
+                              : `Module ${index + 1}`;
+
+                            return (
+                              <li
+                                key={`${slotName}-${index}`}
+                                className="module-item"
+                              >
+                                <span className="module-name">
+                                  {index + 1}.{" "}
+                                  {[
+                                    moduleName,
+                                    (module as any)?.displayName,
+                                    (module as any)?.name,
+                                    (module as any)?.constructor?.name,
+                                  ].join(" | ")}
+                                </span>
+                                {onRemoveModule && (
+                                  <button
+                                    className="module-remove-button"
+                                    onClick={() =>
+                                      onRemoveModule(slotName, index)
+                                    }
+                                    title={`Remove ${moduleName} from ${slotName}`}
+                                    aria-label={`Remove ${moduleName} from ${slotName}`}
+                                  >
+                                    <Trash2Icon className="trash-icon" />
+                                  </button>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -80,7 +149,8 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
 
               {totalInstances > 1 && (
                 <div className="warning-message">
-                  ⚠️ Warning: {totalInstances} PageLayout instances detected. Only the active instance responds to keyboard shortcuts.
+                  ⚠️ Warning: {totalInstances} PageLayout instances detected.
+                  Only the active instance responds to keyboard shortcuts.
                 </div>
               )}
             </section>
@@ -99,7 +169,7 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
                 </label>
                 <p className="control-description">
                   Shows visual borders around layout components for debugging
-                  {!isActiveInstance && ' (Disabled - not active instance)'}
+                  {!isActiveInstance && " (Disabled - not active instance)"}
                 </p>
               </div>
             </section>
@@ -108,15 +178,22 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
               <PageParamsManager />
             </section>
           </div>
-          
+
           <div className="page-layout-options-footer">
-            <p>Press <kbd>Option+O</kbd>/<kbd>Win+O</kbd> to toggle this dialog, <kbd>Esc</kbd> to close, or <kbd>Option+X</kbd>/<kbd>Win+X</kbd> to toggle X-Ray mode</p>
+            <p style={{ lineHeight: "2em" }}>
+              Press <kbd>Option+O</kbd> / <kbd>Win+O</kbd> to toggle this
+              dialog, <kbd>Esc</kbd> to close, <br />
+              or <kbd>Option+X</kbd> / <kbd>Win+X</kbd> to toggle X-Ray mode
+            </p>
             {!isActiveInstance && (
-              <p className="inactive-warning">This instance is inactive and won't respond to keyboard shortcuts.</p>
+              <p className="inactive-warning">
+                This instance is inactive and won't respond to keyboard
+                shortcuts.
+              </p>
             )}
           </div>
         </div>
       </div>
     );
   }
-} 
+}

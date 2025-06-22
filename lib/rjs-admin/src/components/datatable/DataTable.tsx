@@ -69,6 +69,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   debug = false,
   debounceDelay = 0,
   actions,
+  batchActions,
   onActivate,
 }) => {
   // Internal state for data and metadata
@@ -275,7 +276,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     if (!propAllowSelection || selectedItems.length === 0) return null;
     return (
       <div
-        className="dt-selection-header border-t-1"
+        className="dt-selection-header border-t-1 flex justify-between"
         style={{
           backgroundColor: "var(--rjs-warning-border)",
           color: "var(--rjs-warning-foreground)",
@@ -291,6 +292,7 @@ export const DataTable: React.FC<DataTableProps> = ({
             <Trash2 className="h-3 w-3 text-red-500" />
           </button>
         </span>
+        {batchActions}
       </div>
     );
   };
