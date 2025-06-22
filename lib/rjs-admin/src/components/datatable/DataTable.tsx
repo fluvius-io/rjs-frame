@@ -105,7 +105,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   const [paginationState, setPaginationState] = React.useState<PaginationState>(
     () => ({
       page: 1,
-      limit: 25,
+      limit: 15,
       total: 0,
       ...propPagination,
     })

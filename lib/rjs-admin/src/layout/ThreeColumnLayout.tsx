@@ -27,7 +27,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
           <PageSlot name="header" className="mx-auto px-4 py-2" />
         </header>
 
-        <div className="content-layout flex flex-1 min-h-[calc(100vh-124px)]">
+        <div className="rjs-layout-body flex flex-1]">
           <PageSection
             tag="aside"
             condition={{ sidebar: true }}

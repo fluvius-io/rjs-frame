@@ -22,3 +22,7 @@
 .rjs-panel-section {
   @apply flex flex-col gap-4 px-4;
 }
+
+.rjs-layout-body {
+  min-height: calc(100vh - 110px);
+}

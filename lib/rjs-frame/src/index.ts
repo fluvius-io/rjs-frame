@@ -76,16 +76,16 @@ export type {
   SocketConfig,
   SubscriptionHandler,
   UnsubscribeFunction,
-  UriGenerator,
+  UriPattern,
 } from "./api";
 
 // Types
 export type {
   AppSettings,
+  AppState,
   LinkParams,
   ModuleState,
   PageParams,
-  AppState,
 } from "./types/AppState";
 
 export type {

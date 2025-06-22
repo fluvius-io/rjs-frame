@@ -26,7 +26,7 @@ export type {
   SocketConfig,
   SubscriptionHandler,
   UnsubscribeFunction,
-  UriPattern as UriGenerator,
+  UriPattern,
 } from "./types";
 
 // Error classes

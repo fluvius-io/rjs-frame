@@ -40,6 +40,20 @@ export class APICollection implements ApiCollectionInterface {
     return this.config.debug ?? false;
   }
 
+  private defaultResponseProcessor = (response: any) => {
+    let data = response.data;
+    if (data && data.data) {
+      response.data = data.data;
+    }
+    if (data && data.meta) {
+      response.meta = data.meta;
+    }
+    if (data && data.pagination) {
+      response.pagination = data.pagination;
+    }
+    return response;
+  };
+
   // ===== COMMAND METHODS (POST requests) =====
 
   /**
@@ -533,6 +547,8 @@ export class APICollection implements ApiCollectionInterface {
 
     if (typeof this.config.processResponse === "function") {
       apiResponse = this.config.processResponse(apiResponse);
+    } else {
+      apiResponse = this.defaultResponseProcessor(apiResponse);
     }
 
     if (typeof responseProcessor === "function") {

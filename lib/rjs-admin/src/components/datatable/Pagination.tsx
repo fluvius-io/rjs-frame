@@ -5,7 +5,7 @@ import { cn } from "../../lib/utils";
 import { PaginationProps } from "../../types/datatable";
 import { Button } from "../common/Button";
 
-const PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 100];
+const PAGE_SIZE_OPTIONS = [5, 10, 15, 25, 50, 100];
 
 export const Pagination: React.FC<PaginationProps> = ({
   pagination,

@@ -21,19 +21,6 @@ const idmCollectionConfig: ApiCollectionConfig = {
       meta: "/_meta/idm.organization/",
     },
   },
-  processResponse: (response: any) => {
-    let data = response.data;
-    if (data && data.data) {
-      response.data = data.data;
-    }
-    if (data && data.meta) {
-      response.meta = data.meta;
-    }
-    if (data && data.pagination) {
-      response.pagination = data.pagination;
-    }
-    return response;
-  },
 };
 
 // Register the IdmCollection
