@@ -49,7 +49,7 @@ const AppContext = createContext<AppContextType>({
 export const useAppContext = (): AppContextType => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error("useAppConfig must be used within RjsApp");
+    throw new Error("useAppContext must be used within RjsApp");
   }
   return context;
 };
@@ -299,11 +299,11 @@ export function RjsApp({
   configUrl?: string;
   authContextUrl?: string;
   authRequired?: boolean;
-  appConfig: Partial<AppConfig>;
+  appConfig?: Partial<AppConfig>;
 }) {
   return (
     <ConfigProvider
-      appConfig={appConfig}
+      appConfig={appConfig || {}}
       configUrl={configUrl}
       authContextUrl={authContextUrl}
       authRequired={authRequired}
