@@ -111,7 +111,7 @@
 }
 
 .dt-td {
-  @apply px-4 py-3 text-sm text-gray-900 overflow-hidden text-ellipsis max-w-10;
+  @apply px-4 py-2 text-sm text-gray-900 overflow-hidden text-ellipsis max-w-10;
 }
 
 /* Loading State */

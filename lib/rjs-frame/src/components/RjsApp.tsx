@@ -12,7 +12,7 @@ import "../styles/components/UnauthorizedScreen.css";
 interface AppConfig {
   "auth.loginRedirect": string;
   "auth.context": string;
-  [key: string]: string | number | boolean;
+  [key: string]: any;
 }
 
 interface AppContextType {
