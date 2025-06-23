@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { AppConfig, Navigate, RjsApp, Route } from "rjs-frame";
 import "./config/api"; // Initialize API manager
 import appConfig from "./config/defaults.json";
+import { AlgorithmDemoPage } from "./pages/AlgorithmDemoPage";
 import BotManager from "./pages/BotManager";
 import DashboardPage from "./pages/DashboardPage";
 import DataPage from "./pages/DataPage";
@@ -24,6 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <Route path="/exchange/*" element={<ExchangePage />} />
       <Route path="/data/*" element={<DataPage />} />
       <Route path="/users/*" element={<UserManagementPage />} />
+      <Route path="/algorithms/*" element={<AlgorithmDemoPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </RjsApp>
   </React.StrictMode>

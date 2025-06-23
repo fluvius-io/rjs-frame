@@ -5,19 +5,19 @@ import {
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
-import { Header } from "../components";
+import { AlgorithmCard, Header } from "../components";
 
 const SignalItemView = () => {
   const pageContext = usePageContext();
-  if (!pageContext.pageParams.org) {
+  if (!pageContext.pageParams.algo) {
     return (
       <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
-        No organization selected
+        No algorithm selected
       </div>
     );
   }
 
-  const itemId = pageContext.pageParams.org as string;
+  const itemId = pageContext.pageParams.algo as string;
 
   return (
     <ItemView
@@ -25,11 +25,8 @@ const SignalItemView = () => {
       resourceName="trade-signal:signal"
       className="no-border h-full"
     >
-      <ItemView.TabItem name="hello" label="Transactions">
-        Hello world from bots ...
-      </ItemView.TabItem>
-      <ItemView.TabItem name="blocks" label="Blocks">
-        A lot of blocks here ...
+      <ItemView.TabItem name="Algo" label="Algorithm">
+        <AlgorithmCard className="h-full no-border" />
       </ItemView.TabItem>
     </ItemView>
   );
@@ -63,7 +60,7 @@ export default function SignalsPage() {
           title="Signals"
           description="Signals are the core of the trading system. They are the inputs to the trading system."
           onActivate={(id) => {
-            updatePageParams({ org: id as string });
+            updatePageParams({ algo: id as string });
           }}
         />
       </PageModule>

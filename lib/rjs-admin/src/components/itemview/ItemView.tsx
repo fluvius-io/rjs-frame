@@ -41,6 +41,7 @@ export const TabItem: React.FC<TabItemProps> = ({ children }) => {
 export interface ItemViewProps {
   itemId: string;
   resourceName: string; // API endpoint name (can be "collection:queryName" or just "queryName")
+  itemJsonView?: boolean;
   className?: string;
   onError?: (error: Error) => void;
   onLoad?: (data: any) => void;
@@ -206,11 +207,15 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     );
   };
 
-  renderItemDefault = (): React.ReactNode => {
+  renderItemDefault = (jsonView: boolean): React.ReactNode => {
     const { item } = this.state;
 
     if (!item) {
       return <div className="iv__empty">No item data available</div>;
+    }
+
+    if (!jsonView) {
+      return null;
     }
 
     return (
@@ -277,6 +282,10 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
 
     const tabItems = this.extractTabItems();
     const hasCustomTabs = tabItems.length >= 0;
+    const itemJsonView =
+      this.props.itemJsonView === undefined
+        ? true
+        : this.props.itemJsonView || !hasCustomTabs;
 
     return (
       <ItemViewContext.Provider value={contextValue}>
@@ -289,9 +298,6 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
             {hasCustomTabs && (
               <Tabs.List className="iv__tabs-list rjs-panel-header">
                 {this.renderItemHeader()}
-                <Tabs.Trigger value="default" className="iv__tab-trigger">
-                  Details
-                </Tabs.Trigger>
                 {tabItems.map((tabItem) => (
                   <Tabs.Trigger
                     key={tabItem.name}
@@ -301,12 +307,13 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
                     {tabItem.label}
                   </Tabs.Trigger>
                 ))}
+                {itemJsonView && (
+                  <Tabs.Trigger value="default" className="iv__tab-trigger">
+                    JSON
+                  </Tabs.Trigger>
+                )}
               </Tabs.List>
             )}
-
-            <Tabs.Content value="default" className="iv__tab-content px-4">
-              {this.renderItemDefault()}
-            </Tabs.Content>
 
             {tabItems.map((tabItem) => (
               <Tabs.Content
@@ -317,6 +324,9 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
                 {tabItem.children}
               </Tabs.Content>
             ))}
+            <Tabs.Content value="default" className="iv__tab-content px-4">
+              {this.renderItemDefault(itemJsonView)}
+            </Tabs.Content>
           </Tabs.Root>
 
           {/* Loading overlay */}
