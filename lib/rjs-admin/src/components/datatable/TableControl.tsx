@@ -81,7 +81,9 @@ export const TableControl: React.FC<TableControlProps> = ({
           <div>
             <h2 className="dt-control-title">{title}</h2>
             {description && (
-              <p className="text-sm text-gray-500 mt-1">{description}</p>
+              <p className="text-sm text-gray-500 mt-1 text-nowrap text-ellipsis overflow-hidden">
+                {description}
+              </p>
             )}
           </div>
           {renderStatuses()}

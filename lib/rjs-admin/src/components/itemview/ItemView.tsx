@@ -243,7 +243,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
             }}
           />
         )}
-        <div className="flex flex-col gap-0 max-w-40">
+        <div className="flex flex-col gap-0 max-w-1/2">
           <h2 className="rjs-panel-header-title text-nowrap text-ellipsis overflow-hidden">
             {item.name || "[No name]"}
           </h2>
