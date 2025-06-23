@@ -103,6 +103,10 @@ export const CustomMenuAuthUserAvatarExample: React.FC = () => (
   </RjsApp>
 );
 
+const config = {
+  "auth.loginRedirect": "/login",
+};
+
 // Example demonstrating clickable login redirect
 export const LoginRedirectExample: React.FC = () => (
   <div className="p-6 space-y-6">
@@ -132,7 +136,7 @@ export const LoginRedirectExample: React.FC = () => (
       <p className="text-sm mb-4 font-medium">
         With custom configuration via RjsApp:
       </p>
-      <RjsApp configUrl="/config/custom-auth.json">
+      <RjsApp config={config}>
         <AuthUserAvatar
           showLoadingState={false}
           onProfileClick={() => console.log("Profile clicked")}

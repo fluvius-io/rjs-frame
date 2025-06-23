@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Navigate, RjsApp, Route } from "rjs-frame";
+import { AppConfig, Navigate, RjsApp, Route } from "rjs-frame";
 import "./config/api"; // Initialize API manager
 import appConfig from "./config/defaults.json";
 import BotManager from "./pages/BotManager";
@@ -15,7 +15,7 @@ import "./styles/index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RjsApp authRequired={true} appConfig={appConfig}>
+    <RjsApp config={appConfig as Partial<AppConfig>}>
       <Route path="/" element={<Navigate to="/users" replace />} />
       <Route path="/home/*" element={<HomePage />} />
       <Route path="/bots/*" element={<BotManager />} />

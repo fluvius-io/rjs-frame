@@ -1,7 +1,8 @@
 /* RJS Frame Styles Entry Point */
 
 /* Core Framework Styles */
-@import './RjsFrame.css';
+@import "./RjsFrame.css";
 
 /* Component Styles */
-@import './components/index.css'; 
+@import "./components/index.css";
+@import "./components/UnauthorizedScreen.css";

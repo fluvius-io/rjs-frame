@@ -25,6 +25,9 @@ export {
   useNavigate,
 } from "./components/RjsApp";
 
+// Export types separately
+export type { AppConfig } from "./components/RjsApp";
+
 // Store
 export {
   getAppSettingsValue as getAppSettings,

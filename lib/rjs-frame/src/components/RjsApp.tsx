@@ -5,11 +5,7 @@ import type { AuthContext } from "../types/AuthContext";
 import { ErrorScreen } from "./ErrorScreen";
 import { RjsRouteHandler } from "./RjsRouteHandler";
 
-// Import component styles
-import "../styles/components/UnauthorizedScreen.css";
-
-// Configuration context types
-interface AppConfig {
+export interface AppConfig {
   "auth.loginRedirect": string;
   "auth.context": string;
   [key: string]: any;
@@ -290,20 +286,19 @@ const ConfigProvider: React.FC<{
 // Enhanced RjsApp component
 export function RjsApp({
   children,
-  configUrl,
-  authContextUrl,
-  authRequired = false,
-  appConfig,
+  config,
 }: {
   children: React.ReactNode;
-  configUrl?: string;
-  authContextUrl?: string;
-  authRequired?: boolean;
-  appConfig?: Partial<AppConfig>;
+  config?: Partial<AppConfig>;
 }) {
+  config = config || {};
+  const authContextUrl = config["auth.context"] || "/api/auth/info";
+  const authRequired = config["auth.required"] || false;
+  const configUrl = config["config.url"];
+
   return (
     <ConfigProvider
-      appConfig={appConfig || {}}
+      appConfig={config}
       configUrl={configUrl}
       authContextUrl={authContextUrl}
       authRequired={authRequired}
