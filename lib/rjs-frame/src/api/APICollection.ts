@@ -476,20 +476,20 @@ export class APICollection implements ApiCollectionInterface {
     let path: string = configName;
     switch (configType) {
       case "query":
-        path = `${this.getName()}.${configName}/`;
+        path = `/${this.getName()}.${configName}/`;
         return {
           path: path,
           meta: `/_meta/${path}/`,
           item: `${path}/{_id}`,
         } as QueryConfig;
       case "command":
-        path = `${this.getName()}:${configName}/{resource}/{_id}`;
+        path = `/${this.getName()}:${configName}/{resource}/{_id}`;
         return { path: path } as CommandConfig;
       case "socket":
-        path = `${this.getName()}:${configName}/`;
+        path = `/${this.getName()}:${configName}/`;
         return { path: path, transport: "websockets" } as SocketConfig;
       case "request":
-        path = `${this.getName()}:${configName}`;
+        path = `/${this.getName()}:${configName}`;
         return { path: path, method: "GET" } as RequestConfig;
       default:
         throw new ConfigurationError(`Invalid config type: ${configType}`);
