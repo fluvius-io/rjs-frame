@@ -23,8 +23,11 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
   className = "",
   onClick,
 }) => {
-  const itemView = useItemView();
-  algorithm = algorithm || (itemView.item as AlgorithmData);
+  if (!algorithm) {
+    const itemView = useItemView();
+    algorithm = itemView.item as AlgorithmData;
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -58,12 +61,12 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
   className =
     className ||
     cn(
-      "w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      "w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer p-4"
     );
   return (
-    <div className={`${className}`} onClick={onClick}>
-      {/* Header */}
-      <div className="p-4 pb-3">
+    <div className="flex flex-col gap-2 h-full">
+      <div className={`${className}`} onClick={onClick}>
+        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-900 truncate">
@@ -81,7 +84,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mt-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap pt-2">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             {algorithm.market}
           </span>
@@ -94,11 +97,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
             </span>
           ))}
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="px-4 pb-4">
-        <div className="space-y-3">
+        <div className="space-y-3 pt-3">
           {/* Key and ID */}
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <div className="flex items-center gap-1">
@@ -172,7 +171,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
           )}
 
           {/* Metadata */}
-          <div className="pt-2 border-t border-gray-100">
+          <div className="border-t pt-3 border-gray-100">
             <div className="flex items-center justify-between text-xs text-gray-500">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />

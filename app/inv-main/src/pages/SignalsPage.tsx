@@ -24,8 +24,10 @@ const SignalItemView = () => {
       itemId={itemId}
       resourceName="trade-signal:signal"
       className="no-border h-full"
+      defaultTab="algo"
+      itemJsonView={true}
     >
-      <ItemView.TabItem name="Algo" label="Algorithm">
+      <ItemView.TabItem name="algo" label="Algorithm">
         <AlgorithmCard className="h-full no-border" />
       </ItemView.TabItem>
     </ItemView>

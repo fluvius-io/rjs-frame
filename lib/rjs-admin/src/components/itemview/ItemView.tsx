@@ -247,8 +247,8 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
           <h2 className="rjs-panel-header-title text-nowrap text-ellipsis overflow-hidden">
             {item.name || "[No name]"}
           </h2>
-          <p className="text-xs text-muted-foreground max-w-32 text-nowrap text-ellipsis overflow-hidden">
-            {item.id || "No description"}
+          <p className="text-xs text-muted-foreground max-w-50 text-nowrap text-ellipsis overflow-hidden">
+            {item.description || "No description"}
           </p>
         </div>
       </div>
@@ -324,7 +324,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
                 {tabItem.children}
               </Tabs.Content>
             ))}
-            <Tabs.Content value="default" className="iv__tab-content px-4">
+            <Tabs.Content value="default" className="iv__tab-content">
               {this.renderItemDefault(itemJsonView)}
             </Tabs.Content>
           </Tabs.Root>
