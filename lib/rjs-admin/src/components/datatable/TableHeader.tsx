@@ -185,6 +185,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             key={column.key}
             className={cn("dt-th group", column.sortable && "dt-th-sortable")}
             onClick={() => column.sortable && handleSort(column.key)}
+            title={field.desc || undefined}
           >
             <div className="dt-th-content">
               <span className="font-medium">{column.label}</span>
