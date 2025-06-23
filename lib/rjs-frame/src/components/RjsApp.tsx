@@ -12,11 +12,11 @@ import "../styles/components/UnauthorizedScreen.css";
 interface AppConfig {
   "auth.loginRedirect": string;
   "auth.context": string;
-  [key: string]: any;
+  [key: string]: string | number | boolean;
 }
 
 interface AppContextType {
-  config: ConfigManager<AppConfig> | null;
+  config: ConfigManager<AppConfig>;
   isLoading: boolean;
   isRevealing: boolean;
   error: Error | null;
@@ -38,7 +38,7 @@ const SKIP_REVEALING_ON_FAST_LOAD: number = 1000;
 
 // Create configuration context
 const AppContext = createContext<AppContextType>({
-  config: null,
+  config: new ConfigManager(defaultConfig),
   isLoading: true,
   isRevealing: false,
   error: null,
@@ -85,17 +85,27 @@ const UnauthorizedScreen: React.FC<{ loginRedirectUrl?: string }> = ({
 
 // Configuration provider component
 const ConfigProvider: React.FC<{
+  appConfig: Partial<AppConfig>;
   configUrl?: string;
   authContextUrl?: string;
   authRequired?: boolean;
   children: React.ReactNode;
 }> = ({
+  appConfig,
   configUrl,
   authContextUrl = "/api/auth/info",
   authRequired = false,
   children,
 }) => {
-  const [config, setConfig] = useState<ConfigManager<AppConfig> | null>(null);
+  const [config, setConfig] = useState<ConfigManager<AppConfig>>(
+    new ConfigManager({ ...defaultConfig, ...appConfig }, configUrl, {
+      timeout: 10000,
+      retries: 2,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -167,6 +177,7 @@ const ConfigProvider: React.FC<{
         JSON.stringify(authContext)
     );
   };
+
   const initializeConfig = async () => {
     try {
       setLoadingStatus(true);
@@ -176,13 +187,7 @@ const ConfigProvider: React.FC<{
       const promises: Promise<any>[] = [];
 
       // Add config loading promise
-      const configPromise = ConfigManager.create(defaultConfig, configUrl, {
-        timeout: 10000,
-        retries: 2,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const configPromise = config.loadRemoteConfig();
       promises.push(configPromise);
 
       // Add auth context loading promise if authContextUrl is provided
@@ -208,9 +213,9 @@ const ConfigProvider: React.FC<{
       promises.push(authPromise);
 
       // Wait for both promises to complete
-      const [appConfig, authContext] = await Promise.all(promises);
+      const [configResult, authContext] = await Promise.all(promises);
 
-      setConfig(appConfig);
+      setConfig(configResult);
       setAuthContext(authContext);
     } catch (configError) {
       console.error("Failed to initialize configuration:", configError);
@@ -288,14 +293,17 @@ export function RjsApp({
   configUrl,
   authContextUrl,
   authRequired = false,
+  appConfig,
 }: {
   children: React.ReactNode;
   configUrl?: string;
   authContextUrl?: string;
   authRequired?: boolean;
+  appConfig: Partial<AppConfig>;
 }) {
   return (
     <ConfigProvider
+      appConfig={appConfig}
       configUrl={configUrl}
       authContextUrl={authContextUrl}
       authRequired={authRequired}

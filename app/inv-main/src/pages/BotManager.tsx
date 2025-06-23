@@ -14,6 +14,7 @@ import { Header } from "../components";
 
 const BotItemView = () => {
   const pageContext = usePageContext();
+
   if (!pageContext.pageParams.org) {
     return (
       <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
@@ -41,7 +42,7 @@ const BotItemView = () => {
 };
 
 export default function BotManager() {
-  const { config } = useAppContext();
+  const { config: appConfig } = useAppContext();
 
   return (
     <ThreeColumnLayout
@@ -79,8 +80,8 @@ export default function BotManager() {
 
       <PageModule className="p-4" slotName="footer">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Version: {config?.get("app.version") || "no-config"}</p>
+          <p>&copy; 2025 {appConfig?.get("app.name")}. All rights reserved.</p>
+          <p>Version: {appConfig?.get("app.version")}</p>
         </div>
       </PageModule>
     </ThreeColumnLayout>
