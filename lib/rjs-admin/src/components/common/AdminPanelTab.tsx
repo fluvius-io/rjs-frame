@@ -1,7 +1,7 @@
-import { useAppConfig } from "rjs-frame";
+import { useAppContext } from "rjs-frame";
 
 export function AdminPanelTab() {
-  const { authContext, config } = useAppConfig();
+  const { authContext, config } = useAppContext();
 
   if (!authContext || !authContext.user.is_super_admin) {
     return (

@@ -15,7 +15,7 @@ interface AppConfig {
   [key: string]: any;
 }
 
-interface ConfigContextType {
+interface AppContextType {
   config: ConfigManager<AppConfig> | null;
   isLoading: boolean;
   isRevealing: boolean;
@@ -29,6 +29,7 @@ const defaultConfig: AppConfig = {
   "auth.context": "/api/auth/info",
   "auth.logout": "/api/auth/logout",
   "auth.callback": "/api/auth/callback",
+  "app.version": "unknown",
 };
 
 // Transition timing
@@ -36,7 +37,7 @@ const REVEALING_TIME: number = 1000; // This must be consistent to the CSS trans
 const SKIP_REVEALING_ON_FAST_LOAD: number = 1000;
 
 // Create configuration context
-const ConfigContext = createContext<ConfigContextType>({
+const AppContext = createContext<AppContextType>({
   config: null,
   isLoading: true,
   isRevealing: false,
@@ -45,8 +46,8 @@ const ConfigContext = createContext<ConfigContextType>({
 });
 
 // Hook to use configuration context
-export const useAppConfig = () => {
-  const context = useContext(ConfigContext);
+export const useAppContext = (): AppContextType => {
+  const context = useContext(AppContext);
   if (!context) {
     throw new Error("useAppConfig must be used within RjsApp");
   }
@@ -227,7 +228,7 @@ const ConfigProvider: React.FC<{
     initializeConfig();
   }, [configUrl, authContextUrl]);
 
-  const contextValue: ConfigContextType = {
+  const contextValue: AppContextType = {
     config,
     isLoading,
     isRevealing: isTransitioning,
@@ -274,10 +275,10 @@ const ConfigProvider: React.FC<{
   };
 
   return (
-    <ConfigContext.Provider value={contextValue}>
+    <AppContext.Provider value={contextValue}>
       {renderContent()}
       {renderOverlay()}
-    </ConfigContext.Provider>
+    </AppContext.Provider>
   );
 };
 

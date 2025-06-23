@@ -8,7 +8,7 @@ import { UserProfileTab } from "./UserProfileTab";
 import { UserSettingsTab } from "./UserSettingsTab";
 
 // Import from rjs-frame
-import { useAppConfig } from "rjs-frame";
+import { useAppContext } from "rjs-frame";
 
 export interface AuthUserAvatarProps
   extends Omit<UserAvatarProps, "name" | "email"> {
@@ -33,7 +33,7 @@ export function AuthUserAvatar({
   menuItems,
   ...userAvatarProps
 }: AuthUserAvatarProps) {
-  const { authContext, isLoading, config } = useAppConfig();
+  const { authContext, isLoading, config } = useAppContext();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
   const [dialogTabs, setDialogTabs] = useState<DialogTab[]>([]);

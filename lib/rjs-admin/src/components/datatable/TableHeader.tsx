@@ -1,6 +1,14 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronsUpDown, EyeOff, Loader2, Menu, RefreshCw } from "lucide-react";
+import {
+  ChevronsDown,
+  ChevronsUp,
+  ChevronsUpDown,
+  EyeOff,
+  Loader2,
+  Menu,
+  RefreshCw,
+} from "lucide-react";
 import React, { useState } from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableHeaderProps } from "../../types/datatable";
@@ -109,23 +117,37 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   // Render sort indicator
+
+  const renderSortIcon = (
+    direction: "asc" | "desc" | null,
+    index: number | undefined
+  ) => {
+    if (!direction || index === undefined) {
+      return <ChevronsUpDown className="h-4 w-4" />;
+    } else if (direction === "asc") {
+      return <ChevronsUp className="h-4 w-4" />;
+    } else {
+      return <ChevronsDown className="h-4 w-4" />;
+    }
+  };
   const renderSortIndicator = (fieldKey: string) => {
-    const { direction, index } = getSortInfo(fieldKey);
     const field = fieldMap[fieldKey];
     if (!field.sortable) return null;
-    if (!direction || index === undefined)
-      return <ChevronsUpDown className="h-4 w-4 dt-sort-indicator" />;
 
-    const multiSort = queryState.sort?.length && queryState.sort?.length > 1;
+    const { direction, index } = getSortInfo(fieldKey);
+    const multiSort =
+      index !== undefined &&
+      direction &&
+      queryState.sort?.length &&
+      queryState.sort?.length > 1;
 
     return (
       <span
-        className={cn("dt-sort-indicator", {
+        className={cn("dt-sort-indicator", "flex items-center gap-1", {
           active: direction,
         })}
-        title={`Sort ${index + 1}`}
       >
-        {direction === "asc" ? "↑" : "↓"}
+        {renderSortIcon(direction, index)}
         {multiSort && <span className="text-xs"> {index + 1}</span>}
       </span>
     );

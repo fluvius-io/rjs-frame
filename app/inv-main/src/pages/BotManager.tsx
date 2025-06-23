@@ -4,7 +4,12 @@ import {
   QueryBuilderPanel,
   ThreeColumnLayout,
 } from "rjs-admin";
-import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
+import {
+  PageModule,
+  updatePageParams,
+  useAppContext,
+  usePageContext,
+} from "rjs-frame";
 import { Header } from "../components";
 
 const BotItemView = () => {
@@ -36,6 +41,8 @@ const BotItemView = () => {
 };
 
 export default function BotManager() {
+  const { config } = useAppContext();
+
   return (
     <ThreeColumnLayout
       sidebarWidth="lg"
@@ -73,7 +80,7 @@ export default function BotManager() {
       <PageModule className="p-4" slotName="footer">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Last updated: 2 minutes ago</p>
+          <p>Version: {config?.get("app.version") || "no-config"}</p>
         </div>
       </PageModule>
     </ThreeColumnLayout>

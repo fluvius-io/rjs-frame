@@ -1,8 +1,8 @@
 import { Building, Calendar, Mail, Shield, Tag, User } from "lucide-react";
-import { useAppConfig } from "rjs-frame";
+import { useAppContext } from "rjs-frame";
 
 export function UserProfileTab() {
-  const { authContext } = useAppConfig();
+  const { authContext } = useAppContext();
 
   if (!authContext) {
     return (

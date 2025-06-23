@@ -20,7 +20,7 @@ export {
   Route,
   Router,
   Routes,
-  useAppConfig,
+  useAppContext,
   useLocation,
   useNavigate,
 } from "./components/RjsApp";
