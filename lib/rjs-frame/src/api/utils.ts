@@ -14,13 +14,13 @@ export function resolveUrl(
   processor?: UriProcessor,
   params?: ApiParams
 ): string {
-  let url: string = path.replace(/\/\//g, "/").trim();
-
-  if (url.includes("://")) {
+  if (path.includes("://")) {
     throw new ConfigurationError(
-      `URI '${url}' is a full URL. Use ApiParams.baseUrl parameter instead.`
+      `URI '${path}' is a full URL. Use ApiParams.baseUrl parameter instead.`
     );
   }
+
+  let url: string = path.replace(/\/\//g, "/").trim();
 
   if (processor) {
     url = processor(url, params);

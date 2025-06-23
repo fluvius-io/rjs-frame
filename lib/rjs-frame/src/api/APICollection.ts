@@ -418,9 +418,19 @@ export class APICollection implements ApiCollectionInterface {
       throw new ConfigurationError("API Manager name is required");
     }
 
+    if (config.dynamic) {
+      config.queries = config.queries || ({} as Record<string, QueryConfig>);
+      config.commands =
+        config.commands || ({} as Record<string, CommandConfig>);
+      config.sockets = config.sockets || ({} as Record<string, SocketConfig>);
+      config.requests =
+        config.requests || ({} as Record<string, RequestConfig>);
+    }
+
     // Validate that at least one operation type is configured
     const hasOperations =
       config.commands || config.queries || config.sockets || config.requests;
+
     if (!hasOperations) {
       throw new ConfigurationError(
         "At least one operation type (commands, queries, sockets, requests) must be configured"
@@ -430,59 +440,142 @@ export class APICollection implements ApiCollectionInterface {
   }
 
   private getCommandConfig(commandName: string): CommandConfig {
-    if (!this.config.commands || !this.config.commands[commandName]) {
+    if (!this.config.commands) {
       throw new ConfigurationError(
         `Command '${commandName}' not found in configuration`
       );
     }
 
     let config = this.config.commands[commandName];
+
     if (typeof config === "string") {
       config = { path: config } as CommandConfig;
       this.config.commands[commandName] = config;
     }
+
+    if (!config) {
+      if (!this.config.dynamic) {
+        throw new ConfigurationError(
+          `Command '${commandName}' not found in configuration`
+        );
+      }
+      config = this.generateDynamicConfig(
+        commandName,
+        "command"
+      ) as CommandConfig;
+      this.config.commands[commandName] = config;
+    }
+
     return config;
   }
 
+  private generateDynamicConfig(
+    configName: string,
+    configType: "query" | "command" | "socket" | "request"
+  ): QueryConfig | CommandConfig | SocketConfig | RequestConfig {
+    let path: string = configName;
+    switch (configType) {
+      case "query":
+        path = `${this.getName()}.${configName}/`;
+        return {
+          path: path,
+          meta: `/_meta/${path}/`,
+          item: `${path}/{_id}`,
+        } as QueryConfig;
+      case "command":
+        path = `${this.getName()}:${configName}/{resource}/{_id}`;
+        return { path: path } as CommandConfig;
+      case "socket":
+        path = `${this.getName()}:${configName}/`;
+        return { path: path, transport: "websockets" } as SocketConfig;
+      case "request":
+        path = `${this.getName()}:${configName}`;
+        return { path: path, method: "GET" } as RequestConfig;
+      default:
+        throw new ConfigurationError(`Invalid config type: ${configType}`);
+    }
+  }
+
   private getQueryConfig(queryName: string): QueryConfig {
-    if (!this.config.queries || !this.config.queries[queryName]) {
+    if (!this.config.queries) {
       throw new ConfigurationError(
-        `Query '${queryName}' not found in configuration`
+        `Query '${queryName}' not found in configuration: ${this.config.name}`
       );
     }
+
     let config = this.config.queries[queryName];
+
     if (typeof config === "string") {
       config = { path: config } as QueryConfig;
       this.config.queries[queryName] = config;
     }
+
+    if (!config) {
+      if (!this.config.dynamic) {
+        throw new ConfigurationError(
+          `Query '${queryName}' not found in configuration`
+        );
+      }
+      config = this.generateDynamicConfig(queryName, "query");
+      this.config.queries[queryName] = config;
+    }
+
     return config;
   }
 
   private getSocketConfig(socketName: string): SocketConfig {
-    if (!this.config.sockets || !this.config.sockets[socketName]) {
+    if (!this.config.sockets) {
       throw new ConfigurationError(
         `Socket '${socketName}' not found in configuration`
       );
     }
+
     let config: SocketConfig | string = this.config.sockets[socketName];
+
     if (typeof config === "string") {
       config = { path: config, transport: "websockets" } as SocketConfig;
       this.config.sockets[socketName] = config;
     }
+
+    if (!config) {
+      if (!this.config.dynamic) {
+        throw new ConfigurationError(
+          `Socket '${socketName}' not found in configuration`
+        );
+      }
+      config = this.generateDynamicConfig(socketName, "socket") as SocketConfig;
+      this.config.sockets[socketName] = config;
+    }
+
     return config;
   }
 
   private getRequestConfig(requestName: string): RequestConfig {
-    if (!this.config.requests || !this.config.requests[requestName]) {
+    if (!this.config.requests) {
       throw new ConfigurationError(
         `Request '${requestName}' not found in configuration`
       );
     }
     let config = this.config.requests[requestName];
+
     if (typeof config === "string") {
       config = { path: config, method: "GET" } as RequestConfig;
       this.config.requests[requestName] = config;
     }
+
+    if (!config) {
+      if (!this.config.dynamic) {
+        throw new ConfigurationError(
+          `Request '${requestName}' not found in configuration`
+        );
+      }
+      config = this.generateDynamicConfig(
+        requestName,
+        "request"
+      ) as RequestConfig;
+      this.config.requests[requestName] = config;
+    }
+
     return config;
   }
 

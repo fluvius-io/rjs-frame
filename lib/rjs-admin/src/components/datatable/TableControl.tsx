@@ -15,6 +15,8 @@ export const TableControl: React.FC<TableControlProps> = ({
     onQueryStateChange,
     openQueryBuilder,
     showHeaderTitle,
+    controlTitle,
+    controlDescription,
   } = useDataTable();
   const pageContext = usePageContext();
   const [showSidebar, setShowSidebar] = useState(
@@ -68,14 +70,18 @@ export const TableControl: React.FC<TableControlProps> = ({
       sidebar: newShowSidebar,
     });
   };
+
+  const title = controlTitle || metadata.title || "";
+  const description = controlDescription || metadata.desc || "";
+
   return (
     <div className={cn("dt-control", className)}>
       {showHeaderTitle && (
         <div className="dt-control-header">
           <div>
-            <h2 className="dt-control-title">{metadata.title}</h2>
-            {metadata.desc && (
-              <p className="text-sm text-gray-500 mt-1">{metadata.desc}</p>
+            <h2 className="dt-control-title">{title}</h2>
+            {description && (
+              <p className="text-sm text-gray-500 mt-1">{description}</p>
             )}
           </div>
           {renderStatuses()}
@@ -97,11 +103,9 @@ export const TableControl: React.FC<TableControlProps> = ({
                 />
               )}
               <div className="flex flex-col gap-0 -mt-1">
-                <h2 className="dt-control-title">
-                  {camelCaseToWords(metadata.title)}
-                </h2>
+                <h2 className="dt-control-title">{camelCaseToWords(title)}</h2>
                 <div className="text-xs font-normal text-gray-500">
-                  {metadata.desc}
+                  {description}
                 </div>
               </div>
             </div>

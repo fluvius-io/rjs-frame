@@ -23,7 +23,23 @@ const idmCollectionConfig: ApiCollectionConfig = {
 
 // Create and register the IdmCollection
 APIManager.registerConfig(idmCollectionConfig);
-
+const TRADE_APIS = [
+  "signal",
+  "data",
+  "algo",
+  "bot",
+  "manager",
+  "market-data",
+  "executor",
+  "market",
+];
+for (const api_name of TRADE_APIS) {
+  APIManager.registerConfig({
+    name: `trade-${api_name}`,
+    dynamic: true,
+    baseUrl: "/api",
+  });
+}
 // Get the API base URL from environment or default to / for proxy
 
 export const API_BASE_URL = "";

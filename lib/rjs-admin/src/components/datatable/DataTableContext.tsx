@@ -12,20 +12,22 @@ import {
 import { QueryMetadata } from "../../types/querybuilder";
 
 export interface DataTableContextValue {
+  controlDescription?: string;
+  controlTitle?: string;
   data: DataRow[];
-  metadata: QueryMetadata | null;
-  loading: LoadingState;
-  queryState: DataTableQueryState;
-  pagination: PaginationState;
-  selectionState: DataTableSelectionState;
+  debug?: boolean;
   fetchData: () => Promise<void>;
   fetchMetadata: () => Promise<void>;
-  debug?: boolean;
+  loading: LoadingState;
+  metadata: QueryMetadata | null;
+  onActivate: (id: string, row: DataRow) => void;
   onQueryStateChange: (state: Partial<DataTableQueryState>) => void;
   onSelectionStateChange: (state: Partial<DataTableSelectionState>) => void;
-  onActivate: (id: string, row: DataRow) => void;
-  openQueryBuilder: (open: boolean) => void;
   onShowHeaderFiltersChange: (show: boolean) => void;
+  openQueryBuilder: (open: boolean) => void;
+  pagination: PaginationState;
+  queryState: DataTableQueryState;
+  selectionState: DataTableSelectionState;
   showHeaderFilters: boolean;
   showHeaderTitle: boolean;
   TableFilterComponent: React.ComponentType<TableFilterProps>;

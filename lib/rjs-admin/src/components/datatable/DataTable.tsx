@@ -71,6 +71,8 @@ export const DataTable: React.FC<DataTableProps> = ({
   actions,
   batchActions,
   onActivate,
+  title,
+  description,
 }) => {
   // Internal state for data and metadata
   const [data, setData] = React.useState<DataRow[]>([]);
@@ -269,6 +271,8 @@ export const DataTable: React.FC<DataTableProps> = ({
     TableRowComponent: TableRow,
     showHeaderFilters,
     showHeaderTitle: propShowHeaderTitle,
+    controlTitle: title,
+    controlDescription: description,
   };
 
   const renderSelectionBanner = () => {

@@ -94,6 +94,10 @@ export interface DataTableProps {
   // Actions
   actions?: React.ReactNode;
   batchActions?: React.ReactNode;
+
+  // Title and description
+  title?: string;
+  description?: string;
 }
 
 // Props for sub-components

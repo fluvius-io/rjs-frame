@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "https://api.invest-mate.net/api",
         changeOrigin: true,
         secure: false,
         // Remove '/api' prefix when forwarding to backend

@@ -89,6 +89,7 @@ export interface ApiCollectionConfig {
   name: string;
   baseUrl?: string;
   debug?: boolean;
+  dynamic?: boolean; // if true, the api manager will dynamically generate the config
   commands?: Record<string, CommandConfig | string>;
   queries?: Record<string, QueryConfig | string>;
   sockets?: Record<string, SocketConfig | string>;
