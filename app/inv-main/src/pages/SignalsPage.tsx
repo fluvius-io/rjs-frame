@@ -10,6 +10,7 @@ import { AlgorithmCard, Header } from "../components";
 const SignalItemView = () => {
   const pageContext = usePageContext();
   if (!pageContext.pageParams.algo) {
+    throw new Error("No algorithm selected");
     return (
       <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
         No algorithm selected

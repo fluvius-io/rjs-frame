@@ -15,6 +15,10 @@ import { type ParamSpec } from "../utils/matchParams";
 export interface PageModuleState {
   appState: AppState;
   initialized: boolean;
+  hasError?: boolean;
+  error?: Error;
+  errorInfo?: React.ErrorInfo;
+  errorLines?: number;
 }
 
 export interface PageModuleProps {
@@ -23,6 +27,7 @@ export interface PageModuleProps {
   data?: Record<string, any>;
   condition?: ParamSpec;
   className?: string;
+  moduleName?: string;
 }
 
 export class PageModule<
@@ -41,15 +46,29 @@ export class PageModule<
   constructor(props: P) {
     super(props);
     this.moduleId = generate();
-    this.moduleName = this.constructor.name;
+    this.moduleName = props.moduleName || this.constructor.name;
     this.state = {
       appState: getAppState(),
       initialized: false,
+      hasError: false,
     } as unknown as S;
   }
 
   generateModuleId(props: P) {
     return generate();
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log the error for debugging
+    console.error(`PageModule [${this.moduleName}] Error:`, error);
+    console.error(`PageModule [${this.moduleName}] Error Info:`, errorInfo);
+
+    // Update state to show error UI
+    this.setState({
+      hasError: true,
+      error,
+      errorInfo,
+    } as unknown as S);
   }
 
   componentDidMount() {
@@ -84,7 +103,73 @@ export class PageModule<
     return this.slotContextRef.current;
   }
 
+  // Method to render error UI
+  protected renderError(): React.ReactNode {
+    const { error, errorLines = 3 } = this.state;
+
+    const lines = error?.stack?.split("\n") || [];
+    return (
+      <div className="page-module page-module--error">
+        <div className="page-module-error__content">
+          <h3 className="page-module-error__title">
+            Error in module [{this.moduleName}]
+          </h3>
+          <p className="page-module-error__message">
+            {error?.message || "An unexpected error occurred"}
+          </p>
+          <ul className="px-4 page-module-error__message font-mono text-xs list-disc">
+            {lines.slice(0, errorLines).map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+            {lines.length > errorLines && (
+              <li className="cursor-pointer">
+                <span
+                  onClick={() => this.setState({ errorLines: lines.length })}
+                  className="text-xs text-muted-foreground hover:text-primary mr-4"
+                >
+                  [... more ...]
+                </span>
+                <span
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigator.clipboard.writeText(error?.stack || "");
+                    e.currentTarget.textContent = "[ copied to clipboard ]";
+                    setTimeout(() => {
+                      e.currentTarget.textContent = "[ copy ]";
+                    }, 5000);
+                  }}
+                  className="text-xs text-muted-foreground hover:text-primary"
+                >
+                  [ copy ]
+                </span>
+              </li>
+            )}
+          </ul>
+
+          <button
+            className="page-module-error__retry mt-2"
+            onClick={() =>
+              this.setState({
+                hasError: false,
+                error: undefined,
+                errorInfo: undefined,
+                errorLines: 3,
+              } as unknown as S)
+            }
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   render() {
+    // Check for errors first
+    if (this.state.hasError) {
+      return this.renderError();
+    }
+
     if (
       !matchPageParams(this.props.condition, `PageModule[${this.moduleName}]`)
     ) {

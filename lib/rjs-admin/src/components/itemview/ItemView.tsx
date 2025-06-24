@@ -232,7 +232,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     const { item, loading } = this.state;
     const { loadingComponent } = this.props;
     return (
-      <div className="flex items-center gap-2 w-full">
+      <div className="flex items-center gap-2 w-1/2">
         {loading && !loadingComponent ? (
           <Loader2Icon className="h-8 w-8 animate-spin" />
         ) : (
@@ -243,11 +243,11 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
             }}
           />
         )}
-        <div className="flex flex-col gap-0 max-w-1/2">
+        <div className="w-full">
           <h2 className="rjs-panel-header-title text-nowrap text-ellipsis overflow-hidden">
             {item.name || "[No name]"}
           </h2>
-          <p className="text-xs text-muted-foreground max-w-50 text-nowrap text-ellipsis overflow-hidden">
+          <p className="text-xs text-muted-foreground text-nowrap text-ellipsis overflow-hidden">
             {item.description || "No description"}
           </p>
         </div>
@@ -298,20 +298,22 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
             {hasCustomTabs && (
               <Tabs.List className="iv__tabs-list rjs-panel-header">
                 {this.renderItemHeader()}
-                {tabItems.map((tabItem) => (
-                  <Tabs.Trigger
-                    key={tabItem.name}
-                    value={tabItem.name}
-                    className="iv__tab-trigger"
-                  >
-                    {tabItem.label}
-                  </Tabs.Trigger>
-                ))}
-                {itemJsonView && (
-                  <Tabs.Trigger value="default" className="iv__tab-trigger">
-                    JSON
-                  </Tabs.Trigger>
-                )}
+                <div className="flex gap-1">
+                  {tabItems.map((tabItem) => (
+                    <Tabs.Trigger
+                      key={tabItem.name}
+                      value={tabItem.name}
+                      className="iv__tab-trigger"
+                    >
+                      {tabItem.label}
+                    </Tabs.Trigger>
+                  ))}
+                  {itemJsonView && (
+                    <Tabs.Trigger value="default" className="iv__tab-trigger">
+                      JSON
+                    </Tabs.Trigger>
+                  )}
+                </div>
               </Tabs.List>
             )}
 

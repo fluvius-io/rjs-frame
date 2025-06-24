@@ -81,7 +81,7 @@ export const TableControl: React.FC<TableControlProps> = ({
           <div>
             <h2 className="dt-control-title">{title}</h2>
             {description && (
-              <p className="text-sm text-gray-500 mt-1 text-nowrap text-ellipsis overflow-hidden">
+              <p className="text-sm text-gray-500 text-nowrap text-ellipsis overflow-hidden">
                 {description}
               </p>
             )}
@@ -106,7 +106,7 @@ export const TableControl: React.FC<TableControlProps> = ({
               )}
               <div className="flex flex-col gap-0 -mt-1">
                 <h2 className="dt-control-title">{camelCaseToWords(title)}</h2>
-                <div className="text-xs font-normal text-gray-500">
+                <div className="text-sm text-gray-500 text-nowrap text-ellipsis overflow-hidden">
                   {description}
                 </div>
               </div>

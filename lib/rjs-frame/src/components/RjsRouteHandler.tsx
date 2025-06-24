@@ -23,7 +23,6 @@ export function RjsRouteHandler() {
 
     // Initialize page state from current URL whenever route changes
     const state = initAppState(window.location);
-    console.log("[RouteChangeHandler] URL updated:", window.location, state);
 
     processingRef.current = false;
   }, [location.pathname, location.search, location.hash]);

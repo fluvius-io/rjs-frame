@@ -97,12 +97,12 @@ function convertFiltersToQuery(filters: FilterState[]): Record<string, any> {
  */
 export function queryStateToApiParams(queryState: QueryState): {
   query?: string;
-  select?: string;
+  include?: string;
   sort?: string;
 } {
   const result: {
     query?: string;
-    select?: string;
+    include?: string;
     sort?: string;
   } = {};
 
@@ -116,7 +116,7 @@ export function queryStateToApiParams(queryState: QueryState): {
 
   // Convert select array to comma-separated string
   if (queryState.select && queryState.select.length > 0) {
-    result.select = queryState.select.join(",");
+    result.include = queryState.select.join(",");
   }
 
   // Convert sort array to comma-separated string

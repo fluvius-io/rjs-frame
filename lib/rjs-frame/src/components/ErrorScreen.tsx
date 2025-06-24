@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/components/ErrorScreen.css";
+
+export interface ErrorState {
+  error: Error;
+  errorInfo: React.ErrorInfo | null;
+  errorTitle: string;
+}
 
 export interface ErrorScreenProps {
   /** Error object to display */
-  error: Error;
+  error: ErrorState;
   /** Title for the error screen */
-  title?: string;
   /** Additional CSS class names */
   className?: string;
   /** Custom retry button text */
@@ -26,7 +31,6 @@ export interface ErrorScreenProps {
  */
 export const ErrorScreen: React.FC<ErrorScreenProps> = ({
   error,
-  title = "Configuration Error",
   className = "",
   retryText = "Reload Application",
   onRetry = () => window.location.reload(),
@@ -34,34 +38,43 @@ export const ErrorScreen: React.FC<ErrorScreenProps> = ({
   message,
 }) => {
   const errorMessage =
-    message || error.message || "An unexpected error occurred";
+    message || error.error.message || "An unexpected error occurred";
+  const [showLines, setShowLines] = useState(3);
+  const lines = error.errorInfo?.componentStack?.split("\n") || [];
 
   return (
     <div className={`error-screen ${className}`}>
       <div className="error-screen__backdrop" />
       <div className="error-screen__content">
-        <div className="error-screen__icon">
-          <svg
-            className="error-screen__icon-svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-            />
-          </svg>
-        </div>
-
         <div className="error-screen__header">
-          <h3 className="error-screen__title">{title}</h3>
+          <h3 className="error-screen__title">{error.errorTitle}</h3>
         </div>
 
         <div className="error-screen__body">
-          <p className="error-screen__message">{errorMessage}</p>
+          <p className="error-screen__message mb-4 text-lg">{errorMessage}</p>
+          {error.errorInfo && (
+            <ul className="error-screen__message">
+              {lines.slice(0, showLines).map(
+                (line, index) =>
+                  line && (
+                    <li
+                      className="text-left break-all mb-2 list-disc font-mono text-xs"
+                      key={index}
+                    >
+                      {line}
+                    </li>
+                  )
+              )}
+            </ul>
+          )}
+
+          {lines.length > showLines && (
+            <p className="error-screen__message">
+              <button onClick={() => setShowLines(showLines + 3)}>
+                ... more ...
+              </button>
+            </p>
+          )}
         </div>
 
         {showRetry && (

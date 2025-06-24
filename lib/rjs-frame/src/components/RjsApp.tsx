@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { BrowserRouter, Routes } from "react-router-dom";
 import { ConfigManager } from "../config/ConfigManager";
 import type { AuthContext } from "../types/AuthContext";
-import { ErrorScreen } from "./ErrorScreen";
+import { ErrorScreen, ErrorState } from "./ErrorScreen";
 import { RjsRouteHandler } from "./RjsRouteHandler";
 
 export interface AppConfig {
@@ -15,8 +15,9 @@ interface AppContextType {
   config: ConfigManager<AppConfig>;
   isLoading: boolean;
   isRevealing: boolean;
-  error: Error | null;
+  error: ErrorState | null;
   authContext: AuthContext | null;
+  setError: (error: ErrorState | null) => void;
 }
 
 // Default configuration values
@@ -39,6 +40,7 @@ const AppContext = createContext<AppContextType>({
   isRevealing: false,
   error: null,
   authContext: null,
+  setError: () => {},
 });
 
 // Hook to use configuration context
@@ -79,33 +81,61 @@ const UnauthorizedScreen: React.FC<{ loginRedirectUrl?: string }> = ({
   );
 };
 
-// Configuration provider component
-const ConfigProvider: React.FC<{
-  appConfig: Partial<AppConfig>;
-  configUrl?: string;
-  authContextUrl?: string;
-  authRequired?: boolean;
+// Error Boundary Component
+class RjsAppErrorBoundary extends React.Component<{
   children: React.ReactNode;
-}> = ({
-  appConfig,
-  configUrl,
-  authContextUrl = "/api/auth/info",
-  authRequired = false,
+  onError: (error: Error, errorInfo: React.ErrorInfo) => void;
+}> {
+  constructor(props: {
+    children: React.ReactNode;
+    onError: (error: Error, errorInfo: React.ErrorInfo) => void;
+  }) {
+    super(props);
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Call the parent's error handler
+    this.props.onError(error, errorInfo);
+  }
+
+  render() {
+    return this.props.children;
+  }
+}
+
+// Enhanced RjsApp component
+export function RjsApp({
   children,
-}) => {
-  const [config, setConfig] = useState<ConfigManager<AppConfig>>(
-    new ConfigManager({ ...defaultConfig, ...appConfig }, configUrl, {
-      timeout: 10000,
-      retries: 2,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+  config: propConfig,
+}: {
+  children: React.ReactNode;
+  config?: Partial<AppConfig>;
+}) {
+  propConfig = propConfig || {};
+  const authContextUrl = propConfig["auth.context"] || "/api/auth/info";
+  const authRequired = propConfig["auth.required"] || true;
+  const configUrl = propConfig["config.url"];
+  const configParams = propConfig["config.params"] || {
+    timeout: 10000,
+    retries: 2,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const [appConfig, setAppConfig] = useState<ConfigManager<AppConfig>>(
+    new ConfigManager(
+      { ...defaultConfig, ...propConfig },
+      configUrl,
+      configParams
+    )
   );
+
   const [isLoading, setIsLoading] = useState(true);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [isRevealing, setIsRevealing] = useState(false);
+  const [error, setError] = useState<ErrorState | null>(null);
   const [authContext, setAuthContext] = useState<AuthContext | null>(null);
+
   let timestamp = 0;
 
   const setLoadingStatus = (loadingStatus: boolean) => {
@@ -132,11 +162,18 @@ const ConfigProvider: React.FC<{
       }
 
       // Loading is complete, transition to the next state
-      setIsTransitioning(true);
+      setIsRevealing(true);
       setTimeout(() => {
-        setIsTransitioning(false);
+        setIsRevealing(false);
       }, REVEALING_TIME);
     }
+  };
+
+  // Handle errors from the error boundary
+  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
+    console.error("RjsApp caught an error:", error);
+    // Set the error using the existing setError function
+    setError({ error, errorInfo, errorTitle: "Application Error" });
   };
 
   useEffect(() => {
@@ -147,15 +184,13 @@ const ConfigProvider: React.FC<{
     }
 
     document.body.classList.remove("app-loading");
-    if (isTransitioning) {
+    if (isRevealing) {
       document.body.classList.add("app-transition");
     } else {
       document.body.classList.remove("app-transition");
       document.body.classList.add("app-done");
     }
-
-    return;
-  }, [isTransitioning, isLoading]);
+  }, [isRevealing, isLoading]);
 
   const validateAuthContext = (authContext: AuthContext) => {
     if (
@@ -174,7 +209,7 @@ const ConfigProvider: React.FC<{
     );
   };
 
-  const initializeConfig = async () => {
+  const initApp = async () => {
     try {
       setLoadingStatus(true);
       setError(null);
@@ -183,7 +218,7 @@ const ConfigProvider: React.FC<{
       const promises: Promise<any>[] = [];
 
       // Add config loading promise
-      const configPromise = config.loadRemoteConfig();
+      const configPromise = appConfig.loadRemoteConfig();
       promises.push(configPromise);
 
       // Add auth context loading promise if authContextUrl is provided
@@ -192,9 +227,18 @@ const ConfigProvider: React.FC<{
         authPromise = fetch(authContextUrl)
           .then(async (response) => {
             if (!response.ok) {
-              throw new Error(
-                `HTTP ${response.status}: ${response.statusText}`
-              );
+              if (response.status == 401) {
+                return null;
+              }
+
+              setError({
+                error: new Error(
+                  `HTTP ${response.status}: ${response.statusText}`
+                ),
+                errorInfo: null,
+                errorTitle: "Authentication Error",
+              });
+              return null;
             }
             const authData = await response.json();
 
@@ -202,7 +246,11 @@ const ConfigProvider: React.FC<{
             return validateAuthContext(authData);
           })
           .catch((authError) => {
-            console.error("Failed to fetch auth context:", authError);
+            setError({
+              error: new Error("Failed to fetch auth context: " + authError),
+              errorInfo: null,
+              errorTitle: "Authentication Error",
+            });
             return null;
           });
       }
@@ -211,30 +259,35 @@ const ConfigProvider: React.FC<{
       // Wait for both promises to complete
       const [configResult, authContext] = await Promise.all(promises);
 
-      setConfig(configResult);
+      setAppConfig(configResult);
       setAuthContext(authContext);
+      console.log("authContext", authContext);
     } catch (configError) {
       console.error("Failed to initialize configuration:", configError);
-      setError(
-        configError instanceof Error
-          ? configError
-          : new Error("Configuration initialization failed")
-      );
+      setError({
+        error:
+          configError instanceof Error
+            ? configError
+            : new Error("Configuration initialization failed"),
+        errorInfo: null,
+        errorTitle: "Configuration Error",
+      });
     } finally {
       setLoadingStatus(false);
     }
   };
 
   useEffect(() => {
-    initializeConfig();
+    initApp();
   }, [configUrl, authContextUrl]);
 
   const contextValue: AppContextType = {
-    config,
+    config: appConfig,
     isLoading,
-    isRevealing: isTransitioning,
+    isRevealing,
     error,
     authContext,
+    setError,
   };
 
   // Determine which screen to show based on priority:
@@ -244,18 +297,18 @@ const ConfigProvider: React.FC<{
   // 4. Children (normal app content)
 
   const loginRedirectUrl = () => {
-    const url = config?.get<string>("auth.loginRedirect") || "/api/auth/login";
+    const url =
+      appConfig.get<string>("auth.loginRedirect") || "/api/auth/login";
     return url + "?next=" + encodeURIComponent(window.location.href);
   };
 
-  const renderOverlay = () => {
-    // Priority 1: Show error screen for configuration/network failures
-    if (isLoading) {
-      return null;
-    }
-
+  const renderContent = () => {
     if (error) {
       return <ErrorScreen error={error} />;
+    }
+
+    if (isLoading) {
+      return null;
     }
 
     // Priority 3: Show unauthorized screen when auth is required but not available
@@ -263,51 +316,20 @@ const ConfigProvider: React.FC<{
       return <UnauthorizedScreen loginRedirectUrl={loginRedirectUrl()} />;
     }
 
-    return null;
-  };
-
-  const renderContent = () => {
-    let hasOverlay = isLoading || error || (authRequired && !authContext);
-    if (hasOverlay) {
-      return null;
-    }
-
-    return children;
-  };
-
-  return (
-    <AppContext.Provider value={contextValue}>
-      {renderContent()}
-      {renderOverlay()}
-    </AppContext.Provider>
-  );
-};
-
-// Enhanced RjsApp component
-export function RjsApp({
-  children,
-  config,
-}: {
-  children: React.ReactNode;
-  config?: Partial<AppConfig>;
-}) {
-  config = config || {};
-  const authContextUrl = config["auth.context"] || "/api/auth/info";
-  const authRequired = config["auth.required"] || false;
-  const configUrl = config["config.url"];
-
-  return (
-    <ConfigProvider
-      appConfig={config}
-      configUrl={configUrl}
-      authContextUrl={authContextUrl}
-      authRequired={authRequired}
-    >
+    return (
       <BrowserRouter>
         <RjsRouteHandler />
         <Routes>{children}</Routes>
       </BrowserRouter>
-    </ConfigProvider>
+    );
+  };
+
+  return (
+    <AppContext.Provider value={contextValue}>
+      <RjsAppErrorBoundary onError={handleError}>
+        {renderContent()}
+      </RjsAppErrorBoundary>
+    </AppContext.Provider>
   );
 }
 

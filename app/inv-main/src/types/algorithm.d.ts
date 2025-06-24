@@ -25,11 +25,9 @@ export interface AlgorithmData {
   configuration: number[];
   compute_tier: number;
   id: string;
-  _created: string;
-  _creator: string;
-  _updated: string | null;
-  _updater: string | null;
-  _realm: string | null;
-  _deleted: string | null;
-  _etag: string | null;
+  created: string;
+  creator: string;
+  updated: string | null;
+  updater: string | null;
+  etag: string | null;
 }

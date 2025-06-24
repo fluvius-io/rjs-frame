@@ -2,5 +2,6 @@
   "app.version": "1.1.2",
   "app.name": "Invest Mate",
   "app.website": "https://invest-mate.net",
-  "app.contact": "support@invest-mate.net"
+  "app.contact": "support@invest-mate.net",
+  "auth.context": "/api/auth/info"
 }

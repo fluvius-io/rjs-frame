@@ -175,16 +175,16 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
             <div className="flex items-center justify-between text-xs text-gray-500">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                <span>{formatDate(algorithm._created)}</span>
+                <span>{formatDate(algorithm.created)}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                <span>{formatTime(algorithm._created)}</span>
+                <span>{formatTime(algorithm.created)}</span>
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-3 h-3" />
                 <span className="font-mono">
-                  {algorithm._creator.slice(0, 8)}...
+                  {algorithm.creator.slice(0, 8)}...
                 </span>
               </div>
             </div>
