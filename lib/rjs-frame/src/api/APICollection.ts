@@ -93,7 +93,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Command '${commandName}' failed: ${error}`,
+        `Command '${this.config.name}:${commandName}' failed: ${error}`,
         undefined,
         error
       );
@@ -195,7 +195,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Query '${queryName}' failed: ${error}`,
+        `Query '${this.config.name}:${queryName}' failed: ${error}`,
         undefined,
         error
       );
@@ -261,7 +261,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Query metadata '${queryName}' failed: ${error}`,
+        `Query metadata '${this.config.name}:${queryName}' failed: ${error}`,
         undefined,
         error
       );
@@ -312,7 +312,9 @@ export class APICollection implements ApiCollectionInterface {
       const channelName = channel || "default";
 
       if (!connection.isConnected()) {
-        throw new ApiError(`Socket '${socketName}' is not connected`);
+        throw new ApiError(
+          `Socket '${this.config.name}:${socketName}' is not connected`
+        );
       }
 
       return connection.publish(channelName, message);
@@ -359,7 +361,7 @@ export class APICollection implements ApiCollectionInterface {
       return await this.createResponse<T>(response, requestConfig.response);
     } catch (error) {
       throw new ApiError(
-        `Request '${requestName}' failed: ${error}`,
+        `Request '${this.config.name}:${requestName}' failed: ${error}`,
         undefined,
         error
       );

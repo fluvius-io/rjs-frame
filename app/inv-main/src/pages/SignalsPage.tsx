@@ -59,6 +59,9 @@ export default function SignalsPage() {
           resourceName="trade-signal:signal"
           className="no-border h-full"
           showHeaderTitle={false}
+          queryState={{
+            select: ["key", "name", "market"],
+          }}
           title="Signals"
           description="Signals are the core of the trading system. They are the inputs to the trading system."
           onActivate={(id) => {

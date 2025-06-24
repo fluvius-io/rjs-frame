@@ -12,7 +12,7 @@ import {
 } from "../../types/datatable";
 import { QueryMetadata, QueryState, SortItem } from "../../types/querybuilder";
 import { QueryBuilderModal } from "../querybuilder/QueryBuilderModal";
-import { DataTableProvider } from "./DataTableContext";
+import { DataTableContext } from "./DataTableContext";
 import { Pagination } from "./Pagination";
 import { TableControl } from "./TableControl";
 import { TableFilter } from "./TableFilter";
@@ -76,6 +76,7 @@ export const DataTable: React.FC<DataTableProps> = ({
 }) => {
   // Internal state for data and metadata
   const [data, setData] = React.useState<DataRow[]>([]);
+  const [error, setError] = React.useState<Error | null>(null);
   const [metadata, setMetadata] = React.useState(propMetadata);
   const [loading, setLoading] = React.useState<LoadingState>({
     data: "initializing",
@@ -150,10 +151,10 @@ export const DataTable: React.FC<DataTableProps> = ({
         };
         setQueryState(initialState);
       }
-    } catch (error) {
-      console.error("Failed to fetch metadata:", error);
-    } finally {
       setLoading((prev) => ({ ...prev, meta: false }));
+    } catch (error) {
+      setError(error as Error);
+      setLoading((prev) => ({ data: false, meta: false }));
     }
   };
 
@@ -240,8 +241,9 @@ export const DataTable: React.FC<DataTableProps> = ({
         <div className="flex flex-col items-center">
           <AlertCircle className="dt-empty-icon text-orange-300" />
           <div className="dt-empty-text">No metadata available</div>
-          <div className="dt-empty-subtext">
+          <div className="dt-empty-subtext mt-4 text-center">
             The resource name is not valid or the metadata is not available.
+            {error && <div className="mt-2">Error: {error.message}</div>}
           </div>
         </div>
       </div>
@@ -302,7 +304,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   };
 
   return (
-    <DataTableProvider value={contextValue}>
+    <DataTableContext.Provider value={contextValue}>
       <div className={cn("dt-container", className)}>
         <TableControlComponent actions={actions} />
 
@@ -344,7 +346,7 @@ export const DataTable: React.FC<DataTableProps> = ({
           </div>
         )}
       </div>
-    </DataTableProvider>
+    </DataTableContext.Provider>
   );
 };
 

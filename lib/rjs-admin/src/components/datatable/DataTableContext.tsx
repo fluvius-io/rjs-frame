@@ -46,13 +46,3 @@ export const useDataTable = () => {
   return context;
 };
 
-export const DataTableProvider: React.FC<{
-  value: DataTableContextValue;
-  children: React.ReactNode;
-}> = ({ value, children }) => {
-  return (
-    <DataTableContext.Provider value={value}>
-      {children}
-    </DataTableContext.Provider>
-  );
-};
