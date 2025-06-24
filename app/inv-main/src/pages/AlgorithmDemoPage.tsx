@@ -45,13 +45,11 @@ const sampleAlgorithm: AlgorithmData = {
   configuration: [4],
   compute_tier: 0,
   id: "5b3771dc-53eb-52a3-9766-cf14b37eaf0f",
-  _created: "2025-06-23T08:19:55.808874+00:00",
-  _creator: "79c71c91-5e8a-491e-ba97-6810f5df943f",
-  _updated: null,
-  _updater: null,
-  _realm: null,
-  _deleted: null,
-  _etag: null,
+  created: "2025-06-23T08:19:55.808874+00:00",
+  creator: "79c71c91-5e8a-491e-ba97-6810f5df943f",
+  updated: "2025-06-23T08:19:55.808874+00:00",
+  updater: "79c71c91-5e8a-491e-ba97-6810f5df943f",
+  etag: "1234567890",
 };
 
 // Additional sample algorithms for demonstration
@@ -64,8 +62,8 @@ const additionalAlgorithms: AlgorithmData[] = [
     tags: ["RSI", "Momentum", "TA"],
     compute_tier: 1,
     id: "7a4882ed-64fc-63b4-0877-dg25c48fbf0g",
-    _created: "2025-06-22T14:30:22.123456+00:00",
-    _creator: "89d82d02-6f9b-5a2f-cb08-7921g6eg054g",
+    created: "2025-06-22T14:30:22.123456+00:00",
+    creator: "89d82d02-6f9b-5a2f-cb08-7921g6eg054g",
   },
   {
     ...sampleAlgorithm,
@@ -75,8 +73,8 @@ const additionalAlgorithms: AlgorithmData[] = [
     tags: ["MACD", "Signal", "TA"],
     compute_tier: 2,
     id: "8b5993fe-75gd-74c5-1988-eh36d59gcg1h",
-    _created: "2025-06-21T09:15:33.654321+00:00",
-    _creator: "99e93e13-7g0c-6b3g-dc19-8032h7fh165h",
+    created: "2025-06-21T09:15:33.654321+00:00",
+    creator: "99e93e13-7g0c-6b3g-dc19-8032h7fh165h",
   },
 ];
 

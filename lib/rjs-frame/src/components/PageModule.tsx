@@ -11,14 +11,11 @@ import "../styles/index.css";
 import type { AppState } from "../types/AppState";
 import { cn } from "../utils";
 import { type ParamSpec } from "../utils/matchParams";
+import { RjsAppErrorBoundary } from "./RjsApp";
 
 export interface PageModuleState {
   appState: AppState;
   initialized: boolean;
-  hasError?: boolean;
-  error?: Error;
-  errorInfo?: React.ErrorInfo;
-  errorLines?: number;
 }
 
 export interface PageModuleProps {
@@ -50,25 +47,11 @@ export class PageModule<
     this.state = {
       appState: getAppState(),
       initialized: false,
-      hasError: false,
     } as unknown as S;
   }
 
   generateModuleId(props: P) {
     return generate();
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error for debugging
-    console.error(`PageModule [${this.moduleName}] Error:`, error);
-    console.error(`PageModule [${this.moduleName}] Error Info:`, errorInfo);
-
-    // Update state to show error UI
-    this.setState({
-      hasError: true,
-      error,
-      errorInfo,
-    } as unknown as S);
   }
 
   componentDidMount() {
@@ -103,78 +86,13 @@ export class PageModule<
     return this.slotContextRef.current;
   }
 
-  // Method to render error UI
-  protected renderError(): React.ReactNode {
-    const { error, errorLines = 3 } = this.state;
-
-    const lines = error?.stack?.split("\n") || [];
-    return (
-      <div className="page-module page-module--error">
-        <div className="page-module-error__content">
-          <h3 className="page-module-error__title">
-            Error in module [{this.moduleName}]
-          </h3>
-          <p className="page-module-error__message">
-            {error?.message || "An unexpected error occurred"}
-          </p>
-          <ul className="px-4 page-module-error__message font-mono text-xs list-disc">
-            {lines.slice(0, errorLines).map((line, index) => (
-              <li key={index}>{line}</li>
-            ))}
-            {lines.length > errorLines && (
-              <li className="cursor-pointer">
-                <span
-                  onClick={() => this.setState({ errorLines: lines.length })}
-                  className="text-xs text-muted-foreground hover:text-primary mr-4"
-                >
-                  [... more ...]
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigator.clipboard.writeText(error?.stack || "");
-                    e.currentTarget.textContent = "[ copied to clipboard ]";
-                    setTimeout(() => {
-                      e.currentTarget.textContent = "[ copy ]";
-                    }, 5000);
-                  }}
-                  className="text-xs text-muted-foreground hover:text-primary"
-                >
-                  [ copy ]
-                </span>
-              </li>
-            )}
-          </ul>
-
-          <button
-            className="page-module-error__retry mt-2"
-            onClick={() =>
-              this.setState({
-                hasError: false,
-                error: undefined,
-                errorInfo: undefined,
-                errorLines: 3,
-              } as unknown as S)
-            }
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  render() {
-    // Check for errors first
-    if (this.state.hasError) {
-      return this.renderError();
-    }
-
+  renderContent() {
     if (
       !matchPageParams(this.props.condition, `PageModule[${this.moduleName}]`)
     ) {
       return null;
     }
+
     if (!this.context) {
       return (
         <div className="page-module page-module--error">
@@ -205,7 +123,7 @@ export class PageModule<
 
           return (
             <div className={cn("page-module", this.props.className)}>
-              {this.renderContent()}
+              {this.props.children}
             </div>
           );
         }}
@@ -213,8 +131,12 @@ export class PageModule<
     );
   }
 
-  protected renderContent(): React.ReactNode {
-    return this.props.children;
+  render(): React.ReactNode {
+    return (
+      <RjsAppErrorBoundary errorModule={this.moduleName}>
+        {this.renderContent()}
+      </RjsAppErrorBoundary>
+    );
   }
 }
 

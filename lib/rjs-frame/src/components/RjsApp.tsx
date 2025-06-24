@@ -17,7 +17,6 @@ interface AppContextType {
   isRevealing: boolean;
   error: ErrorState | null;
   authContext: AuthContext | null;
-  setError: (error: ErrorState | null) => void;
 }
 
 // Default configuration values
@@ -40,7 +39,6 @@ const AppContext = createContext<AppContextType>({
   isRevealing: false,
   error: null,
   authContext: null,
-  setError: () => {},
 });
 
 // Hook to use configuration context
@@ -81,25 +79,127 @@ const UnauthorizedScreen: React.FC<{ loginRedirectUrl?: string }> = ({
   );
 };
 
-// Error Boundary Component
-class RjsAppErrorBoundary extends React.Component<{
+interface ErrorBoundaryState {
+  errorLines: number;
+  errorState: ErrorState | null;
+}
+
+interface RjsAppErrorBoundaryProps {
   children: React.ReactNode;
-  onError: (error: Error, errorInfo: React.ErrorInfo) => void;
-}> {
-  constructor(props: {
-    children: React.ReactNode;
-    onError: (error: Error, errorInfo: React.ErrorInfo) => void;
-  }) {
+  errorModule: string;
+
+  // Disable builtin error display and relay to external error screen
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+}
+
+// Error Boundary Component
+export class RjsAppErrorBoundary extends React.Component<
+  RjsAppErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: RjsAppErrorBoundaryProps) {
     super(props);
+    this.state = {
+      errorLines: 3,
+      errorState: null,
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Call the parent's error handler
-    this.props.onError(error, errorInfo);
+    if (this.props.onError) {
+      return this.props.onError(error, errorInfo);
+    }
+
+    // Set the error using the existing setError function
+    this.setState({
+      errorState: {
+        error,
+        errorInfo,
+        errorTitle: "Component Error",
+      } as ErrorState,
+      errorLines: 3,
+    });
   }
 
   render() {
+    if (!this.props.onError && this.hasError) {
+      return this.renderError();
+    }
+
     return this.props.children;
+  }
+
+  get hasError(): boolean {
+    return (
+      this.state.errorState !== null && this.state.errorState.error !== null
+    );
+  }
+
+  protected renderError(): React.ReactNode {
+    if (!this.hasError) {
+      return null;
+    }
+
+    const handleCopyError = (e: React.MouseEvent<HTMLSpanElement>) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(error?.stack || "");
+      const el = e.currentTarget;
+      el.textContent = "[ copied to clipboard ]";
+      setTimeout(() => {
+        el.textContent = "[ copy ]";
+      }, 5000);
+    };
+
+    const { errorState, errorLines = 3 } = this.state;
+
+    const { error, errorInfo, errorTitle } = errorState!;
+    const lines = error?.stack?.split("\n") || [];
+    return (
+      <div className="error-boundary page-module--error">
+        <div className="page-module-error__content">
+          <h3 className="page-module-error__title">
+            {errorTitle || "Component Error"} [{this.props.errorModule}]
+          </h3>
+          <p className="page-module-error__message">
+            {error?.message || "An unexpected error occurred"}
+          </p>
+          <ul className="px-4 page-module-error__message font-mono text-xs list-disc">
+            {lines.slice(0, errorLines).map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+            {lines.length > errorLines && (
+              <li className="cursor-pointer">
+                <span
+                  onClick={() => this.setState({ errorLines: lines.length })}
+                  className="text-xs text-muted-foreground hover:text-primary mr-4"
+                >
+                  [... more ...]
+                </span>
+                <span
+                  onClick={handleCopyError}
+                  className="text-xs text-muted-foreground hover:text-primary"
+                >
+                  [ copy ]
+                </span>
+              </li>
+            )}
+          </ul>
+
+          <button
+            className="page-module-error__retry mt-2"
+            onClick={() =>
+              this.setState({
+                errorState: null,
+                errorLines: 3,
+              } as ErrorBoundaryState)
+            }
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
   }
 }
 
@@ -287,7 +387,6 @@ export function RjsApp({
     isRevealing,
     error,
     authContext,
-    setError,
   };
 
   // Determine which screen to show based on priority:
@@ -326,7 +425,10 @@ export function RjsApp({
 
   return (
     <AppContext.Provider value={contextValue}>
-      <RjsAppErrorBoundary onError={handleError}>
+      <RjsAppErrorBoundary
+        errorModule="Application Error"
+        onError={handleError}
+      >
         {renderContent()}
       </RjsAppErrorBoundary>
     </AppContext.Provider>
