@@ -1,6 +1,7 @@
 import {
   DataTable,
   ItemView,
+  useItemView,
   QueryBuilderPanel,
   ThreeColumnLayout,
 } from "rjs-admin";
@@ -10,35 +11,39 @@ import {
   useAppContext,
   usePageContext,
 } from "rjs-frame";
-import { Header } from "../components";
+import {
+  Header,
+  PortfolioCard,
+  BotDefinitionDetailView,
+  BotInstanceDetailView,
+} from "../components";
 
 const BotItemView = () => {
   const pageContext = usePageContext();
 
-  if (!pageContext.pageParams.org) {
+  if (!pageContext.pageParams.bot_id) {
     return (
       <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
-        No organization selected
+        No bot selected
       </div>
     );
   }
 
-  const itemId = pageContext.pageParams.org as string;
-
+  const itemId = pageContext.pageParams.bot_id as string;
+  const status = pageContext.pageParams.status as string;
   return (
-    <ItemView
-      itemId={itemId}
-      resourceName="idm:organization"
-      className="no-border h-full"
-    >
-      <ItemView.TabItem name="hello" label="Transactions">
-        Hello world from bots ...
-      </ItemView.TabItem>
-      <ItemView.TabItem name="blocks" label="Blocks">
-        A lot of blocks here ...
-      </ItemView.TabItem>
-    </ItemView>
-  );
+      <ItemView
+        itemId={itemId}
+        resourceName="trade-bot:bot-listing"
+        className="no-border h-full"
+        itemJsonView={false}
+        defaultTab="bot-info"
+      >
+        <ItemView.TabItem name="bot-info" label="Bot Info">
+          {status == 'INACTIVE' ? <BotDefinitionDetailView/> : <BotInstanceDetailView/>}
+        </ItemView.TabItem>      
+      </ItemView>
+    );
 };
 
 export default function BotManager() {
@@ -56,20 +61,27 @@ export default function BotManager() {
       <Header slotName="header" />
 
       <PageModule slotName="sidebar">
+        <PortfolioCard />
         <QueryBuilderPanel
-          fields={["id", "name", "dba_name"]}
-          metaSource="idm:organization"
+          fields={["bot_name", "status"]}
+          metaSource="trade-bot:bot-listing"
           className="no-border h-full"
         />
       </PageModule>
 
       <PageModule slotName="main" className="h-full">
         <DataTable
-          resourceName="idm:organization"
+          resourceName="trade-bot:bot-listing"
           className="no-border h-full"
           showHeaderTitle={false}
-          onActivate={(id) => {
-            updatePageParams({ org: id as string });
+          queryState={{
+            select: ["name", "started_date", "profit", "profit_value", "applied_blocks", "status"],
+          }}
+          onActivate={(id, row) => {
+            updatePageParams({ 
+              bot_id: id as string,
+              status: row.status as string,
+            });
           }}
         />
       </PageModule>
