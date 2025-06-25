@@ -1,12 +1,21 @@
 import { useItemView } from "rjs-admin";
+import { APIManager } from "rjs-frame";
 import { useEffect, useState } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export const BotInstanceDetailView = () => {
   const { item } = useItemView();
-  const [botInstance, setBotInstance] = useState<any>(item);
+  const [botInstance, setBotInstance] = useState<any>(null);
 
   useEffect(() => {
-    setBotInstance(item);
+    if (item?.id) {
+      APIManager.queryItem("trade-bot:bot-instance", item.id).then((response) => {
+        setBotInstance(response.data);
+      });
+    } else if (item) {
+      setBotInstance(item); // fallback for direct data
+    }
   }, [item]);
 
   if (!botInstance) {
@@ -29,21 +38,22 @@ export const BotInstanceDetailView = () => {
     return num.toLocaleString(undefined, { maximumFractionDigits: 1 }) + "%";
   };
 
-  // Extract parameters for the table
-  const parameters = botInstance.parameters || [
-    { name: "Initial Capital", value: botInstance.initial_capital },
-    { name: "Block A", value: botInstance.block_a },
-    { name: "Block 8", value: botInstance.block_8 },
-    { name: "Buy Threshold", value: botInstance.buy_threshold },
-    { name: "Sell Threshold", value: botInstance.sell_threshold },
-  ];
+  // Extract parameters from params object
+  const paramObj = botInstance.params || {};
+  const paramList = Object.keys(paramObj).map((key) => ({
+    name: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    value: paramObj[key],
+  }));
+
+  // Extract algorithms
+  const algorithms = botInstance.algorithms || [];
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2 border-b pb-2 mb-2">
-        <span className="font-semibold text-lg">{botInstance.bot_name || botInstance.name}</span>
-        <button className="ml-2 px-3 py-1 rounded bg-muted text-xs border">Pause</button>
+        <span className="font-semibold text-lg">{botInstance.name}</span>
+        <span className="ml-2 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-medium">{botInstance.status || 'ACTIVE'}</span>
       </div>
 
       {/* General Info */}
@@ -52,27 +62,27 @@ export const BotInstanceDetailView = () => {
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <div className="text-muted-foreground">Name</div>
-            <div>{botInstance.bot_name || botInstance.name}</div>
+            <div>{botInstance.name}</div>
           </div>
           <div>
             <div className="text-muted-foreground">Status</div>
-            <div><span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{botInstance.status || "Active"}</span></div>
+            <div><span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{botInstance.status || 'ACTIVE'}</span></div>
           </div>
           <div>
             <div className="text-muted-foreground">Investment Type</div>
-            <div>{botInstance.investment_type || "Stocks"}</div>
+            <div>{botInstance.investment_type || '-'}</div>
           </div>
           <div>
             <div className="text-muted-foreground">Started Date</div>
-            <div>{botInstance.started_date || "-"}</div>
+            <div>{botInstance.started_date || '-'}</div>
           </div>
           <div>
-            <div className="text-muted-foreground">Applied Algorithms</div>
-            <div>{botInstance.applied_algorithms || botInstance.applied_blocks || "-"}</div>
+            <div className="text-muted-foreground">Applied Blocks</div>
+            <div>{botInstance.applied_blocks || '-'}</div>
           </div>
           <div>
             <div className="text-muted-foreground">Profit / Loss</div>
-            <div className="text-green-600 font-semibold">{formatM(botInstance.profit_value)} / {formatPercent(botInstance.profit)}</div>
+            <div className="text-green-600 font-semibold">{formatM(botInstance.result_profit_value)} / {formatPercent(botInstance.result_profit)}</div>
           </div>
         </div>
       </div>
@@ -93,19 +103,19 @@ export const BotInstanceDetailView = () => {
             <thead>
               <tr className="bg-muted">
                 <th className="px-2 py-1 text-left">No.</th>
-                <th className="px-2 py-1 text-left">Parameters</th>
+                <th className="px-2 py-1 text-left">Parameter</th>
                 <th className="px-2 py-1 text-left">Value</th>
               </tr>
             </thead>
             <tbody>
-              {parameters.map((param: any, idx: number) => (
+              {paramList.map((param: { name: string; value: any }, idx: number) => (
                 <tr key={idx} className="border-t">
                   <td className="px-2 py-1">{String(idx + 1).padStart(2, "0")}</td>
                   <td className="px-2 py-1">{param.name}</td>
                   <td className="px-2 py-1">
                     <input
                       className="bg-muted px-2 py-1 rounded w-full"
-                      value={param.value || "-"}
+                      value={param.value ?? "-"}
                       readOnly
                     />
                   </td>
@@ -122,24 +132,42 @@ export const BotInstanceDetailView = () => {
         <div className="grid grid-cols-3 gap-4 text-sm mb-2">
           <div>
             <div className="text-muted-foreground">Capital Value:</div>
-            <div>{formatM(botInstance.capital_value) || "-"} vnd</div>
+            <div>{formatM(botInstance.result_capital_value) || "-"} {botInstance.currency?.toLowerCase() || ''}</div>
           </div>
           <div>
             <div className="text-muted-foreground">Market Value:</div>
-            <div>{formatM(botInstance.market_value) || "-"} vnd</div>
+            <div>{formatM(botInstance.result_market_value) || "-"} {botInstance.currency?.toLowerCase() || ''}</div>
           </div>
           <div>
             <div className="text-muted-foreground">Profit:</div>
-            <div className="text-green-600 font-semibold">{formatM(botInstance.profit_result)} vnd | {formatPercent(botInstance.profit_result_percent)}</div>
+            <div className="text-green-600 font-semibold">{formatM(botInstance.result_profit_value)} {botInstance.currency?.toLowerCase() || ''} | {formatPercent(botInstance.result_profit)}</div>
           </div>
         </div>
-        {/* Profit summary */}
-        <div className="bg-muted p-2 rounded flex items-center gap-2">
-          <span className="font-semibold text-green-600">Profit:</span>
-          <span className="font-semibold">{formatM(botInstance.profit_summary_value)} | {formatPercent(botInstance.profit_summary_percent)}</span>
-          <span className="ml-auto text-xs text-muted-foreground">Monthly</span>
-        </div>
       </div>
+
+      {/* Algorithms */}
+      {algorithms.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-base mb-2">Algorithms</h3>
+          <div className="space-y-2">
+            {algorithms.map((algo: any, idx: number) => (
+              <div key={algo._id || idx} className="border rounded p-3 bg-muted">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-sm">{algo.name}</span>
+                  <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{algo.key}</span>
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">{algo.risk_level}</span>
+                </div>
+                <div className="text-xs text-muted-foreground mb-1">{algo.description}</div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  <SyntaxHighlighter language="python" style={tomorrow}>
+                    {algo.source_code}
+                  </SyntaxHighlighter>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,10 +12,12 @@ import {
   usePageContext,
 } from "rjs-frame";
 import {
+  BlockListView,
   BotDefinitionDetailView,
   BotInstanceDetailView,
   Header,
   PortfolioCard,
+  StockListView,
 } from "../components";
 
 const BotItemView = () => {
@@ -36,7 +38,7 @@ const BotItemView = () => {
       itemId={itemId}
       resourceName="trade-bot:bot-listing"
       className="no-border h-full"
-      itemJsonView={false}
+      itemJsonView={true}
       defaultTab="bot-info"
     >
       <ItemView.TabItem name="bot-info" label="Bot Info">
@@ -155,6 +157,12 @@ export default function BotManager() {
           metaSource="trade-bot:bot-listing"
           className="no-border h-full"
         />
+      </PageModule>
+      <PageModule slotName="sidebar">
+        <BlockListView resourceName="trade-manager:block-listing" />
+      </PageModule>
+      <PageModule slotName="sidebar">
+        <StockListView resourceName="trade-manager:asset-summary" />
       </PageModule>
       <PageModule slotName="main" className="h-full">
         <DataTable

@@ -34,6 +34,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1",
+    "react-syntax-highlighter": "^15.6.1",
     "rjs-admin": "0.1.0",
     "rjs-frame": "0.1.0",
     "tailwind-merge": "^1.14.0"

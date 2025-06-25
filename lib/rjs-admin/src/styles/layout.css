@@ -26,3 +26,7 @@
 .rjs-layout-body {
   min-height: calc(100vh - 110px);
 }
+
+.rjs-panel-footer {
+  @apply flex items-center justify-between px-4;
+}
