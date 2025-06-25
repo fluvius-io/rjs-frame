@@ -16,6 +16,7 @@ import {
   PortfolioCard,
   BotDefinitionDetailView,
   BotInstanceDetailView,
+  BlockListView,
 } from "../components";
 
 const BotItemView = () => {
@@ -36,7 +37,7 @@ const BotItemView = () => {
         itemId={itemId}
         resourceName="trade-bot:bot-listing"
         className="no-border h-full"
-        itemJsonView={false}
+        itemJsonView={true}
         defaultTab="bot-info"
       >
         <ItemView.TabItem name="bot-info" label="Bot Info">
@@ -62,10 +63,11 @@ export default function BotManager() {
 
       <PageModule slotName="sidebar">
         <PortfolioCard />
-        <QueryBuilderPanel
-          fields={["bot_name", "status"]}
-          metaSource="trade-bot:bot-listing"
-          className="no-border h-full"
+        <BlockListView
+          resourceName="trade-manager:block-listing"
+        />
+        <BlockListView
+          resourceName="trade-manager:block-listing"
         />
       </PageModule>
 

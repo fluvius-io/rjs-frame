@@ -2,7 +2,7 @@ import { TextSearch } from "lucide-react";
 
 export const PortfolioCard = () => {
     return (
-      <div className="rjs-panel">
+      <div className="rjs-panel pb-4">
         <div className="rjs-panel-header">
         <div className="flex gap-2 w-full items-center">
             <TextSearch className="w-5 h-5 cursor-pointer" />

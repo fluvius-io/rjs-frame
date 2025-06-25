@@ -118,8 +118,10 @@ export const BotDefinitionDetailView = () => {
                   <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">{algo.risk_level}</span>
                 </div>
                 <div className="text-xs text-muted-foreground mb-1">{algo.description}</div>
-                <div className="text-xs font-mono bg-white rounded p-2 overflow-x-auto border mt-1">
-                  <pre className="whitespace-pre-wrap">{algo.source_code}</pre>
+                <div className="text-xs font-mono bg-slate-950 rounded p-2 overflow-x-auto border mt-1">
+                  <pre className="whitespace-pre-wrap text-slate-50">
+                    <code className="language-python">{algo.source_code}</code>
+                  </pre>
                 </div>
               </div>
             ))}
