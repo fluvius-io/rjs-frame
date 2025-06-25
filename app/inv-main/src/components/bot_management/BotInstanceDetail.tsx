@@ -39,7 +39,7 @@ export const BotInstanceDetailView = () => {
   ];
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2 border-b pb-2 mb-2">
         <span className="font-semibold text-lg">{botInstance.bot_name || botInstance.name}</span>

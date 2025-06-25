@@ -36,8 +36,10 @@ const BotItemView = () => {
         itemId={itemId}
         resourceName="trade-bot:bot-listing"
         className="no-border h-full"
+        itemJsonView={false}
+        defaultTab="bot-info"
       >
-        <ItemView.TabItem name="hello" label="Bot Info">
+        <ItemView.TabItem name="bot-info" label="Bot Info">
           {status == 'INACTIVE' ? <BotDefinitionDetailView/> : <BotInstanceDetailView/>}
         </ItemView.TabItem>      
       </ItemView>
@@ -73,7 +75,7 @@ export default function BotManager() {
           className="no-border h-full"
           showHeaderTitle={false}
           queryState={{
-            select: ["bot_name", "started_date", "profit", "profit_value", "applied_blocks", "status"],
+            select: ["name", "started_date", "profit", "profit_value", "applied_blocks", "status"],
           }}
           onActivate={(id, row) => {
             updatePageParams({ 
