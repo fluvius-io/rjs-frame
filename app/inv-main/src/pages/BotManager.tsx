@@ -17,6 +17,7 @@ import {
   BotDefinitionDetailView,
   BotInstanceDetailView,
   BlockListView,
+  StockListView,
 } from "../components";
 
 const BotItemView = () => {
@@ -66,8 +67,8 @@ export default function BotManager() {
         <BlockListView
           resourceName="trade-manager:block-listing"
         />
-        <BlockListView
-          resourceName="trade-manager:block-listing"
+        <StockListView
+          resourceName="trade-manager:asset-summary"
         />
       </PageModule>
 
