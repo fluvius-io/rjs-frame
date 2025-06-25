@@ -80,7 +80,10 @@ export interface DataTableContextValue {
   TableFilterComponent: React.ComponentType<TableFilterProps>;
   TableHeaderComponent: React.ComponentType<TableHeaderProps>;
   TableRowComponent: React.ComponentType<TableRowProps>;
-  customFormatters?: Record<string, (value: any) => string>;
+  rowActions: TableActionProps[];
+  batchActions: TableActionProps[];
+  tableActions: TableActionProps[];
+  customFormatters?: Record<string, (value: any) => React.ReactNode>;
 }
 
 // Props for DataTable component
@@ -100,7 +103,7 @@ export interface DataTableProps {
   // Pagination
   pagination?: PaginationState;
   onPaginationChange?: (pagination: PaginationState) => void;
-  customFormatters?: Record<string, (value: any) => string>;
+  customFormatters?: Record<string, (value: any) => React.ReactNode>;
 
   // Debug
   debug?: boolean;
@@ -119,8 +122,9 @@ export interface DataTableProps {
   className?: string;
 
   // Actions
-  actions?: React.ReactNode;
-  batchActions?: React.ReactNode;
+  rowActions?: TableActionProps[];
+  batchActions?: TableActionProps[];
+  tableActions?: TableActionProps[];
 
   // Title and description
   title?: string;
@@ -130,7 +134,6 @@ export interface DataTableProps {
 // Props for sub-components
 export interface TableControlProps {
   className?: string;
-  actions?: React.ReactNode;
 }
 
 export interface TableViewProps {
@@ -162,13 +165,13 @@ export interface TableRowProps {
   onSelect?: (id: string, selected: boolean, row: DataRow) => void;
   onActivate?: (id: string, row: DataRow) => void;
   className?: string;
-  rowActions?: TableRowActionProps[];
 }
 
-export interface TableRowActionProps {
-  label: string;
-  icon: React.ReactNode;
-  onClick: () => void;
+export interface TableActionProps {
+  label: string | ((dataTarget: any) => string);
+  icon: React.ReactNode | ((dataTarget: any) => React.ReactNode);
+  onClick: (e: React.MouseEvent<HTMLButtonElement>, dataTarget: any) => void;
+  className?: string;
 }
 
 export interface PaginationProps {

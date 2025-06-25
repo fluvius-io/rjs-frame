@@ -217,7 +217,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({
       ))}
 
       {/* Column manager column */}
-      <td className="dt-filter-cell w-10">
+      <td className="dt-filter-cell text-center">
         {(hasActiveFilters && (
           <button
             onClick={clearAllFilters}

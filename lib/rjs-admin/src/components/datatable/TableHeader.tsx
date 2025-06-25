@@ -233,7 +233,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       })}
 
       {/* Column manager column */}
-      <th className="dt-th w-10">
+      <th className="dt-th">
         <div className="flex justify-center">
           <DropdownMenu.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <DropdownMenu.Trigger asChild>

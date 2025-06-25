@@ -3,13 +3,12 @@ import React, { useState } from "react";
 import { updatePageParams, usePageContext } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import { TableControlProps } from "../../types/datatable";
+import { renderActions } from "./DataTable";
 import { useDataTable } from "./DataTableContext";
 
-export const TableControl: React.FC<TableControlProps> = ({
-  className,
-  actions,
-}) => {
+export const TableControl: React.FC<TableControlProps> = ({ className }) => {
   const {
+    data,
     metadata,
     queryState,
     onQueryStateChange,
@@ -17,6 +16,7 @@ export const TableControl: React.FC<TableControlProps> = ({
     showHeaderTitle,
     controlTitle,
     controlDescription,
+    tableActions,
   } = useDataTable();
   const pageContext = usePageContext();
   const [showSidebar, setShowSidebar] = useState(
@@ -106,7 +106,7 @@ export const TableControl: React.FC<TableControlProps> = ({
               )}
               <div className="flex flex-col gap-0 -mt-1">
                 <h2 className="dt-control-title">{camelCaseToWords(title)}</h2>
-                <div className="text-sm text-gray-500 text-nowrap text-ellipsis overflow-hidden">
+                <div className="-mt-1 text-sm text-gray-500 text-nowrap text-ellipsis overflow-hidden">
                   {description}
                 </div>
               </div>
@@ -126,10 +126,12 @@ export const TableControl: React.FC<TableControlProps> = ({
             <Filter className="h-4 w-4" />
             <span>Filters</span>
           </button>
+          {tableActions && tableActions.length > 0 && (
+            <div className="border-l-2 border-gray-300 pl-2 dt-user-actions">
+              {renderActions(tableActions, data)}
+            </div>
+          )}
         </div>
-        {actions && (
-          <div className="dt-control-actions justify-end">{actions}</div>
-        )}
       </div>
     </div>
   );

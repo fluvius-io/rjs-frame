@@ -9,6 +9,7 @@ import {
   DataTableSelectionState,
   LoadingState,
   PaginationState,
+  TableActionProps,
 } from "../../types/datatable";
 import { QueryMetadata, QueryState, SortItem } from "../../types/querybuilder";
 import { QueryBuilderModal } from "../querybuilder/QueryBuilderModal";
@@ -20,6 +21,43 @@ import { TableHeader } from "./TableHeader";
 import { TableRow } from "./TableRow";
 import { TableView } from "./TableView";
 
+export function renderActions(
+  actions: TableActionProps[],
+  data: any,
+  showLabel: boolean = true,
+  forceUpdate: any = null
+) {
+  return actions.map((action) => {
+    const label =
+      typeof action.label === "function" ? action.label(data) : action.label;
+    if (!label) {
+      return null;
+    }
+    const icon =
+      typeof action.icon === "function" ? action.icon(data) : action.icon;
+
+    const className =
+      action.className ||
+      "text-gray-400 hover:border border border-transparent hover:border-gray-600 rounded-md hover:text-gray-600 text-xs p-1 cursor-pointer flex items-center gap-2";
+    return (
+      <button
+        className={cn(className)}
+        key={label}
+        title={label}
+        onClick={(e) => {
+          e.stopPropagation();
+          action.onClick(e, data);
+          if (forceUpdate) {
+            forceUpdate();
+          }
+        }}
+      >
+        {icon}
+        {(showLabel && label) || null}
+      </button>
+    );
+  });
+}
 // Debounce hook helper
 function useDebouncedCallback<T extends (...args: any[]) => void>(
   callback: T,
@@ -68,8 +106,9 @@ export const DataTable: React.FC<DataTableProps> = ({
   className,
   debug = false,
   debounceDelay = 0,
-  actions,
-  batchActions,
+  rowActions = [],
+  batchActions = [],
+  tableActions = [],
   onActivate,
   title,
   description,
@@ -277,6 +316,9 @@ export const DataTable: React.FC<DataTableProps> = ({
     controlTitle: title,
     controlDescription: description,
     customFormatters: customFormatters,
+    rowActions,
+    batchActions,
+    tableActions,
   };
 
   const renderSelectionBanner = () => {
@@ -290,7 +332,7 @@ export const DataTable: React.FC<DataTableProps> = ({
           color: "var(--rjs-warning-foreground)",
         }}
       >
-        <span className="flex items-center border-b-1 text-sm gap-1 p-3">
+        <div className="flex items-center border-b-1 text-sm gap-1 p-3">
           {selectedItems.length.toLocaleString()} entries selected
           <button
             type="button"
@@ -299,8 +341,10 @@ export const DataTable: React.FC<DataTableProps> = ({
           >
             <Trash2 className="h-3 w-3 text-red-500" />
           </button>
-        </span>
-        {batchActions}
+        </div>
+        <div className="flex items-center text-sm gap-2 p-3">
+          {renderActions(batchActions, selectedItems)}
+        </div>
       </div>
     );
   };
@@ -308,7 +352,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   return (
     <DataTableContext.Provider value={contextValue}>
       <div className={cn("dt-container", className)}>
-        <TableControlComponent actions={actions} />
+        <TableControlComponent />
 
         <TableView />
         {renderSelectionBanner()}

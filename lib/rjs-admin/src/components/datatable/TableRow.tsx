@@ -1,9 +1,10 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { format, parseISO } from "date-fns";
-import React from "react";
+import React, { useState } from "react";
 import { useAppContext } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import { TableRowProps } from "../../types/datatable";
+import { renderActions } from "./DataTable";
 import { useDataTable } from "./DataTableContext";
 
 const EMPTY_VALUE = "-";
@@ -17,39 +18,38 @@ export const TableRow: React.FC<TableRowProps> = ({
   selected,
   idValue,
   isActive,
-  rowActions = [],
   fieldMap,
 }) => {
-  const { customFormatters } = useDataTable();
+  const { customFormatters, rowActions } = useDataTable();
   const { config } = useAppContext();
+  const [forceUpdateCounter, setForceUpdate] = useState(0);
   const dateFormat = config?.get("sys.format.date") || "yyyy-MM-dd";
   const datetimeFormat =
     config?.get("sys.format.datetime") || "yyyy-MM-dd HH:mm";
 
-  // Format cell value for display
-  const formatCellValue = (value: any, columnKey: string): string => {
-    const formatter = customFormatters?.[columnKey];
-    if (formatter) {
-      return formatter(value);
-    }
+  const forceUpdate = () => {
+    setForceUpdate(forceUpdateCounter + 1);
+  };
 
+  // Format cell value for display
+  const stringValue = (value: any, dtype: string = "string"): string => {
     if (value === null || value === undefined) {
       return EMPTY_VALUE;
     }
 
-    const field = fieldMap[columnKey];
-
-    if (!field) {
-      return String(value);
-    }
-
-    const dtype = field.dtype;
-
     switch (dtype) {
       case "boolean":
-        return value ? "Yes" : "No";
+        return value ? "Y" : "N";
+
+      case "float":
+      case "integer":
       case "number":
+        if (value === 0) {
+          return "-";
+        }
+
         return value.toLocaleString();
+
       case "date":
         try {
           const date =
@@ -61,19 +61,58 @@ export const TableRow: React.FC<TableRowProps> = ({
         }
       case "datetime":
         try {
-          const date =
+          const datetime =
             typeof value === "string" ? parseISO(value) : new Date(value);
-          return format(date, datetimeFormat);
+          return format(datetime, datetimeFormat);
         } catch (error) {
           console.warn(`Failed to format datetime value: ${value}`, error);
           return String(value);
         }
+      case "enum":
+        return value;
+      case "string":
+        return value;
+      case "json":
+        return JSON.stringify(value);
+      case "array":
+        return value.join(", ");
       default:
         console.warn(`Unknown dtype: ${dtype}`);
         return String(value);
     }
   };
 
+  const formatCellValue = (
+    value: any,
+    columnKey: string,
+    truncate: boolean = true
+  ): React.ReactNode => {
+    const formatter = customFormatters?.[columnKey];
+    if (formatter) {
+      return formatter(value);
+    }
+
+    const field = fieldMap[columnKey];
+    let strValue = String(value);
+    if (!field) {
+      return strValue;
+    }
+    strValue = stringValue(value, field.dtype);
+    if (truncate) {
+      strValue = truncateText(strValue);
+    }
+
+    switch (field.dtype) {
+      case "enum":
+        return (
+          <span className="text-gray-500 text-xs bg-gray-100 p-1 border border-gray-300 rounded">
+            {strValue}
+          </span>
+        );
+      default:
+        return strValue;
+    }
+  };
   // Truncate long text with ellipsis
   const truncateText = (text: string, maxLength: number = 100): string => {
     if (text.length <= maxLength) {
@@ -117,29 +156,19 @@ export const TableRow: React.FC<TableRowProps> = ({
       )}
       {columns.map((column) => {
         const cellValue = row[column.key];
-        const formattedValue = formatCellValue(cellValue, column.key);
-        const displayValue = truncateText(formattedValue);
+        const cellNode = formatCellValue(cellValue, column.key);
+        const cellTitle = cellNode == cellValue ? undefined : cellValue;
 
         return (
-          <td
-            key={column.key}
-            className="dt-td"
-            title={formattedValue !== displayValue ? formattedValue : undefined}
-          >
-            {displayValue}
+          <td key={column.key} className="dt-td" title={cellTitle}>
+            {cellNode}
           </td>
         );
       })}
-      <td className="dt-td w-10">
-        {rowActions.map((action) => (
-          <button
-            key={action.label}
-            onClick={action.onClick}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            {action.icon}
-          </button>
-        ))}
+      <td className="dt-td px-1">
+        <div className="flex gap-0 justify-between w-full">
+          {renderActions(rowActions, row, false, forceUpdate)}
+        </div>
       </td>
     </tr>
   );

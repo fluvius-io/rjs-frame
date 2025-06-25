@@ -151,7 +151,7 @@ export const QBFieldSelector: React.FC<QBFieldSelectorProps> = ({
         )}
         {/* Unselected fields */}
         {showSeparator && (
-          <div className="ml-4 mr-4 border-r-2 border-gray-300"></div>
+          <div className="border-t-2 my-2 w-full border-gray-200 border-dashed"></div>
         )}
         {unSelectedFields.map((field) => {
           const isSelected = false;
