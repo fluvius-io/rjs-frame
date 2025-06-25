@@ -1,10 +1,5 @@
 import { CopyIcon, FilePlus, PauseIcon, PlayIcon } from "lucide-react";
-import {
-  DataTable,
-  ItemView,
-  QueryBuilderPanel,
-  ThreeColumnLayout,
-} from "rjs-admin";
+import { DataTable, ItemView, ThreeColumnLayout } from "rjs-admin";
 import {
   PageModule,
   updatePageParams,
@@ -66,29 +61,8 @@ export default function BotManager() {
         );
       },
     },
-    {
-      label: "Duplicate",
-      className: "dt-query-builder-trigger button-primary text-nowrap",
-      icon: <CopyIcon className="w-4 h-4" />,
-      onClick: (e: React.MouseEvent<HTMLButtonElement>, data: any) => {
-        console.log(
-          "Simulate API call to duplicate bot ... no action performed.",
-          data
-        );
-      },
-    },
   ];
   const rowActions = [
-    {
-      label: "Duplicate",
-      icon: <CopyIcon className="w-4 h-4" />,
-      onClick: (e: React.MouseEvent<HTMLButtonElement>, row: any) => {
-        console.log(
-          "Simulate API call to duplicate bot ... no action performed.",
-          e
-        );
-      },
-    },
     {
       label: (row: any) => (row.status == "INACTIVE" ? "Start" : "Stop"),
       icon: (row: any) =>
@@ -151,13 +125,6 @@ export default function BotManager() {
         <PortfolioCard />
       </PageModule>
 
-      <PageModule slotName="sidebar">
-        <QueryBuilderPanel
-          fields={["bot_name", "status"]}
-          metaSource="trade-bot:bot-listing"
-          className="no-border h-full"
-        />
-      </PageModule>
       <PageModule slotName="sidebar">
         <BlockListView resourceName="trade-manager:block-listing" />
       </PageModule>

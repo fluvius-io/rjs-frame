@@ -166,7 +166,7 @@ export const TableRow: React.FC<TableRowProps> = ({
         );
       })}
       <td className="dt-td px-1">
-        <div className="flex gap-0 justify-between w-full">
+        <div className="flex gap-0 justify-between items-center w-full">
           {renderActions(rowActions, row, false, forceUpdate)}
         </div>
       </td>

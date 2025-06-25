@@ -111,7 +111,7 @@ const NavigationItem: React.FC<{
       </button>
 
       {/* CSS-controlled dropdown */}
-      <div className="header-nav__dropdown-content absolute top-full left-0 mt-1">
+      <div className="header-nav__dropdown-content absolute top-full left-0 mt-1 bg-background-90">
         <div
           className="header-nav__dropdown-item"
           onClick={() => handleNavigation(item.href)}
@@ -233,14 +233,14 @@ export class Header extends PageModule {
             <Button
               variant="outline"
               size="icon"
-              className="header-actions__button"
+              className="header-actions__button bg-background-90"
             >
               <Bell className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="header-actions__button"
+              className="header-actions__button bg-background-90"
             >
               <Search className="h-4 w-4" />
             </Button>

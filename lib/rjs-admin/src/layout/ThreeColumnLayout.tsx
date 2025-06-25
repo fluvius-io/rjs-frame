@@ -23,7 +23,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
 
     return (
       <div className={cn("min-h-screen bg-background", className)}>
-        <header className="w-full border-b bg-background/95 invert relative z-50">
+        <header className="w-full border-b bg-background-90 invert relative z-50">
           <PageSlot name="header" className="mx-auto px-4 py-2" />
         </header>
 

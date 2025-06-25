@@ -86,4 +86,8 @@
   .bg-overlay {
     background-color: hsl(var(--overlay-bg));
   }
+
+  .bg-background-90 {
+    background-color: hsl(0, 0%, 90%);
+  }
 }
