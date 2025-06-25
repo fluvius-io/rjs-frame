@@ -1,6 +1,8 @@
 import { useItemView } from "rjs-admin";
 import { APIManager } from "rjs-frame";
 import { useEffect, useState } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export const BotDefinitionDetailView = () => {
   const { item } = useItemView();
@@ -118,10 +120,10 @@ export const BotDefinitionDetailView = () => {
                   <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">{algo.risk_level}</span>
                 </div>
                 <div className="text-xs text-muted-foreground mb-1">{algo.description}</div>
-                <div className="text-xs font-mono bg-slate-950 rounded p-2 overflow-x-auto border mt-1">
-                  <pre className="whitespace-pre-wrap text-slate-50">
-                    <code className="language-python">{algo.source_code}</code>
-                  </pre>
+                <div className="text-xs text-muted-foreground mb-1">
+                  <SyntaxHighlighter language="python" style={tomorrow}>
+                    {algo.source_code}
+                  </SyntaxHighlighter>
                 </div>
               </div>
             ))}

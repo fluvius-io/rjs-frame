@@ -1,5 +1,5 @@
 export { AlgorithmCard } from "./AlgorithmCard";
-export { PortfolioCard } from "./PortfolioCard";
+export { PortfolioCard } from "./bot_management/PortfolioCard";
 export { Footer } from "./Footer";
 export { Header } from "./Header";
 export { BotDefinitionDetailView } from "./bot_management/BotDefinitionDetail";
