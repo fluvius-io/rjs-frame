@@ -60,20 +60,20 @@ export const StockListView: React.FC<StockListViewProps> = ({ resourceName, prof
           <thead>
             <tr className="text-gray-700">
               <th className="font-medium text-left px-1 py-1">
-                <div>Code</div>
-                <div>%</div>
+                <div className="text-left">Code</div>
+                <div className="text-left">%</div>
               </th>
               <th className="font-medium px-1 py-1">
-                <div>Volumne</div>
-                <div>Available</div>
+                <div className="text-left">Volume</div>
+                <div className="text-left">Available</div>
               </th>
               <th className="font-medium px-1 py-1">
-                <div>AP</div>
-                <div>MP</div>
+                <div className="text-left">AP</div>
+                <div className="text-left">MP</div>
               </th>
               <th className="font-medium px-1 py-1">
-                <div>P/L</div>
-                <div>%</div>
+                <div className="text-left">P/L</div>
+                <div className="text-left">%</div>
               </th>
             </tr>
           </thead>
@@ -82,20 +82,20 @@ export const StockListView: React.FC<StockListViewProps> = ({ resourceName, prof
               <React.Fragment key={stock.id + idx}>
                 <tr className="border-b border-gray-200 text-gray-400 font-semibold text-xs">
                   <td className="px-1 py-1">
-                    <div>{stock.symbol}</div>
-                    <div>{stock.proportion}</div>
+                    <div className="text-left">{stock.symbol}</div>
+                    <div className="text-left">{stock.proportion}</div>
                   </td>
                   <td className="px-1 py-1">
-                    <div>{stock.volume}</div>
-                    <div>{stock.available}</div>
+                    <div className="text-left">{stock.volume}</div>
+                    <div className="text-left">{stock.available}</div>
                   </td>
                   <td className="px-1 py-1">
-                    <div>{stock.ap}</div>
-                    <div>{stock.mp}</div>
+                    <div className="text-left">{stock.ap}</div>
+                    <div className="text-left">{stock.mp}</div>
                   </td>
                   <td className="px-1 py-1">
-                    <div className={`${profitColor(stock.profit)}`}>{stock.profit}</div>
-                    <div className={`${profitColor(stock.profit_percent)}`}>
+                    <div className={`text-left ${profitColor(stock.profit)}`}>{stock.profit}</div>
+                    <div className={`text-left ${profitColor(stock.profit_percent)}`}>
                       {stock.profit_percent > 1 ? stock.profit_percent + "%" : stock.profit_percent}
                     </div>
                   </td>

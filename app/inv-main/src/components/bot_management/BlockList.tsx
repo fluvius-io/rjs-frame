@@ -72,18 +72,21 @@ export const BlockListView: React.FC<BlockListViewProps> = ({ resourceName, prof
           <thead>
             <tr className="text-gray-700">
               <th className="font-medium text-left px-1 py-1">
-                <div>Code</div>
-                <div>Name</div>
+                <div className="text-left">Code</div>
+                <div className="text-left">Name</div>
               </th>
               <th className="font-medium px-1 py-1">
-                <div>AV</div>
-                <div>MV</div>
+                <div className="text-left">AV</div>
+                <div className="text-left">MV</div>
               </th>
               <th className="font-medium px-1 py-1">
-                <div>P/L</div>
-                <div>%</div>
+                <div className="text-left">P/L</div>
+                <div className="text-left">%</div>
               </th>
-              <th className="font-medium px-1 py-1">Status</th>
+              <th className="font-medium px-1 py-1">
+                <div className="text-center">Status</div>
+                <div className="text-center">&nbsp;</div>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -91,16 +94,16 @@ export const BlockListView: React.FC<BlockListViewProps> = ({ resourceName, prof
               <React.Fragment key={block.id + idx}>
                 <tr className="border-b border-gray-200 text-gray-400 font-semibold text-xs">
                   <td className="px-1 py-1">
-                    <div>{block.symbol}</div>
-                    <div>{block.name}</div>
+                    <div className="text-left">{block.symbol}</div>
+                    <div className="text-left">{block.name}</div>
                   </td>
                   <td className="px-1 py-1">
-                    <div>{block.av}</div>
-                    <div>{block.mv}</div>
+                    <div className="text-left">{block.av}</div>
+                    <div className="text-left">{block.mv}</div>
                   </td>
                   <td className="px-1 py-1">
-                    <div className={`${profitColor(block.profit)}`}>{block.profit}</div>
-                    <div className={`${profitColor(block.profit_percent)}`}>
+                    <div className={`text-left ${profitColor(block.profit)}`}>{block.profit}</div>
+                    <div className={`text-left ${profitColor(block.profit_percent)}`}>
                       {block.profit_percent > 1 ? block.profit_percent + "%" : block.profit_percent}
                     </div>
                   </td>
