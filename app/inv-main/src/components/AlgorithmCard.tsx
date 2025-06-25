@@ -107,7 +107,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
             <div className="flex items-center gap-1">
               <Code className="w-3 h-3" />
               <span className="font-mono truncate max-w-24">
-                {algorithm.id.slice(0, 8)}...
+                {algorithm.id?.slice(0, 8)}...
               </span>
             </div>
           </div>
@@ -165,7 +165,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
             <div className="flex items-center gap-1">
               <span className="text-xs font-medium text-gray-700">Config:</span>
               <span className="text-xs text-gray-600 font-mono">
-                [{algorithm.configuration.join(", ")}]
+                [{algorithm.configuration?.join(", ")}]
               </span>
             </div>
           )}
@@ -184,7 +184,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
               <div className="flex items-center gap-1">
                 <User className="w-3 h-3" />
                 <span className="font-mono">
-                  {algorithm.creator.slice(0, 8)}...
+                  {algorithm.creator?.slice(0, 8)}...
                 </span>
               </div>
             </div>

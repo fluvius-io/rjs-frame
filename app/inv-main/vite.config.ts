@@ -36,6 +36,9 @@ export default defineConfig({
         target: process.env.VITE_API_URL,
         changeOrigin: true,
         secure: true,
+        headers: {
+          Host: "app.invest-mate.net",
+        },
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

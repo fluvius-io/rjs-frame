@@ -87,6 +87,10 @@ export class PageModule<
   }
 
   renderContent() {
+    return this.props.children;
+  }
+
+  renderContext() {
     if (
       !matchPageParams(this.props.condition, `PageModule[${this.moduleName}]`)
     ) {
@@ -123,7 +127,7 @@ export class PageModule<
 
           return (
             <div className={cn("page-module", this.props.className)}>
-              {this.props.children}
+              {this.renderContent()}
             </div>
           );
         }}
@@ -134,7 +138,7 @@ export class PageModule<
   render(): React.ReactNode {
     return (
       <RjsAppErrorBoundary errorModule={this.moduleName}>
-        {this.renderContent()}
+        {this.renderContext()}
       </RjsAppErrorBoundary>
     );
   }

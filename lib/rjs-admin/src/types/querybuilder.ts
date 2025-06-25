@@ -32,6 +32,7 @@ export interface QueryFieldMetadata {
   noop: string; // default query operation
   hidden: boolean;
   sortable: boolean;
+  dtype: string;
 }
 
 // Filter metadata structure

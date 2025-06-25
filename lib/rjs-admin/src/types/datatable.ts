@@ -4,7 +4,7 @@
  */
 
 import { ApiResponse } from "../../../rjs-frame/src/api/types";
-import { QueryMetadata, QueryState } from "./querybuilder";
+import { QueryFieldMetadata, QueryMetadata, QueryState } from "./querybuilder";
 
 // Data row type - flexible record structure
 export interface DataRow {
@@ -57,6 +57,32 @@ export interface ColumnConfig {
   minWidth?: number;
 }
 export type DataTableSource = string; // endpoint for data fetching or function
+
+export interface DataTableContextValue {
+  controlDescription?: string;
+  controlTitle?: string;
+  data: DataRow[];
+  debug?: boolean;
+  fetchData: () => Promise<void>;
+  fetchMetadata: () => Promise<void>;
+  loading: LoadingState;
+  metadata: QueryMetadata | null;
+  onActivate: (id: string, row: DataRow) => void;
+  onQueryStateChange: (state: Partial<DataTableQueryState>) => void;
+  onSelectionStateChange: (state: Partial<DataTableSelectionState>) => void;
+  onShowHeaderFiltersChange: (show: boolean) => void;
+  openQueryBuilder: (open: boolean) => void;
+  pagination: PaginationState;
+  queryState: DataTableQueryState;
+  selectionState: DataTableSelectionState;
+  showHeaderFilters: boolean;
+  showHeaderTitle: boolean;
+  TableFilterComponent: React.ComponentType<TableFilterProps>;
+  TableHeaderComponent: React.ComponentType<TableHeaderProps>;
+  TableRowComponent: React.ComponentType<TableRowProps>;
+  customFormatters?: Record<string, (value: any) => string>;
+}
+
 // Props for DataTable component
 export interface DataTableProps {
   // Data and metadata
@@ -74,6 +100,7 @@ export interface DataTableProps {
   // Pagination
   pagination?: PaginationState;
   onPaginationChange?: (pagination: PaginationState) => void;
+  customFormatters?: Record<string, (value: any) => string>;
 
   // Debug
   debug?: boolean;
@@ -127,6 +154,7 @@ export interface TableFilterProps {
 export interface TableRowProps {
   row: DataRow;
   columns: ColumnConfig[];
+  fieldMap: Record<string, QueryFieldMetadata>;
   rowIndex: number;
   idValue?: string;
   selected?: boolean;

@@ -150,6 +150,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       noop: "eq",
       hidden: true,
       sortable: true,
+      dtype: "uuid",
     },
     {
       label: "Given Name",
@@ -158,6 +159,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       noop: "eq",
       hidden: false,
       sortable: true,
+      dtype: "string",
     },
     {
       label: "Family Name",
@@ -166,6 +168,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       noop: "eq",
       hidden: false,
       sortable: true,
+      dtype: "string",
     },
     {
       label: "Email Address",
@@ -174,6 +177,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       noop: "ilike",
       hidden: false,
       sortable: true,
+      dtype: "string",
     },
     {
       label: "Status",
@@ -182,6 +186,16 @@ const EXAMPLE_METADATA: QueryMetadata = {
       noop: "eq",
       hidden: false,
       sortable: true,
+      dtype: "string",
+    },
+    {
+      label: "Created Date",
+      name: "created_date",
+      desc: null,
+      noop: "gte",
+      hidden: false,
+      sortable: true,
+      dtype: "date",
     },
     {
       label: "Created At",
@@ -190,6 +204,7 @@ const EXAMPLE_METADATA: QueryMetadata = {
       noop: "gte",
       hidden: false,
       sortable: true,
+      dtype: "datetime",
     },
   ],
   filters: {
@@ -293,6 +308,22 @@ const EXAMPLE_METADATA: QueryMetadata = {
         ],
       },
     },
+    "created_date.gte": {
+      field: "created_date",
+      label: "After Date",
+      dtype: "date",
+      input: {
+        type: "date",
+      },
+    },
+    "created_date.lte": {
+      field: "created_date",
+      label: "Before Date",
+      dtype: "date",
+      input: {
+        type: "date",
+      },
+    },
     "created_at.gte": {
       field: "created_at",
       label: "After Date",
@@ -329,6 +360,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Doe",
     email: "john.doe@example.com",
     status: "active",
+    created_date: "2024-01-15",
     created_at: "2024-01-15T10:30:00Z",
   },
   {
@@ -337,6 +369,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Smith",
     email: "jane.smith@example.com",
     status: "active",
+    created_date: "2024-01-14",
     created_at: "2024-01-14T15:45:00Z",
   },
   {
@@ -345,6 +378,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Johnson",
     email: "bob.johnson@example.com",
     status: "inactive",
+    created_date: "2024-01-13",
     created_at: "2024-01-13T08:20:00Z",
   },
   {
@@ -353,6 +387,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Brown",
     email: "alice.brown@example.com",
     status: "pending",
+    created_date: "2024-01-12",
     created_at: "2024-01-12T14:15:00Z",
   },
   {
@@ -361,6 +396,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Wilson",
     email: "charlie.wilson@example.com",
     status: "suspended",
+    created_date: "2024-01-11",
     created_at: "2024-01-11T11:00:00Z",
   },
   {
@@ -369,6 +405,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Davis",
     email: "eva.davis@example.com",
     status: "active",
+    created_date: "2024-01-10",
     created_at: "2024-01-10T16:30:00Z",
   },
   {
@@ -377,6 +414,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Miller",
     email: "frank.miller@example.com",
     status: "active",
+    created_date: "2024-01-09",
     created_at: "2024-01-09T09:45:00Z",
   },
   {
@@ -385,6 +423,7 @@ const EXAMPLE_DATA: DataRow[] = [
     name__family: "Thompson",
     email: "grace.thompson@example.com",
     status: "inactive",
+    created_date: "2024-01-08",
     created_at: "2024-01-08T13:20:00Z",
   },
 ];

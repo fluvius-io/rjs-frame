@@ -2,7 +2,6 @@ import { AlertCircle, Loader2, Table } from "lucide-react";
 import React from "react";
 import { cn } from "../../lib/utils";
 import { ColumnConfig, TableViewProps } from "../../types/datatable";
-import { QueryFieldMetadata } from "../../types/querybuilder";
 import { useDataTable } from "./DataTableContext";
 
 const noData = (message: string, className: string = "", loading: boolean) => (
@@ -79,14 +78,11 @@ export const TableView: React.FC<TableViewProps> = ({
   // Local state to show/hide header filters
 
   // Normalize fields array
-  const fieldArray = React.useMemo<QueryFieldMetadata[]>(() => {
-    return metadata.fields as QueryFieldMetadata[];
-  }, [metadata.fields]);
 
   // Create map for quick access to field metadata by name
   const fieldMap = React.useMemo(
-    () => Object.fromEntries(fieldArray.map((f) => [f.name, f])),
-    [fieldArray]
+    () => Object.fromEntries(metadata.fields.map((f) => [f.name, f])),
+    [metadata.fields]
   );
 
   const toggleRow = (id: string, checked: boolean) => {
@@ -132,12 +128,12 @@ export const TableView: React.FC<TableViewProps> = ({
   const getColumns = (): ColumnConfig[] => {
     const selectedFields =
       queryState.select ||
-      fieldArray.filter((f) => !f.hidden).map((f) => f.name);
+      metadata.fields.filter((f) => !f.hidden).map((f) => f.name);
 
     return selectedFields
       .filter((fieldKey) => !!fieldMap[fieldKey])
       .map<ColumnConfig>((fieldKey) => {
-        const field = fieldMap[fieldKey] as QueryFieldMetadata;
+        const field = fieldMap[fieldKey];
         return {
           key: fieldKey,
           label: field.label,
@@ -191,6 +187,7 @@ export const TableView: React.FC<TableViewProps> = ({
               key={index}
               row={row}
               columns={columns}
+              fieldMap={fieldMap}
               rowIndex={index}
               selected={
                 selectionEnabled &&

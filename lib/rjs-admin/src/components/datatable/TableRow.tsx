@@ -1,8 +1,12 @@
 import * as Checkbox from "@radix-ui/react-checkbox";
+import { format, parseISO } from "date-fns";
 import React from "react";
+import { useAppContext } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import { TableRowProps } from "../../types/datatable";
+import { useDataTable } from "./DataTableContext";
 
+const EMPTY_VALUE = "-";
 export const TableRow: React.FC<TableRowProps> = ({
   row,
   columns,
@@ -14,51 +18,60 @@ export const TableRow: React.FC<TableRowProps> = ({
   idValue,
   isActive,
   rowActions = [],
+  fieldMap,
 }) => {
+  const { customFormatters } = useDataTable();
+  const { config } = useAppContext();
+  const dateFormat = config?.get("sys.format.date") || "yyyy-MM-dd";
+  const datetimeFormat =
+    config?.get("sys.format.datetime") || "yyyy-MM-dd HH:mm";
+
   // Format cell value for display
   const formatCellValue = (value: any, columnKey: string): string => {
+    const formatter = customFormatters?.[columnKey];
+    if (formatter) {
+      return formatter(value);
+    }
+
     if (value === null || value === undefined) {
-      return "";
+      return EMPTY_VALUE;
     }
 
-    if (typeof value === "boolean") {
-      return value ? "Yes" : "No";
+    const field = fieldMap[columnKey];
+
+    if (!field) {
+      return String(value);
     }
 
-    if (typeof value === "object") {
-      // Handle arrays
-      if (Array.isArray(value)) {
-        return value.join(", ");
-      }
+    const dtype = field.dtype;
 
-      // Handle objects (try to display as JSON or extract meaningful value)
-      try {
-        return JSON.stringify(value);
-      } catch {
-        return "[Object]";
-      }
-    }
-
-    if (typeof value === "number") {
-      // Basic number formatting
-      return value.toLocaleString();
-    }
-
-    // Handle dates
-    if (typeof value === "string") {
-      // Try to detect ISO date strings
-      const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-      if (dateRegex.test(value)) {
+    switch (dtype) {
+      case "boolean":
+        return value ? "Yes" : "No";
+      case "number":
+        return value.toLocaleString();
+      case "date":
         try {
-          const date = new Date(value);
-          return date.toLocaleString();
-        } catch {
-          return value;
+          const date =
+            typeof value === "string" ? parseISO(value) : new Date(value);
+          return format(date, dateFormat);
+        } catch (error) {
+          console.warn(`Failed to format date value: ${value}`, error);
+          return String(value);
         }
-      }
+      case "datetime":
+        try {
+          const date =
+            typeof value === "string" ? parseISO(value) : new Date(value);
+          return format(date, datetimeFormat);
+        } catch (error) {
+          console.warn(`Failed to format datetime value: ${value}`, error);
+          return String(value);
+        }
+      default:
+        console.warn(`Unknown dtype: ${dtype}`);
+        return String(value);
     }
-
-    return String(value);
   };
 
   // Truncate long text with ellipsis

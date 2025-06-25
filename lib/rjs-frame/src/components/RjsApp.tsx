@@ -396,9 +396,15 @@ export function RjsApp({
   // 4. Children (normal app content)
 
   const loginRedirectUrl = () => {
-    const url =
-      appConfig.get<string>("auth.loginRedirect") || "/api/auth/login";
-    return url + "?next=" + encodeURIComponent(window.location.href);
+    let url = appConfig.get<string>("auth.loginRedirect") || "/api/auth/login";
+    url += "?next=" + encodeURIComponent(window.location.href);
+
+    const callbackUrl =
+      appConfig.get<string>("auth.callback") || "/api/auth/callback";
+
+    url += "&callback=" + encodeURIComponent(callbackUrl);
+
+    return url;
   };
 
   const renderContent = () => {

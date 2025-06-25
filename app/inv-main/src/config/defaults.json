@@ -3,5 +3,6 @@
   "app.name": "Invest Mate",
   "app.website": "https://invest-mate.net",
   "app.contact": "support@invest-mate.net",
-  "auth.context": "/api/auth/info"
+  "auth.context": "/api/auth/info",
+  "auth.callback": "http://localhost:5174/api/auth/callback"
 }
