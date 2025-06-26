@@ -1,5 +1,5 @@
-import { CopyIcon, FilePlus, PauseIcon, PlayIcon } from "lucide-react";
-import { DataTable, ItemView, ThreeColumnLayout } from "rjs-admin";
+import { BanIcon, CopyIcon, FilePlus, PauseIcon, PlayIcon } from "lucide-react";
+import { cn, DataTable, ItemView, ThreeColumnLayout } from "rjs-admin";
 import {
   PageModule,
   updatePageParams,
@@ -15,6 +15,34 @@ import {
   StockListView,
 } from "../components";
 
+const botStatusFormatter = (status: string) => {
+  const colorMap = {
+      DRAFT: "bg-purple-100 text-purple-800",
+      DEACTIVATED: "bg-gray-100 text-gray-800",
+      RUNNING: "bg-green-100 text-green-800",
+      INACTIVE: "bg-gray-100 text-gray-600",
+      PAUSED: "bg-red-100 text-red-800",
+    };
+ 
+  return (
+    <div className={cn(
+      "text-center text-xs font-medium border-gray-200 rounded-md p-1",
+      colorMap[status as keyof typeof colorMap] || "text-gray-400 bg-gray-100"
+    )}>
+      {status}
+    </div>
+  );
+};
+
+const botStatusTransition = (status: string) => {
+  const transitionMap = {
+    DRAFT: "RUNNING",
+    RUNNING: "PAUSED",
+    PAUSED: "RUNNING",
+    INACTIVE: "RUNNING",
+  };
+  return transitionMap[status as keyof typeof transitionMap] || "INACTIVE";
+};
 const BotItemView = () => {
   const pageContext = usePageContext();
 
@@ -65,14 +93,26 @@ export default function BotManager() {
   const rowActions = [
     {
       label: (row: any) => (row.status == "INACTIVE" ? "Start" : "Stop"),
-      icon: (row: any) =>
-        row.status == "INACTIVE" ? (
-          <PlayIcon className="w-4 h-4" />
-        ) : (
-          <PauseIcon className="w-4 h-4" />
-        ),
+      icon: (row: any) => {
+        switch (row.status) {
+          case "INACTIVE":
+            return <PlayIcon className="w-4 h-4 text-green-500" />;
+          case "RUNNING":
+            return <PauseIcon className="w-4 h-4 text-red-500" />;
+          case "PAUSED":
+            return <PlayIcon className="w-4 h-4 text-green-500" />;
+          case "DEACTIVATED":
+            return <BanIcon className="w-4 h-4" />;
+          default:
+            return <PlayIcon className="w-4 h-4 text-green-500" />;
+        }
+      },
       onClick: (e: React.MouseEvent<HTMLButtonElement>, row: any) => {
-        row.status = row.status == "INACTIVE" ? "ACTIVE" : "INACTIVE";
+        if (row.status == "DEACTIVATED") {
+          console.log("Do nothing on DEACTIVATED");
+        } else {
+          row.status = botStatusTransition(row.status);
+        }
         console.log(
           "Simulate API call to update bot status ... no action performed.",
           e
@@ -157,6 +197,9 @@ export default function BotManager() {
             });
           }}
           rowActions={rowActions}
+          customFormatters={{
+            status: (value: string) => botStatusFormatter(value),
+          }}
         />
       </PageModule>
 
