@@ -5,7 +5,7 @@ import { AlertCircle, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../lib/utils";
 import {
-  FilterInputConfig,
+  FieldInputConfig,
   FilterState,
   QueryMetadata,
 } from "../../types/querybuilder";
@@ -16,7 +16,7 @@ export interface QBFilterEditorProps {
   filters: FilterState[];
   metadata: QueryMetadata;
   onFiltersChange: (filters: FilterState[]) => void;
-  customInput?: Record<string, FilterInputConfig>;
+  customInput?: Record<string, FieldInputConfig>;
 }
 
 export const QBFilterEditor: React.FC<QBFilterEditorProps> = ({

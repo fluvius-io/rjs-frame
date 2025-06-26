@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { APIManager } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import {
-  FilterInputConfig,
+  FieldInputConfig,
   FilterState,
   QueryMetadata,
   QueryValue,
@@ -35,7 +35,7 @@ export interface QueryBuilderPanelProps {
   /**
    * Custom input configurations for specific operators
    */
-  customInput?: Record<string, FilterInputConfig>;
+  customInput?: Record<string, FieldInputConfig>;
   /**
    * Additional CSS classes
    */

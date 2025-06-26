@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useAppContext } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import { TableRowProps } from "../../types/datatable";
+import { EntityFormat } from "../entity";
 import { renderActions } from "./DataTable";
 import { useDataTable } from "./DataTableContext";
 
@@ -72,6 +73,8 @@ export const TableRow: React.FC<TableRowProps> = ({
         return value;
       case "string":
         return value;
+      case "uuid":
+        return value;
       case "json":
         return JSON.stringify(value);
       case "array":
@@ -102,13 +105,17 @@ export const TableRow: React.FC<TableRowProps> = ({
       strValue = truncateText(strValue);
     }
 
-    switch (field.dtype) {
+    console.log("field", field, field.ftype);
+    switch (field.ftype) {
       case "enum":
         return (
           <span className="text-gray-500 text-xs bg-gray-100 p-1 border border-gray-300 rounded">
             {strValue}
           </span>
         );
+      case "user-profile":
+        return EntityFormat.formatEntity("user-profile", value);
+
       default:
         return strValue;
     }

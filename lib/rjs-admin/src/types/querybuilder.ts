@@ -13,7 +13,7 @@ export type DataType =
   | "text";
 
 // Input configuration for filters
-export interface FilterInputConfig {
+export interface FieldInputConfig {
   type: "text" | "number" | "select" | "date" | "checkbox" | "textarea";
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
@@ -33,6 +33,8 @@ export interface QueryFieldMetadata {
   hidden: boolean;
   sortable: boolean;
   dtype: string;
+  ftype: string;
+  finput: FieldInputConfig;
 }
 
 // Filter metadata structure
@@ -40,7 +42,7 @@ export interface QueryFilterMetadata {
   field: string;
   label: string;
   dtype: DataType;
-  input: FilterInputConfig;
+  input: FieldInputConfig;
 }
 
 // Composite operator metadata
@@ -85,7 +87,7 @@ export interface FilterInputProps {
   metadata: QueryFilterMetadata;
   value: QueryValue;
   onChange: (value: QueryValue) => void;
-  customConfig?: FilterInputConfig;
+  customConfig?: FieldInputConfig;
   className?: string;
 }
 
@@ -94,7 +96,7 @@ export interface QueryBuilderProps {
   metadata: QueryMetadata;
   queryState?: QueryState;
   onQueryStateChange?: (state: QueryState) => void;
-  customInput?: Record<string, FilterInputConfig>;
+  customInput?: Record<string, FieldInputConfig>;
   className?: string;
   showDebug?: boolean;
 }

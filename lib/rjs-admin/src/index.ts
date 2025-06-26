@@ -66,7 +66,7 @@ export {
 // Query Builder Types
 export type {
   DataType,
-  FilterInputConfig,
+  FieldInputConfig as FilterInputConfig,
   FilterInputProps,
   FilterState,
   QueryBuilderModalProps,

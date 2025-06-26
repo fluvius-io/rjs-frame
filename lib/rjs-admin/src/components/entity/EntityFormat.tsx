@@ -1,17 +1,16 @@
+import { Loader2, LucideFileWarning } from "lucide-react";
 import React, { Component } from "react";
 import type { ApiParams, ApiResponse } from "rjs-frame";
 import { APIManager } from "rjs-frame";
 import "./EntityFormat.css";
 
 export interface EntityFormatProps {
-  _id: string;
-  apiName: string; // API endpoint name (can be "collection:queryName" or just "queryName")
+  itemId: string;
+  entity?: any;
+  apiName?: string; // API endpoint name (can be "collection:queryName" or just "queryName")
   className?: string;
   onError?: (error: Error) => void;
   onLoad?: (data: any) => void;
-  renderEntity?: (entity: any) => React.ReactNode;
-  loadingComponent?: React.ReactNode;
-  errorComponent?: React.ReactNode;
   params?: ApiParams; // Additional parameters for the API call
 }
 
@@ -25,13 +24,33 @@ export class EntityFormat extends Component<
   EntityFormatProps,
   EntityFormatState
 > {
+  apiName: string = "no-existing-api-name";
+  static formats: Record<string, typeof EntityFormat> = {};
+
   constructor(props: EntityFormatProps) {
     super(props);
+    this.apiName = props.apiName || this.apiName;
     this.state = {
-      entity: null,
+      entity: props.entity || null,
       loading: false,
       error: null,
     };
+  }
+
+  static registerFormat(name: string, format: typeof EntityFormat) {
+    EntityFormat.formats[name] = format;
+  }
+
+  static formatEntity(formatName: string, entity: any): React.ReactNode {
+    const EntityFormatComponent = EntityFormat.formats[formatName];
+    if (!EntityFormatComponent) {
+      return <div>Format {formatName} not found</div>;
+    }
+    if (typeof entity !== "object") {
+      return <EntityFormatComponent itemId={entity} />;
+    } else {
+      return <EntityFormatComponent itemId={entity.id} entity={entity} />;
+    }
   }
 
   componentDidMount() {
@@ -41,7 +60,7 @@ export class EntityFormat extends Component<
   componentDidUpdate(prevProps: EntityFormatProps) {
     // Refetch if the _id, apiName, or params change
     if (
-      prevProps._id !== this.props._id ||
+      prevProps.itemId !== this.props.itemId ||
       prevProps.apiName !== this.props.apiName ||
       JSON.stringify(prevProps.params) !== JSON.stringify(this.props.params)
     ) {
@@ -49,12 +68,13 @@ export class EntityFormat extends Component<
     }
   }
 
-  fetchEntity = async () => {
-    const { _id, apiName, params, onError, onLoad } = this.props;
+  protected fetchEntity = async () => {
+    const { itemId, params, onError, onLoad } = this.props;
+    const apiName = this.apiName;
 
-    if (!_id) {
+    if (!itemId) {
       this.setState({
-        error: new Error("_id prop is required"),
+        error: new Error("itemId prop is required"),
         loading: false,
       });
       return;
@@ -75,7 +95,7 @@ export class EntityFormat extends Component<
       // The apiName can be in format "collection:queryName" or just "queryName"
       const response: ApiResponse<any> = await APIManager.queryItem(
         apiName,
-        _id,
+        itemId,
         {
           cache: true,
           ...params,
@@ -88,73 +108,54 @@ export class EntityFormat extends Component<
         error: null,
       });
 
-      if (onLoad) {
-        onLoad(response.data);
-      }
+      onLoad && onLoad(response.data);
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error("Failed to fetch entity");
+
       this.setState({
         entity: null,
         loading: false,
         error: err,
       });
 
-      if (onError) {
-        onError(err);
-      }
+      onError && onError(err);
     }
   };
 
   renderLoading = (): React.ReactNode => {
-    const { loadingComponent } = this.props;
-
-    if (loadingComponent) {
-      return loadingComponent;
-    }
-
     return (
-      <div className="entity-format__loading">
-        <div className="entity-format__spinner">Loading...</div>
+      <div className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Loading ...
       </div>
     );
   };
 
   renderError = (error: Error): React.ReactNode => {
-    const { errorComponent } = this.props;
-
-    if (errorComponent) {
-      return errorComponent;
-    }
-
+    const { entity } = this.state;
     return (
-      <div className="entity-format__error">
-        <div className="entity-format__error-message">
-          Error loading entity: {error.message}
-        </div>
-        <button onClick={this.fetchEntity} className="entity-format__retry">
-          Retry
-        </button>
+      <div
+        title={error.message}
+        onClick={this.fetchEntity}
+        className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer"
+      >
+        <LucideFileWarning className="w-4 h-4 text-red-500" />
+        {entity ? entity.id : this.props.itemId}
       </div>
     );
   };
 
+  renderText = (entity: any): React.ReactNode => {
+    return entity.name || entity.id || entity._id || "[Unknown]";
+  };
+
   renderEntity = (entity: any): React.ReactNode => {
-    const { renderEntity } = this.props;
-
-    if (renderEntity) {
-      return renderEntity(entity);
-    }
-
     // Default rendering - show entity as formatted JSON
     return (
-      <div className="entity-format__default">
-        <h3 className="entity-format__title">
-          Entity {entity.id || entity._id || "Details"}
-        </h3>
-        <pre className="entity-format__data">
-          {JSON.stringify(entity, null, 2)}
-        </pre>
+      <div className="flex items-center gap-1 text-sm text-gray-500">
+        Entity {this.renderText(entity)}
+        <pre>{JSON.stringify(entity, null, 2)}</pre>
       </div>
     );
   };
@@ -162,15 +163,21 @@ export class EntityFormat extends Component<
   render(): React.ReactNode {
     const { className = "" } = this.props;
     const { entity, loading, error } = this.state;
+    if (loading) {
+      return this.renderLoading();
+    }
+
+    if (error) {
+      return this.renderError(error);
+    }
+
+    if (!entity) {
+      return <div className="ef__empty">Entity not found</div>;
+    }
 
     return (
       <div className={`entity-format ${className}`}>
-        {loading && this.renderLoading()}
-        {error && this.renderError(error)}
-        {!loading && !error && entity && this.renderEntity(entity)}
-        {!loading && !error && !entity && (
-          <div className="entity-format__empty">No entity found</div>
-        )}
+        {this.renderEntity(entity)}
       </div>
     );
   }

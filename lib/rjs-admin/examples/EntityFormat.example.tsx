@@ -1,5 +1,5 @@
 import React from "react";
-import { EntityFormat } from "./EntityFormat";
+import { EntityFormat } from "../src/components/entity/EntityFormat";
 
 /**
  * EntityFormat Usage Examples
@@ -10,7 +10,7 @@ import { EntityFormat } from "./EntityFormat";
 export const BasicEntityExample: React.FC = () => (
   <div>
     <h2>Basic Entity Format</h2>
-    <EntityFormat _id="user123" apiName="idm:user" />
+    <EntityFormat itemId="user123" apiName="idm:user" />
   </div>
 );
 
@@ -18,7 +18,7 @@ export const BasicEntityExample: React.FC = () => (
 export const CollectionEntityExample: React.FC = () => (
   <div>
     <h2>Collection-based Entity</h2>
-    <EntityFormat _id="org456" apiName="idm:organization" />
+    <EntityFormat itemId="org456" apiName="idm:organization" />
   </div>
 );
 
@@ -27,7 +27,7 @@ export const EntityWithParamsExample: React.FC = () => (
   <div>
     <h2>Entity with Parameters</h2>
     <EntityFormat
-      _id="user123"
+      itemId="user123"
       apiName="idm:user"
       params={{
         cache: false,
@@ -44,7 +44,7 @@ export const CustomEntityExample: React.FC = () => (
   <div>
     <h2>Custom Rendered Entity</h2>
     <EntityFormat
-      _id="product456"
+      itemId="product456"
       apiName="shop:product"
       renderEntity={(product) => (
         <div
@@ -76,7 +76,7 @@ export const CustomStatesExample: React.FC = () => (
   <div>
     <h2>Custom Loading & Error States</h2>
     <EntityFormat
-      _id="profile123"
+      itemId="profile123"
       apiName="idm:profile"
       loadingComponent={
         <div
@@ -114,7 +114,7 @@ export const CardEntityExample: React.FC = () => (
   <div>
     <h2>Card Style Entity</h2>
     <EntityFormat
-      _id="employee456"
+      itemId="employee456"
       apiName="hr:employee"
       className="custom-card"
       renderEntity={(employee) => (
@@ -174,17 +174,17 @@ export const ApiNameFormatsExample: React.FC = () => (
 
     <div style={{ marginBottom: "20px" }}>
       <h3>Collection:QueryName format</h3>
-      <EntityFormat _id="user123" apiName="idm:user" />
+      <EntityFormat itemId="user123" apiName="idm:user" />
     </div>
 
     <div style={{ marginBottom: "20px" }}>
       <h3>Simple query name (uses default collection)</h3>
-      <EntityFormat _id="user456" apiName="user" />
+      <EntityFormat itemId="user456" apiName="user" />
     </div>
 
     <div style={{ marginBottom: "20px" }}>
       <h3>Different collection</h3>
-      <EntityFormat _id="org789" apiName="shop:organization" />
+      <EntityFormat itemId="org789" apiName="shop:organization" />
     </div>
   </div>
 );

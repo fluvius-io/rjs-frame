@@ -71,31 +71,31 @@
   .entity-format {
     @apply rounded-lg border bg-card text-card-foreground shadow-sm p-4;
   }
-  .entity-format__loading {
+  .ef__loading {
     @apply flex items-center justify-center min-h-[80px];
   }
-  .entity-format__spinner {
+  .ef__spinner {
     @apply animate-spin text-muted-foreground;
   }
-  .entity-format__error {
+  .ef__error {
     @apply bg-red-50 border border-red-200 rounded p-4 text-red-700;
   }
-  .entity-format__error-message {
+  .ef__error-message {
     @apply mb-2 font-medium;
   }
-  .entity-format__retry {
+  .ef__retry {
     @apply px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200;
   }
-  .entity-format__default {
+  .ef__default {
     @apply bg-gray-50 border rounded p-3;
   }
-  .entity-format__title {
+  .ef__title {
     @apply text-lg font-semibold mb-2;
   }
-  .entity-format__data {
+  .ef__data {
     @apply text-xs font-mono bg-gray-100 p-2 rounded;
   }
-  .entity-format__empty {
+  .ef__empty {
     @apply text-center text-muted-foreground py-4;
   }
 

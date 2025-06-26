@@ -177,10 +177,10 @@ This will:
 The component comes with built-in CSS classes:
 
 - `.entity-format` - Main container
-- `.entity-format__loading` - Loading state wrapper
-- `.entity-format__error` - Error state wrapper
-- `.entity-format__default` - Default entity display
-- `.entity-format__empty` - Empty state display
+- `.ef__loading` - Loading state wrapper
+- `.ef__error` - Error state wrapper
+- `.ef__default` - Default entity display
+- `.ef__empty` - Empty state display
 
 ### CSS Classes
 
@@ -189,15 +189,15 @@ The component comes with built-in CSS classes:
   /* Main container styling */
 }
 
-.entity-format__loading {
+.ef__loading {
   /* Loading state styling with spinner */
 }
 
-.entity-format__error {
+.ef__error {
   /* Error state with retry button */
 }
 
-.entity-format__default {
+.ef__default {
   /* Default entity display with JSON formatting */
 }
 ```

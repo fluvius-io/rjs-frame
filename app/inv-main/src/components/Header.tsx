@@ -215,7 +215,7 @@ export class Header extends PageModule {
             >
               <img
                 src={logoTransparent}
-                className="h-12 -my-1"
+                className="h-12 w-[178px] -my-1"
                 alt="Invest Mate - Trading Management Platform"
               />
             </button>
