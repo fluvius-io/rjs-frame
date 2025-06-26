@@ -27,18 +27,19 @@ const idmCollectionConfig: ApiCollectionConfig = {
 APIManager.registerConfig(idmCollectionConfig);
 
 const TRADE_APIS = [
-  "signal",
-  "data",
-  "algo",
-  "bot",
-  "manager",
-  "market-data",
-  "executor",
-  "market",
+  "trade-signal",
+  "trade-data",
+  "trade-algo",
+  "trade-bot",
+  "trade-manager",
+  "trade-market-data",
+  "trade-executor",
+  "trade-market",
+  "user-profile",
 ];
 for (const api_name of TRADE_APIS) {
   APIManager.registerConfig({
-    name: `trade-${api_name}`,
+    name: api_name,
     dynamic: true,
     baseUrl: "/api",
   });

@@ -1,11 +1,18 @@
+import { User2Icon } from "lucide-react";
 import { EntityFormat } from "./EntityFormat";
 
 class FmUserProfile extends EntityFormat {
-  apiName = "idm:user";
+  apiName = "user-profile:profile";
 
   renderEntity = (entity: any) => {
-    console.log("FmUserProfile", entity);
-    return <div>User: {entity.name}</div>;
+    return (
+      <span className="flex items-center gap-1">
+        <User2Icon className="w-4 h-4" />
+        <span>
+          {entity.name__given} {entity.name__family}
+        </span>
+      </span>
+    );
   };
 }
 

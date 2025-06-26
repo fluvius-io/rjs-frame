@@ -18,6 +18,7 @@ interface EntityFormatState {
   entity: any | null;
   loading: boolean;
   error: Error | null;
+  noValue: boolean;
 }
 
 export class EntityFormat extends Component<
@@ -34,6 +35,7 @@ export class EntityFormat extends Component<
       entity: props.entity || null,
       loading: false,
       error: null,
+      noValue: false,
     };
   }
 
@@ -46,11 +48,8 @@ export class EntityFormat extends Component<
     if (!EntityFormatComponent) {
       return <div>Format {formatName} not found</div>;
     }
-    if (typeof entity !== "object") {
-      return <EntityFormatComponent itemId={entity} />;
-    } else {
-      return <EntityFormatComponent itemId={entity.id} entity={entity} />;
-    }
+    console.log("formatEntity", formatName, entity);
+    return <EntityFormatComponent itemId={entity} />;
   }
 
   componentDidMount() {
@@ -74,8 +73,9 @@ export class EntityFormat extends Component<
 
     if (!itemId) {
       this.setState({
-        error: new Error("itemId prop is required"),
+        noValue: true,
         loading: false,
+        error: null,
       });
       return;
     }
@@ -84,6 +84,7 @@ export class EntityFormat extends Component<
       this.setState({
         error: new Error("apiName prop is required"),
         loading: false,
+        noValue: false,
       });
       return;
     }
@@ -106,6 +107,7 @@ export class EntityFormat extends Component<
         entity: response.data,
         loading: false,
         error: null,
+        noValue: false,
       });
 
       onLoad && onLoad(response.data);
@@ -117,6 +119,7 @@ export class EntityFormat extends Component<
         entity: null,
         loading: false,
         error: err,
+        noValue: false,
       });
 
       onError && onError(err);
@@ -133,7 +136,7 @@ export class EntityFormat extends Component<
   };
 
   renderError = (error: Error): React.ReactNode => {
-    const { entity } = this.state;
+    const { itemId } = this.props;
     return (
       <div
         title={error.message}
@@ -141,7 +144,7 @@ export class EntityFormat extends Component<
         className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer"
       >
         <LucideFileWarning className="w-4 h-4 text-red-500" />
-        {entity ? entity.id : this.props.itemId}
+        <span title={itemId}>{itemId.slice(0, 10)}...</span>
       </div>
     );
   };
@@ -162,7 +165,11 @@ export class EntityFormat extends Component<
 
   render(): React.ReactNode {
     const { className = "" } = this.props;
-    const { entity, loading, error } = this.state;
+    const { entity, loading, error, noValue } = this.state;
+    if (noValue) {
+      return <div className="text-muted-foreground">[No value]</div>;
+    }
+
     if (loading) {
       return this.renderLoading();
     }
@@ -175,11 +182,7 @@ export class EntityFormat extends Component<
       return <div className="ef__empty">Entity not found</div>;
     }
 
-    return (
-      <div className={`entity-format ${className}`}>
-        {this.renderEntity(entity)}
-      </div>
-    );
+    return <div className={`ef ${className}`}>{this.renderEntity(entity)}</div>;
   }
 }
 

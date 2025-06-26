@@ -105,7 +105,6 @@ export const TableRow: React.FC<TableRowProps> = ({
       strValue = truncateText(strValue);
     }
 
-    console.log("field", field, field.ftype);
     switch (field.ftype) {
       case "enum":
         return (

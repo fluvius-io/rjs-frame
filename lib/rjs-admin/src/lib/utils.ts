@@ -114,10 +114,10 @@ export function queryStateToApiParams(queryState: QueryState): {
     }
   }
 
-  // Convert select array to comma-separated string
-  if (queryState.select && queryState.select.length > 0) {
-    result.include = queryState.select.join(",");
-  }
+  // // Convert select array to comma-separated string
+  // if (queryState.select && queryState.select.length > 0) {
+  //   result.include = queryState.select.join(",");
+  // }
 
   // Convert sort array to comma-separated string
   if (queryState.sort && queryState.sort.length > 0) {
