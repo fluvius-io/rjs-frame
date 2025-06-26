@@ -17,18 +17,20 @@ import {
 
 const botStatusFormatter = (status: string) => {
   const colorMap = {
-      DRAFT: "bg-purple-100 text-purple-800",
-      DEACTIVATED: "bg-gray-100 text-gray-800",
-      RUNNING: "bg-green-100 text-green-800",
-      INACTIVE: "bg-gray-100 text-gray-600",
-      PAUSED: "bg-red-100 text-red-800",
-    };
- 
+    DRAFT: "bg-purple-100 text-purple-800",
+    DEACTIVATED: "bg-gray-100 text-gray-800",
+    RUNNING: "bg-green-100 text-green-800",
+    INACTIVE: "bg-gray-100 text-gray-600",
+    PAUSED: "bg-red-100 text-red-800",
+  };
+
   return (
-    <div className={cn(
-      "text-center text-xs font-medium border-gray-200 rounded-md p-1",
-      colorMap[status as keyof typeof colorMap] || "text-gray-400 bg-gray-100"
-    )}>
+    <div
+      className={cn(
+        "text-center text-xs font-medium border-gray-200 rounded-md p-1",
+        colorMap[status as keyof typeof colorMap] || "text-gray-400 bg-gray-100"
+      )}
+    >
       {status}
     </div>
   );
@@ -181,14 +183,7 @@ export default function BotManager() {
           tableActions={tableActions}
           batchActions={batchActions}
           queryState={{
-            select: [
-              "name",
-              "started_date",
-              "profit",
-              "profit_value",
-              "applied_blocks",
-              "status",
-            ],
+            select: ["name", "profit", "applied_blocks", "status"],
           }}
           onActivate={(id, row) => {
             updatePageParams({

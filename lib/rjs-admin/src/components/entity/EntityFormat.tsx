@@ -144,7 +144,7 @@ export class EntityFormat extends Component<
         className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer"
       >
         <LucideFileWarning className="w-4 h-4 text-red-500" />
-        <span title={itemId}>{itemId.slice(0, 10)}...</span>
+        <span title={itemId}>...{itemId.slice(-8)}</span>
       </div>
     );
   };

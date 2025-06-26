@@ -116,6 +116,13 @@ export const TableRow: React.FC<TableRowProps> = ({
         return EntityFormat.formatEntity("user-profile", value);
 
       default:
+        if (field.dtype == "uuid") {
+          return (
+            <span title={value} className="text-muted-foreground">
+              ...{value.slice(-8)}
+            </span>
+          );
+        }
         return strValue;
     }
   };

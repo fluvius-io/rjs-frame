@@ -54,7 +54,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
           </PageSection>
         </div>
 
-        <footer className="border-t bg-muted/50">
+        <footer className="bg-background-90 invert">
           <PageSlot name="footer" className="container mx-auto" />
         </footer>
       </div>

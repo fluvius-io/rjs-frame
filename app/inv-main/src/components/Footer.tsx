@@ -1,4 +1,3 @@
-import React from "react";
 import { PageModule } from "rjs-frame";
 import "./Footer.css";
 
@@ -7,7 +6,7 @@ export class Footer extends PageModule {
     super(props);
   }
 
-  protected renderContent(): React.ReactNode {
+  renderContent() {
     const className = (this.props as any).className;
 
     return (
