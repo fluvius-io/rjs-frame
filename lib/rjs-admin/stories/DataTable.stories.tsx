@@ -78,6 +78,9 @@ const sampleMetadata: QueryMetadata = {
       noop: "ilike",
       hidden: false,
       sortable: true,
+      dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Email",
@@ -86,6 +89,9 @@ const sampleMetadata: QueryMetadata = {
       noop: "ilike",
       hidden: false,
       sortable: true,
+      dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Role",
@@ -94,6 +100,9 @@ const sampleMetadata: QueryMetadata = {
       noop: "eq",
       hidden: false,
       sortable: true,
+      dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Status",
@@ -102,6 +111,9 @@ const sampleMetadata: QueryMetadata = {
       noop: "eq",
       hidden: false,
       sortable: true,
+      dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
   ],
   filters: {
@@ -134,7 +146,6 @@ const sampleMetadata: QueryMetadata = {
     ".and": { label: "And" },
     ".or": { label: "Or" },
   },
-  default_order: ["name.asc"],
 };
 
 // Example metadata matching the specification
@@ -151,6 +162,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: true,
       sortable: true,
       dtype: "uuid",
+      ftype: "uuid",
+      finput: { type: "text" },
     },
     {
       label: "Given Name",
@@ -160,6 +173,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
       dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Family Name",
@@ -169,6 +184,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
       dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Email Address",
@@ -178,6 +195,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
       dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Status",
@@ -187,6 +206,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
       dtype: "string",
+      ftype: "string",
+      finput: { type: "text" },
     },
     {
       label: "Created Date",
@@ -196,6 +217,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
       dtype: "date",
+      ftype: "date",
+      finput: { type: "date" },
     },
     {
       label: "Created At",
@@ -205,6 +228,8 @@ const EXAMPLE_METADATA: QueryMetadata = {
       hidden: false,
       sortable: true,
       dtype: "datetime",
+      ftype: "datetime",
+      finput: { type: "date" },
     },
   ],
   filters: {
@@ -349,7 +374,6 @@ const EXAMPLE_METADATA: QueryMetadata = {
       label: "Or",
     },
   },
-  default_order: ["created_at.desc", "name__family.asc"],
 };
 
 // Example data

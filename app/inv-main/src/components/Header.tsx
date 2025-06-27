@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { AuthUserAvatar, Button } from "rjs-admin";
-import { PageModule, useLocation } from "rjs-frame";
+import { PageModule, PageModuleProps, useLocation } from "rjs-frame";
 import logoTransparent from "../assets/img/logo-transparent.png";
 import menuData from "../data/menu.json";
 import type { MenuItemData } from "../types/menu";
@@ -184,16 +184,39 @@ const MobileNavigationItem: React.FC<{
     </DropdownMenu.Item>
   );
 };
-
-export class Header extends PageModule {
+export interface HeaderProps extends PageModuleProps {
+  sideActions?: {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    href: string;
+  }[];
+}
+export class Header extends PageModule<HeaderProps> {
   private navigationItems: NavigationItemType[];
+  private sideActions: {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    href: string;
+  }[] = [
+    {
+      label: "Notifications",
+      icon: Bell,
+      href: "/",
+    },
+    {
+      label: "Search",
+      icon: Search,
+      href: "/",
+    },
+  ];
 
-  constructor(props: any) {
+  constructor(props: HeaderProps) {
     super(props);
     // Transform JSON data to NavigationItemType with resolved icons
     this.navigationItems = menuData.navigationItems.map(
       transformNavigationItem
     );
+    this.sideActions = props.sideActions || this.sideActions;
   }
 
   private handleLogoClick = () => {
@@ -202,7 +225,7 @@ export class Header extends PageModule {
   };
 
   renderContent() {
-    const className = (this.props as any).className;
+    const { className } = this.props;
 
     return (
       <div className={`header-container ${className || ""}`}>
@@ -230,21 +253,15 @@ export class Header extends PageModule {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="header-actions__button bg-background-90"
-            >
-              <Bell className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="header-actions__button bg-background-90"
-            >
-              <Search className="h-4 w-4" />
-            </Button>
-
+            {this.sideActions.map((action) => (
+              <Button
+                variant="outline"
+                size="icon"
+                className="header-actions__button bg-background-90"
+              >
+                <action.icon className="h-4 w-4" />
+              </Button>
+            ))}
             <AuthUserAvatar />
           </div>
         </div>

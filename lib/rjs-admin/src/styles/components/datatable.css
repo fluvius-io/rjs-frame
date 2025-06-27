@@ -16,7 +16,7 @@
 }
 
 .dt-status-label {
-  @apply px-1 rounded-full text-xs;
+  @apply px-1 rounded-full text-xs text-nowrap;
 }
 
 /* Table Control Section */

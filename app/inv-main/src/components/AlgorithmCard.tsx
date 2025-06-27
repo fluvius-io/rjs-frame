@@ -72,9 +72,6 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 truncate">
               {algorithm.name}
             </h3>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-              {algorithm.description}
-            </p>
           </div>
           <div className="flex items-center gap-1 ml-2">
             <Cpu className="w-4 h-4 text-blue-500" />
@@ -83,6 +80,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
             </span>
           </div>
         </div>
+        <p className="text-sm text-gray-600 mt-1">{algorithm.description}</p>
 
         <div className="flex items-center gap-2 flex-wrap pt-2">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">

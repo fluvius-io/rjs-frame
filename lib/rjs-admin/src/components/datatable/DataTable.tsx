@@ -185,7 +185,7 @@ export const DataTable: React.FC<DataTableProps> = ({
       if (!propQueryState && metadata) {
         const initialState: QueryState = {
           query: [],
-          sort: parseSort(metadata.default_order || []),
+          sort: [],
           select: getDefaultSelect(metadata),
           text: "",
         };

@@ -112,7 +112,6 @@ const QUERY_METADATA: QueryMetadata = {
       label: "Or",
     },
   },
-  default_order: ["id.desc"],
 };
 
 export const QueryBuilderExample: React.FC = () => {

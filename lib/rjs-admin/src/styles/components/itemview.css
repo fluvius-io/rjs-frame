@@ -102,19 +102,13 @@
 }
 
 .iv__tabs-list {
-  display: flex;
-  margin-bottom: 0;
-  list-style: none;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: flex-end;
+  @apply flex flex-wrap gap-1 items-end;
 }
 
 .iv__tab-trigger {
-  @apply text-sm cursor-pointer transition-all bg-border border-b-2 border-transparent text-muted-foreground px-4 py-1 rounded-t-md;
-  position: relative;
-  margin-bottom: calc(-0.5rem - 2px);
+  @apply text-sm cursor-pointer transition-all bg-border border-b-2 border-transparent text-muted-foreground px-4 py-2 rounded-t-md relative;
   border-width: 2px;
+  margin-bottom: calc(-0.5rem - 2px);
 }
 
 .iv__tab-trigger:hover {

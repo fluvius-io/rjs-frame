@@ -25,6 +25,8 @@ export {
   useNavigate,
 } from "./components/RjsApp";
 
+export type { PageModuleProps } from "./components/PageModule";
+
 // Export types separately
 export type { AppConfig } from "./components/RjsApp";
 

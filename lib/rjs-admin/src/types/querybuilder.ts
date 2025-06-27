@@ -61,7 +61,6 @@ export interface QueryMetadata {
   fields: QueryFieldMetadata[];
   filters: Record<string, QueryFilterMetadata>;
   composites: Record<string, QueryCompositeMetadata>;
-  default_order?: string[];
   idfield?: string;
 }
 
