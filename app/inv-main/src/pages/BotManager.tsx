@@ -1,4 +1,4 @@
-import { BanIcon, CopyIcon, FilePlus, PauseIcon, PlayIcon } from "lucide-react";
+import { BanIcon, CopyIcon, FilePlus, PauseIcon, PlayIcon, SettingsIcon } from "lucide-react";
 import { cn, DataTable, ItemView, ThreeColumnLayout } from "rjs-admin";
 import {
   PageModule,
@@ -103,7 +103,7 @@ export default function BotManager() {
       icon: (row: any) => {
         switch (row.status) {
           case "INACTIVE":
-            return <PlayIcon className="w-4 h-4 text-green-500" />;
+            return <SettingsIcon className="w-4 h-4 text-blue-500" />;
           case "RUNNING":
             return <PauseIcon className="w-4 h-4 text-red-500" />;
           case "PAUSED":
@@ -111,7 +111,7 @@ export default function BotManager() {
           case "DEACTIVATED":
             return <BanIcon className="w-4 h-4" />;
           default:
-            return <PlayIcon className="w-4 h-4 text-green-500" />;
+            return <SettingsIcon className="w-4 h-4 text-green-500" />;
         }
       },
       onClick: (e: React.MouseEvent<HTMLButtonElement>, row: any) => {
