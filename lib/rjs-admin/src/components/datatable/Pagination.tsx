@@ -112,61 +112,63 @@ export const Pagination: React.FC<PaginationProps> = ({
       {/* Left side: Pagination buttons and page size selector */}
       <div className="dt-pagination-controls flex items-center gap-6 justify-between">
         {/* Page Navigation */}
-        <div className="dt-pagination-buttons flex items-center gap-1">
-          {/* Previous Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="dt-pagination-button h-8 w-8 p-0"
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page <= 1 || loading}
-            title="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+        {visiblePages.length > 1 && (
+          <div className="dt-pagination-buttons flex items-center gap-1">
+            {/* Previous Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="dt-pagination-button h-8 w-8 p-0"
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page <= 1 || loading}
+              title="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
 
-          {/* Page Numbers */}
-          {visiblePages.map((pageNum, index) => {
-            if (pageNum === "...") {
+            {/* Page Numbers */}
+            {visiblePages.map((pageNum, index) => {
+              if (pageNum === "...") {
+                return (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="px-3 py-1 text-sm text-gray-500"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const pageNumber = pageNum as number;
+              const isActive = pageNumber === page;
               return (
-                <span
-                  key={`ellipsis-${index}`}
-                  className="px-3 py-1 text-sm text-gray-500"
+                <Button
+                  key={`page-${pageNumber}`}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  className="dt-pagination-button h-8 w-8 p-0"
+                  onClick={() => handlePageChange(pageNumber)}
+                  disabled={loading}
+                  title={`Go to page ${pageNumber}`}
                 >
-                  ...
-                </span>
+                  {pageNumber}
+                </Button>
               );
-            }
+            })}
 
-            const pageNumber = pageNum as number;
-            const isActive = pageNumber === page;
-            return (
-              <Button
-                key={`page-${pageNumber}`}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                className="dt-pagination-button h-8 w-8 p-0"
-                onClick={() => handlePageChange(pageNumber)}
-                disabled={loading}
-                title={`Go to page ${pageNumber}`}
-              >
-                {pageNumber}
-              </Button>
-            );
-          })}
-
-          {/* Next Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="dt-pagination-button h-8 w-8 p-0"
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page >= totalPages || loading}
-            title="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+            {/* Next Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="dt-pagination-button h-8 w-8 p-0"
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page >= totalPages || loading}
+              title="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Page Size Selector */}
         <div className="flex items-center gap-2">

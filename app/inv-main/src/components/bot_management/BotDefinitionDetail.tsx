@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useItemView } from "rjs-admin";
+import { ItemFooter, useItemView } from "rjs-admin";
 import { APIManager } from "rjs-frame";
 
 export const BotDefinitionDetailView = () => {
@@ -170,6 +170,7 @@ export const BotDefinitionDetailView = () => {
           </div>
         </div>
       )}
+      <ItemFooter item={botDef} />
     </div>
   );
 };

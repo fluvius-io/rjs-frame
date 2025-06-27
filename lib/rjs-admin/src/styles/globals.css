@@ -114,4 +114,28 @@
     @apply fill-border;
     box-shadow: 0 0 0 1px var(--border);
   }
+
+  .clicked {
+    background: linear-gradient(
+      to right,
+      #3b109a 20%,
+      #00affa 30%,
+      #7fd4ff 70%,
+      #5e35be 80%
+    );
+    /* -webkit-background-clip: text; */
+    /* background-clip: text; */
+    /* -webkit-text-fill-color: transparent; */
+    /* text-fill-color: transparent; */
+    background-size: 500% auto;
+    animation: textShine 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes textShine {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
 }

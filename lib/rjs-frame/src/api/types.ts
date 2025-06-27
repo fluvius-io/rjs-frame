@@ -118,9 +118,18 @@ export interface ApiResponse<T = any> {
 
 // Error types
 export class ApiError extends Error {
-  constructor(message: string, public status?: number, public response?: any) {
+  constructor(message: string) {
     super(message);
     this.name = "ApiError";
+  }
+}
+
+export class HTTPError extends Error {
+  constructor(message: string, public status?: number, public response?: any) {
+    super(message);
+    this.name = "HTTPError";
+    this.status = status;
+    this.response = response;
   }
 }
 

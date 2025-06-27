@@ -15,6 +15,7 @@ import {
   ConfigurationError,
   DataProcessor,
   HeaderProcessor,
+  HTTPError,
   Publisher,
   QueryConfig,
   RequestConfig,
@@ -93,9 +94,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Command '${this.config.name}:${commandName}' failed: ${error}`,
-        undefined,
-        error
+        `Command '${this.config.name}:${commandName}' failed. ${error}`
       );
     }
   }
@@ -144,9 +143,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Query '${queryName}' failed: ${error}`,
-        undefined,
-        error
+        `Unable to query [${this.config.name}:${queryName}]! ${error}`
       );
     }
   }
@@ -195,9 +192,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Query '${this.config.name}:${queryName}' failed: ${error}`,
-        undefined,
-        error
+        `Unable to query item from [${this.config.name}:${queryName}]! ${error}`
       );
     }
   }
@@ -261,9 +256,7 @@ export class APICollection implements ApiCollectionInterface {
       return apiResponse;
     } catch (error) {
       throw new ApiError(
-        `Query metadata '${this.config.name}:${queryName}' failed: ${error}`,
-        undefined,
-        error
+        `Unable to query metadata for [${this.config.name}:${queryName}]! ${error}`
       );
     }
   }
@@ -361,9 +354,7 @@ export class APICollection implements ApiCollectionInterface {
       return await this.createResponse<T>(response, requestConfig.response);
     } catch (error) {
       throw new ApiError(
-        `Request '${this.config.name}:${requestName}' failed: ${error}`,
-        undefined,
-        error
+        `Request '${this.config.name}:${requestName}' failed: ${error}`
       );
     }
   }
@@ -625,7 +616,7 @@ export class APICollection implements ApiCollectionInterface {
   ): Promise<ApiResponse<T>> {
     if (!response.ok) {
       const errorText = await response.text();
-      throw new ApiError(
+      throw new HTTPError(
         `HTTP ${response.status}: ${response.statusText}`,
         response.status,
         errorText

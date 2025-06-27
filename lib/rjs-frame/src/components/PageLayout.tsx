@@ -26,6 +26,7 @@ export interface PageLayoutProps {
 
 interface PageLayoutState {
   showPageConfigurationModal: boolean;
+  loading: Record<string, boolean>;
   appState: AppState;
 }
 
@@ -37,6 +38,10 @@ export abstract class PageLayout<
   private static activeInstance: PageLayout | null = null;
   private static instanceCount: number = 0;
   private unsubscribeAppState?: () => void;
+
+  updateState(state: Partial<S>) {
+    this.setState((prevState) => ({ ...prevState, ...state }));
+  }
 
   private gatherModulesFromChildren(): Record<string, React.ReactNode[]> {
     const pageModules: Record<string, React.ReactNode[]> = {};
@@ -103,6 +108,7 @@ export abstract class PageLayout<
     this.state = {
       showPageConfigurationModal: false,
       appState: getAppState(),
+      loading: {},
     } as S;
   }
 
@@ -126,7 +132,7 @@ export abstract class PageLayout<
 
     // Subscribe to page store changes
     this.unsubscribeAppState = subscribeToAppState((appState: AppState) => {
-      this.setState({ appState });
+      this.updateState({ appState, loading: {} } as Partial<S>);
     });
 
     // Initialize xRay from props if provided (for backward compatibility)
@@ -188,7 +194,7 @@ export abstract class PageLayout<
     // Force cleanup of event listeners and state for inactive instances
     this.cleanupEventListeners();
     if (this.state.showPageConfigurationModal) {
-      this.setState({ showPageConfigurationModal: false });
+      this.updateState({ showPageConfigurationModal: false } as Partial<S>);
     }
   }
 
@@ -201,16 +207,16 @@ export abstract class PageLayout<
     // Option+O (Mac) / Alt+O (Windows) to toggle options dialog
     if (event.altKey && event.code === "KeyO") {
       event.preventDefault();
-      this.setState({
+      this.updateState({
         showPageConfigurationModal: !this.state.showPageConfigurationModal,
-      });
+      } as Partial<S>);
       return;
     }
 
     // Escape to close options dialog
     if (event.key === "Escape" && this.state.showPageConfigurationModal) {
       event.preventDefault();
-      this.setState({ showPageConfigurationModal: false });
+      this.updateState({ showPageConfigurationModal: false } as Partial<S>);
       return;
     }
 
@@ -230,7 +236,7 @@ export abstract class PageLayout<
   };
 
   private closePageConfigurationModal = () => {
-    this.setState({ showPageConfigurationModal: false });
+    this.updateState({ showPageConfigurationModal: false } as Partial<S>);
   };
 
   // Static method to get current active instance info (useful for debugging)
@@ -268,6 +274,18 @@ export abstract class PageLayout<
       removePageModule: (slotName: string, content: React.ReactNode) => {
         // TODO: Implement dynamic module removal if needed
         console.warn("[PageLayout] removePageModule not yet implemented");
+      },
+      setLoading: (loadingKey: string, loadingValue?: boolean) => {
+        const loading =
+          typeof loadingValue === "boolean"
+            ? loadingValue
+            : !this.state.loading[loadingKey];
+        this.updateState({
+          loading: { ...this.state.loading, [loadingKey]: loading },
+        } as Partial<S>);
+      },
+      getLoading: (loadingKey: string): boolean => {
+        return this.state?.loading[loadingKey] || false;
       },
     };
 

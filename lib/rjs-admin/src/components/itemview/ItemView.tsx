@@ -88,16 +88,16 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
 
   fetchItem = async () => {
     const {
-      itemId: _id,
+      itemId,
       resourceName: apiName,
       params,
       onError,
       onLoad,
     } = this.props;
 
-    if (!_id) {
+    if (!itemId) {
       this.setState({
-        error: new Error("_id prop is required"),
+        error: new Error("itemId prop is required"),
         loading: false,
       });
       return;
@@ -116,7 +116,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     try {
       const response: ApiResponse<any> = await APIManager.queryItem(
         apiName,
-        _id,
+        itemId,
         {
           cache: true,
           ...params,
@@ -207,7 +207,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     );
   };
 
-  renderItemDefault = (jsonView: boolean): React.ReactNode => {
+  renderItemJSON = (jsonView: boolean): React.ReactNode => {
     const { item } = this.state;
 
     if (!item) {
@@ -255,9 +255,68 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     );
   };
 
+  renderItemContent = (): React.ReactNode => {
+    const { className } = this.props;
+    const { activeTab, loading } = this.state;
+    const tabItems = this.extractTabItems();
+    const hasCustomTabs = tabItems.length >= 0;
+    const itemJsonView =
+      this.props.itemJsonView === undefined
+        ? true
+        : this.props.itemJsonView || !hasCustomTabs;
+
+    return (
+      <div className={`item-view ${className} rjs-panel relative`}>
+        <Tabs.Root
+          value={activeTab}
+          onValueChange={this.handleTabChange}
+          className="iv__tabs"
+        >
+          {hasCustomTabs && (
+            <Tabs.List className="iv__tabs-list rjs-panel-header">
+              {this.renderItemHeader()}
+              <div className="flex gap-1">
+                {tabItems.map((tabItem) => (
+                  <Tabs.Trigger
+                    key={tabItem.name}
+                    value={tabItem.name}
+                    className="iv__tab-trigger"
+                  >
+                    {tabItem.label}
+                  </Tabs.Trigger>
+                ))}
+                {itemJsonView && (
+                  <Tabs.Trigger value="default" className="iv__tab-trigger">
+                    JSON
+                  </Tabs.Trigger>
+                )}
+              </div>
+            </Tabs.List>
+          )}
+
+          {tabItems.map((tabItem) => (
+            <Tabs.Content
+              key={tabItem.name}
+              value={tabItem.name}
+              className="iv__tab-content px-4"
+            >
+              {tabItem.children}
+            </Tabs.Content>
+          ))}
+          <Tabs.Content value="default" className="iv__tab-content">
+            {this.renderItemJSON(itemJsonView)}
+          </Tabs.Content>
+        </Tabs.Root>
+
+        {/* Loading overlay */}
+        {this.renderLoading(loading)}
+      </div>
+    );
+  };
+
   render(): React.ReactNode {
-    const { className = "", children } = this.props;
-    const { item, loading, error, activeTab } = this.state;
+    const { className = "" } = this.props;
+    const { item, loading, error } = this.state;
 
     const contextValue: ItemViewContextValue = {
       item,
@@ -280,60 +339,9 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
       );
     }
 
-    const tabItems = this.extractTabItems();
-    const hasCustomTabs = tabItems.length >= 0;
-    const itemJsonView =
-      this.props.itemJsonView === undefined
-        ? true
-        : this.props.itemJsonView || !hasCustomTabs;
-
     return (
       <ItemViewContext.Provider value={contextValue}>
-        <div className={`item-view ${className} rjs-panel relative`}>
-          <Tabs.Root
-            value={activeTab}
-            onValueChange={this.handleTabChange}
-            className="iv__tabs"
-          >
-            {hasCustomTabs && (
-              <Tabs.List className="iv__tabs-list rjs-panel-header">
-                {this.renderItemHeader()}
-                <div className="flex gap-1">
-                  {tabItems.map((tabItem) => (
-                    <Tabs.Trigger
-                      key={tabItem.name}
-                      value={tabItem.name}
-                      className="iv__tab-trigger"
-                    >
-                      {tabItem.label}
-                    </Tabs.Trigger>
-                  ))}
-                  {itemJsonView && (
-                    <Tabs.Trigger value="default" className="iv__tab-trigger">
-                      JSON
-                    </Tabs.Trigger>
-                  )}
-                </div>
-              </Tabs.List>
-            )}
-
-            {tabItems.map((tabItem) => (
-              <Tabs.Content
-                key={tabItem.name}
-                value={tabItem.name}
-                className="iv__tab-content px-4"
-              >
-                {tabItem.children}
-              </Tabs.Content>
-            ))}
-            <Tabs.Content value="default" className="iv__tab-content">
-              {this.renderItemDefault(itemJsonView)}
-            </Tabs.Content>
-          </Tabs.Root>
-
-          {/* Loading overlay */}
-          {this.renderLoading(loading)}
-        </div>
+        {this.renderItemContent()}
       </ItemViewContext.Provider>
     );
   }

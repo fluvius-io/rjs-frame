@@ -95,16 +95,16 @@ function convertFiltersToQuery(filters: FilterState[]): Record<string, any> {
  * // }
  * ```
  */
-export function queryStateToApiParams(queryState: QueryState): {
+
+export interface ApiSearchParams {
   query?: string;
   include?: string;
   sort?: string;
-} {
-  const result: {
-    query?: string;
-    include?: string;
-    sort?: string;
-  } = {};
+  text?: string;
+}
+
+export function queryStateToApiParams(queryState: QueryState): ApiSearchParams {
+  const result: ApiSearchParams = {};
 
   // Convert query filters to JSON string
   if (queryState.query && queryState.query.length > 0) {
@@ -112,6 +112,10 @@ export function queryStateToApiParams(queryState: QueryState): {
     if (Object.keys(queryObj).length > 0) {
       result.query = JSON.stringify(queryObj);
     }
+  }
+
+  if (queryState.text) {
+    result.text = queryState.text;
   }
 
   // // Convert select array to comma-separated string
@@ -127,4 +131,11 @@ export function queryStateToApiParams(queryState: QueryState): {
   }
 
   return result;
+}
+
+export function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
 }

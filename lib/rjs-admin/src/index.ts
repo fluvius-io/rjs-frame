@@ -38,7 +38,12 @@ export { EntityFormat } from "./components/entity";
 export type { EntityFormatProps } from "./components/entity";
 
 // Item View Components
-export { ItemView, useItemView } from "./components/itemview";
+export {
+  ItemFooter,
+  ItemView,
+  ModalItemView,
+  useItemView,
+} from "./components/itemview";
 export type {
   ItemViewContextValue,
   ItemViewProps,

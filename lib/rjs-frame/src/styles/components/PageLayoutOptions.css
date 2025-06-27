@@ -31,7 +31,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 2rem;
+    padding: 1rem;
     border-bottom: 1px solid var(--rjs-gray-800);
     background-color: var(--rjs-gray-100);
 
@@ -64,7 +64,7 @@
   }
 
   &-content {
-    padding: 2rem;
+    padding: 1rem;
     overflow-y: auto;
     flex: 1;
 

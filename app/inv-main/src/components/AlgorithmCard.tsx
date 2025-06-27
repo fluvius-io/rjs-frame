@@ -1,15 +1,7 @@
-import {
-  Calendar,
-  Clock,
-  Code,
-  Cpu,
-  Hash,
-  Settings,
-  Tag,
-  User,
-} from "lucide-react";
+import { Code, Cpu, Hash, Settings, Tag } from "lucide-react";
 import React from "react";
 import { cn, useItemView } from "rjs-admin";
+import ItemFooter from "rjs-admin/src/components/itemview/ItemFooter";
 import type { AlgorithmData } from "../types/algorithm";
 
 interface AlgorithmCardProps {
@@ -27,21 +19,6 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
     const itemView = useItemView();
     algorithm = itemView.item as AlgorithmData;
   }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const getRequiredParams = () => {
     return algorithm.params.required.map((param) => ({
@@ -169,24 +146,7 @@ export const AlgorithmCard: React.FC<AlgorithmCardProps> = ({
           )}
 
           {/* Metadata */}
-          <div className="border-t pt-3 border-gray-100">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                <span>{formatDate(algorithm.created)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                <span>{formatTime(algorithm.created)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <User className="w-3 h-3" />
-                <span className="font-mono">
-                  {algorithm.creator?.slice(0, 8)}...
-                </span>
-              </div>
-            </div>
-          </div>
+          <ItemFooter item={algorithm} />
         </div>
       </div>
     </div>

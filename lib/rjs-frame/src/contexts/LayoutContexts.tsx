@@ -13,6 +13,8 @@ export interface PageLayoutContextType {
   slotClasses: Record<string, string>;
   addPageModule: (slotName: string, content: React.ReactNode) => void;
   removePageModule: (slotName: string, content: React.ReactNode) => void;
+  setLoading: (loadingKey: string, loadingValue?: boolean) => void;
+  getLoading: (loadingKey: string) => boolean;
 }
 
 export interface PageSlotContextType {
@@ -31,7 +33,9 @@ export const PageSlotContext = createContext<PageSlotContextType | null>(null);
 export const usePageContext = () => {
   const context = useContext(PageLayoutContext);
   if (!context) {
-    throw new Error("usePageLayout must be used within a PageLayout component");
+    throw new Error(
+      "usePageContext must be used within a PageLayout component"
+    );
   }
   return context;
 };

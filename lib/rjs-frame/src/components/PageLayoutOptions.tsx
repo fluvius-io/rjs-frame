@@ -1,27 +1,7 @@
+import { Trash2 } from "lucide-react";
 import React from "react";
 import "../styles/components/PageLayoutOptions.css";
 import { PageParamsManager } from "./PageParamsManager";
-
-// Simple Trash2 icon component
-const Trash2Icon: React.FC<{ className?: string }> = ({ className = "" }) => (
-  <svg
-    className={className}
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M3 6h18" />
-    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-    <line x1="10" y1="11" x2="10" y2="17" />
-    <line x1="14" y1="11" x2="14" y2="17" />
-  </svg>
-);
 
 export interface PageLayoutOptionsProps {
   isVisible: boolean;
@@ -61,7 +41,7 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
       <div className="page-layout-options-overlay">
         <div className="page-layout-options-dialog">
           <div className="page-layout-options-header">
-            <h2>PageLayout Options</h2>
+            <h2>Page Layout Options</h2>
             <button
               className="page-layout-options-close"
               onClick={onClose}
@@ -134,7 +114,7 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
                                     title={`Remove ${moduleName} from ${slotName}`}
                                     aria-label={`Remove ${moduleName} from ${slotName}`}
                                   >
-                                    <Trash2Icon className="trash-icon" />
+                                    <Trash2 className="trash-icon" />
                                   </button>
                                 )}
                               </li>
@@ -149,7 +129,7 @@ export class PageLayoutOptions extends React.Component<PageLayoutOptionsProps> {
 
               {totalInstances > 1 && (
                 <div className="warning-message">
-                  ⚠️ Warning: {totalInstances} PageLayout instances detected.
+                  ⚠️ Warning: {totalInstances} Page Layout instances detected.
                   Only the active instance responds to keyboard shortcuts.
                 </div>
               )}

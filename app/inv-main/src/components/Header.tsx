@@ -5,10 +5,12 @@ import {
   Bell,
   Bot,
   ChevronDown,
+  Cog,
   Database,
   Home,
   Search,
   Settings,
+  Settings2,
   TrendingUp,
   Users,
   Zap,
@@ -193,6 +195,7 @@ export interface HeaderProps extends PageModuleProps {
 }
 export class Header extends PageModule<HeaderProps> {
   private navigationItems: NavigationItemType[];
+
   private sideActions: {
     label: string;
     icon: React.ComponentType<{ className?: string }>;
@@ -225,6 +228,7 @@ export class Header extends PageModule<HeaderProps> {
   };
 
   renderContent() {
+    console.log("loading", this.context);
     const { className } = this.props;
 
     return (
@@ -255,6 +259,7 @@ export class Header extends PageModule<HeaderProps> {
           <div className="flex items-center gap-2">
             {this.sideActions.map((action) => (
               <Button
+                key={action.label}
                 variant="outline"
                 size="icon"
                 className="header-actions__button bg-background-90"
@@ -262,6 +267,25 @@ export class Header extends PageModule<HeaderProps> {
                 <action.icon className="h-4 w-4" />
               </Button>
             ))}
+            <Button
+              variant="outline"
+              size="icon"
+              className="header-actions__button bg-background-90"
+              onClick={() => this.context?.setLoading("test")}
+            >
+              <Settings2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="header-actions__button bg-background-90"
+            >
+              <Cog
+                className={`h-4 w-4 ${
+                  this.context?.getLoading("test") ? "animate-spin" : ""
+                }`}
+              />
+            </Button>
             <AuthUserAvatar />
           </div>
         </div>

@@ -6,6 +6,7 @@ import "./EntityFormat.css";
 
 export interface EntityFormatProps {
   itemId: string;
+  itemIcon?: React.ElementType;
   entity?: any;
   apiName?: string; // API endpoint name (can be "collection:queryName" or just "queryName")
   className?: string;
@@ -18,7 +19,7 @@ interface EntityFormatState {
   entity: any | null;
   loading: boolean;
   error: Error | null;
-  noValue: boolean;
+  missingId: boolean;
 }
 
 export class EntityFormat extends Component<
@@ -35,7 +36,7 @@ export class EntityFormat extends Component<
       entity: props.entity || null,
       loading: false,
       error: null,
-      noValue: false,
+      missingId: false,
     };
   }
 
@@ -70,10 +71,13 @@ export class EntityFormat extends Component<
   protected fetchEntity = async () => {
     const { itemId, params, onError, onLoad } = this.props;
     const apiName = this.apiName;
+    if (this.state.error) {
+      return;
+    }
 
     if (!itemId) {
       this.setState({
-        noValue: true,
+        missingId: true,
         loading: false,
         error: null,
       });
@@ -84,7 +88,7 @@ export class EntityFormat extends Component<
       this.setState({
         error: new Error("apiName prop is required"),
         loading: false,
-        noValue: false,
+        missingId: false,
       });
       return;
     }
@@ -107,7 +111,7 @@ export class EntityFormat extends Component<
         entity: response.data,
         loading: false,
         error: null,
-        noValue: false,
+        missingId: false,
       });
 
       onLoad && onLoad(response.data);
@@ -119,7 +123,7 @@ export class EntityFormat extends Component<
         entity: null,
         loading: false,
         error: err,
-        noValue: false,
+        missingId: false,
       });
 
       onError && onError(err);
@@ -128,7 +132,7 @@ export class EntityFormat extends Component<
 
   renderLoading = (): React.ReactNode => {
     return (
-      <div className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer">
+      <div className="font-mono flex items-center gap-1 text-xs text-gray-500 cursor-pointer">
         <Loader2 className="w-4 h-4 animate-spin" />
         Loading ...
       </div>
@@ -140,11 +144,11 @@ export class EntityFormat extends Component<
     return (
       <div
         title={error.message}
-        onClick={this.fetchEntity}
-        className="flex items-center gap-1 text-sm text-gray-500 cursor-pointer"
+        onClick={() => this.setState({ error: null }, this.fetchEntity)}
+        className="flex items-center font-mono gap-1 text-xs text-gray-500 cursor-pointer"
       >
         <LucideFileWarning className="w-4 h-4 text-red-500" />
-        <span title={itemId}>...{itemId.slice(-8)}</span>
+        <span title={itemId}>{itemId.slice(0, 8)}...</span>
       </div>
     );
   };
@@ -163,11 +167,17 @@ export class EntityFormat extends Component<
     );
   };
 
+  renderNoValue = (): React.ReactNode => {
+    return (
+      <div className="text-muted-foreground text-xs font-mono">[No value]</div>
+    );
+  };
+
   render(): React.ReactNode {
     const { className = "" } = this.props;
-    const { entity, loading, error, noValue } = this.state;
-    if (noValue) {
-      return <div className="text-muted-foreground">[No value]</div>;
+    const { entity, loading, error, missingId } = this.state;
+    if (missingId) {
+      return this.renderNoValue();
     }
 
     if (loading) {
@@ -179,7 +189,9 @@ export class EntityFormat extends Component<
     }
 
     if (!entity) {
-      return <div className="ef__empty">Entity not found</div>;
+      return (
+        <div className="text-muted-foreground text-xs font-mono">[No data]</div>
+      );
     }
 
     return <div className={`ef ${className}`}>{this.renderEntity(entity)}</div>;
