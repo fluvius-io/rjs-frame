@@ -13,7 +13,6 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
     queryState,
     onQueryStateChange,
     openQueryBuilder,
-    showHeaderTitle,
     controlTitle,
     controlDescription,
     tableActions,
@@ -41,18 +40,18 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
     return (
       <div className="flex items-center gap-2 text-sm text-gray-600">
         {activeFiltersCount > 0 && (
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+          <span className="dt-status-label bg-yellow-100 text-yellow-800">
             {activeFiltersCount} Filter
             {activeFiltersCount !== 1 ? "s" : ""}
           </span>
         )}
         {activeSortCount > 0 && (
-          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+          <span className="dt-status-label bg-green-100 text-green-800">
             {activeSortCount} Sort{activeSortCount !== 1 ? "s" : ""}
           </span>
         )}
         {hasActiveSearch && (
-          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+          <span className="dt-status-label bg-blue-100 text-blue-800">
             Search: "{queryState.text}"
           </span>
         )}
@@ -76,41 +75,26 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
 
   return (
     <div className={cn("dt-control", className)}>
-      {showHeaderTitle && (
-        <div className="dt-control-header">
+      <div className="dt-control-body">
+        <div className="dt-control-title">
           <div>
-            <h2 className="dt-control-title">{title}</h2>
-            {description && (
-              <p className="text-sm text-gray-500 text-nowrap text-ellipsis overflow-hidden">
-                {description}
-              </p>
+            {showSidebar ? (
+              <SidebarClose
+                className="w-6 h-6 cursor-pointer"
+                onClick={toggleSidebar}
+              />
+            ) : (
+              <SidebarOpen
+                className="w-6 h-6 cursor-pointer"
+                onClick={toggleSidebar}
+              />
             )}
           </div>
-          {renderStatuses()}
-        </div>
-      )}
-      <div className="dt-control-body">
-        {!showHeaderTitle && (
-          <div className="dt-control-title">
-            <div>
-              {showSidebar ? (
-                <SidebarClose
-                  className="w-6 h-6 cursor-pointer"
-                  onClick={toggleSidebar}
-                />
-              ) : (
-                <SidebarOpen
-                  className="w-6 h-6 cursor-pointer"
-                  onClick={toggleSidebar}
-                />
-              )}
-            </div>
-            <div className="flex flex-col gap-0">
-              <h2>{camelCaseToWords(title)}</h2>
-              <div className="text-xs text-gray-500">{description}</div>
-            </div>
+          <div className="flex flex-col gap-0">
+            <h2>{camelCaseToWords(title)}</h2>
+            <div className="text-xs text-gray-500">{description}</div>
           </div>
-        )}
+        </div>
         <div className="dt-control-actions">
           <input
             type="text"
@@ -125,6 +109,7 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
           >
             <Filter className="h-4 w-4" />
             <span>Filters</span>
+            {renderStatuses()}
           </button>
           {tableActions && tableActions.length > 0 && (
             <div className="border-l-2 border-gray-300 pl-2 dt-user-actions">
