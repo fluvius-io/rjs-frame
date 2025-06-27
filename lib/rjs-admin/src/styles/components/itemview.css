@@ -76,45 +76,24 @@
 
 /* Error State */
 .iv__error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  min-height: 200px;
-  text-align: center;
+  @apply flex flex-col items-center justify-center p-8 min-h-[200px] text-center;
 }
 
 .iv__error-message {
-  color: var(--destructive, #ef4444);
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+  @apply text-destructive mb-4 text-sm;
 }
 
 .iv__retry {
-  background: var(--primary, #3b82f6);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  @apply bg-primary text-white border-none px-4 py-2 rounded-md text-sm cursor-pointer transition-colors duration-200;
 }
 
 .iv__retry:hover {
-  background: var(--primary-hover, #2563eb);
+  @apply bg-primary/90;
 }
 
 /* Empty State */
 .iv__empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  min-height: 200px;
-  color: var(--text-muted, #6b7280);
-  font-size: 0.875rem;
+  @apply flex items-center justify-center p-8 min-h-[200px] text-muted-foreground text-sm;
 }
 
 /* Tabs */
@@ -126,21 +105,26 @@
   display: flex;
   margin-bottom: 0;
   list-style: none;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .iv__tab-trigger {
-  @apply text-sm cursor-pointer transition-all bg-border border-b-2 border-transparent text-muted-foreground px-4 py-2 rounded-t-md;
-  margin-top: calc(1rem + 2px);
+  @apply text-sm cursor-pointer transition-all bg-border border-b-2 border-transparent text-muted-foreground px-4 py-1 rounded-t-md;
   position: relative;
+  margin-bottom: calc(-0.5rem - 2px);
+  border-width: 2px;
 }
 
 .iv__tab-trigger:hover {
-  @apply bg-border text-primary border-primary;
+  @apply bg-border text-primary;
+  border-bottom-color: var(--primary, #3b82f6);
 }
 
 .iv__tab-trigger[data-state="active"] {
-  @apply border;
-  @apply bg-background text-primary border-slate-300 border-b-2;
+  @apply bg-background text-primary border-border;
+  border-bottom-color: white;
 }
 
 .iv__tab-trigger:focus-visible {
@@ -232,8 +216,8 @@
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .iv__tabs-list {
+    @apply border-b-2 border-border;
     background: var(--background, #1f2937);
-    border-bottom-color: var(--border, #374151);
   }
 
   .iv__tab-trigger {
@@ -247,7 +231,7 @@
 
   .iv__tab-trigger[data-state="active"] {
     color: var(--primary, #60a5fa);
-    border-bottom-color: var(--primary, #60a5fa);
+    @apply border-b-2;
   }
 
   .iv__content {

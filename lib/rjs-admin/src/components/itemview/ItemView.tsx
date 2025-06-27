@@ -1,5 +1,5 @@
 import * as Tabs from "@radix-ui/react-tabs";
-import { BotIcon, Loader2Icon } from "lucide-react";
+import { BotIcon, Loader2Icon, LucideFileWarning } from "lucide-react";
 import React, { Component, createContext, useContext } from "react";
 import type { ApiParams, ApiResponse } from "rjs-frame";
 import { APIManager } from "rjs-frame";
@@ -45,8 +45,6 @@ export interface ItemViewProps {
   className?: string;
   onError?: (error: Error) => void;
   onLoad?: (data: any) => void;
-  loadingComponent?: React.ReactNode;
-  errorComponent?: React.ReactNode;
   params?: ApiParams; // Additional parameters for the API call
   defaultTab?: string; // Default active tab
   children?: React.ReactNode; // Tab content components (TabItem components)
@@ -173,33 +171,34 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
   };
 
   renderLoading = (loading: boolean): React.ReactNode => {
-    const { loadingComponent } = this.props;
-
-    if (!loading || !loadingComponent) {
+    if (!loading || this.state.item) {
       return null;
     }
 
     return (
       <div
-        className={cn("iv__loading-overlay", "iv__loading-overlay--visible")}
+        className={cn(
+          "iv__loading-overlay",
+          "iv__loading-overlay--visible",
+          "flex",
+          "items-center",
+          "gap-2"
+        )}
       >
-        {loadingComponent}
+        <Loader2Icon className="w-6 h-6 animate-spin" />
+        Loading data ...
       </div>
     );
   };
 
   renderError = (error: Error): React.ReactNode => {
-    const { errorComponent } = this.props;
-
-    if (errorComponent) {
-      return errorComponent;
-    }
-
     return (
       <div className="iv__error">
-        <div className="iv__error-message">
-          Error loading item: {error.message}
-        </div>
+        <h3 className="text-lg font-bold flex gap-2 items-center">
+          <LucideFileWarning className="w-6 h-6 text-destructive" />
+          Error loading item...
+        </h3>
+        <p className="text-sm p-6 text-muted-foreground">{error.message}</p>
         <button onClick={this.fetchItem} className="iv__retry">
           Retry
         </button>
@@ -230,24 +229,23 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
 
   renderItemHeader = (): React.ReactNode => {
     const { item, loading } = this.state;
-    const { loadingComponent } = this.props;
     return (
-      <div className="flex items-center gap-2 w-1/2">
-        {loading && !loadingComponent ? (
-          <Loader2Icon className="h-8 w-8 animate-spin" />
-        ) : (
-          <BotIcon
-            className="h-8 w-8"
-            onClick={() => {
-              this.refreshItem();
-            }}
-          />
-        )}
-        <div className="w-full">
-          <h2 className="rjs-panel-header-title text-nowrap text-ellipsis overflow-hidden">
-            {item.name || "[No name]"}
-          </h2>
-          <p className="text-xs text-muted-foreground text-nowrap text-ellipsis overflow-hidden">
+      <div className="flex gap-2 max-w-full items-start">
+        <div>
+          {loading ? (
+            <Loader2Icon className="h-10 w-10 animate-spin" />
+          ) : (
+            <BotIcon
+              className="h-10 w-10"
+              onClick={() => {
+                this.refreshItem();
+              }}
+            />
+          )}
+        </div>
+        <div className="max-w-full">
+          <h2 className="rjs-panel-header-title">{item.name || "[No name]"}</h2>
+          <p className="text-xs text-muted-foreground">
             {item.description || "No description"}
           </p>
         </div>
