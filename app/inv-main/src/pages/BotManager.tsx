@@ -13,7 +13,9 @@ import {
   Header,
   PortfolioCard,
   StockListView,
+  BotConfigModal,
 } from "../components";
+import { useState } from "react";
 
 const botStatusFormatter = (status: string) => {
   const colorMap = {
@@ -79,6 +81,9 @@ const BotItemView = () => {
 
 export default function BotManager() {
   const { config: appConfig } = useAppContext();
+  const [showBotConfigModal, setShowBotConfigModal] = useState(false);
+  const [botToConfig, setBotToConfig] = useState<string | null>(null);
+
   const tableActions = [
     {
       label: "Add Bot",
@@ -110,15 +115,18 @@ export default function BotManager() {
         }
       },
       onClick: (e: React.MouseEvent<HTMLButtonElement>, row: any) => {
-        if (row.status == "DEACTIVATED") {
+        if (row.status == "INACTIVE") {
+          setBotToConfig(row.id);
+          setShowBotConfigModal(true);
+        } else if (row.status == "DEACTIVATED") {
           console.log("Do nothing on DEACTIVATED");
         } else {
           row.status = botStatusTransition(row.status);
+          console.log(
+            "Simulate API call to update bot status ... no action performed.",
+            e
+          );
         }
-        console.log(
-          "Simulate API call to update bot status ... no action performed.",
-          e
-        );
       },
     },
   ];
@@ -153,61 +161,86 @@ export default function BotManager() {
   ];
 
   return (
-    <ThreeColumnLayout
-      sidebarWidth="lg"
-      slotClasses={{
-        main: "no-padding",
-        sidebar: "no-padding flex flex-col gap-4",
-        rightPanel: "no-padding",
-      }}
-    >
-      <Header slotName="header" />
+    <>
+      <ThreeColumnLayout
+        sidebarWidth="lg"
+        slotClasses={{
+          main: "no-padding",
+          sidebar: "no-padding flex flex-col gap-4",
+          rightPanel: "no-padding",
+        }}
+      >
+        <Header slotName="header" />
 
-      <PageModule slotName="sidebar">
-        <PortfolioCard />
-      </PageModule>
+        <PageModule slotName="sidebar">
+          <PortfolioCard />
+        </PageModule>
 
-      <PageModule slotName="sidebar">
-        <BlockListView resourceName="trade-manager:block-listing" />
-      </PageModule>
-      <PageModule slotName="sidebar">
-        <StockListView resourceName="trade-manager:asset-summary" />
-      </PageModule>
-      <PageModule slotName="main" className="h-full">
-        <DataTable
-          title="Bot Manager"
-          description="Manage your trading bots and their instances"
-          resourceName="trade-bot:bot-listing"
-          className="no-border h-full"
-          showHeaderTitle={false}
-          tableActions={tableActions}
-          batchActions={batchActions}
-          queryState={{
-            select: ["name", "profit", "applied_blocks", "status"],
+        <PageModule slotName="sidebar">
+          <BlockListView resourceName="trade-manager:block-listing" />
+        </PageModule>
+        <PageModule slotName="sidebar">
+          <StockListView resourceName="trade-manager:asset-summary" />
+        </PageModule>
+        <PageModule slotName="main" className="h-full">
+          <DataTable
+            title="Bot Manager"
+            description="Manage your trading bots and their instances"
+            resourceName="trade-bot:bot-listing"
+            className="no-border h-full"
+            showHeaderTitle={false}
+            tableActions={tableActions}
+            batchActions={batchActions}
+            queryState={{
+              select: [
+                "name",
+                "started_date",
+                "profit",
+                "profit_value",
+                "applied_blocks",
+                "status",
+              ],
+            }}
+            onActivate={(id, row) => {
+              updatePageParams({
+                bot_id: id as string,
+                status: row.status as string,
+              });
+            }}
+            rowActions={rowActions}
+            customFormatters={{
+              status: (value: string) => botStatusFormatter(value),
+            }}
+          />
+        </PageModule>
+
+        <PageModule slotName="rightPanel">
+          <BotItemView />
+        </PageModule>
+
+        <PageModule className="p-4" slotName="footer">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <p>&copy; 2025 {appConfig?.get("app.name")}. All rights reserved.</p>
+            <p>Version: {appConfig?.get("app.version")}</p>
+          </div>
+        </PageModule>
+      </ThreeColumnLayout>
+
+      {showBotConfigModal && (
+        <BotConfigModal
+          open={showBotConfigModal}
+          onClose={() => {
+            setShowBotConfigModal(false);
+            setBotToConfig(null);
           }}
-          onActivate={(id, row) => {
-            updatePageParams({
-              bot_id: id as string,
-              status: row.status as string,
-            });
-          }}
-          rowActions={rowActions}
-          customFormatters={{
-            status: (value: string) => botStatusFormatter(value),
+          botDefId={botToConfig || ""}
+          onRun={(params: any) => {
+            console.log("Run bot with params:", params);
+            setShowBotConfigModal(false);
+            setBotToConfig(null);
           }}
         />
-      </PageModule>
-
-      <PageModule slotName="rightPanel">
-        <BotItemView />
-      </PageModule>
-
-      <PageModule className="p-4" slotName="footer">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 {appConfig?.get("app.name")}. All rights reserved.</p>
-          <p>Version: {appConfig?.get("app.version")}</p>
-        </div>
-      </PageModule>
-    </ThreeColumnLayout>
+      )}
+    </>
   );
 }
