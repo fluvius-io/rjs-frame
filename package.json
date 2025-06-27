@@ -36,6 +36,8 @@
     "npm": ">=9.0.0"
   },
   "dependencies": {
-    "@radix-ui/themes": "^3.2.1"
+    "@radix-ui/themes": "^3.2.1",
+    "@rjsf/bootstrap-4": "^5.24.12",
+    "@rjsf/core": "^5.24.12"
   }
 }
