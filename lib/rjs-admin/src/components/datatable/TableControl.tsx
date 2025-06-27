@@ -90,9 +90,9 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
         </div>
       )}
       <div className="dt-control-body">
-        <div className="dt-control-actions">
-          {!showHeaderTitle && (
-            <div className="flex gap-2 w-full items-center">
+        {!showHeaderTitle && (
+          <div className="dt-control-title">
+            <div>
               {showSidebar ? (
                 <SidebarClose
                   className="w-6 h-6 cursor-pointer"
@@ -104,14 +104,14 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
                   onClick={toggleSidebar}
                 />
               )}
-              <div className="flex flex-col gap-0">
-                <h2 className="dt-control-title">{camelCaseToWords(title)}</h2>
-                <div className="text-xs text-gray-500 text-nowrap text-ellipsis overflow-hidden">
-                  {description}
-                </div>
-              </div>
             </div>
-          )}
+            <div className="flex flex-col gap-0">
+              <h2>{camelCaseToWords(title)}</h2>
+              <div className="text-xs text-gray-500">{description}</div>
+            </div>
+          </div>
+        )}
+        <div className="dt-control-actions">
           <input
             type="text"
             placeholder="Search..."

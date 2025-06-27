@@ -1,3 +1,4 @@
+import { BanknoteIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { APIManager, ApiResponse } from "rjs-frame";
 
@@ -50,10 +51,9 @@ export const StockListView: React.FC<StockListViewProps> = ({
   return (
     <div className="rjs-panel">
       <div className="rjs-panel-header">
-        <span className="font-semibold text-base text-gray-700 flex items-center gap-1">
-          <span className="inline-block align-middle">🔲</span> Stocks (
-          {pagination.total})
-        </span>
+        <div className="rjs-panel-title">
+          <BanknoteIcon className="w-6 h-6" /> Stocks ({pagination.total})
+        </div>
         <span className="ml-auto text-gray-400">▼</span>
       </div>
       <div className="rjs-panel-section">

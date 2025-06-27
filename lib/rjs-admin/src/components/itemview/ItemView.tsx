@@ -48,6 +48,7 @@ export interface ItemViewProps {
   params?: ApiParams; // Additional parameters for the API call
   defaultTab?: string; // Default active tab
   children?: React.ReactNode; // Tab content components (TabItem components)
+  itemIcon?: React.ElementType;
 }
 
 interface ItemViewState {
@@ -229,14 +230,15 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
 
   renderItemHeader = (): React.ReactNode => {
     const { item, loading } = this.state;
+    const { itemIcon: ItemIcon = BotIcon } = this.props;
     return (
-      <div className="flex gap-2 max-w-full items-start">
+      <div className="flex gap-2 max-w-full items-center">
         <div>
           {loading ? (
-            <Loader2Icon className="h-8 w-10 animate-spin" />
+            <Loader2Icon className="h-6 w-6 animate-spin" />
           ) : (
-            <BotIcon
-              className="h-10 w-10"
+            <ItemIcon
+              className="h-6 w-6"
               onClick={() => {
                 this.refreshItem();
               }}
@@ -246,7 +248,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
         <div className="max-w-full">
           <h2 className="rjs-panel-header-title">{item.name || "[No name]"}</h2>
           <p className="text-xs text-muted-foreground">
-            {item.description || "No description"}
+            {item.description || "[No description]"}
           </p>
         </div>
       </div>

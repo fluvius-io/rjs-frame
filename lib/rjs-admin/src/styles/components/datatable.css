@@ -27,11 +27,12 @@
 }
 
 .dt-control-title {
-  @apply w-full text-lg font-semibold text-gray-900 capitalize text-nowrap text-ellipsis overflow-hidden;
+  @apply flex gap-2 items-center;
 }
 
 .dt-control-actions {
-  @apply flex items-center gap-2 w-full;
+  @apply flex items-center gap-2 justify-end;
+  flex: 1;
 }
 
 .dt-user-actions {
@@ -39,8 +40,7 @@
 }
 
 .dt-control-body {
-  @apply flex items-center justify-between;
-  height: calc(2.5rem - 2px);
+  @apply flex items-center justify-between gap-x-8 gap-y-2 w-full flex-wrap;
 }
 
 .dt-query-builder-trigger {
@@ -48,7 +48,8 @@
 }
 
 .dt-search-box {
-  @apply w-full max-w-md px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+  @apply px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+  @apply max-w-lg min-w-48 w-full;
 }
 
 /* Table View Section */
