@@ -104,9 +104,9 @@ export const TableControl: React.FC<TableControlProps> = ({ className }) => {
                   onClick={toggleSidebar}
                 />
               )}
-              <div className="flex flex-col gap-0 -mt-1">
+              <div className="flex flex-col gap-0">
                 <h2 className="dt-control-title">{camelCaseToWords(title)}</h2>
-                <div className="-mt-1 text-sm text-gray-500 text-nowrap text-ellipsis overflow-hidden">
+                <div className="text-xs text-gray-500 text-nowrap text-ellipsis overflow-hidden">
                   {description}
                 </div>
               </div>

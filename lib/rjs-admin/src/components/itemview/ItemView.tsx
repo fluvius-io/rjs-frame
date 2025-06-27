@@ -233,7 +233,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
       <div className="flex gap-2 max-w-full items-start">
         <div>
           {loading ? (
-            <Loader2Icon className="h-10 w-10 animate-spin" />
+            <Loader2Icon className="h-8 w-10 animate-spin" />
           ) : (
             <BotIcon
               className="h-10 w-10"
