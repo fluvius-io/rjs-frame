@@ -13,6 +13,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import SignalsPage from "./pages/SignalsPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import "./styles/index.css";
+import "./views/modals";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

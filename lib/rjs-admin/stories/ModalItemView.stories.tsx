@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import { Button } from "../src/components/common/Button";
-import { ModalItemView } from "../src/components/itemview";
+import { ModalView } from "../src/components/itemview";
 import "../src/lib/api";
 
-const meta: Meta<typeof ModalItemView> = {
-  title: "Components/ModalItemView",
-  component: ModalItemView,
+const meta: Meta<typeof ModalView> = {
+  title: "Components/ModalView",
+  component: ModalView,
   parameters: {
     layout: "padded",
   },
@@ -67,8 +67,8 @@ export const Default: Story = {
   },
   render: (args) => (
     <ModalWrapper>
-      <ModalItemView {...args}>
-        <ModalItemView.TabItem name="details" label="Details">
+      <ModalView {...args}>
+        <ModalView.TabItem name="details" label="Details">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Details</h3>
             <p>This tab shows detailed user information in a modal.</p>
@@ -78,9 +78,9 @@ export const Default: Story = {
               </p>
             </div>
           </div>
-        </ModalItemView.TabItem>
+        </ModalView.TabItem>
 
-        <ModalItemView.TabItem name="settings" label="Settings">
+        <ModalView.TabItem name="settings" label="Settings">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Settings</h3>
             <p>This tab shows user settings and preferences.</p>
@@ -90,9 +90,9 @@ export const Default: Story = {
               </p>
             </div>
           </div>
-        </ModalItemView.TabItem>
+        </ModalView.TabItem>
 
-        <ModalItemView.TabItem name="activity" label="Activity">
+        <ModalView.TabItem name="activity" label="Activity">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Activity</h3>
             <p>This tab shows user activity and history.</p>
@@ -102,8 +102,8 @@ export const Default: Story = {
               </p>
             </div>
           </div>
-        </ModalItemView.TabItem>
-      </ModalItemView>
+        </ModalView.TabItem>
+      </ModalView>
     </ModalWrapper>
   ),
 };
@@ -118,8 +118,8 @@ export const WithoutCloseButton: Story = {
   },
   render: (args) => (
     <ModalWrapper>
-      <ModalItemView {...args}>
-        <ModalItemView.TabItem name="details" label="Details">
+      <ModalView {...args}>
+        <ModalView.TabItem name="details" label="Details">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Details</h3>
             <p>This modal has no close button in the header.</p>
@@ -129,8 +129,8 @@ export const WithoutCloseButton: Story = {
               </p>
             </div>
           </div>
-        </ModalItemView.TabItem>
-      </ModalItemView>
+        </ModalView.TabItem>
+      </ModalView>
     </ModalWrapper>
   ),
 };
@@ -145,21 +145,20 @@ export const WithJSONView: Story = {
   },
   render: (args) => (
     <ModalWrapper>
-      <ModalItemView {...args}>
-        <ModalItemView.TabItem name="details" label="Details">
+      <ModalView {...args}>
+        <ModalView.TabItem name="details" label="Details">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Details</h3>
             <p>This tab shows detailed user information.</p>
           </div>
-        </ModalItemView.TabItem>
+        </ModalView.TabItem>
 
-        <ModalItemView.TabItem name="settings" label="Settings">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Settings</h3>
             <p>This tab shows user settings and preferences.</p>
           </div>
-        </ModalItemView.TabItem>
-      </ModalItemView>
+        </ModalView.TabItem>
+      </ModalView>
     </ModalWrapper>
   ),
 };
@@ -179,14 +178,14 @@ export const WithErrorHandling: Story = {
   },
   render: (args) => (
     <ModalWrapper>
-      <ModalItemView {...args}>
-        <ModalItemView.TabItem name="details" label="Details">
+      <ModalView {...args}>
+        <ModalView.TabItem name="details" label="Details">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Details</h3>
             <p>This tab shows detailed user information.</p>
           </div>
-        </ModalItemView.TabItem>
-      </ModalItemView>
+        </ModalView.TabItem>
+      </ModalView>
     </ModalWrapper>
   ),
 };
@@ -201,8 +200,8 @@ export const CustomModalClass: Story = {
   },
   render: (args) => (
     <ModalWrapper>
-      <ModalItemView {...args}>
-        <ModalItemView.TabItem name="details" label="Details">
+      <ModalView {...args}>
+        <ModalView.TabItem name="details" label="Details">
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">User Details</h3>
             <p>This modal has a custom max-width class applied.</p>
@@ -212,8 +211,8 @@ export const CustomModalClass: Story = {
               </p>
             </div>
           </div>
-        </ModalItemView.TabItem>
-      </ModalItemView>
+        </ModalView.TabItem>
+      </ModalView>
     </ModalWrapper>
   ),
 };

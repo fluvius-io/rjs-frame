@@ -15,6 +15,12 @@ export interface PageLayoutContextType {
   removePageModule: (slotName: string, content: React.ReactNode) => void;
   setLoading: (loadingKey: string, loadingValue?: boolean) => void;
   getLoading: (loadingKey: string) => boolean;
+  registerParamSwitcher: (paramKey: string, moduleId: string) => void;
+  unregisterParamSwitcher: (
+    paramKey: string,
+    moduleId: string
+  ) => string | null;
+  getParamSwitcher: (paramKey: string) => string | null;
 }
 
 export interface PageSlotContextType {

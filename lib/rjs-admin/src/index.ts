@@ -36,18 +36,26 @@ export { Input } from "./components/form/Input";
 // Entity Components
 export { EntityFormat } from "./components/entity";
 export type { EntityFormatProps } from "./components/entity";
+export { default as ItemFooter } from "./components/view/ItemFooter";
 
 // Item View Components
 export {
-  ItemFooter,
   ItemView,
-  ModalItemView,
+  ItemViewSwitcher,
+  ModalView,
+  ModalViewSwitcher,
+  TabbedView,
   useItemView,
-} from "./components/itemview";
+} from "./components/view";
 export type {
-  ItemViewContextValue,
   ItemViewProps,
-} from "./components/itemview";
+  ModalViewProps,
+  SwitcherProps,
+  SwitcherViewComponentProps,
+} from "./components/view";
+
+// Modal Components
+export { UserProfileModal } from "./modals";
 
 // Data Table Components
 export {

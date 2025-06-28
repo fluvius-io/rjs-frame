@@ -28,6 +28,7 @@ interface PageLayoutState {
   showPageConfigurationModal: boolean;
   loading: Record<string, boolean>;
   appState: AppState;
+  paramSwitcherRegistry: Record<string, string>;
 }
 
 export abstract class PageLayout<
@@ -109,6 +110,7 @@ export abstract class PageLayout<
       showPageConfigurationModal: false,
       appState: getAppState(),
       loading: {},
+      paramSwitcherRegistry: {},
     } as S;
   }
 
@@ -286,6 +288,57 @@ export abstract class PageLayout<
       },
       getLoading: (loadingKey: string): boolean => {
         return this.state?.loading[loadingKey] || false;
+      },
+      registerParamSwitcher: (paramKey: string, moduleId: string) => {
+        const activeId = this.state.paramSwitcherRegistry[paramKey];
+        if (activeId && activeId !== moduleId) {
+          // console.error(
+          //   `[PageLayout] Param switcher ${paramKey} already registered`
+          // );
+          throw new Error(
+            `[PageLayout] Param switcher ${paramKey} already registered`
+          );
+        }
+
+        if (activeId === moduleId) {
+          console.log(
+            `[PageLayout] Module id already registered for param ${paramKey}: ${moduleId}`
+          );
+          return;
+        }
+
+        this.updateState({
+          paramSwitcherRegistry: {
+            ...this.state.paramSwitcherRegistry,
+            [paramKey]: moduleId,
+          },
+        } as unknown as Partial<S>);
+      },
+      unregisterParamSwitcher: (
+        paramKey: string,
+        moduleId: string
+      ): string | null => {
+        if (!this.state.paramSwitcherRegistry[paramKey]) {
+          return null;
+        }
+
+        if (this.state.paramSwitcherRegistry[paramKey] !== moduleId) {
+          console.warn(
+            `[PageLayout] Param switcher ${paramKey} is not registered for module ${moduleId}`
+          );
+          return null;
+        }
+
+        this.updateState({
+          paramSwitcherRegistry: {
+            ...this.state.paramSwitcherRegistry,
+            [paramKey]: undefined,
+          },
+        } as unknown as Partial<S>);
+        return this.state.paramSwitcherRegistry[paramKey] || null;
+      },
+      getParamSwitcher: (paramKey: string): string | null => {
+        return this.state.paramSwitcherRegistry[paramKey] || null;
       },
     };
 

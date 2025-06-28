@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ItemFooter, useItemView } from "rjs-admin";
-import { APIManager } from "rjs-frame";
+import { APIManager, updatePageParams } from "rjs-frame";
 
 export const BotDefinitionDetailView = () => {
   const { item } = useItemView();
@@ -136,7 +136,12 @@ export const BotDefinitionDetailView = () => {
             {algorithms.map((algo: any, idx: number) => (
               <div
                 key={algo._id || idx}
-                className="border rounded p-3 bg-muted overflow-hidden"
+                className="border rounded p-3 bg-muted overflow-hidden cursor-pointer"
+                onClick={() => {
+                  updatePageParams({
+                    modal: `algo.${algo._id}`,
+                  });
+                }}
               >
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-sm">{algo.name}</span>
@@ -148,7 +153,10 @@ export const BotDefinitionDetailView = () => {
                   </span>
                   <span
                     className="text-xs font-mono text-muted-foreground cursor-pointer ml-2"
-                    onClick={() => setShowCode(!showCode)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowCode(!showCode);
+                    }}
                   >
                     {showCode ? "[ Hide Code ]" : "[ Show Code ]"}
                   </span>

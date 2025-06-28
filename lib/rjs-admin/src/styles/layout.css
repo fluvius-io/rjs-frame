@@ -25,7 +25,7 @@
 }
 
 .rjs-layout-body {
-  min-height: calc(100vh - 110px);
+  min-height: calc(100vh - 80px);
 }
 
 .rjs-panel-footer {
@@ -34,4 +34,8 @@
 
 .dt-control {
   min-height: calc(3.5rem + 2px);
+}
+
+body {
+  overflow-y: hidden;
 }

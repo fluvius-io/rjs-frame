@@ -10,8 +10,7 @@
 
 /* Footer Content */
 .footer-content {
-  @apply flex items-center justify-between text-sm text-muted-foreground;
-  @apply px-4 py-3;
+  @apply flex items-center justify-between text-xs text-muted-foreground;
 }
 
 /* Footer Copyright Text */
@@ -27,7 +26,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .footer-content {
-    @apply flex-col items-start gap-2 px-3 py-4;
+    @apply flex-col items-start gap-2;
   }
 
   .footer-copyright,

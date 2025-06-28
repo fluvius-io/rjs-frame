@@ -116,15 +116,15 @@ export class APICollection implements ApiCollectionInterface {
       (this.config.baseUrl || "") +
       resolveUrl(queryConfig.path, queryConfig.uri, params);
     const headers = this.resolveHeaders(queryConfig.headers, params);
-    const cache = params?.cache ?? false;
-    const cacheKey = cache && this.generateMetadataCacheKey(url, headers);
+    const useCache = params?.cache ?? false;
+    const search = params?.search || {};
+    const cacheKey = this.generateQueryCacheKey(url, headers, search);
+    const itemCached = this.queryCache.has(cacheKey);
 
-    if (cacheKey) {
-      if (this.queryCache.has(cacheKey)) {
-        const cached = this.queryCache.get(cacheKey)!;
-        this.log(`📋 Using cached data for query '${queryName}'`);
-        return cached;
-      }
+    if (useCache && itemCached) {
+      const cached = this.queryCache.get(cacheKey)!;
+      this.debug && this.log(`📋 Using cached data for query '${queryName}'`);
+      return cached;
     }
 
     try {
@@ -133,7 +133,9 @@ export class APICollection implements ApiCollectionInterface {
         response,
         queryConfig.response
       );
-      if (cacheKey) {
+
+      if (useCache || itemCached) {
+        // If the item is cached, update the cache with the new data
         this.queryCache.set(cacheKey, {
           ...apiResponse,
           cache: true,
@@ -163,13 +165,15 @@ export class APICollection implements ApiCollectionInterface {
         ...params,
       });
     const headers = this.resolveHeaders(queryConfig.headers, params);
-    const cache = params?.cache ?? false;
-    const cacheKey = cache && this.generateMetadataCacheKey(url, headers);
+    const useCache = params?.cache ?? false;
+    const cacheKey = this.generateQueryCacheKey(url, headers);
+    const itemCached = this.queryCache.has(cacheKey);
 
-    if (cacheKey) {
+    if (useCache && itemCached) {
       if (this.queryCache.has(cacheKey)) {
         const cached = this.queryCache.get(cacheKey)!;
-        this.log(`📋 Using cached metadata for query '${queryName}'`);
+        this.debug &&
+          this.log(`📋 Using cached data for item query '${queryName}'`);
         return cached;
       }
     }
@@ -182,7 +186,7 @@ export class APICollection implements ApiCollectionInterface {
         response,
         responseProcessor
       );
-      if (cacheKey) {
+      if (useCache || itemCached) {
         this.queryCache.set(cacheKey, {
           ...apiResponse,
           cache: true,
@@ -227,12 +231,11 @@ export class APICollection implements ApiCollectionInterface {
       resolveUrl(metaPath, queryConfig.uri, params);
     const headers = this.resolveHeaders(queryConfig.headers, params);
     const useCache = params?.cache ?? true; // for queryMeta, cache is true by default
-    const cacheKey = useCache && this.generateMetadataCacheKey(uri, headers);
-    if (cacheKey) {
-      if (this.queryCache.has(cacheKey)) {
-        return this.queryCache.get(cacheKey)!;
-        this.log(`📋 Using cached metadata for query '${queryName}'`);
-      }
+    const cacheKey = this.generateQueryCacheKey(uri, headers);
+    const itemCached = this.queryCache.has(cacheKey);
+
+    if (useCache && itemCached) {
+      return this.queryCache.get(cacheKey)!;
     }
 
     try {
@@ -242,16 +245,14 @@ export class APICollection implements ApiCollectionInterface {
         queryConfig.response
       );
 
-      if (cacheKey) {
-        // Cache the metadata
+      if (useCache || itemCached) {
+        // Cache the metadata, only if the cache is enabled or update cached item
         this.queryCache.set(cacheKey, {
           ...apiResponse,
           cache: true,
           timestamp: Date.now(),
         });
       }
-
-      this.log(`📋 Cached metadata for query '${queryName}'`);
 
       return apiResponse;
     } catch (error) {
@@ -662,27 +663,40 @@ export class APICollection implements ApiCollectionInterface {
   }
 
   /**
-   * Generate a cache key for metadata based on query name and parameters
-   * @param queryName Name of the query
-   * @param params Parameters for URI generation
+   * Generate a cache key for metadata based on URI, headers and search parameters
+   * @param uri The URI of the query
+   * @param headers The headers of the query
+   * @param search The search parameters of the query
    */
-  private generateMetadataCacheKey(
+  private generateQueryCacheKey(
     uri: string,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
+    search?: Record<string, string>
   ): string {
-    if (!headers || Object.keys(headers).length === 0) {
-      return uri;
+    let headerCacheKey = "";
+    let searchCacheKey = "";
+    if (headers && Object.keys(headers).length > 0) {
+      // Sort parameters to ensure consistent cache keys
+      const sortedHeaders = Object.keys(headers)
+        .sort()
+        .reduce((sorted, key) => {
+          sorted[key] = headers[key];
+          return sorted;
+        }, {} as Record<string, string>);
+      headerCacheKey = JSON.stringify(sortedHeaders);
     }
 
-    // Sort parameters to ensure consistent cache keys
-    const sortedHeaders = Object.keys(headers)
-      .sort()
-      .reduce((sorted, key) => {
-        sorted[key] = headers[key];
-        return sorted;
-      }, {} as Record<string, string>);
+    if (search && Object.keys(search).length > 0) {
+      const sortedSearch = Object.keys(search)
+        .sort()
+        .reduce((sorted, key) => {
+          sorted[key] = search[key];
+          return sorted;
+        }, {} as Record<string, string>);
+      searchCacheKey = JSON.stringify(sortedSearch);
+    }
 
-    return `${uri}:${JSON.stringify(sortedHeaders)}`;
+    return `${uri}:${headerCacheKey}:${searchCacheKey}`;
   }
 
   /**

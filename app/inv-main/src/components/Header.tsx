@@ -228,7 +228,6 @@ export class Header extends PageModule<HeaderProps> {
   };
 
   renderContent() {
-    console.log("loading", this.context);
     const { className } = this.props;
 
     return (

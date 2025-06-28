@@ -1,65 +1,21 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import { BotIcon, Loader2Icon, LucideFileWarning } from "lucide-react";
-import React, { Component, createContext, useContext } from "react";
-import type { ApiParams, ApiResponse } from "rjs-frame";
+import React, { Component } from "react";
+import type { ApiParams, ApiResponse, PageLayoutContext } from "rjs-frame";
 import { APIManager } from "rjs-frame";
 import { cn } from "../../lib/utils";
 import "../../styles/components/itemview.css";
-
-// Context for ItemView sub-components
-export interface ItemViewContextValue {
-  item: any | null;
-  loading: boolean;
-  error: Error | null;
-  itemId: string;
-  apiName: string;
-  refreshItem: () => void;
-}
-
-const ItemViewContext = createContext<ItemViewContextValue | null>(null);
-
-export const useItemView = () => {
-  const context = useContext(ItemViewContext);
-  if (!context) {
-    throw new Error("useItemView must be used within an ItemView component");
-  }
-  return context;
-};
-
-// TabItem component for defining named tabs
-export interface TabItemProps {
-  name: string;
-  label: string;
-  children: React.ReactNode;
-}
+import { ItemViewContext, ItemViewContextValue } from "./context";
+import { ItemViewProps, ItemViewState, TabItemProps } from "./types";
 
 export const TabItem: React.FC<TabItemProps> = ({ children }) => {
   // This component is just a wrapper - the actual rendering is handled by ItemView
   return <>{children}</>;
 };
 
-export interface ItemViewProps {
-  itemId: string;
-  resourceName: string; // API endpoint name (can be "collection:queryName" or just "queryName")
-  itemJsonView?: boolean;
-  className?: string;
-  onError?: (error: Error) => void;
-  onLoad?: (data: any) => void;
-  params?: ApiParams; // Additional parameters for the API call
-  defaultTab?: string; // Default active tab
-  children?: React.ReactNode; // Tab content components (TabItem components)
-  itemIcon?: React.ElementType;
-}
-
-interface ItemViewState {
-  item: any | null;
-  loading: boolean;
-  error: Error | null;
-  activeTab: string;
-}
-
 export class ItemView extends Component<ItemViewProps, ItemViewState> {
   static TabItem = TabItem;
+  declare readonly context: React.ContextType<typeof PageLayoutContext>;
 
   constructor(props: ItemViewProps) {
     super(props);
@@ -86,7 +42,11 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     }
   }
 
-  fetchItem = async () => {
+  updateState = (state: Partial<ItemViewState>) => {
+    this.setState((prevState) => ({ ...prevState, ...state }));
+  };
+
+  fetchItem = async (fetchParams?: ApiParams) => {
     const {
       itemId,
       resourceName: apiName,
@@ -96,7 +56,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     } = this.props;
 
     if (!itemId) {
-      this.setState({
+      this.updateState({
         error: new Error("itemId prop is required"),
         loading: false,
       });
@@ -104,14 +64,14 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     }
 
     if (!apiName) {
-      this.setState({
+      this.updateState({
         error: new Error("apiName prop is required"),
         loading: false,
       });
       return;
     }
 
-    this.setState({ loading: true, error: null });
+    this.updateState({ loading: true, error: null });
 
     try {
       const response: ApiResponse<any> = await APIManager.queryItem(
@@ -120,10 +80,11 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
         {
           cache: true,
           ...params,
+          ...fetchParams,
         }
       );
 
-      this.setState({
+      this.updateState({
         item: response.data,
         loading: false,
         error: null,
@@ -135,7 +96,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error("Failed to fetch item");
-      this.setState({
+      this.updateState({
         item: null,
         loading: false,
         error: err,
@@ -147,12 +108,8 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     }
   };
 
-  refreshItem = () => {
-    this.fetchItem();
-  };
-
   handleTabChange = (value: string) => {
-    this.setState({ activeTab: value });
+    this.updateState({ activeTab: value });
   };
 
   // Extract TabItem components from children
@@ -171,11 +128,11 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     return tabItems;
   };
 
-  renderLoading = (loading: boolean): React.ReactNode => {
-    if (!loading || this.state.item) {
-      return null;
-    }
+  get loadingVisible(): boolean {
+    return this.state.loading && !this.state.item;
+  }
 
+  renderLoading = (): React.ReactNode => {
     return (
       <div
         className={cn(
@@ -200,7 +157,10 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
           Error loading item...
         </h3>
         <p className="text-sm p-6 text-muted-foreground">{error.message}</p>
-        <button onClick={this.fetchItem} className="iv__retry">
+        <button
+          onClick={() => this.fetchItem({ cache: false })}
+          className="iv__retry"
+        >
           Retry
         </button>
       </div>
@@ -240,7 +200,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
             <ItemIcon
               className="h-6 w-6"
               onClick={() => {
-                this.refreshItem();
+                this.fetchItem({ cache: false });
               }}
             />
           )}
@@ -255,9 +215,9 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     );
   };
 
-  renderItemContent = (): React.ReactNode => {
+  renderItem = (): React.ReactNode => {
     const { className } = this.props;
-    const { activeTab, loading } = this.state;
+    const { activeTab, item } = this.state;
     const tabItems = this.extractTabItems();
     const hasCustomTabs = tabItems.length >= 0;
     const itemJsonView =
@@ -309,13 +269,29 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
         </Tabs.Root>
 
         {/* Loading overlay */}
-        {this.renderLoading(loading)}
       </div>
     );
   };
 
-  render(): React.ReactNode {
+  renderEmpty = (): React.ReactNode => {
     const { className = "" } = this.props;
+    return (
+      <div className={`item-view ${className}`}>
+        <div className="iv__empty">No item found</div>
+      </div>
+    );
+  };
+
+  renderContent = (): React.ReactNode => {
+    return (
+      <>
+        {this.renderItem()}
+        {this.loadingVisible && this.renderLoading()}
+      </>
+    );
+  };
+
+  render(): React.ReactNode {
     const { item, loading, error } = this.state;
 
     const contextValue: ItemViewContextValue = {
@@ -324,7 +300,7 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
       error,
       itemId: this.props.itemId,
       apiName: this.props.resourceName,
-      refreshItem: this.refreshItem,
+      refreshItem: this.fetchItem,
     };
 
     if (error) {
@@ -332,16 +308,12 @@ export class ItemView extends Component<ItemViewProps, ItemViewState> {
     }
 
     if (!item) {
-      return (
-        <div className={`item-view ${className}`}>
-          <div className="iv__empty">No item found</div>
-        </div>
-      );
+      return this.renderEmpty();
     }
 
     return (
       <ItemViewContext.Provider value={contextValue}>
-        {this.renderItemContent()}
+        {this.renderContent()}
       </ItemViewContext.Provider>
     );
   }

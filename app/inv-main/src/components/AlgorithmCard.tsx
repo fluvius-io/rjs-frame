@@ -1,7 +1,6 @@
 import { Code, Cpu, Hash, Settings, Tag } from "lucide-react";
 import React from "react";
-import { cn, useItemView } from "rjs-admin";
-import ItemFooter from "rjs-admin/src/components/itemview/ItemFooter";
+import { cn, ItemFooter, useItemView } from "rjs-admin";
 import type { AlgorithmData } from "../types/algorithm";
 
 interface AlgorithmCardProps {

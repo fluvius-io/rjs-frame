@@ -55,7 +55,7 @@ export class ThreeColumnLayout extends PageLayout<ThreeColumnLayoutProps> {
         </div>
 
         <footer className="bg-background-90 invert">
-          <PageSlot name="footer" className="container mx-auto" />
+          <PageSlot name="footer" className="container mx-auto p-1" />
         </footer>
       </div>
     );

@@ -1,13 +1,13 @@
 import { atom } from "nanostores";
-import { AuthContext } from "../types/AuthContext";
 import type {
   AppSettings,
+  AppState,
   HashParams,
   LinkParams,
   ModuleState,
   PageParams,
-  AppState,
 } from "../types/AppState";
+import { AuthContext } from "../types/AuthContext";
 import { ParamSpec, matchParams } from "../utils/matchParams";
 import { parseBrowserLocation, updateBrowserLocation } from "../utils/urlUtils";
 
@@ -122,7 +122,11 @@ export const updateModuleState = (
 // Add or update a single page parameter while preserving page name and other params
 export const updatePageParams = (updateParams: Partial<PageParams>) => {
   const currentState = appStateStore.get().pageParams;
-  const updatedParams = { ...currentState, ...updateParams } as PageParams;
+  const updatedParams = Object.fromEntries(
+    Object.entries({ ...currentState, ...updateParams }).filter(
+      ([_, value]) => value !== undefined && value !== null && value !== ""
+    )
+  ) as PageParams;
   updateAppState({ pageParams: updatedParams });
   return updatedParams;
 };

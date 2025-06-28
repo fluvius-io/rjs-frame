@@ -20,7 +20,7 @@ export interface PageModuleState {
 
 export interface PageModuleProps {
   children?: React.ReactNode;
-  slotName?: string;
+  slotName: string;
   data?: Record<string, any>;
   condition?: ParamSpec;
   className?: string;
@@ -31,9 +31,8 @@ export class PageModule<
   P extends PageModuleProps = PageModuleProps,
   S extends PageModuleState = PageModuleState
 > extends React.Component<P, S> {
-  private moduleId: string;
+  private moduleIdValue: string;
   private unsubscribe: (() => void) | null = null;
-  private mounted: boolean = false;
   private moduleName: string;
   private slotContextRef = React.createRef<PageSlotContextType>();
 
@@ -42,34 +41,27 @@ export class PageModule<
 
   constructor(props: P) {
     super(props);
-    this.moduleId = generate();
-    this.moduleName = props.moduleName || this.constructor.name;
+    this.moduleIdValue = this.generateModuleId(props);
+    this.moduleName = props.moduleName || this.moduleIdValue;
     this.state = {
       appState: getAppState(),
       initialized: false,
     } as unknown as S;
   }
 
+  get moduleId(): string {
+    return this.moduleIdValue;
+  }
+
   generateModuleId(props: P) {
-    return generate();
+    return `${this.constructor.name}-${generate()}`;
   }
 
   componentDidMount() {
-    this.mounted = true;
-
-    if (!this.context) {
-      console.error("PageModule must be rendered within a PageLayout");
-      return;
-    }
-
-    const { data = {} } = this.props;
-
     this.setState({ initialized: true });
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  componentWillUnmount() {}
 
   // Getter for accessing current page state
   protected get appState(): AppState {
@@ -78,7 +70,7 @@ export class PageModule<
 
   // Getter for accessing module-specific private state
   protected get moduleState(): any {
-    return this.state.appState.moduleState[this.moduleId] || {};
+    return this.state.appState.moduleState[this.moduleIdValue] || {};
   }
 
   // Getter for accessing slot context
