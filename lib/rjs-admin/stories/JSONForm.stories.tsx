@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import { Button } from "../src/components/common/Button";
-import { JSONForm, createValidator } from "../src/components/form/JSONForm";
+import {
+  createValidator,
+  JSONForm,
+  TailwindSubmitField,
+} from "../src/components/form";
 
 const meta: Meta<typeof JSONForm> = {
   title: "Forms/JSONForm",
@@ -44,6 +48,10 @@ const meta: Meta<typeof JSONForm> = {
     },
     readOnly: {
       description: "Whether the form is read-only",
+      control: { type: "boolean" },
+    },
+    hideDefaultButtons: {
+      description: "Whether to hide the default submit/cancel buttons",
       control: { type: "boolean" },
     },
   },
@@ -328,6 +336,131 @@ export const ReadOnlyForm: Story = {
   },
 };
 
+// Custom Submit Button Stories
+export const CustomSubmitButtons: Story = {
+  args: {
+    schema: userSchema,
+    title: "Form with Custom Submit Buttons",
+    submitField: TailwindSubmitField,
+    submitFieldProps: {
+      submitLabel: "Create User",
+      cancelLabel: "Go Back",
+      showSave: true,
+      showReset: true,
+      onSave: () => console.log("Save draft clicked"),
+      onReset: () => console.log("Reset form clicked"),
+      customButtons: [
+        {
+          label: "Preview",
+          onClick: () => console.log("Preview clicked"),
+          variant: "outline" as const,
+        },
+        {
+          label: "Export",
+          onClick: () => console.log("Export clicked"),
+          variant: "ghost" as const,
+        },
+      ],
+    },
+    onSubmit: (data) => console.log("User created:", data),
+    onCancel: () => console.log("Form cancelled"),
+  },
+};
+
+export const AdminFormButtons: Story = {
+  args: {
+    schema: userSchema,
+    title: "Admin User Management",
+    submitField: TailwindSubmitField,
+    submitFieldProps: {
+      submitLabel: "Save Changes",
+      cancelLabel: "Cancel",
+      showSave: false,
+      showReset: true,
+      onReset: () => console.log("Reset to defaults"),
+      customButtons: [
+        {
+          label: "Delete User",
+          onClick: () => console.log("Delete user clicked"),
+          variant: "destructive" as const,
+        },
+        {
+          label: "Send Email",
+          onClick: () => console.log("Send email clicked"),
+          variant: "outline" as const,
+        },
+        {
+          label: "View Profile",
+          onClick: () => console.log("View profile clicked"),
+          variant: "ghost" as const,
+        },
+      ],
+    },
+    data: {
+      name: "Jane Smith",
+      email: "jane@example.com",
+      role: "admin",
+    },
+    onSubmit: (data) => console.log("Admin form submitted:", data),
+    onCancel: () => console.log("Admin form cancelled"),
+  },
+};
+
+export const WorkflowButtons: Story = {
+  args: {
+    schema: productSchema,
+    title: "Product Workflow",
+    submitField: TailwindSubmitField,
+    submitFieldProps: {
+      submitLabel: "Publish Product",
+      cancelLabel: "Discard",
+      showSave: true,
+      showReset: false,
+      onSave: () => console.log("Save as draft"),
+      customButtons: [
+        {
+          label: "Submit for Review",
+          onClick: () => console.log("Submit for review"),
+          variant: "outline" as const,
+        },
+        {
+          label: "Schedule Publication",
+          onClick: () => console.log("Schedule publication"),
+          variant: "outline" as const,
+        },
+      ],
+    },
+    onSubmit: (data) => console.log("Product published:", data),
+    onCancel: () => console.log("Product discarded"),
+  },
+};
+
+export const HiddenDefaultButtons: Story = {
+  args: {
+    schema: userSchema,
+    title: "Form with Hidden Default Buttons",
+    hideDefaultButtons: true,
+    onSubmit: (data) => console.log("Form submitted:", data),
+    onCancel: () => console.log("Form cancelled"),
+    bottomContent: (
+      <div className="flex justify-between items-center pt-4 border-t">
+        <div className="text-sm text-gray-500">
+          Form will auto-save every 30 seconds
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => console.log("Custom cancel")}
+          >
+            Cancel
+          </Button>
+          <Button onClick={() => console.log("Custom submit")}>Submit</Button>
+        </div>
+      </div>
+    ),
+  },
+};
+
 // Modal stories
 export const ModalUserForm: Story = {
   args: {
@@ -425,6 +558,54 @@ export const ModalWithCustomContent: Story = {
       <div>
         <Button onClick={() => setOpen(true)}>
           Open Modal with Custom Content
+        </Button>
+        <JSONForm
+          {...args}
+          open={open}
+          onOpenChange={setOpen}
+          onSubmit={(data) => {
+            args.onSubmit?.(data);
+            setOpen(false);
+          }}
+          onCancel={() => {
+            args.onCancel?.();
+            setOpen(false);
+          }}
+        />
+      </div>
+    );
+  },
+};
+
+export const ModalWithCustomButtons: Story = {
+  args: {
+    schema: userSchema,
+    title: "Modal with Custom Submit Buttons",
+    modal: true,
+    open: false,
+    submitField: TailwindSubmitField,
+    submitFieldProps: {
+      submitLabel: "Create & Close",
+      cancelLabel: "Cancel",
+      showSave: true,
+      onSave: () => console.log("Save and keep open"),
+      customButtons: [
+        {
+          label: "Create & Add Another",
+          onClick: () => console.log("Create and add another"),
+          variant: "outline" as const,
+        },
+      ],
+    },
+    onSubmit: (data) => console.log("Modal custom buttons submitted:", data),
+    onCancel: () => console.log("Modal custom buttons cancelled"),
+  },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <div>
+        <Button onClick={() => setOpen(true)}>
+          Open Modal with Custom Buttons
         </Button>
         <JSONForm
           {...args}

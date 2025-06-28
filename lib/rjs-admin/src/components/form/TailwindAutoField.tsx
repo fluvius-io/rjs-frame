@@ -1,10 +1,112 @@
 import { connectField, HTMLFieldProps } from "uniforms";
+import { Button } from "../common/Button";
 
 export type TailwindAutoFieldProps = HTMLFieldProps<
   unknown,
   HTMLDivElement,
   { label?: string; placeholder?: string; required?: boolean; error?: boolean }
 >;
+
+// Custom Submit Field Component
+export interface TailwindSubmitFieldProps {
+  disabled?: boolean;
+  readOnly?: boolean;
+  onSubmit?: () => void;
+  onCancel?: () => void;
+  onSave?: () => void;
+  onReset?: () => void;
+  submitLabel?: string;
+  cancelLabel?: string;
+  showCancel?: boolean;
+  showSave?: boolean;
+  showReset?: boolean;
+  customButtons?: Array<{
+    label: string;
+    onClick: () => void;
+    variant?: "default" | "outline" | "ghost" | "destructive";
+    type?: "button" | "submit";
+  }>;
+  className?: string;
+}
+
+export function TailwindSubmitField({
+  disabled = false,
+  readOnly = false,
+  onSubmit,
+  onCancel,
+  onSave,
+  onReset,
+  submitLabel = "Submit",
+  cancelLabel = "Cancel",
+  showCancel = true,
+  showSave = false,
+  showReset = false,
+  customButtons = [],
+  className = "",
+}: TailwindSubmitFieldProps) {
+  return (
+    <div className={`flex justify-end gap-2 pt-4 ${className}`}>
+      {/* Custom buttons */}
+      {customButtons.map((button, index) => (
+        <Button
+          key={index}
+          type={button.type || "button"}
+          variant={button.variant || "outline"}
+          onClick={button.onClick}
+          disabled={disabled || readOnly}
+        >
+          {button.label}
+        </Button>
+      ))}
+
+      {/* Reset button */}
+      {showReset && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onReset}
+          disabled={disabled || readOnly}
+        >
+          Reset
+        </Button>
+      )}
+
+      {/* Cancel button */}
+      {showCancel && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={disabled}
+        >
+          {cancelLabel}
+        </Button>
+      )}
+
+      {/* Save button (different from submit) */}
+      {showSave && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onSave}
+          disabled={disabled || readOnly}
+        >
+          Save Draft
+        </Button>
+      )}
+
+      {/* Submit button */}
+      <Button
+        type="submit"
+        variant="default"
+        onClick={onSubmit}
+        disabled={disabled || readOnly}
+      >
+        {submitLabel}
+      </Button>
+    </div>
+  );
+}
 
 function TailwindAutoField({
   label,
@@ -30,7 +132,7 @@ function TailwindAutoField({
   const inputClasses = `
     w-full px-3 py-2 border rounded-md shadow-sm
     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-    ${error ? "border-red-500" : "border-gray-300"}
+    ${error || errorMessage ? "border-red-500" : "border-gray-300"}
     ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
     ${readOnly ? "bg-gray-50" : ""}
   `.trim();
@@ -132,7 +234,9 @@ function TailwindAutoField({
     return (
       <div className="mb-4">
         {renderInput()}
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {errorMessage && (
+          <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+        )}
       </div>
     );
   }
@@ -141,7 +245,9 @@ function TailwindAutoField({
     <div className="mb-4">
       {label && <label className={labelClasses}>{label}</label>}
       {renderInput()}
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {errorMessage && (
+        <p className="mt-1 text-sm text-red-600">{errorMessage}</p>
+      )}
     </div>
   );
 }
