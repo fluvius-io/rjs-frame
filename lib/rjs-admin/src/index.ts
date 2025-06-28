@@ -32,6 +32,9 @@ export { UserSettingsTab } from "./components/common/UserSettingsTab";
 
 // Form Components
 export { Input } from "./components/form/Input";
+export { createValidator, JSONForm } from "./components/form/JSONForm";
+export type { JSONFormProps } from "./components/form/JSONForm";
+export { default as TailwindAutoField } from "./components/form/TailwindAutoField";
 
 // Entity Components
 export { EntityFormat } from "./components/entity";

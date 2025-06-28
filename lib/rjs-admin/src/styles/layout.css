@@ -35,7 +35,3 @@
 .dt-control {
   min-height: calc(3.5rem + 2px);
 }
-
-body {
-  overflow-y: hidden;
-}
