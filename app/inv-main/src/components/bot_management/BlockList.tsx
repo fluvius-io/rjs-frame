@@ -1,6 +1,7 @@
 import { BlocksIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { APIManager, ApiResponse } from "rjs-frame";
+import "../Status.css";
 
 export interface BlockData {
   id: string;
@@ -21,13 +22,13 @@ interface BlockListViewProps {
 const statusColor = (status: string) => {
   switch (status) {
     case "ACQUIRING":
-      return "text-red-400";
+      return "status-acquiring bg-white";
     case "ACTIVE":
-      return "text-blue-400";
+      return "status-active bg-white";
     case "LIQUIDATING":
-      return "text-green-400";
+      return "status-liquidating bg-white";
     default:
-      return "text-gray-400";
+      return "status-inactive bg-white";
   }
 };
 

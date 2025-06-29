@@ -15,21 +15,23 @@ import {
   StockListView,
   BotConfigModal,
 } from "../components";
+import "../components/Status.css";
 import { useState } from "react";
+import { APIManager } from "rjs-frame";
 
 const botStatusFormatter = (status: string) => {
   const colorMap = {
-    DRAFT: "bg-purple-100 text-purple-800",
-    DEACTIVATED: "bg-gray-100 text-gray-800",
-    RUNNING: "bg-green-100 text-green-800",
-    INACTIVE: "bg-gray-100 text-gray-600",
-    PAUSED: "bg-red-100 text-red-800",
+    DRAFT: "status-draft",
+    DEACTIVATED: "status-deactivated",
+    RUNNING: "status-running",
+    INACTIVE: "status-inactive",
+    PAUSED: "status-paused",
   };
 
   return (
     <div
       className={cn(
-        "text-center text-xs font-medium border-gray-200 rounded-md p-1",
+        "text-center text-xs font-medium border-gray-200 rounded-md p-1 w-20",
         colorMap[status as keyof typeof colorMap] || "text-gray-400 bg-gray-100"
       )}
     >
@@ -38,18 +40,8 @@ const botStatusFormatter = (status: string) => {
   );
 };
 
-const botStatusTransition = (status: string) => {
-  const transitionMap = {
-    DRAFT: "RUNNING",
-    RUNNING: "PAUSED",
-    PAUSED: "RUNNING",
-    INACTIVE: "RUNNING",
-  };
-  return transitionMap[status as keyof typeof transitionMap] || "INACTIVE";
-};
 const BotItemView = () => {
   const pageContext = usePageContext();
-
   if (!pageContext.pageParams.bot_id) {
     return (
       <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
@@ -60,6 +52,7 @@ const BotItemView = () => {
 
   const itemId = pageContext.pageParams.bot_id as string;
   const status = pageContext.pageParams.status as string;
+
   return (
     <ItemView
       itemId={itemId}
@@ -67,6 +60,8 @@ const BotItemView = () => {
       className="no-border h-full"
       itemJsonView={true}
       defaultTab="bot-info"
+      params={{search: {status: status}}}
+      
     >
       <ItemView.TabItem name="bot-info" label="Bot Info">
         {status == "INACTIVE" ? (
@@ -83,6 +78,7 @@ export default function BotManager() {
   const { config: appConfig } = useAppContext();
   const [showBotConfigModal, setShowBotConfigModal] = useState(false);
   const [botToConfig, setBotToConfig] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const tableActions = [
     {
@@ -114,18 +110,45 @@ export default function BotManager() {
             return <SettingsIcon className="w-4 h-4 text-green-500" />;
         }
       },
-      onClick: (e: React.MouseEvent<HTMLButtonElement>, row: any) => {
-        if (row.status == "INACTIVE") {
-          setBotToConfig(row.id);
-          setShowBotConfigModal(true);
-        } else if (row.status == "DEACTIVATED") {
-          console.log("Do nothing on DEACTIVATED");
-        } else {
-          row.status = botStatusTransition(row.status);
-          console.log(
-            "Simulate API call to update bot status ... no action performed.",
-            e
-          );
+      onClick: async (e: React.MouseEvent<HTMLButtonElement>, row: any) => {
+        switch (row.status) {
+          case "INACTIVE":
+            setBotToConfig(row.id);
+            setShowBotConfigModal(true);
+            break;
+          case "DEACTIVATED":
+            console.log("Do nothing on DEACTIVATED");
+            break;
+          case "RUNNING": {
+            row.status = "PAUSED";
+            try {
+              const response = await APIManager.send("trade-bot:pause-bot", {}, {path: {resource: 'bot', _id: row.id}});
+              row.status = response.data?.[0]?.status;
+            } catch (error: any) {
+              console.error("Failed to pause bot:", error);
+            }
+            updatePageParams({
+              bot_id: row.id,
+              status: row.status,
+            });
+            break;
+          }
+          case "PAUSED": {
+            row.status = "RUNNING";
+            try {
+              const response = await APIManager.send("trade-bot:resume-bot", {}, {path: {resource: 'bot', _id: row.id}});
+              row.status = response.data?.[0]?.status;
+            } catch (error: any) {
+              console.error("Failed to resume bot:", error);
+            }
+            updatePageParams({
+              bot_id: row.id,
+              status: row.status,
+            });
+            break;
+          }
+          default:
+            break;
         }
       },
     },
@@ -201,7 +224,7 @@ export default function BotManager() {
                 "status",
               ],
             }}
-            onActivate={(id, row) => {
+            onActivate={(id: string, row: any) => {
               updatePageParams({
                 bot_id: id as string,
                 status: row.status as string,
@@ -211,6 +234,7 @@ export default function BotManager() {
             customFormatters={{
               status: (value: string) => botStatusFormatter(value),
             }}
+            key={refreshTrigger}
           />
         </PageModule>
 
@@ -229,16 +253,21 @@ export default function BotManager() {
       {showBotConfigModal && (
         <BotConfigModal
           open={showBotConfigModal}
-          onClose={() => {
+          onClose={(results: any) => {
+            if (results.success && results.data?.[0]?._id) {
+              console.log("Bot run result:", results);
+              const newBotId = results.data[0]._id;
+              updatePageParams({
+                bot_id: newBotId,
+                status: "RUNNING",
+              });
+              setRefreshTrigger(prev => prev + 1);
+            }
             setShowBotConfigModal(false);
             setBotToConfig(null);
           }}
           botDefId={botToConfig || ""}
-          onRun={(params: any) => {
-            console.log("Run bot with params:", params);
-            setShowBotConfigModal(false);
-            setBotToConfig(null);
-          }}
+          onRun={() => {}}
         />
       )}
     </>
