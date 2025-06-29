@@ -4,6 +4,7 @@
 @import "./components/UserTabs.css";
 @import "./components/querybuilder.css";
 @import "./components/datatable.css";
+@import "./components/AutoField.css";
 @import "./layout.css";
 
 @tailwind base;
@@ -137,5 +138,33 @@
     100% {
       background-position: 100% 50%;
     }
+  }
+
+  .text-x-small {
+    font-size: 0.75em;
+  }
+
+  .text-xx-small {
+    font-size: 0.625em;
+  }
+
+  .text-small {
+    font-size: 0.875em;
+  }
+
+  .text-medium {
+    font-size: 1em;
+  }
+
+  .text-large {
+    font-size: 1.25em;
+  }
+
+  .text-x-large {
+    font-size: 1.5em;
+  }
+
+  .text-xx-large {
+    font-size: 1.75em;
   }
 }

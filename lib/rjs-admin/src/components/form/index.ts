@@ -1,4 +1,4 @@
 export { JSONForm } from "./JSONForm";
-export { TailwindSubmitField } from "./TailwindAutoField";
-export type { TailwindSubmitFieldProps } from "./TailwindAutoField";
+export { TailwindSubmitField } from "./AutoField";
+export type { TailwindSubmitFieldProps } from "./AutoField";
 export { createValidator } from "./validator";

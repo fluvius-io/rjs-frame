@@ -168,6 +168,7 @@ const complexSchema = {
         },
       },
       required: ["firstName", "lastName"],
+      additionalProperties: true,
     },
     contactInfo: {
       type: "object",

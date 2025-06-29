@@ -50,6 +50,41 @@ const userSchema = {
 // Create a validator using the createValidator function
 const userValidator = createValidator(userSchema);
 
+// Example JSON Schema with additional properties support
+const configSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+      title: "Configuration Name",
+      description: "Enter a name for this configuration",
+    },
+    theme: {
+      type: "string",
+      title: "UI Theme",
+      enum: ["light", "dark", "auto"],
+    },
+    notifications: {
+      type: "boolean",
+      title: "Enable Notifications",
+    },
+    settings: {
+      type: "object",
+      title: "Custom Settings",
+      description: "Add any custom settings as key-value pairs",
+      additionalProperties: true,
+      properties: {
+        language: {
+          type: "string",
+          title: "Language",
+          enum: ["en", "es", "fr", "de"],
+        }
+      }
+    }
+  },
+  required: ["name"],
+};
+
 // Example JSON Schema for a product form
 const productSchema = {
   type: "object",
@@ -91,6 +126,7 @@ const productSchema = {
 export function JSONFormExample() {
   const [showUserModal, setShowUserModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
   const [formData, setFormData] = useState<any>(null);
   const [validationResult, setValidationResult] = useState<any>(null);
 
@@ -104,6 +140,21 @@ export function JSONFormExample() {
     console.log("Product form submitted:", data);
     setFormData(data);
     setShowProductModal(false);
+  };
+
+  const handleConfigSubmit = (data: any) => {
+    console.log("Config form submitted:", data);
+    setFormData(data);
+    setShowConfigModal(false);
+  };
+
+  // Simple test schema for additionalProperties
+  const testAdditionalPropsSchema = {
+    type: "object",
+    properties: {
+      foo: { type: "string", title: "Foo Field" }
+    },
+    additionalProperties: true
   };
 
   const handleValidateManually = () => {
@@ -166,6 +217,22 @@ export function JSONFormExample() {
             onCancel={() => console.log("Product form cancelled")}
             title="Add Product"
           />
+        </div>
+      </div>
+
+      {/* Additional Properties Test */}
+      <div className="border rounded-lg p-4">
+        <h2 className="text-lg font-semibold mb-4">Additional Properties Test</h2>
+        <JSONForm
+          schema={testAdditionalPropsSchema}
+          onSubmit={(data) => console.log("Additional props form:", data)}
+          title="Test Additional Properties"
+        />
+        <div className="mt-4 p-3 bg-yellow-50 rounded-md">
+          <p className="text-sm text-yellow-800">
+            This form should show a "Foo Field" input and an "Add Custom Property" section.
+            Check the browser console for debugging information.
+          </p>
         </div>
       </div>
 

@@ -2,12 +2,12 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { JSONSchemaType } from "ajv";
 import React from "react";
 import { JSONSchemaBridge } from "uniforms-bridge-json-schema";
-import { AutoField, AutoForm } from "uniforms-unstyled";
+import { AutoField as UniformsAutoField, AutoForm } from "uniforms-unstyled";
 import { Button } from "../common/Button";
-import TailwindAutoField, {
+import AutoField, {
   TailwindSubmitField,
   TailwindSubmitFieldProps,
-} from "./TailwindAutoField";
+} from "./AutoField";
 import { createValidator } from "./validator";
 
 export interface JSONFormProps {
@@ -129,8 +129,8 @@ export function JSONForm(props: JSONFormProps) {
     <div className={`space-y-4 ${className}`}>
       {topContent && <div className="mb-4">{topContent}</div>}
 
-      <AutoField.componentDetectorContext.Provider
-        value={() => TailwindAutoField}
+      <UniformsAutoField.componentDetectorContext.Provider
+        value={() => AutoField}
       >
         <AutoForm
           schema={bridge}
@@ -142,7 +142,7 @@ export function JSONForm(props: JSONFormProps) {
           readOnly={readOnly}
           submitField={submitField ? submitFieldComponent : undefined}
         />
-      </AutoField.componentDetectorContext.Provider>
+      </UniformsAutoField.componentDetectorContext.Provider>
 
       {bottomContent && <div className="mt-4">{bottomContent}</div>}
 

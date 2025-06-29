@@ -1,0 +1,155 @@
+/* AutoField Component Styles */
+
+/* Base field container */
+.af-field-container {
+  @apply mb-4;
+}
+
+.af-field-container-large {
+  @apply mb-6;
+}
+
+/* Input styles */
+.af-input-base {
+  @apply w-full px-3 py-2 border rounded-md shadow-sm;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply bg-white;
+}
+
+.af-input-error {
+  @apply border-red-500;
+}
+
+.af-input-disabled {
+  @apply bg-gray-100 cursor-not-allowed;
+}
+
+.af-input-readonly {
+  @apply bg-gray-50;
+}
+
+.af-textarea {
+  @apply resize-y;
+}
+
+.af-textarea-json {
+  @apply font-mono text-x-small;
+}
+
+/* Label styles */
+.af-label-base {
+  @apply block text-small font-medium text-gray-700 mb-1;
+}
+
+.af-label-required::after {
+  @apply text-red-500 ml-1;
+  content: '*';
+}
+
+/* Object field styles */
+.af-object-container {
+  @apply space-y-4 pl-4 border-l-2 border-gray-200;
+}
+
+.af-object-property {
+  @apply flex items-start gap-2;
+}
+
+.af-object-property-field {
+  @apply flex-1;
+}
+
+/* Array field styles */
+.af-array-container {
+  @apply space-y-3 pl-4 border-l-2 border-blue-200;
+}
+
+.af-array-item {
+  @apply flex items-start gap-2;
+}
+
+.af-array-item-field {
+  @apply flex-1;
+}
+
+/* Button styles */
+.af-button-remove {
+  @apply mt-6 px-3 py-2 text-red-600 hover:text-red-800  border rounded-md hover:bg-red-50;
+}
+
+.af-button-add-property {
+  @apply px-3 py-2 text-blue-600 hover:text-blue-800 border border-blue-300 rounded-md hover:bg-blue-50;
+}
+
+.af-button-primary {
+  @apply px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700;
+}
+
+.af-button-primary-disabled {
+  @apply bg-gray-400 cursor-not-allowed;
+}
+
+.af-button-secondary {
+  @apply px-3 py-1 text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50;
+}
+
+/* Section headers */
+.af-section-header {
+  @apply font-semibold text-gray-800 mb-3 pb-1 border-b border-gray-200;
+}
+
+.af-section-counter {
+  @apply ml-2 text-small font-normal text-gray-500;
+}
+
+/* Additional properties section */
+.af-additional-props-section {
+  @apply mt-6 pt-4 border-t border-gray-200;
+}
+
+.af-additional-props-form {
+  @apply space-y-3 p-4 bg-gray-50 rounded-md;
+}
+
+.af-additional-props-title {
+  @apply font-medium text-small text-gray-700;
+}
+
+.af-additional-props-inputs {
+  @apply flex gap-2;
+}
+
+.af-additional-props-input-container {
+  @apply flex-1;
+}
+
+.af-additional-props-actions {
+  @apply flex gap-2;
+}
+
+/* Error message */
+.af-error-message {
+  @apply mt-1 text-x-small text-red-600;
+}
+
+.af-error-message-large {
+  @apply mt-2 text-x-small text-red-600;
+}
+
+/* Checkbox container */
+.af-checkbox-container {
+  @apply flex items-center;
+}
+
+.af-checkbox-input {
+  @apply h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded;
+}
+
+.af-checkbox-label {
+  @apply ml-2 text-x-small text-gray-700;
+}
+
+.af-checkbox-required::after {
+  @apply text-red-500 ml-1;
+  content: '*';
+} 
