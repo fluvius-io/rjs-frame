@@ -172,7 +172,7 @@ export const SignalDetailView = () => {
                     </span>
                   </td>
                   <td className="px-2 py-1">{entry.confidence}</td>
-                  <td className="px-2 py-1">{formatMoney(entry.magnitube, entry.currency)}</td>
+                  <td className="px-2 py-1">{entry.magnitube}</td>
                   <td className="px-2 py-1">{formatDate(entry.created)}</td>
                 </tr>
               ))}

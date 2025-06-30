@@ -84,3 +84,11 @@
 .status-signal-neutral {
   @apply bg-gray-100 text-gray-800;
 }
+
+.status-data-source-up_to_date {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-data-source-out_of_date {
+  @apply bg-red-100 text-red-800;
+}
