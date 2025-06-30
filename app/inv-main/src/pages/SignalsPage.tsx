@@ -5,7 +5,7 @@ import {
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
-import { AlgorithmCard, Header } from "../components";
+import { AlgorithmCard, Header, SignalDetailView } from "../components";
 
 const SignalItemView = () => {
   const pageContext = usePageContext();
@@ -30,8 +30,8 @@ const SignalItemView = () => {
       <ItemView.TabItem name="algo" label="Algorithm">
         <AlgorithmCard className="h-full no-border" />
       </ItemView.TabItem>
-      <ItemView.TabItem name="config" label="Configuration">
-        <div>Configuration</div>
+      <ItemView.TabItem name="signal-detail" label="Signal Detail">
+        <SignalDetailView />
       </ItemView.TabItem>
     </ItemView>
   );
@@ -54,11 +54,9 @@ export default function SignalsPage() {
           fields={[
             "id",
             "name",
-            "description",
             "market",
+            "tags",
             "compute_tier",
-            "creator",
-            "updater",
           ]}
           metaSource="trade-signal:signal"
           className="no-border h-full"
@@ -71,7 +69,7 @@ export default function SignalsPage() {
           className="no-border h-full"
           showHeaderTitle={false}
           queryState={{
-            select: ["key", "name", "market", "compute_tier"],
+            select: ["key", "name", "market", "compute_tier", "tags"],
           }}
           title="Signals"
           description="Signals are the core of the trading system. They are the inputs to the trading system."

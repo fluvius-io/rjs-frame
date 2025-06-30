@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ItemFooter, useItemView } from "rjs-admin";
 import { APIManager } from "rjs-frame";
+import "../Status.css";
 
 export const BotInstanceDetailView = () => {
   const { item } = useItemView();
@@ -55,9 +56,13 @@ export const BotInstanceDetailView = () => {
       {/* Header */}
       <div className="flex items-center gap-2 border-b pb-2 mb-2">
         <span className="font-semibold text-lg">{botInstance.name}</span>
+<<<<<<< HEAD:app/inv-main/src/components/bot_management/BotInstanceDetail.tsx
         <span className="ml-2 px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-medium">
           {botInstance.status || "ACTIVE"}
         </span>
+=======
+        <span className={`status-${botInstance.status.toLowerCase() || 'inactive'} ml-2 px-2 py-0.5 rounded text-xs font-medium`}>{botInstance.status || 'ACTIVE'}</span>
+>>>>>>> e856cdfe7a6190b92f652e84068d4deab05b1c6a:app/inv-main/src/components/bot_mgt/BotInstanceDetail.tsx
       </div>
 
       {/* General Info */}
@@ -70,11 +75,15 @@ export const BotInstanceDetailView = () => {
           </div>
           <div>
             <div className="text-muted-foreground">Status</div>
+<<<<<<< HEAD:app/inv-main/src/components/bot_management/BotInstanceDetail.tsx
             <div>
               <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
                 {botInstance.status || "ACTIVE"}
               </span>
             </div>
+=======
+            <div><span className={`status-${botInstance.status.toLowerCase() || 'inactive'} px-2 py-0.5 rounded text-xs`}>{botInstance.status || 'ACTIVE'}</span></div>
+>>>>>>> e856cdfe7a6190b92f652e84068d4deab05b1c6a:app/inv-main/src/components/bot_mgt/BotInstanceDetail.tsx
           </div>
           <div>
             <div className="text-muted-foreground">Investment Type</div>
