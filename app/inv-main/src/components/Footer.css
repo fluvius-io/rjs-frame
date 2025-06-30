@@ -10,7 +10,7 @@
 
 /* Footer Content */
 .footer-content {
-  @apply flex items-center justify-between text-xs text-muted-foreground;
+  @apply flex items-center justify-between text-sm text-muted-foreground;
 }
 
 /* Footer Copyright Text */
@@ -31,7 +31,7 @@
 
   .footer-copyright,
   .footer-updated {
-    @apply text-xs;
+    @apply text-sm;
   }
 }
 

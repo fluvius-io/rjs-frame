@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, Search, ChevronDown } from "lucide-react";
-import { APIManager } from "rjs-frame";
+import { ChevronDown, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cn } from "rjs-admin";
+import { APIManager } from "rjs-frame";
 
 interface BotDefinition {
   name: string;
@@ -46,7 +46,18 @@ interface SearchableSelectProps {
   onSelect: (option: any) => void;
 }
 
-const SearchableSelect = ({ value, onChange, placeholder, resource, select, displayFields, actualField, onSelect, required, error }: SearchableSelectProps) => {
+const SearchableSelect = ({
+  value,
+  onChange,
+  placeholder,
+  resource,
+  select,
+  displayFields,
+  actualField,
+  onSelect,
+  required,
+  error,
+}: SearchableSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [options, setOptions] = useState<any[]>([]);
@@ -68,11 +79,11 @@ const SearchableSelect = ({ value, onChange, placeholder, resource, select, disp
           offset: 0,
           text: search,
         },
-        select: select || ['*']
+        select: select || ["*"],
       });
       setOptions(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch options:', error);
+      console.error("Failed to fetch options:", error);
       setOptions([]);
     } finally {
       setLoading(false);
@@ -99,9 +110,11 @@ const SearchableSelect = ({ value, onChange, placeholder, resource, select, disp
   };
 
   const handleOptionSelect = (option: any) => {
-    const displayValue = displayFields.map((field) => option[field]).join(" - ");
+    const displayValue = displayFields
+      .map((field) => option[field])
+      .join(" - ");
     const actualValue = option[actualField];
-    
+
     setSelectedOption(option);
     setSearchTerm(displayValue);
     onChange(actualValue);
@@ -132,23 +145,25 @@ const SearchableSelect = ({ value, onChange, placeholder, resource, select, disp
           onBlur={handleInputBlur}
           placeholder={placeholder}
           className={`w-full px-3 py-2 border rounded-md pr-10 ${
-            error ? 'border-red-500' : 'border-gray-300'
-          } ${required && !value ? 'border-red-500' : ''}`}
+            error ? "border-red-500" : "border-gray-300"
+          } ${required && !value ? "border-red-500" : ""}`}
         />
         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
       </div>
-      
+
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {loading ? (
             <div className="px-3 py-2 text-sm text-gray-500">Loading...</div>
           ) : options.length === 0 ? (
             <div className="px-3 py-2 text-sm text-gray-500">
-              {searchTerm ? 'No results found' : 'Start typing to search...'}
+              {searchTerm ? "No results found" : "Start typing to search..."}
             </div>
           ) : (
             options.map((option, index) => {
-              const displayValue = displayFields.map((field) => option[field]).join(" - ");
+              const displayValue = displayFields
+                .map((field) => option[field])
+                .join(" - ");
               return (
                 <div
                   key={index}
@@ -166,12 +181,19 @@ const SearchableSelect = ({ value, onChange, placeholder, resource, select, disp
   );
 };
 
-export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModalProps) {
+export function BotConfigModal({
+  open,
+  onClose,
+  botDefId,
+  onRun,
+}: BotConfigModalProps) {
   const [botDef, setBotDef] = useState<BotDefinition | null>(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [error, setError] = useState("");
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const [isRunning, setIsRunning] = useState(false);
   const [runError, setRunError] = useState("");
 
@@ -200,7 +222,7 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
     // Check required fields
     requiredFields.forEach((fieldName: string) => {
       const value = formData[fieldName];
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
+      if (!value || (typeof value === "string" && value.trim() === "")) {
         errors[fieldName] = `${fieldName} is required`;
       }
     });
@@ -211,7 +233,7 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -222,20 +244,22 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
     try {
       // Call the trade-bot:create-bot API
       const data = {
-        name: 'default',
+        name: "default",
         bot_def_id: botDefId,
         params: formData,
-      }
+      };
       let response: any;
       try {
-        response = await APIManager.send("trade-bot:create-bot", data, {path: {resource: 'bot', _id: ':new'}});
+        response = await APIManager.send("trade-bot:create-bot", data, {
+          path: { resource: "bot", _id: ":new" },
+        });
       } catch (error: any) {
         console.error("Failed to create bot:", error);
         setRunError(error.message || "Failed to create bot. Please try again.");
       }
 
       console.log("Bot created successfully:", response);
-      
+
       // Call the onRun callback with the response data
       onRun();
 
@@ -243,7 +267,7 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
       onClose({
         success: true,
         data: response.data,
-        params: formData
+        params: formData,
       });
     } catch (error: any) {
       console.error("Failed to create bot:", error);
@@ -264,14 +288,14 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
 
       // API-based select with search
       if (type == "api") {
-        const displayFields = display || ['name'];
-        const actualField = actual || 'id';
-        
+        const displayFields = display || ["name"];
+        const actualField = actual || "id";
+
         return (
           <div>
             <SearchableSelect
-              value={formData[key] || ''}
-              onChange={(value) => setFormData({...formData, [key]: value})}
+              value={formData[key] || ""}
+              onChange={(value) => setFormData({ ...formData, [key]: value })}
               placeholder={`Search ${key}...`}
               resource={data.resource}
               select={data.select}
@@ -281,7 +305,7 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
               error={!!fieldError}
               onSelect={(option) => {
                 // Additional handling if needed
-                console.log('Selected option:', option);
+                console.log("Selected option:", option);
               }}
             />
             {fieldError && (
@@ -296,9 +320,9 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
         return (
           <div>
             <select
-              value={formData[key] || ''}
+              value={formData[key] || ""}
               onChange={(e) => {
-                setFormData({...formData, [key]: e.target.value});
+                setFormData({ ...formData, [key]: e.target.value });
               }}
               className={cn(
                 "w-full px-2 py-2 border rounded-md",
@@ -307,7 +331,9 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
                 formData[key] ? "" : "text-gray-400"
               )}
             >
-              <option value="" disabled selected hidden>Select {key}</option>
+              <option value="" disabled selected hidden>
+                Select {key}
+              </option>
               {data.map((option: any, index: number) => (
                 <option key={index} value={option.key}>
                   {option.key} - {option.display}
@@ -323,19 +349,30 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
     }
 
     // Fallback to existing enum logic
-    if (isObjectSchema(prop) && prop.type === 'string' && Array.isArray(prop.enum) && prop.enum.every(v => typeof v === 'string')) {
+    if (
+      isObjectSchema(prop) &&
+      prop.type === "string" &&
+      Array.isArray(prop.enum) &&
+      prop.enum.every((v) => typeof v === "string")
+    ) {
       return (
         <div>
           <select
-            value={formData[key] || ''}
-            onChange={(e) => setFormData({...formData, [key]: e.target.value})}
+            value={formData[key] || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, [key]: e.target.value })
+            }
             className={`w-full px-3 py-2 border rounded-md ${
-              fieldError ? 'border-red-500' : 'border-gray-300'
-            } ${isRequired && !formData[key] ? 'border-red-500' : ''}`}
+              fieldError ? "border-red-500" : "border-gray-300"
+            } ${isRequired && !formData[key] ? "border-red-500" : ""}`}
           >
-            <option value="" disabled selected hidden >Select {key}</option>
+            <option value="" disabled selected hidden>
+              Select {key}
+            </option>
             {(prop.enum as string[]).map((option, index) => (
-              <option key={index} value={option}>{option}</option>
+              <option key={index} value={option}>
+                {option}
+              </option>
             ))}
           </select>
           {fieldError && (
@@ -350,12 +387,19 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
       <div>
         <input
           type="text"
-          placeholder={`Input ${key}. e.g. ${isObjectSchema(prop) && prop.examples && Array.isArray(prop.examples) && prop.examples.length > 0 ? prop.examples[0] : ''}`}
-          value={formData[key] || ''}
-          onChange={(e) => setFormData({...formData, [key]: e.target.value})}
+          placeholder={`Input ${key}. e.g. ${
+            isObjectSchema(prop) &&
+            prop.examples &&
+            Array.isArray(prop.examples) &&
+            prop.examples.length > 0
+              ? prop.examples[0]
+              : ""
+          }`}
+          value={formData[key] || ""}
+          onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
           className={`w-full px-3 py-2 border rounded-md ${
-            fieldError ? 'border-red-500' : 'border-gray-300'
-          } ${isRequired && !formData[key] ? 'border-red-500' : ''}`}
+            fieldError ? "border-red-500" : "border-gray-300"
+          } ${isRequired && !formData[key] ? "border-red-500" : ""}`}
         />
         {fieldError && (
           <div className="text-red-500 text-xs mt-1">{fieldError}</div>
@@ -365,7 +409,7 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={() => onClose({open: false})}>
+    <Dialog.Root open={open} onOpenChange={() => onClose({ open: false })}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
         <Dialog.Content
@@ -405,7 +449,8 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
                     <span className="font-bold">Key:</span> {botDef.key}
                   </div>
                   <div className="pb-2">
-                    <span className="font-bold">Description:</span> {botDef.description}
+                    <span className="font-bold">Description:</span>{" "}
+                    {botDef.description}
                   </div>
                 </div>
               </div>
@@ -414,19 +459,17 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
                 <p className="mb-2 text-sm text-gray-700">
                   Fill in the required parameters to run the bot.
                 </p>
-                
+
                 {/* Run Error */}
                 {runError && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
                     <div className="text-red-800 text-sm font-medium">
                       Failed to create bot
                     </div>
-                    <div className="text-red-700 text-sm mt-1">
-                      {runError}
-                    </div>
+                    <div className="text-red-700 text-sm mt-1">{runError}</div>
                   </div>
                 )}
-                
+
                 {/* Validation Error Summary */}
                 {Object.keys(validationErrors).length > 0 && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -434,13 +477,15 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
                       Please fix the following errors:
                     </div>
                     <ul className="text-red-700 text-sm space-y-1">
-                      {Object.entries(validationErrors).map(([field, error]) => (
-                        <li key={field}>• {error}</li>
-                      ))}
+                      {Object.entries(validationErrors).map(
+                        ([field, error]) => (
+                          <li key={field}>• {error}</li>
+                        )
+                      )}
                     </ul>
                   </div>
                 )}
-                
+
                 <form className="w-full" onSubmit={handleSubmit}>
                   <table className="w-full">
                     <thead>
@@ -451,23 +496,34 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
                       </tr>
                     </thead>
                     <tbody>
-                      {botDef?.params?.properties && Object.entries(botDef.params.properties).map(([key, prop], index) => {
-                        const isRequired = botDef?.params?.required?.includes(key);
-                        return (
-                          <tr key={key}>
-                            <td className="py-2">{String(index + 1).padStart(2, '0')}</td>
-                            <td className="py-2">
-                              <div className="flex items-center gap-1">
-                                {key.charAt(0).toUpperCase() + key.slice(1)}:
-                                {isRequired && <span className="text-red-500 text-sm">*</span>}
-                              </div>
-                            </td>
-                            <td className="pl-2 py-2">
-                              {renderInputField(key, prop)}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {botDef?.params?.properties &&
+                        Object.entries(botDef.params.properties).map(
+                          ([key, prop], index) => {
+                            const isRequired =
+                              botDef?.params?.required?.includes(key);
+                            return (
+                              <tr key={key}>
+                                <td className="py-2">
+                                  {String(index + 1).padStart(2, "0")}
+                                </td>
+                                <td className="py-2">
+                                  <div className="flex items-center gap-1">
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    :
+                                    {isRequired && (
+                                      <span className="text-red-500 text-sm">
+                                        *
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="pl-2 py-2">
+                                  {renderInputField(key, prop)}
+                                </td>
+                              </tr>
+                            );
+                          }
+                        )}
                     </tbody>
                   </table>
                   <div className="flex justify-end gap-2 pt-2">
@@ -484,8 +540,8 @@ export function BotConfigModal({ open, onClose, botDefId, onRun }: BotConfigModa
                       type="submit"
                       className={cn(
                         "px-4 py-2 rounded font-semibold",
-                        isRunning 
-                          ? "bg-gray-400 text-white cursor-not-allowed" 
+                        isRunning
+                          ? "bg-gray-400 text-white cursor-not-allowed"
                           : "bg-violet-700 text-white hover:bg-violet-800"
                       )}
                       disabled={isRunning}

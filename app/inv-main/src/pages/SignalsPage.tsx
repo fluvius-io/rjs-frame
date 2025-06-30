@@ -5,7 +5,7 @@ import {
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
-import { AlgorithmCard, Header, SignalDetailView } from "../components";
+import { AlgorithmCard, Footer, Header, SignalDetailView } from "../components";
 
 const SignalItemView = () => {
   const pageContext = usePageContext();
@@ -51,13 +51,7 @@ export default function SignalsPage() {
 
       <PageModule slotName="sidebar">
         <QueryBuilderPanel
-          fields={[
-            "id",
-            "name",
-            "market",
-            "tags",
-            "compute_tier",
-          ]}
+          fields={["id", "name", "market", "tags", "compute_tier"]}
           metaSource="trade-signal:signal"
           className="no-border h-full"
         />
@@ -79,16 +73,11 @@ export default function SignalsPage() {
         />
       </PageModule>
 
-      <PageModule slotName="rightPanel">
+      <PageModule slotName="rightPanel" className="h-layout-body">
         <SignalItemView />
       </PageModule>
 
-      <PageModule className="p-4" slotName="footer">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Last updated: 2 minutes ago</p>
-        </div>
-      </PageModule>
+      <Footer slotName="footer" />
     </ThreeColumnLayout>
   );
 }

@@ -1,13 +1,12 @@
 import {
+  cn,
   DataTable,
   ItemView,
   QueryBuilderPanel,
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
-import { Header, DataSourceDetailView } from "../components";
-import { cn } from "rjs-admin";
-
+import { DataSourceDetailView, Footer, Header } from "../components";
 
 const datasourceStatusFormatter = (status: string) => {
   const colorMap = {
@@ -68,9 +67,7 @@ export default function DataPage() {
 
       <PageModule slotName="sidebar">
         <QueryBuilderPanel
-          fields={[
-            "key", "name", "market", "asset", "status"
-          ]}
+          fields={["key", "name", "market", "asset", "status"]}
           metaSource="trade-data:datasource"
           className="no-border h-full"
         />
@@ -99,12 +96,7 @@ export default function DataPage() {
         <DataItemView />
       </PageModule>
 
-      <PageModule className="p-4" slotName="footer">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Last updated: 2 minutes ago</p>
-        </div>
-      </PageModule>
+      <Footer slotName="footer" />
     </ThreeColumnLayout>
   );
 }

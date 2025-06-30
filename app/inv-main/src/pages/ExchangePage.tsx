@@ -1,13 +1,13 @@
+import { formatMoney } from "@/components/Helper";
 import {
+  cn,
   DataTable,
   ItemView,
   QueryBuilderPanel,
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
-import { Header, TransactionView } from "../components";
-import { cn } from "rjs-admin";
-import { formatMoney } from "@/components/Helper";
+import { Footer, Header, TransactionView } from "../components";
 
 const transactionTypeFormatter = (status: string) => {
   const colorMap = {
@@ -26,7 +26,6 @@ const transactionTypeFormatter = (status: string) => {
     </div>
   );
 };
-
 
 const transactionStatusFormatter = (status: string) => {
   const colorMap = {
@@ -112,7 +111,15 @@ export default function ExchangePage() {
           className="no-border h-full"
           showHeaderTitle={false}
           queryState={{
-            select: ["order_id", "symbol", "type", "quantity", "price", "status", "currency"],
+            select: [
+              "order_id",
+              "symbol",
+              "type",
+              "quantity",
+              "price",
+              "status",
+              "currency",
+            ],
           }}
           title="Transaction"
           description="Transaction are the orders that are sent to the broker."
@@ -131,12 +138,7 @@ export default function ExchangePage() {
         <ExchangeItemView />
       </PageModule>
 
-      <PageModule className="p-4" slotName="footer">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
-          <p>Last updated: 2 minutes ago</p>
-        </div>
-      </PageModule>
+      <Footer slotName="footer" />
     </ThreeColumnLayout>
   );
 }

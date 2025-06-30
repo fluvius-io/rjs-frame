@@ -1,5 +1,6 @@
 import {
   Building,
+  FileDown,
   Plus,
   Shield,
   UserCheck,
@@ -16,7 +17,7 @@ import {
   ThreeColumnLayout,
 } from "rjs-admin";
 import { PageModule } from "rjs-frame";
-import { Header } from "../components";
+import { Footer, Header } from "../components";
 
 export default function UserManagementPage() {
   return (
@@ -154,34 +155,29 @@ export default function UserManagementPage() {
 
           <DataTable
             resourceName="idm:user"
-            actions={
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm">
-                  Export
-                </Button>
-                <Button size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add User
-                </Button>
-              </div>
-            }
+            title="Users"
+            tableActions={[
+              {
+                label: "Export",
+                icon: <FileDown className="mr-2 h-4 w-4" />,
+                onClick: () => {},
+              },
+            ]}
           />
           <DataTable
             resourceName="idm:organization"
-            actions={
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm">
-                  Export
-                </Button>
-                <Button size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add User
-                </Button>
-              </div>
-            }
+            tableActions={[
+              {
+                label: "Export",
+                icon: <FileDown className="mr-2 h-4 w-4" />,
+                onClick: () => {},
+              },
+            ]}
           />
         </div>
       </PageModule>
+
+      <Footer slotName="footer" />
     </ThreeColumnLayout>
   );
 }

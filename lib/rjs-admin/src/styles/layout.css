@@ -25,7 +25,14 @@
 }
 
 .rjs-layout-body {
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - 85px);
+}
+
+.page-section-resizable,
+.page-section {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  height: calc(100vh - 85px);
 }
 
 .rjs-panel-footer {
@@ -34,4 +41,8 @@
 
 .dt-control {
   min-height: calc(3.5rem + 2px);
+}
+
+body {
+  overflow-y: auto !important;
 }

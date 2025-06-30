@@ -13,7 +13,7 @@ export class Footer extends PageModule {
       <div className={`footer-container ${className || ""}`}>
         <div className="footer-content">
           <p className="footer-copyright">
-            &copy; 2024 Invest Mate. All rights reserved.
+            &copy; 2025 Invest Mate. All rights reserved.
           </p>
           <p className="footer-updated">Last updated: 2 minutes ago</p>
         </div>

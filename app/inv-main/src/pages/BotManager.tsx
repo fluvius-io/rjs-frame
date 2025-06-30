@@ -26,6 +26,7 @@ import {
   BotConfigModal,
   BotDefinitionDetailView,
   BotInstanceDetailView,
+  Footer,
   Header,
   StockListView,
 } from "../components";
@@ -62,8 +63,10 @@ const botStatusTransition = (status: string) => {
   return transitionMap[status as keyof typeof transitionMap] || "INACTIVE";
 };
 
-const BotItemView = () => {
+const BotItemView = (props: any) => {
   const pageContext = usePageContext();
+  const { className } = props;
+
   if (!pageContext.pageParams.bot_id) {
     return (
       <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
@@ -79,7 +82,7 @@ const BotItemView = () => {
     <ItemView
       itemId={itemId}
       resourceName="trade-bot:bot-listing"
-      className="no-border h-full"
+      className={cn("no-border h-full", className)}
       itemJsonView={true}
       defaultTab="bot-info"
       params={{ search: { status: status } }}
@@ -267,18 +270,11 @@ export default function BotManager() {
           />
         </PageModule>
 
-        <PageModule slotName="rightPanel">
+        <PageModule slotName="rightPanel" className="h-layout-body">
           <BotItemView />
         </PageModule>
 
-        <PageModule slotName="footer">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <p>
-              &copy; 2025 {appConfig?.get("app.name")}. All rights reserved.
-            </p>
-            <p>Version: {appConfig?.get("app.version")}</p>
-          </div>
-        </PageModule>
+        <Footer slotName="footer" />
         <ModalViewSwitcher paramKey="modal" slotName="footer" />
       </ThreeColumnLayout>
 
