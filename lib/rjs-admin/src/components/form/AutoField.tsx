@@ -163,7 +163,7 @@ export function SubmitField({
         </Button>
       )}
 
-      {customButtons.length > 0 && <div className="flex-1 border-r border-gray-200"></div>}
+      {customButtons.length > 0 && <div className="flex-1 border-r border-gray-200 mr-2"></div>}
 
       {/* Custom buttons */}
       {customButtons.map((button, index) => (
