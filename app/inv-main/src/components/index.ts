@@ -7,3 +7,4 @@ export { BotInstanceDetailView } from "./bot_management/BotInstanceDetail";
 export { BlockListView } from "./bot_management/BlockList";
 export { StockListView } from "./bot_management/StockList";
 export { BotConfigModal } from "./bot_management/BotConfigModal";
+export { SignalDetailView } from "./sig_management/SignalDetail";
