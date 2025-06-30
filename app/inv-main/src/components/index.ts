@@ -10,3 +10,4 @@ export { BotConfigModal } from "./bot_mgt/BotConfigModal";
 export { SignalDetailView } from "./sig_mgt/SignalDetail";
 export { TransactionView } from "./his_mgt/Transaction";
 export { DataSourceDetailView } from "./dss_mgt/DatasourceDetail";
+export { BlockDefinitionDetailView } from "./blo_mgt/BlockDefinitionDetail";

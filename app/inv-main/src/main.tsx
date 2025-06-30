@@ -12,8 +12,10 @@ import HomePage from "./pages/HomePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import SignalsPage from "./pages/SignalsPage";
 import UserManagementPage from "./pages/UserManagementPage";
+import BlockManagerPage from "./pages/BlockManagerPage";
 import "./styles/index.css";
 import "./views/modals";
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -27,6 +29,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <Route path="/data/*" element={<DataPage />} />
       <Route path="/users/*" element={<UserManagementPage />} />
       <Route path="/algorithms/*" element={<AlgorithmDemoPage />} />
+      <Route path="/blocks/*" element={<BlockManagerPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </RjsApp>
   </React.StrictMode>
