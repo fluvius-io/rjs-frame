@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { ItemFooter, useItemView } from "rjs-admin";
+import { cn, ItemFooter, useItemView } from "rjs-admin";
 import { APIManager } from "rjs-frame";
 import "../Status.css";
 
@@ -76,7 +76,7 @@ export const BotInstanceDetailView = () => {
           <div>
             <div className="text-muted-foreground">Status</div>
             <div>
-              <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+              <span className={cn("px-2 py-0.5 rounded text-xs", `status-${botInstance.status.toLowerCase() || "inactive"}`)}>
                 {botInstance.status || "ACTIVE"}
               </span>
             </div>

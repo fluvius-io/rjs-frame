@@ -8,6 +8,7 @@ import {
   import { Header, BlockDefinitionDetailView } from "../components";
   import { cn } from "rjs-admin";
   import { formatMoney } from "../components/Helper";
+  import { useState } from "react";
   
   const blockDefinitionStatusFormatter = (status: string) => {
     const colorMap = {
@@ -31,7 +32,7 @@ import {
     return formatMoney(value, 'VND');
   };
   
-  const BlockDefinitionItemView = () => {
+  const BlockDefinitionItemView = ({ onRefresh }: { onRefresh: () => void }) => {
     const pageContext = usePageContext();
   
     if (!pageContext.pageParams.block_id) {
@@ -52,13 +53,19 @@ import {
         itemJsonView={false}
       >
         <ItemView.TabItem name="block-info" label="Block Info">
-          <BlockDefinitionDetailView />
+          <BlockDefinitionDetailView onRefresh={onRefresh} />
         </ItemView.TabItem>
       </ItemView>
     );
   };
   
   export default function BlockManagerPage() {
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+    const handleRefresh = () => {
+      setRefreshTrigger(prev => prev + 1);
+    };
+  
     return (
       <ThreeColumnLayout
         sidebarWidth="lg"
@@ -82,11 +89,13 @@ import {
   
         <PageModule slotName="main" className="h-full">
           <DataTable
+            key={refreshTrigger}
             resourceName="trade-manager:block-definition"
             className="no-border h-full"
             showHeaderTitle={false}
             queryState={{
               select: ["symbol", "name", "revision", "est_value", "status"],
+              sort: [{ field: "updated", direction: "desc" }],
             }}
             title="Blocks"
             description="Blocks are the blocks that are used to create the model."
@@ -101,7 +110,7 @@ import {
         </PageModule>
   
         <PageModule slotName="rightPanel">
-          <BlockDefinitionItemView />
+          <BlockDefinitionItemView onRefresh={handleRefresh} />
         </PageModule>
   
         <PageModule className="p-4" slotName="footer">

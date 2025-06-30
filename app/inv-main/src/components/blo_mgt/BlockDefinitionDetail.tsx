@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { cn, useItemView } from "rjs-admin";
-import { APIManager } from "rjs-frame";
+import { Button, cn, useItemView } from "rjs-admin";
+import { APIManager, updatePageParams } from "rjs-frame";
 import "../Status.css";
 import { formatMoney } from "../Helper";
 
-export const BlockDefinitionDetailView = () => {
+interface BlockDefinitionDetailViewProps {
+  onRefresh?: () => void;
+}
+
+export const BlockDefinitionDetailView = ({ onRefresh }: BlockDefinitionDetailViewProps) => {
   const { item } = useItemView();
   const [blockDefinition, setBlockDefinition] = useState<any>(null);
   const [blockComponents, setBlockComponents] = useState<any>(null);
@@ -43,6 +47,7 @@ export const BlockDefinitionDetailView = () => {
     return new Date(date).toLocaleString();
   };
 
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -51,6 +56,64 @@ export const BlockDefinitionDetailView = () => {
         <span className={cn("ml-2 px-2 py-0.5 rounded text-xs font-medium", `status-block-definition-${blockDefinition.status.toLowerCase()}`)}>
           {blockDefinition.status}
         </span>
+        <div className="flex gap-2 ml-auto">
+          {blockDefinition.status === "DRAFT" && (
+            <>
+              <Button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await APIManager.send(
+                      "trade-manager:publish-block-definition",
+                      {},
+                      { path: { resource: "block-definition", _id: item.id } }
+                    );
+                    // Refresh data
+                    const response = await APIManager.queryItem("trade-manager:block-definition", item.id);
+                    setBlockDefinition(response.data);
+                    // Trigger parent refresh
+                    onRefresh?.();
+                  } catch (error) {
+                    console.error("Failed to publish block definition:", error);
+                  }
+                }}
+              >
+                Publish
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  // Add edit logic here
+                }}
+              >
+                Edit
+              </Button>
+            </>
+          )}
+          {blockDefinition.status === "PUBLISHED" && (
+            <Button
+              type="button"
+              onClick={async () => {
+                try {
+                  await APIManager.send(
+                    "trade-manager:unpublish-block-definition",
+                    {},
+                    { path: { resource: "block-definition", _id: item.id } }
+                  );
+                  // Refresh data
+                  const response = await APIManager.queryItem("trade-manager:block-definition", item.id);
+                  setBlockDefinition(response.data);
+                  // Trigger parent refresh
+                  onRefresh?.();
+                } catch (error) {
+                  console.error("Failed to unpublish block definition:", error);
+                }
+              }}
+            >
+              Unpublish
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* General Info */}
