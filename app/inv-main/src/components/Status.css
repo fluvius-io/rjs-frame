@@ -92,3 +92,11 @@
 .status-data-source-out_of_date {
   @apply bg-red-100 text-red-800;
 }
+
+.status-block-definition-published {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-block-definition-draft {
+  @apply bg-gray-100 text-gray-800;
+}

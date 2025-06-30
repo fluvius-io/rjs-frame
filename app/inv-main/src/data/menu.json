@@ -87,6 +87,26 @@
       ]
     },
     {
+      "label": "Blocks",
+      "icon": "Block",
+      "href": "/blocks",
+      "description": "Blocks",
+      "submenu": [
+        {
+          "label": "Block Sources",
+          "icon": "Settings",
+          "href": "/blocks/-/sources",
+          "description": "Manage block sources"
+        },
+        {
+          "label": "Block Activity",
+          "icon": "Activity",
+          "href": "/blocks/-/activity",
+          "description": "View block usage"
+        }
+      ]
+    },
+    {
       "label": "Dashboard",
       "icon": "BarChart3",
       "href": "/portfolio",
