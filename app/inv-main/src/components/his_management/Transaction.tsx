@@ -4,6 +4,7 @@ import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useItemView } from "rjs-admin";
 import { APIManager } from "rjs-frame";
 import "../Status.css";
+import { formatMoney } from "../Helper";
 
 export const TransactionView = () => {
   const { item } = useItemView();
@@ -86,7 +87,7 @@ export const TransactionView = () => {
           </div>
           <div>
             <div className="text-muted-foreground">Price</div>
-            <div>{transaction.price}</div>
+            <div>{formatMoney(transaction.price, transaction.currency)}</div>
           </div>
           <div>
             <div className="text-muted-foreground">Match</div>
@@ -137,7 +138,7 @@ export const TransactionView = () => {
               {moneyTransaction?.map((mt: any, index: number) => (
                 <tr key={index} className="border-b last:border-0">
                   <td className="py-2 px-4">{mt.cr_account}</td>
-                  <td className="py-2 px-4">{mt.amount}</td>
+                  <td className="py-2 px-4">{formatMoney(mt.amount, mt.currency)}</td>
                   <td className="py-2 px-4">{mt.currency}</td>
                   <td className="py-2 px-4">{mt.note}</td>
                   <td className="py-2 px-4">{formatDate(mt.created)}</td>

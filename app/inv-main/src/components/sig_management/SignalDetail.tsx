@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useItemView } from "rjs-admin";
+import { cn, useItemView } from "rjs-admin";
 import { APIManager } from "rjs-frame";
 import "../Status.css";
+import { formatMoney } from "../Helper";
 
 export const SignalDetailView = () => {
   const { item } = useItemView();
@@ -165,9 +166,13 @@ export const SignalDetailView = () => {
               {signalEntry?.map((entry: any, idx: number) => (
                 <tr key={idx} className="border-t">
                   <td className="px-2 py-1">{entry.key}</td>
-                  <td className="px-2 py-1">{entry.mode}</td>
+                  <td className="px-2 py-1">
+                    <span className={cn("px-2 py-0.5 rounded text-xs", `status-signal-${entry.mode.toLowerCase()}`)}>
+                      {entry.mode}
+                    </span>
+                  </td>
                   <td className="px-2 py-1">{entry.confidence}</td>
-                  <td className="px-2 py-1">{entry.magnitube}</td>
+                  <td className="px-2 py-1">{formatMoney(entry.magnitube, entry.currency)}</td>
                   <td className="px-2 py-1">{formatDate(entry.created)}</td>
                 </tr>
               ))}

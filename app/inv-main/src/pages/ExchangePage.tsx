@@ -7,6 +7,7 @@ import {
 import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
 import { Header, TransactionView } from "../components";
 import { cn } from "rjs-admin";
+import { formatMoney } from "@/components/Helper";
 
 const transactionTypeFormatter = (status: string) => {
   const colorMap = {
@@ -121,6 +122,7 @@ export default function ExchangePage() {
           customFormatters={{
             type: transactionTypeFormatter,
             status: transactionStatusFormatter,
+            price: (value: number) => formatMoney(value),
           }}
         />
       </PageModule>
