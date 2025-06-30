@@ -31,10 +31,10 @@ export { UserProfileTab } from "./components/common/UserProfileTab";
 export { UserSettingsTab } from "./components/common/UserSettingsTab";
 
 // Form Components
-export { Input } from "./components/form/Input";
-export { createValidator, JSONForm } from "./components/form/JSONForm";
-export type { JSONFormProps } from "./components/form/JSONForm";
 export { default as AutoField } from "./components/form/AutoField";
+export { Input } from "./components/form/Input";
+export { JSONForm } from "./components/form/JSONForm";
+export type { JSONFormProps } from "./components/form/JSONForm";
 
 // Entity Components
 export { EntityFormat } from "./components/entity";
