@@ -1,7 +1,70 @@
 import { connectField, HTMLFieldProps } from "uniforms";
 import { Button } from "../common/Button";
-import React from "react";
+import React, { HTMLProps } from "react";
 import { cn } from "../../lib/utils";
+import { filterDOMProps, useForm } from 'uniforms';
+import { FilePlus2, PlusSquare } from "lucide-react";
+
+export type InputType = "text" | "number" | "checkbox" | "textarea" | "select" | "object" | "array";
+
+export interface InputFieldSpec {
+  type: InputType;
+  options: Record<string, any>;
+  default: any;
+}
+
+// Custom Error Field Component
+interface ErrorFieldProps {
+  children?: React.ReactNode;
+  error?: any;
+  errorMessage?: string;
+}
+
+export type ErrorsFieldProps = HTMLProps<HTMLDivElement>;
+
+interface ErrorDetail {
+  instancePath: string;
+  keyword: string;
+  message: string;
+  params: Record<string, any>;
+  schemaPath: string;
+}
+
+interface FormError {
+  details: ErrorDetail[];
+}
+
+function formatInstancePath(instancePath: string): string {
+  return instancePath
+    .split("/")
+    .filter(part => part.length > 0) // Remove empty parts from leading "/"
+    .map(part => {
+      // Convert camelCase to Title Case with spaces
+      return part
+        .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space before capital letters
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    })
+    .join(' > ');
+}
+
+export function ErrorsField(props: ErrorsFieldProps) {
+  const { error } = useForm() as { error: FormError };
+  console.log("ERRORS FIELD", error);
+  return !error && !props.children ? null : (
+    <div className="af-form-errors text-xs" {...filterDOMProps(props)}>
+      {props.children}
+      <ul>
+        {error.details.map((detail: ErrorDetail ) => {
+          const prefix = formatInstancePath(detail.instancePath);
+          const message = capitalizeFirstLetter(detail.message);
+          return <li key={detail.instancePath}><span className="font-bold">{prefix ? `${prefix}: ` : ""}</span> {message}</li>
+        })}
+      </ul>
+    </div>
+  );
+}
 
 export type AutoFieldProps = HTMLFieldProps<
   unknown,
@@ -11,11 +74,12 @@ export type AutoFieldProps = HTMLFieldProps<
     placeholder?: string; 
     required?: boolean; 
     error?: boolean;
+    field: Record<string, any>;
   }
 >;
 
 // Custom Submit Field Component
-export interface TailwindSubmitFieldProps {
+export interface SubmitFieldProps {
   disabled?: boolean;
   readOnly?: boolean;
   onSubmit?: () => void;
@@ -36,7 +100,7 @@ export interface TailwindSubmitFieldProps {
   className?: string;
 }
 
-export function TailwindSubmitField({
+export function SubmitField({
   disabled = false,
   readOnly = false,
   onSubmit,
@@ -47,25 +111,22 @@ export function TailwindSubmitField({
   cancelLabel = "Cancel",
   showCancel = true,
   showSave = false,
-  showReset = false,
+  showReset = true,
   customButtons = [],
   className = "",
-}: TailwindSubmitFieldProps) {
+}: SubmitFieldProps) {
   return (
-    <div className={`flex justify-end gap-2 pt-4 ${className}`}>
-      {/* Custom buttons */}
-      {customButtons.map((button, index) => (
-        <Button
-          key={index}
-          type={button.type || "button"}
-          variant={button.variant || "outline"}
-          onClick={button.onClick}
-          disabled={disabled || readOnly}
-        >
-          {button.label}
-        </Button>
-      ))}
+    <div className={`flex justify-start gap-2 border-t border-gray-200 pt-4 mt-4 ${className}`}>
 
+      {/* Submit button */}
+      <Button
+        type="submit"
+        variant="default"
+        onClick={onSubmit}
+        disabled={disabled || readOnly}
+      >
+        {submitLabel}
+      </Button>      
       {/* Reset button */}
       {showReset && (
         <Button
@@ -102,17 +163,29 @@ export function TailwindSubmitField({
         </Button>
       )}
 
-      {/* Submit button */}
-      <Button
-        type="submit"
-        variant="default"
-        onClick={onSubmit}
-        disabled={disabled || readOnly}
-      >
-        {submitLabel}
-      </Button>
+      {customButtons.length > 0 && <div className="flex-1 border-r border-gray-200"></div>}
+
+      {/* Custom buttons */}
+      {customButtons.map((button, index) => (
+        <Button
+          key={index}
+          type={button.type || "button"}
+          variant={button.variant || "outline"}
+          onClick={button.onClick}
+          disabled={disabled || readOnly}
+        >
+          {button.label}
+        </Button>
+      ))}
+
+
     </div>
   );
+}
+
+const capitalizeFirstLetter = (str: string | undefined) => {
+  if (!str) return "";
+  return str.trim().charAt(0).toUpperCase() + str.slice(1);
 }
 
 // Utility functions for the AutoField component
@@ -132,11 +205,46 @@ const SchemaUtils = {
     return String(val);
   },
 
-  getInputType: (val: any): string => {
+  getValueInputType: (val: any): InputType => {
     if (typeof val === 'number') return 'number';
     if (typeof val === 'boolean') return 'checkbox';
     if (typeof val === 'string' && val.length > 100) return 'textarea';
     return 'text';
+  },
+
+  getFieldInputType: (field: any, val: any): InputType | null => {
+    if (field.type === undefined) {
+      let anyOf = field.anyOf;
+      if (anyOf) {
+        let types = anyOf.filter((item: any) => item.type && item.type !== "null");
+        if (types.length == 1) {
+          return types[0].type;
+        } else {
+          console.warn("Multiple (non-null) types found for field. Use the first one.", field, val);
+          return types[0].type;
+        }
+      }
+      return null;
+    }
+    if (field.type === 'object') return 'object';
+    if (field.type === 'array') return 'array';
+    if (field.type === 'boolean') return 'checkbox';
+    return null;
+  },
+
+  getInputFieldSpec: (field: any, val: any): InputFieldSpec => {
+    let type = SchemaUtils.getFieldInputType(field, val) || SchemaUtils.getValueInputType(val);
+    let options = {};
+    if (field.enum instanceof Array) {
+      type = 'select';
+      options = Object.fromEntries(field.enum.map((item: any) => [item, item]));
+    }
+
+    return {
+      type,
+      options,
+      default: field.default
+    };
   },
 
   extractSchemaProperties: (field: any) => {
@@ -166,9 +274,7 @@ const SchemaUtils = {
     
     // In type property (some uniforms implementations)
     if (field.type?.additionalProperties === true) return true;
-    
-    console.log('Field schema for additionalProperties detection:', field);
-    
+       
     return false;
   }
 };
@@ -248,7 +354,7 @@ const InputComponents = {
   },
 
   createSelect: (props: any) => {
-    const { value, onChange, disabled, id, name, error, errorMessage } = props;
+    const { value = props.default, onChange, disabled, id, name, error, errorMessage, options = {} } = props;
     
     return (
       <select
@@ -263,8 +369,10 @@ const InputComponents = {
         id={id}
         name={name}
       >
-        <option value="">Select an option</option>
-        {/* Options will be populated by uniforms */}
+        <option value="">-- Select an option --</option>
+        {Object.entries(options).map(([key, value]) => (
+          <option key={key} value={key}>{value as string}</option>
+        ))}
       </select>
     );
   },
@@ -389,31 +497,34 @@ const ButtonComponents = {
   }
 };
 
-function AutoField({
-  label,
-  placeholder,
-  required,
-  error,
-  value,
-  onChange,
-  disabled,
-  readOnly,
-  type,
-  // Destructure uniforms-specific props to exclude them
-  changed,
-  errorMessage,
-  field,
-  fieldType,
-  fields,
-  id,
-  name,
-  showInlineError,
-  ...htmlProps
-}: AutoFieldProps) {
+function AutoField(props: AutoFieldProps) {
+  const {
+    label,
+    placeholder,
+    required,
+    error,
+    value,
+    onChange,
+    disabled,
+    readOnly,
+    type,
+    // Destructure uniforms-specific props to exclude them
+    changed,
+    errorMessage,
+    field,
+    fieldType,
+    fields,
+    id,
+    name,
+    showInlineError,
+    ...htmlProps
+  } = props;
+
   // State for managing new custom property input
   const [newPropertyKey, setNewPropertyKey] = React.useState('');
   const [newPropertyValue, setNewPropertyValue] = React.useState('');
   const [showAddProperty, setShowAddProperty] = React.useState(false);
+  const inputSpec = SchemaUtils.getInputFieldSpec(field, value);
 
   // Extract additionalProperties from the field schema
   const allowAdditionalProperties = React.useMemo(() => {
@@ -511,9 +622,9 @@ function AutoField({
   const renderObjectProperty = (key: string, val: any, propSchema: any, isSchemaProperty: boolean) => {
     let labelStr = propSchema?.title || key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')
     if (!isSchemaProperty) {
-      labelStr += " (+)";
+      labelStr = <span className="flex items-center gap-1"> <FilePlus2 className="w-4 h-4 text-gray-500" /> {labelStr}</span>;
     }
-    
+
     return (
       <div key={key} className="af-object-property">
         <div className="af-object-property-field">
@@ -521,7 +632,6 @@ function AutoField({
             label={labelStr}
             value={val}
             onChange={(newVal) => updateObjectProperty(key, newVal)}
-            type={SchemaUtils.getInputType(val)}
             disabled={disabled}
             readOnly={readOnly}
             id={`${id}_${key}`}
@@ -565,14 +675,13 @@ function AutoField({
               setNewPropertyValue('');
             }}
             disabled={disabled}
-            className="text-xs"
           >
             + Add Custom Property
           </ButtonComponents.createAddPropertyButton>
         ) : (
           <div className="af-additional-props-form">
-            <h5 className="af-additional-props-title text-x-small">Add Custom Property</h5>
-            <div className="af-additional-props-inputs text-xs">
+            <h5 className="af-additional-props-title flex items-center gap-1"><FilePlus2 className="w-4 h-4 text-gray-500" /> Add Custom Property</h5>
+            <div className="af-additional-props-inputs">
               <div className="af-additional-props-input-container">
                 {InputComponents.createBaseInput({
                   type: "text",
@@ -682,7 +791,6 @@ function AutoField({
             label={`Item ${index + 1}`}
             value={item}
             onChange={(newVal) => ArrayFieldHelpers.updateArrayItem(arr, index, newVal)}
-            type={SchemaUtils.getInputType(item)}
             disabled={disabled}
             readOnly={readOnly}
             id={`${id}_${index}`}
@@ -732,8 +840,9 @@ function AutoField({
   };
 
   const renderInput = () => {
+
     // Handle different input types
-    switch (type) {
+    switch (inputSpec.type) {
       case "select":
         return InputComponents.createSelect({
           value,
@@ -742,7 +851,8 @@ function AutoField({
           id,
           name,
           error,
-          errorMessage
+          errorMessage,
+          options: inputSpec.options
         });
 
       case "textarea":
@@ -760,7 +870,7 @@ function AutoField({
           errorMessage
         });
 
-      case "checkbox":
+        case "checkbox":
         return InputComponents.createCheckbox({
           value,
           onChange,
@@ -819,32 +929,40 @@ function AutoField({
     </div>
   );
 
-  const renderFieldLabel = (labelText: string, isRequired = false) => (
-    <label className={cn("af-label-base", isRequired ? "af-label-required" : "")}>
-      {labelText}
-    </label>
-  );
+  const renderFieldLabel = (labelText: string | undefined, isRequired = false) => {
+    if (!labelText) return null;
 
-  const renderErrorMessage = (message: string, isLarge = false) => (
-    <p className={isLarge ? "af-error-message-large" : "af-error-message"}>
-      {message}
-    </p>
-  );
+    return (
+      <label className={cn("af-label-base", isRequired ? "af-label-required" : "")}>
+        {labelText}
+      </label>
+    );
+  };
 
-  const renderSectionHeader = (labelText: string, countText: string, isRequired = false) => (
+  const renderErrorMessage = (message: string | undefined, isLarge = false) => {
+    if (!message) return null;
+
+    return (
+      <span className={isLarge ? "af-error-message-large" : "af-error-message"}>
+        {capitalizeFirstLetter(message)}
+      </span>
+    );
+  }
+
+  const renderSectionHeader = (labelText: string | undefined, countText: string, isRequired = false) => (
     <h4 className="af-section-header">
-      {labelText}
+      {labelText || "..."}
       {isRequired && <span className="text-red-500 ml-1">*</span>}
       <span className="af-section-counter">({countText})</span>
+      {renderErrorMessage(errorMessage, true)}
     </h4>
   );
 
   // For checkbox, don't render separate label
-  if (type === "checkbox") {
+  if (inputSpec.type === "checkbox") {
     return renderFieldContainer(
       <>
         {renderInput()}
-        {errorMessage && renderErrorMessage(errorMessage)}
       </>
     );
   }
@@ -857,9 +975,8 @@ function AutoField({
       
     return renderFieldContainer(
       <>
-        {label && renderSectionHeader(label, countText, required)}
+        {renderSectionHeader(label, countText, required)}
         {renderInput()}
-        {errorMessage && renderErrorMessage(errorMessage, true)}
       </>,
       true
     );
@@ -867,9 +984,9 @@ function AutoField({
 
   return renderFieldContainer(
     <>
-      {label && renderFieldLabel(label, required)}
+      {renderFieldLabel(label, required)}
       {renderInput()}
-      {errorMessage && renderErrorMessage(errorMessage)}
+      {renderErrorMessage(errorMessage)}
     </>
   );
 }

@@ -37,8 +37,9 @@
 }
 
 /* Label styles */
-.af-label-base {
-  @apply block text-small font-medium text-gray-700 mb-1;
+.af-label-base,
+.af-checkbox-label {
+  @apply block font-bold text-gray-700 mb-1;
 }
 
 .af-label-required::after {
@@ -74,7 +75,7 @@
 
 /* Button styles */
 .af-button-remove {
-  @apply mt-6 px-3 py-2 text-red-600 hover:text-red-800  border rounded-md hover:bg-red-50;
+  @apply mt-7 px-3 py-2 text-red-600 hover:text-red-800  border rounded-md hover:bg-red-50;
 }
 
 .af-button-add-property {
@@ -95,7 +96,7 @@
 
 /* Section headers */
 .af-section-header {
-  @apply font-semibold text-gray-800 mb-3 pb-1 border-b border-gray-200;
+  @apply font-semibold text-gray-800 mb-3 pb-1 border-b border-gray-200 flex items-center;
 }
 
 .af-section-counter {
@@ -112,7 +113,7 @@
 }
 
 .af-additional-props-title {
-  @apply font-medium text-small text-gray-700;
+  @apply font-medium text-gray-700;
 }
 
 .af-additional-props-inputs {
@@ -129,11 +130,11 @@
 
 /* Error message */
 .af-error-message {
-  @apply mt-1 text-x-small text-red-600;
+  @apply text-small text-red-600 flex-1 text-right font-normal;
 }
 
 .af-error-message-large {
-  @apply mt-2 text-x-small text-red-600;
+  @apply  text-red-600 text-small flex-1 text-right font-normal;
 }
 
 /* Checkbox container */
@@ -146,10 +147,55 @@
 }
 
 .af-checkbox-label {
-  @apply ml-2 text-x-small text-gray-700;
+  @apply ml-2 text-gray-700;
 }
 
 .af-checkbox-required::after {
   @apply text-red-500 ml-1;
   content: '*';
+}
+
+/* Form validation errors */
+.af-form-errors {
+  @apply mt-4 p-2 bg-red-50 border border-red-200 rounded-md;
+}
+
+.af-form-errors ul {
+  @apply list-decimal list-inside space-y-1 text-red-700;
+}
+
+/* Style existing uniforms error structure */
+form > div:last-child > div > ul {
+  @apply mt-4 p-4 bg-red-50 border border-red-200 rounded-md list-disc list-inside space-y-1 text-sm text-red-700;
+}
+
+form > div:last-child > div > ul li {
+  @apply text-red-600;
+}
+
+/* Enhanced form error styling */
+form > div[role="alert"] {
+  @apply mt-4 p-4 bg-red-50 border border-red-200 rounded-md;
+}
+
+/* Success messages */
+.form-success {
+  @apply mt-4 p-4 bg-green-50 border border-green-200 rounded-md text-green-700;
+}
+
+/* Form structure styling */
+.af-form-container {
+  @apply bg-white;
+}
+
+.af-form-fields {
+  @apply space-y-4;
+}
+
+.af-form-actions {
+  @apply mt-6 pt-4 border-t border-gray-200;
+}
+
+.af-form-errors-section {
+  @apply mt-4;
 } 

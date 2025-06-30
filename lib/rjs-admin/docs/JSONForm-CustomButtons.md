@@ -27,16 +27,16 @@ import { JSONForm } from "rjs-admin";
 
 ## Using Built-in Submit Field
 
-The easiest way to customize buttons is using the built-in `TailwindSubmitField` component:
+The easiest way to customize buttons is using the built-in `SubmitField` component:
 
 ### Basic Customization
 
 ```tsx
-import { JSONForm, TailwindSubmitField } from "rjs-admin";
+import { JSONForm, SubmitField } from "rjs-admin";
 
 <JSONForm
   schema={userSchema}
-  submitField={TailwindSubmitField}
+  submitField={SubmitField}
   submitFieldProps={{
     submitLabel: "Create User",
     cancelLabel: "Go Back",
@@ -55,7 +55,7 @@ import { JSONForm, TailwindSubmitField } from "rjs-admin";
 ```tsx
 <JSONForm
   schema={userSchema}
-  submitField={TailwindSubmitField}
+  submitField={SubmitField}
   submitFieldProps={{
     submitLabel: "Publish Product",
     customButtons: [
@@ -80,10 +80,10 @@ import { JSONForm, TailwindSubmitField } from "rjs-admin";
 />
 ```
 
-### TailwindSubmitFieldProps Interface
+### SubmitFieldProps Interface
 
 ```tsx
-interface TailwindSubmitFieldProps {
+interface SubmitFieldProps {
   disabled?: boolean;
   readOnly?: boolean;
   onSubmit?: () => void;
@@ -176,7 +176,7 @@ function ModalWithCustomButtons() {
         open={open}
         onOpenChange={setOpen}
         schema={userSchema}
-        submitField={TailwindSubmitField}
+        submitField={SubmitField}
         submitFieldProps={{
           submitLabel: "Create & Close",
           showSave: true,
@@ -210,7 +210,7 @@ function ModalWithCustomButtons() {
 ```tsx
 <JSONForm
   schema={documentSchema}
-  submitField={TailwindSubmitField}
+  submitField={SubmitField}
   submitFieldProps={{
     submitLabel: "Publish",
     showSave: true,
@@ -237,7 +237,7 @@ function ModalWithCustomButtons() {
 <JSONForm
   schema={userSchema}
   data={existingUser}
-  submitField={TailwindSubmitField}
+  submitField={SubmitField}
   submitFieldProps={{
     submitLabel: "Save Changes",
     showReset: true,
@@ -288,7 +288,7 @@ function ConditionalButtonsForm({ userRole, formData }) {
     <JSONForm
       schema={schema}
       data={formData}
-      submitField={TailwindSubmitField}
+      submitField={SubmitField}
       submitFieldProps={{
         customButtons: getCustomButtons(),
       }}

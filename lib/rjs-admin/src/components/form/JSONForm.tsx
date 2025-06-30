@@ -5,8 +5,10 @@ import { JSONSchemaBridge } from "uniforms-bridge-json-schema";
 import { AutoField as UniformsAutoField, AutoForm } from "uniforms-unstyled";
 import { Button } from "../common/Button";
 import AutoField, {
-  TailwindSubmitField,
-  TailwindSubmitFieldProps,
+  SubmitField,
+  SubmitFieldProps,
+  ErrorsField,
+  ErrorsFieldProps,
 } from "./AutoField";
 import { createValidator } from "./validator";
 
@@ -28,7 +30,9 @@ export interface JSONFormProps {
   readOnly?: boolean;
   // Submit field customization
   submitField?: React.ComponentType<any>;
-  submitFieldProps?: Partial<TailwindSubmitFieldProps>;
+  errorsField?: React.ComponentType<any>;
+  errorsFieldProps?: Partial<ErrorsFieldProps>;
+  submitFieldProps?: Partial<SubmitFieldProps>;
   hideDefaultButtons?: boolean;
 }
 
@@ -50,6 +54,8 @@ export function JSONForm(props: JSONFormProps) {
     disabled = false,
     readOnly = false,
     submitField,
+    errorsField,
+    errorsFieldProps = {},
     submitFieldProps = {},
     hideDefaultButtons = false,
   } = props;
@@ -107,6 +113,23 @@ export function JSONForm(props: JSONFormProps) {
     onSubmit?.(formData);
   };
 
+  // Format error messages to capitalize first letter
+  React.useEffect(() => {
+    const formatErrorMessages = () => {
+      const errorElements = document.querySelectorAll('form ul li');
+      errorElements.forEach((element) => {
+        const text = element.textContent;
+        if (text && text.length > 0) {
+          element.textContent = text.charAt(0).toUpperCase() + text.slice(1);
+        }
+      });
+    };
+
+    // Run formatting after component updates
+    const timeoutId = setTimeout(formatErrorMessages, 100);
+    return () => clearTimeout(timeoutId);
+  });
+
   const handleCancel = () => {
     onCancel?.();
     if (modal && onOpenChange) {
@@ -115,7 +138,7 @@ export function JSONForm(props: JSONFormProps) {
   };
 
   // Create custom submit field component with props
-  const CustomSubmitField = submitField || TailwindSubmitField;
+  const CustomSubmitField = submitField || SubmitField;
   const submitFieldComponent = () => (
     <CustomSubmitField
       disabled={disabled}
@@ -125,30 +148,51 @@ export function JSONForm(props: JSONFormProps) {
     />
   );
 
+  const CustomErrorsField = errorsField || ErrorsField;
+  const errorsFieldComponent = () => (
+    <CustomErrorsField
+      disabled={disabled}
+      readOnly={readOnly}
+      name="errors"
+      {...errorsFieldProps}
+    />
+  );
+
+  
   const renderForm = () => (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`af-form-container space-y-4 ${className}`}>
       {topContent && <div className="mb-4">{topContent}</div>}
 
       <UniformsAutoField.componentDetectorContext.Provider
         value={() => AutoField}
       >
-        <AutoForm
-          schema={bridge}
-          model={data}
-          onSubmit={handleSubmit}
-          validate={validate}
-          showInlineError={showInlineError}
-          disabled={disabled}
-          readOnly={readOnly}
-          submitField={submitField ? submitFieldComponent : undefined}
-        />
+        <div className="af-form-fields">
+          <AutoForm
+            schema={bridge}
+            model={data}
+            onSubmit={handleSubmit}
+            validate={validate}
+            showInlineError={showInlineError}
+            disabled={disabled}
+            readOnly={readOnly}
+            submitField={submitFieldComponent}
+            errorsField={errorsFieldComponent}
+          />
+        </div>
       </UniformsAutoField.componentDetectorContext.Provider>
 
       {bottomContent && <div className="mt-4">{bottomContent}</div>}
 
+      {/* Custom submit field
+      {CustomSubmitField && (
+        <div className="af-form-actions">
+          {submitFieldComponent()}
+        </div>
+      )} */}
+
       {/* Default buttons - only show if not using custom submit field and not explicitly hidden */}
-      {!submitField && !hideDefaultButtons && (
-        <div className="flex justify-end gap-2 pt-4">
+      {!CustomSubmitField && !hideDefaultButtons && (
+        <div className="af-form-actions flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={handleCancel}>
             Cancel
           </Button>

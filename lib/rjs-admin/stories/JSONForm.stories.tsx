@@ -4,7 +4,7 @@ import { Button } from "../src/components/common/Button";
 import {
   createValidator,
   JSONForm,
-  TailwindSubmitField,
+  SubmitField,
 } from "../src/components/form";
 
 const meta: Meta<typeof JSONForm> = {
@@ -342,7 +342,7 @@ export const CustomSubmitButtons: Story = {
   args: {
     schema: userSchema,
     title: "Form with Custom Submit Buttons",
-    submitField: TailwindSubmitField,
+    submitField: SubmitField,
     submitFieldProps: {
       submitLabel: "Create User",
       cancelLabel: "Go Back",
@@ -372,7 +372,7 @@ export const AdminFormButtons: Story = {
   args: {
     schema: userSchema,
     title: "Admin User Management",
-    submitField: TailwindSubmitField,
+    submitField: SubmitField,
     submitFieldProps: {
       submitLabel: "Save Changes",
       cancelLabel: "Cancel",
@@ -411,7 +411,7 @@ export const WorkflowButtons: Story = {
   args: {
     schema: productSchema,
     title: "Product Workflow",
-    submitField: TailwindSubmitField,
+    submitField: SubmitField,
     submitFieldProps: {
       submitLabel: "Publish Product",
       cancelLabel: "Discard",
@@ -444,7 +444,7 @@ export const HiddenDefaultButtons: Story = {
     onSubmit: (data) => console.log("Form submitted:", data),
     onCancel: () => console.log("Form cancelled"),
     bottomContent: (
-      <div className="flex justify-between items-center pt-4 border-t">
+      <div className="flex justify-between items-center border-t">
         <div className="text-sm text-gray-500">
           Form will auto-save every 30 seconds
         </div>
@@ -584,7 +584,7 @@ export const ModalWithCustomButtons: Story = {
     title: "Modal with Custom Submit Buttons",
     modal: true,
     open: false,
-    submitField: TailwindSubmitField,
+    submitField: SubmitField,
     submitFieldProps: {
       submitLabel: "Create & Close",
       cancelLabel: "Cancel",
