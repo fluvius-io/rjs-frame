@@ -52,15 +52,6 @@ const botStatusFormatter = (status: string) => {
   );
 };
 
-const botStatusTransition = (status: string) => {
-  const transitionMap = {
-    DRAFT: "RUNNING",
-    RUNNING: "PAUSED",
-    PAUSED: "RUNNING",
-    INACTIVE: "RUNNING",
-  };
-  return transitionMap[status as keyof typeof transitionMap] || "INACTIVE";
-};
 
 const BotItemView = () => {
   const pageContext = usePageContext();

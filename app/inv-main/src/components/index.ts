@@ -11,3 +11,4 @@ export { SignalDetailView } from "./sig_mgt/SignalDetail";
 export { TransactionView } from "./his_mgt/Transaction";
 export { DataSourceDetailView } from "./dss_mgt/DatasourceDetail";
 export { BlockDefinitionDetailView } from "./blo_mgt/BlockDefinitionDetail";
+export { BlockDefinitionConfigModal } from "./blo_mgt/BlockDefinitionConfigModal";
