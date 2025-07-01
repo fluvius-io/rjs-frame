@@ -277,9 +277,9 @@ export default function BotManager() {
         <BotConfigModal
           open={showBotConfigModal}
           onClose={(results: any) => {
-            if (results.success && results.data?.[0]?._id) {
+            if (results.success && results.data?.[0]?.bot_id) {
               console.log("Bot run result:", results);
-              const newBotId = results.data[0]._id;
+              const newBotId = results.data?.[0]?.bot_id;
               updatePageParams({
                 bot_id: newBotId,
                 status: "RUNNING",
