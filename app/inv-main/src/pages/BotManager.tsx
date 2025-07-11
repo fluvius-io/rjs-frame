@@ -53,15 +53,6 @@ const botStatusFormatter = (status: string) => {
   );
 };
 
-const botStatusTransition = (status: string) => {
-  const transitionMap = {
-    DRAFT: "RUNNING",
-    RUNNING: "PAUSED",
-    PAUSED: "RUNNING",
-    INACTIVE: "RUNNING",
-  };
-  return transitionMap[status as keyof typeof transitionMap] || "INACTIVE";
-};
 
 const BotItemView = (props: any) => {
   const pageContext = usePageContext();
@@ -282,9 +273,9 @@ export default function BotManager() {
         <BotConfigModal
           open={showBotConfigModal}
           onClose={(results: any) => {
-            if (results.success && results.data?.[0]?._id) {
+            if (results.success && results.data?.[0]?.bot_id) {
               console.log("Bot run result:", results);
-              const newBotId = results.data[0]._id;
+              const newBotId = results.data?.[0]?.bot_id;
               updatePageParams({
                 bot_id: newBotId,
                 status: "RUNNING",

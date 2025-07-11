@@ -4,62 +4,84 @@ import {
     QueryBuilderPanel,
     ThreeColumnLayout,
   } from "rjs-admin";
-  import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
-  import { Header, BlockDefinitionDetailView } from "../components";
-  import { cn } from "rjs-admin";
-  import { formatMoney } from "../components/Helper";
-  
-  const blockDefinitionStatusFormatter = (status: string) => {
-    const colorMap = {
-      PUBLISHED: "status-block-definition-published",
-      DRAFT: "status-block-definition-draft",
-    };
-  
+import { PageModule, updatePageParams, usePageContext } from "rjs-frame";
+import { Header, BlockDefinitionDetailView } from "../components";
+import { cn } from "rjs-admin";
+import { formatMoney } from "../components/Helper";
+import { useState } from "react";
+import { FilePlus } from "lucide-react";
+import { BlockDefinitionConfigModal } from "../components";
+
+const blockDefinitionStatusFormatter = (status: string) => {
+  const colorMap = {
+    PUBLISHED: "status-block-definition-published",
+    DRAFT: "status-block-definition-draft",
+  };
+
+  return (
+    <div
+      className={cn(
+        "text-center text-xs font-medium border-gray-200 rounded-md p-1 w-20",
+        colorMap[status as keyof typeof colorMap] || "text-gray-400 bg-gray-100"
+      )}
+    >
+      {status}
+    </div>
+  );
+};
+
+const baseValueFormatter = (value: number) => {
+  return formatMoney(value, 'VND');
+};
+
+const BlockDefinitionItemView = ({ onRefresh }: { onRefresh: () => void }) => {
+  const pageContext = usePageContext();
+
+  if (!pageContext.pageParams.block_id) {
     return (
-      <div
-        className={cn(
-          "text-center text-xs font-medium border-gray-200 rounded-md p-1 w-20",
-          colorMap[status as keyof typeof colorMap] || "text-gray-400 bg-gray-100"
-        )}
-      >
-        {status}
+      <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
+        No block selected
       </div>
     );
+  }
+
+  const itemId = pageContext.pageParams.block_id as string;
+  return (
+    <ItemView
+      itemId={itemId}
+      resourceName="trade-manager:block-definition"
+      className="no-border h-full"
+      defaultTab="block-info"
+      itemJsonView={false}
+    >
+      <ItemView.TabItem name="block-info" label="Block Info">
+        <BlockDefinitionDetailView onRefresh={onRefresh} />
+      </ItemView.TabItem>
+    </ItemView>
+  );
+};
+
+export default function BlockManagerPage() {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showBlockDefinitionConfigModal, setShowBlockDefinitionConfigModal] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
   };
-  
-  const baseValueFormatter = (value: number) => {
-    return formatMoney(value, 'VND');
-  };
-  
-  const BlockDefinitionItemView = () => {
-    const pageContext = usePageContext();
-  
-    if (!pageContext.pageParams.block_id) {
-      return (
-        <div className="h-full flex items-center justify-center p-6 text-muted-foreground">
-          No block selected
-        </div>
-      );
-    }
-  
-    const itemId = pageContext.pageParams.block_id as string;
-    return (
-      <ItemView
-        itemId={itemId}
-        resourceName="trade-manager:block-definition"
-        className="no-border h-full"
-        defaultTab="block-info"
-        itemJsonView={false}
-      >
-        <ItemView.TabItem name="block-info" label="Block Info">
-          <BlockDefinitionDetailView />
-        </ItemView.TabItem>
-      </ItemView>
-    );
-  };
-  
-  export default function BlockManagerPage() {
-    return (
+
+  const tableActions = [
+    {
+      label: "Add Block",
+      className: "dt-query-builder-trigger button-primary text-nowrap",
+      icon: <FilePlus className="w-4 h-4" />,
+      onClick: () => {
+        setShowBlockDefinitionConfigModal(true);
+      },
+    },
+  ];
+
+  return (
+    <>
       <ThreeColumnLayout
         sidebarWidth="lg"
         slotClasses={{
@@ -69,7 +91,7 @@ import {
         }}
       >
         <Header slotName="header" />
-  
+
         <PageModule slotName="sidebar">
           <QueryBuilderPanel
             fields={[
@@ -79,14 +101,16 @@ import {
             className="no-border h-full"
           />
         </PageModule>
-  
+
         <PageModule slotName="main" className="h-full">
           <DataTable
+            key={refreshTrigger}
             resourceName="trade-manager:block-definition"
             className="no-border h-full"
             showHeaderTitle={false}
             queryState={{
               select: ["symbol", "name", "revision", "est_value", "status"],
+              sort: [{ field: "updated", direction: "desc" }],
             }}
             title="Blocks"
             description="Blocks are the blocks that are used to create the model."
@@ -97,13 +121,14 @@ import {
               est_value: baseValueFormatter,
               status: blockDefinitionStatusFormatter,
             }}
+            tableActions={tableActions}
           />
         </PageModule>
-  
+
         <PageModule slotName="rightPanel">
-          <BlockDefinitionItemView />
+          <BlockDefinitionItemView onRefresh={handleRefresh} />
         </PageModule>
-  
+
         <PageModule className="p-4" slotName="footer">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <p>&copy; 2025 Invest Mate (invest-mate.net). All rights reserved.</p>
@@ -111,6 +136,21 @@ import {
           </div>
         </PageModule>
       </ThreeColumnLayout>
-    );
-  }
-  
+
+      {showBlockDefinitionConfigModal && (
+        <BlockDefinitionConfigModal
+          open={showBlockDefinitionConfigModal}
+          onClose={(result: any) => {
+            setShowBlockDefinitionConfigModal(false);
+            if (result) {
+              updatePageParams({ block_id: result.id });
+            }
+          }}
+          onRun={(params: Record<string, any>) => {
+            console.log("Block definition created successfully:", params);
+          }}
+        />
+      )}
+    </>
+  );
+}
