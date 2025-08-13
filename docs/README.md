@@ -2,6 +2,8 @@
 
 Welcome to the rjs-frame documentation! This framework provides a powerful system for building modular React applications with dynamic page layouts.
 
+Copyright (c) 2025 [River Flow Solutions, Jsc.](https://riverflow.solutions)
+
 ## 📚 Documentation Structure
 
 ### 🚀 [Getting Started](./guides/)
