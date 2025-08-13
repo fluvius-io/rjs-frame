@@ -1,43 +1,42 @@
 {
-  "name": "rfx-frontend",
-  "version": "1.0.0",
+  "name": "rjs-frame",
+  "version": "0.1.0",
   "private": true,
-  "description": "RJS Framework Frontend - Monorepo with libraries and demo apps",
-  "workspaces": [
-    "lib/*",
-    "demo/*"
+  "type": "module",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
-    "build:libs": "npm run build --workspace=lib/rjs-frame --workspace=lib/rjs-admin",
-    "build:apps": "npm run build --workspace=demo/rjs-demo --workspace=demo/rjs-shadcn",
-    "dev:demo": "npm run dev --workspace=demo/rjs-demo",
-    "dev:shadcn": "npm run dev --workspace=demo/rjs-shadcn",
-    "dev:frame": "npm run dev --workspace=lib/rjs-frame",
-    "dev:admin": "npm run dev --workspace=lib/rjs-admin",
-    "storybook": "npm run storybook --workspace=lib/rjs-admin",
-    "storybook:build": "npm run build-storybook --workspace=lib/rjs-admin",
-    "preview": "npm run preview --workspaces --if-present",
-    "clean": "rm -rf node_modules lib/*/node_modules demo/*/node_modules",
-    "clean:dist": "rm -rf lib/*/dist demo/*/dist",
-    "test:api": "node tests/api-simple.test.mjs",
-    "test:api:full": "node tests/api-manager.test.mjs",
-    "test:api:cache": "node tests/api-queryMeta.test.mjs",
-    "test:config": "node tests/config-manager.test.mjs"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.24",
-    "ts-node": "^10.9.2",
-    "typescript": "~5.8.3"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "build": "vite build",
+    "dev": "vite build --watch"
   },
   "dependencies": {
-    "@radix-ui/themes": "^3.2.1",
-    "@rjsf/bootstrap-4": "^5.24.12",
-    "@rjsf/core": "^5.24.12"
+    "@nanostores/react": "^1.0.0",
+    "nanostores": "^1.0.1",
+    "short-uuid": "^4.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.4",
+    "postcss-custom-properties": "^14.0.5",
+    "postcss-import": "^16.1.0",
+    "postcss-nested": "^7.0.2",
+    "postcss-nested-ancestors": "^3.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vite-plugin-dts": "^3.7.3"
+  },
+  "peerDependencies": {
+    "@types/react-router-dom": "^5.3.3",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "react-router-dom": "^7.6.1"
   }
 }
